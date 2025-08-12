@@ -1,0 +1,16 @@
+{
+  "name": "shatterpoint-online",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "npm -w apps/server run build && npm -w apps/client run build",
+    "dev:server": "npm -w apps/server run dev",
+    "dev:client": "npm -w apps/client run dev",
+    "scrape": "npm -w scripts run scrape"
+  }
+}
