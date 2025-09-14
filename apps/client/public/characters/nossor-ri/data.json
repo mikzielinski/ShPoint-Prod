@@ -1,0 +1,25 @@
+{
+  "id": "nossor-ri",
+  "url": "https://shatterpointdb.com/characters/nossor-ri",
+  "name": "Nossor Ri",
+  "portrait": "https://shatterpointdb.com/media/kldgejfv/shatterpoint-nossor-ri-unit-card.png?height=600&v=1dbf5c89e09d370",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Scatter",
+      "text": "At the start of this Unit's activation, choose this Unit or another allied Separatist Alliance or Scoundrel Unit. One character in the chosen Unit may . If the chosen Unit has one or more , one character in that Unit may instead . Riptide When a character in this Unit or another allied Separatist Alliance character makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 1 die to the attack roll for each allied Aquatic Unit, other than the attacking Unit, that is within 5 and LOS of the target. Opportunistic Unsurper When you reveal this Unit's Order Card, if you have an Order Card in reserve, you may put that card on the top or bottom of your Order Deck. If you do, put this Unit's Order Card in reserve. Additionally, while this Unit's Order Card is in the Order Deck or in reserve, characters in this Unit cannot be targeted by attack."
+    },
+    {
+      "title": "Separatist Alliance",
+      "text": "At the start of this Unit's activation, choose this Unit or another allied  or Scoundrel Unit. One character in the chosen Unit may . If the chosen Unit has one or more , one character in that Unit may instead ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897059
+  }
+}

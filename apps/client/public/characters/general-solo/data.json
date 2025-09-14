@@ -1,0 +1,25 @@
+{
+  "id": "general-solo",
+  "url": "https://shatterpointdb.com/characters/general-solo",
+  "name": "General Solo",
+  "portrait": "https://shatterpointdb.com/media/440porm3/shatterpoint-general-solo-unit-card.png?height=600&v=1da9c1053694a70",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Then we'll do it real quiet like",
+      "text": "At the start of this Unit's activation, choose another Rebel Alliance character. If the chosen character's Unit Order Card is in the Order Deck or in reserve, each character in this Unit and the chosen character may . Otherwise, each character in this Unit and the chosen character may . Outnumbered, not outgunned After a character in this Unit makes an attack as part of a combat action, this Unit may use this ability. One character in this Unit may make a 5 dice attack targeting a character in a different enemy Unit. Let's keep a little optimism here When an allied Unit is Wounded by an enemy effect, after the effect is resolved, this Unit may use this ability. If your opponent has more Momentum than you, gain a Momentum. Hey, it's me Once per Turn, when an enemy Unit becomes Wounded, after the effect is resolved, remove one condition from this Unit. Then, one character in this Unit may . Once per Turn, When an allied Unit is Wounded by an enemy character, after the effect is resolved, one character in this Unit may make a 5 dice attack targeting the enemy character that caused the effect."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "At the start of this Unit's activation, choose another  character. If the chosen character's Unit Order Card is in the Order Deck or in reserve, each character in this Unit and the chosen character may . Otherwise, each character in this Unit and the chosen character may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897028
+  }
+}

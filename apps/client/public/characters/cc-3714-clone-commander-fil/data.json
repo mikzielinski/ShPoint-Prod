@@ -1,0 +1,33 @@
+{
+  "id": "cc-3714-clone-commander-fil",
+  "url": "https://shatterpointdb.com/characters/cc-3714-clone-commander-fil",
+  "name": "CC-3714 Clone Commander Fil",
+  "portrait": "https://shatterpointdb.com/media/44vf2sdw/shatterpoint-cc-3714-clone-commander-fil-unit-card.png?height=600&v=1db7e581633b1b0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Grappling Hook",
+      "text": "Each character in this Unit may . If any characters , this Unit gains . We can take him down easy When a character in this Unit makes an attack targeting an enemy Primary character, this Unit may use this ability. Add 2 dice to the attack roll. We specialize in making entrances When a character in an allied Fil's Squad Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the defending character is within 2 of an Active objective, one allied Jedi character may Toward that objective. Commanding Presence When an allied Galactic Republic Trooper character within 3 would gain a condition, it may instead suffer ."
+    },
+    {
+      "title": "Primary",
+      "text": "When a character in this Unit makes an attack targeting an enemy  character, this Unit may use this ability. Add 2 dice to the attack roll."
+    },
+    {
+      "title": "Fil's Squad",
+      "text": "When a character in an allied  Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the defending character is within 2 of an Active objective, one allied Jedi character may Toward that objective."
+    },
+    {
+      "title": "Galactic Republic Trooper",
+      "text": "When an allied  character within 3 would gain a condition, it may instead suffer ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896998
+  }
+}

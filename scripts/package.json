@@ -7,12 +7,31 @@
     "scrape": "tsx scrape-shatterpointdb.ts"
   },
   "dependencies": {
+    "@fastify/cookie": "^8.3.0",
+    "@fastify/jwt": "^7.2.4",
+    "@prisma/client": "^6.15.0",
+    "bcrypt": "^6.0.0",
     "cheerio": "^1.0.0-rc.12",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "p-limit": "^5.0.0",
-    "undici": "^6.19.8"
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "undici": "^6.19.8",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "concurrently": "^9.2.0",
+    "cross-env": "^10.0.0",
+    "prisma": "^6.15.0",
     "tsx": "^4.15.7",
-    "typescript": "^5.5.4"
+    "typescript": "^5.9.2",
+    "wait-on": "^8.0.4"
   }
 }

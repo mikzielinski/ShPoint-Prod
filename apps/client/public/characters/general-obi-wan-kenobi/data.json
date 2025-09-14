@@ -1,0 +1,25 @@
+{
+  "id": "general-obi-wan-kenobi",
+  "url": "https://shatterpointdb.com/characters/general-obi-wan-kenobi",
+  "name": "General Obi-Wan Kenobi",
+  "portrait": "https://shatterpointdb.com/media/ih4jfp2m/star-wars-obi-wan-kenobi-unit-card-clear-1.png?height=600&v=1d981df4356ea80",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Hello There!",
+      "text": "One character in this Unit may . If it does, that character adds 3 dice to its next attack roll during this activation. So Uncivilized.... When a character in this Unit is targeted by a attack, this Unit may use this ability.\nThis Unit gains . After the attack is resolved, if the attack roll contained one or more [failed] results, the attacking Unit suffers . Patience When you reveal this Unit's Order Card, if you have an Order Card in reserve, you may put that card on the top or bottom of your Order Deck. If you do, put this Unit's Order Card in reserve.\nWhen this Unit's Order Card is put in reserve, one character in this Unit may and . Knowledge and Defense Allied Units do not lose their when characters in them become Engaged and can gain and have while they have Engaged characters. While an allied Galactic Republic Unit has one or more , it adds 1 die to its defense rolls against melee attacks. After an attack targeting a character in an allied Galactic Republic Unit is resolved, that character's Unit may remove all of its . If it does, one character in that unit may for each removed. Then each character that may ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "Allied Units do not lose their when characters in them become Engaged and can gain and have while they have Engaged characters. While an allied  Unit has one or more , it adds 1 die to its defense rolls against melee attacks. After an attack targeting a character in an allied Galactic Republic Unit is resolved, that character's Unit may remove all of its . If it does, one character in that unit may for each removed. Then each character that may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897028
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "moff-gideon",
+  "url": "https://shatterpointdb.com/characters/moff-gideon",
+  "name": "Moff Gideon",
+  "portrait": "https://shatterpointdb.com/media/tqvf04co/shatterpoint-moff-gideon-unit-card.png?height=600&v=1da6a851f6eca40",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "[tactical] Smug Determination",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Empire character within 4. Each character in this Unit and the chosen character may . Long Live the Empire Choose an Active objective and an allied Galactic Empire Supporting Unit . One character in the chosen Unit may Toward that objective. Then the chosen Unit suffers . If this effect Wounds the chosen Unit, that Unit may remove one Wounded token, all , and one condition from itself. If it does, that Unit gains an Injured token. Assume that I know everything When an opposing player would spend to place a Unit's Order Card in reserve, they must spend 1 additional . You have something I want When an allied Galactic Empire character performs a attack as part of a combat action, if the defender is contesting an Active objective that you do not control, add one die to the attack roll. Additionally, when determining control of an Active objective that a character in this Unit is contesting, if there is a tie, this Unit's controlling player takes control of the objective."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "At the start of this Unit's activation, choose an allied  character within 4. Each character in this Unit and the chosen character may ."
+    },
+    {
+      "title": "Galactic Empire Supporting Unit",
+      "text": "Choose an Active objective and an allied  . One character in the chosen Unit may Toward that objective. Then the chosen Unit suffers . If this effect Wounds the chosen Unit, that Unit may remove one Wounded token, all , and one condition from itself. If it does, that Unit gains an Injured token."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897056
+  }
+}

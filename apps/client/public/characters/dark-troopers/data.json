@@ -1,0 +1,29 @@
+{
+  "id": "dark-troopers",
+  "url": "https://shatterpointdb.com/characters/dark-troopers",
+  "name": "Dark Troopers",
+  "portrait": "https://shatterpointdb.com/media/sa2e45ux/shatterpoint-dark-troopers-abilities-new.jpg",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Jump boots",
+      "text": "Each character in this Unit may . Coordinated Fire: [strain] When a character in another allied Galactic Empire Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit gains [strain]. Immovable Characters in this Unit cannot be Pushed or Pulled by abilities. Unrelenting Characters in this Unit have Protection and Immunity[ ]."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit gains [strain]."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  and Immunity[ ]."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897010
+  }
+}

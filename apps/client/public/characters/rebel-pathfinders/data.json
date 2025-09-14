@@ -1,0 +1,29 @@
+{
+  "id": "rebel-pathfinders",
+  "url": "https://shatterpointdb.com/characters/rebel-pathfinders",
+  "name": "Rebel Pathfinders",
+  "portrait": "https://shatterpointdb.com/media/onipajlx/shatterpoint-rebel-pathfinders-character.png?height=600&v=1db8e89e6c70cf0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Defensive Maneuver",
+      "text": "Each character in this Unit may . If any characters , this Unit gains . Cloak and Dagger When this Unit makes a combat action, before any attacks are made, this Unit may use this ability. During the first attack of the combat action, add 3 dice to the attack roll. Before the Modify Dice Rolls step, if the target of the attack is a Primary character, add to the Damage Pool for each [critical] result in the roll. After the attack is resolved, the combat action ends. Camouflage At the end of Setup, this Unit may gain . Pathfinders Characters in this Unit have Immunity [ ] and Scale . Additionally, when a character in this Unit would , if this Unit has one or more , that character may instead ."
+    },
+    {
+      "title": "Primary",
+      "text": "When this Unit makes a combat action, before any attacks are made, this Unit may use this ability. During the first attack of the combat action, add 3 dice to the attack roll. Before the Modify Dice Rolls step, if the target of the attack is a  character, add to the Damage Pool for each [critical] result in the roll. After the attack is resolved, the combat action ends."
+    },
+    {
+      "title": "Immunity [ ]",
+      "text": "Characters in this Unit have  and Scale ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897068
+  }
+}

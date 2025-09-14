@@ -1,0 +1,29 @@
+{
+  "id": "sev-and-scorch",
+  "url": "https://shatterpointdb.com/characters/sev-and-scorch",
+  "name": "\"Sev\" and \"Scorch\"",
+  "portrait": "https://shatterpointdb.com/media/gfhlup4e/shatterpoint-sev-and-scorch-unit-card.png?height=600&v=1dbf5c73baecc90",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Point me at the enemy and stay out of my way",
+      "text": "At the start of this Unit's activation, each character in this Unit may Toward an enemy character. YES! More Explosives! Choose an enemy Unit within 3. Then roll 5 Attack Dice. The chosen Unit suffers for each [expertise] result in the roll. Then, if the chosen unit suffered one or more , it gains Rule 17: Always make sure they're dead After another allied Galactic Republic Unit within 3 makes a combat action, this Unit may use this ability. Choose a character in this Unit. The chosen character may . If it does,  it may make a 5 dice attack targeting one of the same enemy characters within and LOS. I love my job While a character in this Unit is contesting one or more Active objecties, it has Protection and Steadfast ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "After another allied  Unit within 3 makes a combat action, this Unit may use this ability. Choose a character in this Unit. The chosen character may . If it does,  it may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    },
+    {
+      "title": "Protection",
+      "text": "While a character in this Unit is contesting one or more Active objecties, it has  and Steadfast ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897071
+  }
+}

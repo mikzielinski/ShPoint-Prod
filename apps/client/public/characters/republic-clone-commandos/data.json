@@ -1,0 +1,37 @@
+{
+  "id": "republic-clone-commandos",
+  "url": "https://shatterpointdb.com/characters/republic-clone-commandos",
+  "name": "Republic Clone Commandos",
+  "portrait": "https://shatterpointdb.com/media/u4vptay3/shatterpoint-republic-clone-commandos-abilities-new.jpg",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Defensive Maneuver",
+      "text": "Each character in this Unit may . If any characters , this Unit gains . Coordinated Fire: When a character in another allied Galactic Republic Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit suffers . Ascension Cables Characters in this Unit have Scale . Brother in Arms While this Unit has one or more , characters in this Unit have Steadfast . Commando Armor Characters in this Unit have Protection ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "title": "Scale",
+      "text": "Characters in this Unit have  ."
+    },
+    {
+      "title": "Steadfast",
+      "text": "While this Unit has one or more , characters in this Unit have  ."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897068
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "jedi-master-plo-koon",
+  "url": "https://shatterpointdb.com/characters/jedi-master-plo-koon",
+  "name": "Jedi Master Plo Koon",
+  "portrait": "https://shatterpointdb.com/media/v02bwxwd/shatterpoint-jedi-master-plo-koon-unit-card.png?height=600&v=1da5b529b664e30",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "I know if we work together, we will stay alive",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Republic Unit. Each character in the chosen Unit may . Then, if the chosen Unit was a Trooper or Padawan , one character in this Unit may . Force Push Choose a character in this Unit and an enemy character within 3 of that character. The chosen enemy character is Pushed 3 away from the chosen allied character. Deflect After a attack targetting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . We can do this the simple way or the difficult way While this Unit is not Wounded, when another allied Galactic Republic character within 3 is targeted by an attack, this unit may gain . If it does, the defending character may use this Unit's [defense] Expertise Chart during the attack. Then, after the attack is resolved, if the defending character was a Trooper or Padawan , one character in this Unit may Toward the attacker."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "At the start of this Unit's activation, choose an allied  Unit. Each character in the chosen Unit may . Then, if the chosen Unit was a Trooper or Padawan , one character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897042
+  }
+}

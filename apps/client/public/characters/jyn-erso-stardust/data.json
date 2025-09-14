@@ -1,0 +1,29 @@
+{
+  "id": "jyn-erso-stardust",
+  "url": "https://shatterpointdb.com/characters/jyn-erso-stardust",
+  "name": "Jyn Erso, Stardust",
+  "portrait": "https://shatterpointdb.com/media/bwfnamwq/shatterpoint-jyn-erso-stardust-unit.png?height=600&v=1dbe6db530626e0",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "This is a Rebellion, isn't it?",
+      "text": "Choose this Unit or an allied Rebel Alliance Supporting Unit. One character in the chosen Unit may or may make a 5 dice attack. Reckless, Aggressive and Undisciplined When a character in this Unit makes a attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 2 dice to the attack roll for each enemy character, other than the target, that is not Wounded and is Engaged with one or more characters in this Unit. I Rebel When a character in this Unit makes an attack, after the effect is resolved, this Unit may use this ability. That character may . This Unit may use this ability two times during its activation instead of the normal one. The Time to Fight is Now When an allied Rebel Alliance Unit would spend one or more to use an ability, if you do not have enough Ready , it may instead spend 1 Momentum. Additionally, once per Turn, when an opposing player gains one or more Momentum, one character in this Unit may ."
+    },
+    {
+      "title": "Rebel Alliance Supporting Unit.",
+      "text": "Choose this Unit or an allied  One character in the chosen Unit may or may make a 5 dice attack."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "When an allied  Unit would spend one or more to use an ability, if you do not have enough Ready , it may instead spend 1 Momentum."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897044
+  }
+}

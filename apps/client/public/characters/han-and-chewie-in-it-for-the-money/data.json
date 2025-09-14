@@ -1,0 +1,21 @@
+{
+  "id": "han-and-chewie-in-it-for-the-money",
+  "url": "https://shatterpointdb.com/characters/han-and-chewie-in-it-for-the-money",
+  "name": "Han and Chewie, in it for the money",
+  "portrait": "https://shatterpointdb.com/media/ehfnzfqf/shatterpoint-han-and-chewie-unit.png?height=600&v=1dae8eabe40f3d0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 10,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Look out, He's loose",
+      "text": "One character in this Unit may . After the move is resolved, if that character is Engaged with one or more enemy characters, choose one of those enemy characters. The chosen character may . After the enemy character's move is resolved, if it is no longer Engaged with any characters in this Unit, it gains . If the enemy character is still Engaged with a character in this Unit, it gains [exposed]. Boring conversation anyway When this Unit makes a combat action, after all attacks have been resolved, this Unit may use this ability. One character in this Unit may . I expect to be well paid After you reveal an Order Card, this Unit may use this ability. If it does, this Unit gains one Tag of your choice until the end of the Turn. We're all fine here, thank you Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, one character in this Unit may . Then refresh ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897033
+  }
+}

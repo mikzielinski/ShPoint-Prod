@@ -1,0 +1,33 @@
+{
+  "id": "ct-411-commander-ponds",
+  "url": "https://shatterpointdb.com/characters/ct-411-commander-ponds",
+  "name": "CT-411 Commander Ponds",
+  "portrait": "https://shatterpointdb.com/media/p4rh33xl/star-wars-shatterpoint-commander-ponds-unit-card.png?height=600&v=1d9b9a9a6334610",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Charge",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or an allied Galactic Republic character. The chosen character may . Incoming Allied Clone Trooper Units within 3 that have one or more , have Immunity [ ] . Forward Scout When deploying a squad that includes this Unit, after putting the first Primary character from that squad on the battlefield, put each character in this Unit within 2 of that character. Allied Clone Trooper Supporting characters in this Unit's squad may be deployed within 1 of a character in this Unit, instead of within 1 of the first Primary character deployed."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or an allied  character. The chosen character may ."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "Allied  Units within 3 that have one or more , have Immunity [ ] ."
+    },
+    {
+      "title": "Primary",
+      "text": "When deploying a squad that includes this Unit, after putting the first  character from that squad on the battlefield, put each character in this Unit within 2 of that character. Allied Clone Trooper Supporting characters in this Unit's squad may be deployed within 1 of a character in this Unit, instead of within 1 of the first Primary character deployed."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897009
+  }
+}

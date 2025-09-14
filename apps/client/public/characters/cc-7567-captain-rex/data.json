@@ -1,0 +1,37 @@
+{
+  "id": "cc-7567-captain-rex",
+  "url": "https://shatterpointdb.com/characters/cc-7567-captain-rex",
+  "name": "CC-7567 Captain Rex",
+  "portrait": "https://shatterpointdb.com/media/w3ieriga/shatterpointrexunit.png?height=600&v=1d9788610a5ea80",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Get a move on, soldier",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or another allied Galactic Republic character. The chosen character may and may gain . Defensive maneuver Each character in this Unit may .If any characters , this unit gains . I'm always first, kid If this Unit is not Wounded, after an allied Clone Trooper Supporting Unit within 3 of this Unit makes a combat action, this Unit may use this ability. One character in this Unit may . If it does, it may make a 5 dice or attack targeting one of the same enemy characters within and LOS. Bring it on, clankers After an allied Clone Trooper unit within 3 of this Unit gains , one character in that Unit may . Brothers in arms While this Unit has one or more , characters in this Unit have Steadfast ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or another allied  character. The chosen character may and may gain ."
+    },
+    {
+      "title": "Clone Trooper Supporting Unit",
+      "text": "If this Unit is not Wounded, after an allied  within 3 of this Unit makes a combat action, this Unit may use this ability. One character in this Unit may . If it does, it may make a 5 dice or attack targeting one of the same enemy characters within and LOS."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "After an allied  unit within 3 of this Unit gains , one character in that Unit may ."
+    },
+    {
+      "title": "Steadfast",
+      "text": "While this Unit has one or more , characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896998
+  }
+}

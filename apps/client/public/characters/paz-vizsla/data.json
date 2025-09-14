@@ -1,0 +1,33 @@
+{
+  "id": "paz-vizsla",
+  "url": "https://shatterpointdb.com/characters/paz-vizsla",
+  "name": "Paz Vizsla",
+  "portrait": "https://shatterpointdb.com/media/rtubbfoz/shatterpoint-paz-vizsla-unit-new.png?height=600&v=1db09c1ace4b750",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "We are Mandalorians!",
+      "text": "At the start of this Unit's activation, each allied Mandalorian Unit within 4 may remove or one condition from itself. Then each allied Mandalorian Supporting character within 4 may . I'll cover the rear When an enemy character makes an attack targeting an allied character within 2, after the effect is resolved, this Unit may use this ability. If this Unit's Active Stance is Heavy Firepower , one character in this Unit may and then may make a 5 dice attack targeting the attacking character. Go. There are too many. This is the way When this Unit becomes Wounded by an enemy attack, after the attack is resolved, this Unit may use this ability. This Unit gains two Injured token. Then it removes one Wounded token, all , and one condition from itself and may make a 5 dice attack targetting the character that Wounded it. Descendent of the Great House Vizsla While this Unit's Active Stance is Fearless , characters in this Unit have Steadfast . Additionally, while this Unit has one or more Injured tokens, its Order Card cannot be put in reserve."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "At the start of this Unit's activation, each allied  Unit within 4 may remove or one condition from itself. Then each allied Mandalorian Supporting character within 4 may ."
+    },
+    {
+      "title": "Heavy Firepower",
+      "text": "When an enemy character makes an attack targeting an allied character within 2, after the effect is resolved, this Unit may use this ability. If this Unit's Active Stance is  , one character in this Unit may and then may make a 5 dice attack targeting the attacking character."
+    },
+    {
+      "title": "Fearless",
+      "text": "While this Unit's Active Stance is  , characters in this Unit have Steadfast ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897064
+  }
+}

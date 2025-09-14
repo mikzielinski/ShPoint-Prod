@@ -1,0 +1,25 @@
+{
+  "id": "bounty-hunters",
+  "url": "https://shatterpointdb.com/characters/bounty-hunters",
+  "name": "Bounty Hunters",
+  "portrait": "https://shatterpointdb.com/media/uevbbzgh/shatterpoint-bounty-hunters-new.jpg?height=600&v=1dbc839b199cf60",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "On the trail",
+      "text": "At the start of this Unit's activation, each character in this Unit may Toward an enemy character. Tools of the Trade Choose one of the following effects: - Choose an enemy Unit within 3. The chosen Unit gains . - Characters in this Unit have Sharpshooter [2] and Impact [2] until the end of the Turn. Payday After you reveal an Order Card, this Unit may use this ability. If it does, this Unit gains one Tag of your choice until the end of the Turn."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  and Impact [2] until the end of the Turn."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896995
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "greef-karga",
+  "url": "https://shatterpointdb.com/characters/greef-karga",
+  "name": "Greef Karga",
+  "portrait": "https://shatterpointdb.com/media/fnknuc05/shatterpoint-greef-karga-unit-card.png?height=600&v=1da6f492a730e10",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Some of my favorite people are Bounty Hunters",
+      "text": "Each allied Bounty Hunter character within 4 may and then may . Close the deal When an opposing player chooses to activate a Unit from reserve, this Unit may use this ability. Choose an allied Bounty Hunter character. The chosen character may immediately then may make a 5 dice attack targeting a character in the Unit that was chosen to activate. There is one job... Before revealing the first card of the Mission Deck, choose an opposing player to reveal cards from the top of their Order Deck until a Unit Order Card is revealed. Then the chosen player marks the corresponding Unit with a Priority Objective token and shuffles their Order Deck. The first time an allied Bounty Hunter character Wounds the market Unit, move the Struggle token one space toward your Momentum tokens. Then remove the Wounded Unit's Priority Objective token. Wolves at my back When determining control of an Active objective that a character in this Unit is contesting, if there is a tie, this Unit's controlling player takes control of the objective."
+    },
+    {
+      "title": "Bounty Hunter",
+      "text": "Each allied  character within 4 may and then may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897032
+  }
+}

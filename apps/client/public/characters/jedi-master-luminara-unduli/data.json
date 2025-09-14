@@ -1,0 +1,25 @@
+{
+  "id": "jedi-master-luminara-unduli",
+  "url": "https://shatterpointdb.com/characters/jedi-master-luminara-unduli",
+  "name": "Jedi Master Luminara Unduli",
+  "portrait": "https://shatterpointdb.com/media/g4jnexnp/star-wars-shatterpoint-jedi-master-luminara-unit-card.png?height=600&v=1d98e2121b957c0",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Full Recovery",
+      "text": "Choose an allied Unit within 3. The chosen Unit removes all and conditions from itself. Sprint Each character in this Unit may Precise Strike After this Unit makes a combat action, it may use this ability. Choose an allied Galactic Republic Supporting Unit within 3 of a character in this Unit. If the chosen Unit's Order Card is in the Order Deck, each character in that Unit may . If the chosen Unit's Order Card is not in the Order Deck, one character in the chosen Unit may make a 5 dice attack. Flow of the Force Once per Turn, when an enemy Unit becomes Wounded, after the effect is resolved, one allied character may . When an enemy character Wounds an allied Unit, after the effect is resolved, a character in another allied Unit may . You may look at the top card of your Order Deck before revealing an Order Card or choosing to activate a Unit from reserve."
+    },
+    {
+      "title": "Galactic Republic Supporting Unit",
+      "text": "After this Unit makes a combat action, it may use this ability. Choose an allied  within 3 of a character in this Unit. If the chosen Unit's Order Card is in the Order Deck, each character in that Unit may . If the chosen Unit's Order Card is not in the Order Deck, one character in the chosen Unit may make a 5 dice attack."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897041
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "ewok-hunters",
+  "url": "https://shatterpointdb.com/characters/ewok-hunters",
+  "name": "Ewok Hunters",
+  "portrait": "https://shatterpointdb.com/media/kkvhwazy/shatterpoint-ewok-hunters-unit-card.png?height=600&v=1da4f12efb1e630",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Stealthy Approach",
+      "text": "Each character in this Unit may . Then this Unit may gain or immediately make a focus action. Coordinated Fire: When a character in another allied Ewok Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted is within 5 of a character in this Unit, the target Unit gains . Camouflage At the end of Setup, this Unit may gain . Strength in Numbers When a character in this Unit makes an attack as part of a combat action, for each other allied Ewok character Engaged with the target that is not Wounded, add 1 die to the attack roll."
+    },
+    {
+      "title": "Ewok",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted is within 5 of a character in this Unit, the target Unit gains ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897019
+  }
+}

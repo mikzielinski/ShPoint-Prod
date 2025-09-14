@@ -1,0 +1,25 @@
+{
+  "id": "baze-malbus-and-chirrut-imwe",
+  "url": "https://shatterpointdb.com/characters/baze-malbus-and-chirrut-imwe",
+  "name": "Baze Malbus and Chirrut Imwe",
+  "portrait": "https://shatterpointdb.com/media/v0fn45xz/shatterpoint-baze-malbus-and-chirrut-imwe-unit.png?height=600&v=1dbe6dcf29869b0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "I fear nothing, for all is as the force wills it",
+      "text": "At the start of this Unit's activation, refresh . Then, for each Wounded and Injured token this Unit has, you may refresh or this Unit may remove or one condition from itself. We've been in worse cages than this one If this Unit's Active Stance is I am One with the Force , each character in this Unit may . If its activate stance is The Force is with me , one character in this Unit may . Guardians of the Whills While this Unit's Active Stance is I am One with the Force , characters in this Unit have Cover [1] and Sharpshooter [1] . While this Unit's Active Stance is The Force is with me , characters in this Unit have Steadfast and Impact [1] . Additionally, after this Unit changes its Active Stance, it may immediately make a focus action. He's praying for the door to open When determining control of an Active objective that all characters in this Unit contest, if there is a tie, you may spend . If you do, remove an opponent's Control token from that objective. Then, if you spend and you did not remove an opponent's Control token, gain a Momentum."
+    },
+    {
+      "title": "I am One with the Force",
+      "text": "If this Unit's Active Stance is  , each character in this Unit may . If its activate stance is The Force is with me , one character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896992
+  }
+}

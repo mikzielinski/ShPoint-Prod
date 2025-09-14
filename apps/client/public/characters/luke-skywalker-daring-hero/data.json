@@ -1,0 +1,29 @@
+{
+  "id": "luke-skywalker-daring-hero",
+  "url": "https://shatterpointdb.com/characters/luke-skywalker-daring-hero",
+  "name": "Luke Skywalker, Daring Hero",
+  "portrait": "https://shatterpointdb.com/media/lbsptak0/shatterpoint-luke-skywalker-daring-hero-stance1.png",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "I'm here to rescue you",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or another allied Spy character. The chosen character may . Grappling Hook Each character in this Unit may . If any characters , this Unit gains . He's the brains, sweetheart When an allied Rebel Alliance character within 3 or an allied Spy character within 3 makes a attack as part of a combat action, if it has one or more , it may reroll up to two of its results. Oh, the uniform This Unit does not lose its when it becomes Engaged and can gain and have while it is Engaged."
+    },
+    {
+      "title": "Spy",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or another allied  character. The chosen character may ."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "When an allied  character within 3 or an allied Spy character within 3 makes a attack as part of a combat action, if it has one or more , it may reroll up to two of its results."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897052
+  }
+}

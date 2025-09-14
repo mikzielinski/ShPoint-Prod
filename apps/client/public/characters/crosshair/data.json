@@ -1,0 +1,25 @@
+{
+  "id": "crosshair",
+  "url": "https://shatterpointdb.com/characters/crosshair",
+  "name": "Crosshair",
+  "portrait": "https://shatterpointdb.com/media/xcapxy2x/shatterpoint-crosshair-unit-card.png?height=600&v=1da7a2c3f9378f0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Trick shot",
+      "text": "At the start of this Unit's activation, if no characters in this Unit are Engaged, choose an enemy Unit in LOS. The chosen Unit suffers and removes all its . Find the shot Each character in this Unit may . If any characters , this Unit immediately makes a focus action. Relax, I'll handle this When a character in this Unit makes a attack as part of a combat action, before dice are rolled, this Unit may use this ability. During this attack, each time the attacker would resolve a , it may instead choose to remove one condition from an allied character that is Engaged with the defender. The deadeye of the batch Characters in this Unit have Sharpshooter [2] . When a character in this Unit makes a attack, the target does not benefit from Cover ."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  . When a character in this Unit makes a attack, the target does not benefit from Cover ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897007
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "nahdar-vebb-jedi-knight",
+  "url": "https://shatterpointdb.com/characters/nahdar-vebb-jedi-knight",
+  "name": "Nahdar Vebb, Jedi Knight",
+  "portrait": "https://shatterpointdb.com/media/vv1pcmd1/shatterpoint-nahdar-veb-jedi-knight-unit-card.png?height=600&v=1db7e58264883f0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "You can't defeat us all",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Republic character. The chosen character may . I will hold them off When a character in this Unit makes an attack as a combat action, before dice are rolled, this Unit may use this ability. If the attack is targeting a Supporting character, add 1 die to the attack roll. If the attack is targeting a Secondary character, add 2 dice to the attack roll. If the attack is targeting a Primary character, add 3 dice to the attack roll. I got carried away When an enemy Primary Unit makes a move action, after all moves have been resolved, this Unit may use this ability. One character in this Unit may Toward a character in that enemy Unit. I've been waiting for this When an enemy Primary character or an enemy Secondary character ends an , , , or Engaged with one or more characters in this Unit, one character in this Unit may . Then refresh ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "At the start of this Unit's activation, choose an allied  character. The chosen character may ."
+    },
+    {
+      "title": "Supporting",
+      "text": "When a character in this Unit makes an attack as a combat action, before dice are rolled, this Unit may use this ability. If the attack is targeting a  character, add 1 die to the attack roll. If the attack is targeting a Secondary character, add 2 dice to the attack roll. If the attack is targeting a Primary character, add 3 dice to the attack roll."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When an enemy  makes a move action, after all moves have been resolved, this Unit may use this ability. One character in this Unit may Toward a character in that enemy Unit."
+    },
+    {
+      "title": "Primary",
+      "text": "When an enemy  character or an enemy Secondary character ends an , , , or Engaged with one or more characters in this Unit, one character in this Unit may . Then refresh ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897058
+  }
+}

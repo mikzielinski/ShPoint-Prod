@@ -1,0 +1,25 @@
+{
+  "id": "ct-9904-elite-squad-leader",
+  "url": "https://shatterpointdb.com/characters/ct-9904-elite-squad-leader",
+  "name": "CT-9904, Elite Squad Leader",
+  "portrait": "https://shatterpointdb.com/media/bb1bagrq/shatterpoint-ct9904-elite-squad-leader-unit-card.png?height=600&v=1daf86bed238c90",
+  "squad_points": 8,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Move to position",
+      "text": "One character in this Unit may or . Then choose an allied character within 3. The chosen character may . Reflector discs When a character in this Unit makes a attack, before it chooses a target, this Unit may use this ability. Choose an allied character within 4 and LOS. During this attack, measure range and LOS from the chosen allied character. Expendable Distraction When a character in this Unit makes a attack as part of a combat action, if the defender is Engaged with one or more allied characters in Units that are not Wounded, it may add 3 dice to its attack roll. If it does, choose one of the Engaged allied Units. The chosen Unit suffers . Genetically bred deadeye When a character in this Unit Wounds an enemy Primary Unit or an enemy Secondary Unit with a attack as part of a combat action, after the effect is resolved, refresh . Additionally, when a character in this Unit makes a attack, before dice are rolled, it may remove one or more conditions from the defending Unit. Add [hit] to the attack roll for each removed condition."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When a character in this Unit Wounds an enemy  or an enemy Secondary Unit with a attack as part of a combat action, after the effect is resolved, refresh ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897009
+  }
+}

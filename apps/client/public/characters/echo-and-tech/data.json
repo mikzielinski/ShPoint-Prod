@@ -1,0 +1,25 @@
+{
+  "id": "echo-and-tech",
+  "url": "https://shatterpointdb.com/characters/echo-and-tech",
+  "name": "Echo and Tech",
+  "portrait": "https://shatterpointdb.com/media/luud55tt/shatterpoint-echo-and-tech-unit-card.png?height=600&v=1da7a2d291240b0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Fight smarter, not harder",
+      "text": "Choose an Active objective within 3 that is controlled by an opposing player and remove one of this Unit's . If any were removed, remove the opposing player's Control token from the chosen objective. Keep a low profile Each character in this Unit may . If any characters , this Unit gains . Forward planning When an allied Primary Unit within 4 or an allied Secondary Unit within 4 starts its activation, this Unit may use this ability. The activation Unit may remove one condition from itself. The brains of the batch While this Unit has one or more , characters in this Unit add 1 die to their attack and defense rolls."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When an allied  within 4 or an allied Secondary Unit within 4 starts its activation, this Unit may use this ability. The activation Unit may remove one condition from itself."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897016
+  }
+}

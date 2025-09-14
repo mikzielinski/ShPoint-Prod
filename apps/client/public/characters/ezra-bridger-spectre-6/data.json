@@ -1,0 +1,25 @@
+{
+  "id": "ezra-bridger-spectre-6",
+  "url": "https://shatterpointdb.com/characters/ezra-bridger-spectre-6",
+  "name": "Ezra Bridger, Spectre-6",
+  "portrait": "https://shatterpointdb.com/media/5hgo2xlr/shatterpoint-ezra-bridger-spectre-6-unit-card.png?height=600&v=1daa141b72dcff0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Supporting",
+      "text": "Choose an enemy  character within 3 and roll a Defense Die. On a [expertise] result, the chosen character . You resolve this move. On a [defend] or result, the chosen character gains ."
+    },
+    {
+      "title": "Supporting Unit",
+      "text": "When a character in this Unit wounds an enemy  with an attack, after the effect is resolved, gain an additional Momentum."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897021
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "isb-agents",
+  "url": "https://shatterpointdb.com/characters/isb-agents",
+  "name": "ISB Agents",
+  "portrait": "https://shatterpointdb.com/media/jhlju1wo/shatterpoint-isb-agents-unit.png?height=600&v=1dad24b54328c70",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Assault Tactics",
+      "text": "Each character in this Unit may . Then this Unit may suffer to immediately perform a focus action. Imperial Detention When an enemy character that is Engaged with one or more characters in this Unit or , after the move is resolved, the moving character's Unit suffers if the moving character is no longer Engaged with one or more characters in this Unit. Brutal Suppression Characters in this Unit have Impact [1] ."
+    },
+    {
+      "title": "Impact [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897038
+  }
+}

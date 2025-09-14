@@ -1,0 +1,37 @@
+{
+  "id": "snowtrooper-lieutenant",
+  "url": "https://shatterpointdb.com/characters/snowtrooper-lieutenant",
+  "name": "Snowtrooper Lieutenant",
+  "portrait": "https://shatterpointdb.com/media/iruarike/shatterpoint-snowtrooper-lieutenant-unit-card-new.png?height=600&v=1db0ea281b141d0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Press on",
+      "text": "At the start of this Unit's activation, you may choose an allied Galactic Empire Supporting Unit . The chosen Unit may remove one condition from itself. Then one character in the chosen Unit may . Dogged Assault When another allied Stormtrooper Unit within 4 makes a combat action, this Unit may use this ability. After all attacks have been resolved, the attacking Unit may immediately make a Take Cover action. Commanding Presence When an allied Galactic Empire Trooper character within 3 would gain a condition, it may instead suffer . Only imperial stormtroopers are so precise Characters in this Unit have Sharpshooter [1] ."
+    },
+    {
+      "title": "Galactic Empire Supporting Unit",
+      "text": "At the start of this Unit's activation, you may choose an allied  . The chosen Unit may remove one condition from itself. Then one character in the chosen Unit may ."
+    },
+    {
+      "title": "Stormtrooper",
+      "text": "When another allied  Unit within 4 makes a combat action, this Unit may use this ability. After all attacks have been resolved, the attacking Unit may immediately make a Take Cover action."
+    },
+    {
+      "title": "Galactic Empire Trooper",
+      "text": "When an allied  character within 3 would gain a condition, it may instead suffer ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897075
+  }
+}

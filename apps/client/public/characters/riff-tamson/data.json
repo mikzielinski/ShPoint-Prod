@@ -1,0 +1,25 @@
+{
+  "id": "riff-tamson",
+  "url": "https://shatterpointdb.com/characters/riff-tamson",
+  "name": "Riff Tamson",
+  "portrait": "https://shatterpointdb.com/media/k3lppxox/shatterpoint-riff-tamson-unit-card.png?height=600&v=1dbf5c89e031cb0",
+  "squad_points": 8,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Death From Below",
+      "text": "Each character in this Unit may . During the next attack made by a character in this Unit during this activation, after all dice rolls have been modified, add to the Damage Pool. Hit and Run After a character in this Unit makes an attack as part of a combat action, this Unit may use this ability. One character in this Unit may . Blood in the Water After an allied Separatist Alliance Supporting Unit or an allied Scoundrel Supporting Unit makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS. There's plenty of Suffering to go around When this character makes a attack, add one die to the attack roll for each enemy Unit within 4 that has one or more Wounded and/or Injured tokens. Additionally, when an enemy Unit within 4 becomes Wounded, after the effect is resolved, refresh ."
+    },
+    {
+      "title": "Separatist Alliance Supporting Unit",
+      "text": "After an allied  or an allied Scoundrel Supporting Unit makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897069
+  }
+}

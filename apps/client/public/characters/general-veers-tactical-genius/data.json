@@ -1,0 +1,33 @@
+{
+  "id": "general-veers-tactical-genius",
+  "url": "https://shatterpointdb.com/characters/general-veers-tactical-genius",
+  "name": "General Veers, Tactical Genius",
+  "portrait": "https://shatterpointdb.com/media/o3ndsxon/shatterpoint-general-veers-tactical-genius-unit-card-new.png?height=600&v=1db0ea258722cd0",
+  "squad_points": 7,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "You have your orders",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Empire Secondary Unit or an allied Stormtrooper Unit. One character in the chosen Unit may . I will have results Choose an allied Stormtrooper Supporting character within 4. The chosen character may , then may gain , remove one condition from itself, or make a 5 dice attack. Prepare for a surface attack At the end of Setup, before shuffling your Order Deck, choose an allied Stormtrooper Unit. Place the chosen Unit's Order Card in reserve. Then each character in the chosen Unit may . Additionally, when an allied Stormtrooper Unit's Order Card is in reserve, characters in that Unit add 1 die to their defense rolls. We are the storm At the end of this Unit's activation, choose an objective. Each enemy character within 2 of the chosen objective may . Then each enemy Unit within 2 of the chosen objective suffers and each allied Unit within 2 of the chosen objective suffers ."
+    },
+    {
+      "title": "Galactic Empire Secondary Unit",
+      "text": "At the start of this Unit's activation, choose an allied  or an allied Stormtrooper Unit. One character in the chosen Unit may ."
+    },
+    {
+      "title": "Stormtrooper Supporting",
+      "text": "Choose an allied  character within 4. The chosen character may , then may gain , remove one condition from itself, or make a 5 dice attack."
+    },
+    {
+      "title": "Stormtrooper",
+      "text": "At the end of Setup, before shuffling your Order Deck, choose an allied  Unit. Place the chosen Unit's Order Card in reserve. Then each character in the chosen Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897029
+  }
+}

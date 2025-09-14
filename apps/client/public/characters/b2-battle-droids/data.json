@@ -1,0 +1,25 @@
+{
+  "id": "b2-battle-droids",
+  "url": "https://shatterpointdb.com/characters/b2-battle-droids",
+  "name": "B2 Battle Droids",
+  "portrait": "https://shatterpointdb.com/media/dttcpher/star-wars-shatterpoint-b2-unit-card.png?height=600&v=1d997e5ab024d20",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Relentless Advance",
+      "text": "Each character in this Unit may . Saturation Fire When a character in this Unit targets an enemy character that is contesting one or more Active objectives with an attack, this Unit may use this ability. Add 2 dice to the attack roll. Enhanced Blast Armor Characters in this Unit have Protection ."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896989
+  }
+}

@@ -1,0 +1,64 @@
+/* ===== SHPoint Icons (mapping) ===== */
+@font-face {
+  font-family: "ShatterpointIcons";
+  src:
+    local("ShatterpointIcons"),
+    local("Shatterpoint Icons"),
+    local("ShatterpointIcons Regular"),
+    local("ShatterpointIconsRegular"),
+    url("/fonts/ShatterpointIcons.woff") format("woff"),
+    url("/fonts/ShatterpointIconsRegular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Używaj fontu tylko na .sp i .sp-icon (komponent Icon) */
+.sp, .sp-icon {
+  font-family: "ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important;
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1;
+  speak: none;
+  display: inline-block;
+}
+
+/* rozmiary/pozycjonowanie pomocnicze */
+.sp-1x{font-size:1em}.sp-1_5x{font-size:1.5em}.sp-2x{font-size:2em}
+.sp-sm{font-size:.875rem}.sp-lg{font-size:1.125rem}
+.sp-middle{vertical-align:middle}.sp-top{vertical-align:text-top}.sp-bottom{vertical-align:text-bottom}
+
+/* ========= CYFRY ========= */
+.sp-1::before, .sp-pinned::before      { content: "\0031"; } /* 1 pinned   */
+.sp-3::before, .sp-hunker::before      { content: "\0033"; } /* 3 hunker   */
+.sp-4::before, .sp-exposed::before     { content: "\0034"; } /* 4 exposed  */
+.sp-5::before, .sp-strained::before    { content: "\0035"; } /* 5 strained */
+.sp-8::before, .sp-unit::before        { content: "\0038"; } /* 8 unit     */
+.sp-9::before, .sp-disarm::before      { content: "\0039"; } /* 9 disarm   */
+
+/* ========= LITERY ========= */
+.sp-a::before, .sp-strike::before                    { content: "\0061"; } /* a strike */
+.sp-b::before, .sp-critical::before, .sp-crit::before{ content: "\0062"; } /* b crit   */
+.sp-c::before, .sp-attack-expertise::before,
+.sp-expertise-attack::before                         { content: "\0063"; } /* c atk exp */
+.sp-d::before, .sp-failure::before                   { content: "\0064"; } /* d fail   */
+.sp-e::before, .sp-block::before                     { content: "\0065"; } /* e block  */
+.sp-f::before, .sp-defense-expertise::before,
+.sp-expertise-defense::before                        { content: "\0066"; } /* f def exp */
+.sp-h::before, .sp-dash::before                      { content: "\0068"; } /* h dash   */
+.sp-i::before, .sp-reactive::before                  { content: "\0069"; } /* i reactive */
+.sp-j::before, .sp-active::before                    { content: "\006A"; } /* j active */
+.sp-k::before, .sp-tactic::before                    { content: "\006B"; } /* k tactic */
+.sp-l::before, .sp-innate::before, .sp-inmate::before{ content: "\006C"; } /* l innate */
+.sp-m::before, .sp-identify::before, .sp-identity::before { content: "\006D"; } /* m identify */
+.sp-n::before, .sp-ranged::before                    { content: "\006E"; } /* n ranged */
+.sp-o::before, .sp-melee::before                     { content: "\006F"; } /* o melee  */
+.sp-p::before, .sp-shove::before                     { content: "\0070"; } /* p shove  */
+.sp-q::before, .sp-damage::before                    { content: "\0071"; } /* q damage */
+.sp-r::before, .sp-heal::before                      { content: "\0072"; } /* r heal   */
+.sp-s::before, .sp-reposition::before                { content: "\0073"; } /* s repos  */
+.sp-t::before, .sp-jump::before                      { content: "\0074"; } /* t jump   */
+.sp-u::before, .sp-climb::before                     { content: "\0075"; } /* u climb  */
+.sp-v::before, .sp-force::before                     { content: "\0076"; } /* v force  */
+.sp-w::before, .sp-durability::before                { content: "\0077"; } /* w durab. */

@@ -1,0 +1,29 @@
+{
+  "id": "padawan-ahsoka-tano",
+  "url": "https://shatterpointdb.com/characters/padawan-ahsoka-tano",
+  "name": "Padawan Ahsoka Tano",
+  "portrait": "https://shatterpointdb.com/media/3dsfrcau/shatterpoint-padawan-ahsoka-unit-card.png?height=600&v=1da5b527cddaf80",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Race Ya",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Republic Primary Unit or an allied Jedi Primary Unit . One character in the chosen Unit may . She is Fearless Each character in this Unit may . This Unit may use this ability two times during its activation instead of the normal one. Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again, Snips After an allied Galactic Republic Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    },
+    {
+      "title": "Galactic Republic Primary Unit",
+      "text": "At the start of this Unit's activation, choose an allied  or an allied Jedi Primary Unit . One character in the chosen Unit may ."
+    },
+    {
+      "title": "Galactic Republic Supporting Unit",
+      "text": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897060
+  }
+}

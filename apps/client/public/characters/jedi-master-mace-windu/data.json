@@ -1,0 +1,29 @@
+{
+  "id": "jedi-master-mace-windu",
+  "url": "https://shatterpointdb.com/characters/jedi-master-mace-windu",
+  "name": "Jedi Master Mace Windu",
+  "portrait": "https://shatterpointdb.com/media/k3cdg1ey/shatterpoint-jedi-master-mace-windu-new.jpg?height=600&v=1dbc8335b9e9b50",
+  "squad_points": 7,
+  "force": 4,
+  "unit_type": "Primary",
+  "stamina": 11,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Rush to Action",
+      "text": "At the start of this Unit's Activation, choose another allied Galactic Republic Unit. Each character in this Unit and each character in the chosen Unit may . Shatterpoint When an allied Unit is chosen to active with a Shatterpoint Card, before that Unit activates, resolve an effect based on this Unit's Active Stance. If this Unit's Active Stance is Form VII Vaapad , one character in this Unit may and then may make a 5 dice attack. If its Active Stance is Jedi Master , refresh and one character in this Unit may . Tempered Agression When a character in this Unit attacks or defends, before dice are rolled, this Unit may spend 1-3 . If it does, that character adds 1 die to its roll for each spent. This party's over While a character in this Unit is engaged, allied Galactic Republic characters within 5 have Steadfast and Protection ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "At the start of this Unit's Activation, choose another allied  Unit. Each character in this Unit and each character in the chosen Unit may ."
+    },
+    {
+      "title": "Form VII Vaapad",
+      "text": "When an allied Unit is chosen to active with a Shatterpoint Card, before that Unit activates, resolve an effect based on this Unit's Active Stance. If this Unit's Active Stance is  , one character in this Unit may and then may make a 5 dice attack. If its Active Stance is Jedi Master , refresh and one character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897042
+  }
+}

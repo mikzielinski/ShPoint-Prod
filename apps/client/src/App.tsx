@@ -1,84 +1,363 @@
-import React, { useRef, useState } from 'react'
-import { sidesDefault, weightsDefault, rollOne, normalizeDice, SymbolType } from '@shpoint/shared'
+// apps/client/src/App.tsx
+import React, { useEffect, useRef, useState } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { rollDice, summarizeDice, summaryToString, type SymbolType } from "@shpoint/shared";
 
-class NetClient {
-  ws?: WebSocket
-  onState: (s:any)=>void = ()=>{}
-  onError: (m:string)=>void = ()=>{}
-  connect(url = import.meta.env.VITE_WS_URL as string) {
-    this.ws = new WebSocket(url)
-    this.ws.onmessage = ev => {
-      const msg = JSON.parse(ev.data)
-      if (msg.t === 'state') this.onState(msg.state)
-      if (msg.t === 'error') this.onError(msg.message)
-    }
+import NavBar from "./components/NavBar";
+import SquadBuilder from "./components/SquadBuilder";
+import CharactersGallery from "./components/CharactersGallery";
+import AdminRefreshPanel from "./components/AdminRefreshPanel";
+import StancePreview from "./components/StancePreview";
+
+import UsersPage from "./pages/UsersPage";
+import LoginPage from "./pages/LoginPage";
+import AdminPage from "./pages/AdminPage";
+
+import RequireAuth from "./routers/RequireAuth";
+import { useAuth } from "./auth/AuthContext";
+import GlyphSpriteFull from "./components/icons/GlyphSpriteFull";
+
+/* ===== helpers ===== */
+function resolveIndexUrl(): string {
+  const base = (import.meta as any).env?.VITE_SP_DB_URL as string | undefined;
+  if (base) {
+    const clean = base.endsWith("/") ? base.slice(0, -1) : base;
+    if (clean.toLowerCase().endsWith(".json")) return clean;
+    return `${clean}/index.json`;
   }
-  send(obj:any){ this.ws?.send(JSON.stringify(obj)) }
-  join(room:string,name:string,idToken:string,role:'player'|'spectator'='player'){ this.send({t:'join',room,name,idToken,role}) }
-  roll(){ this.send({t:'roll', pool:'attack'}) }
+  return "/characters/index.json";
+}
+function stanceUrlFor(id: string) {
+  return `/characters/${id}/stance.json`;
 }
 
-export default function App(){
-  const [room,setRoom]=useState('ABC123')
-  const [name,setName]=useState('Player')
-  const [role,setRole]=useState<'player'|'spectator'>('player')
-  const [idToken,setIdToken]=useState('') // paste from Google for now
-  const [connected,setConnected]=useState(false)
-  const [state,setState]=useState<any>(null)
-  const [localRoll,setLocalRoll]=useState<SymbolType[]>([])
-  const net = useRef<NetClient|null>(null)
-
-  const ensure = ()=>{
-    if (!net.current){ net.current = new NetClient(); net.current.onState=setState; net.current.onError=(m)=>alert(m); net.current.connect() }
-    setConnected(true)
-  }
-
-  const doJoin = ()=>{ ensure(); net.current!.join(room,name,idToken,role) }
-  const doServerRoll = ()=> net.current?.roll()
-
-  const doLocalRoll = ()=>{
-    const rolled: SymbolType[] = Array.from({length:7}, ()=> rollOne(sidesDefault, weightsDefault))
-    setLocalRoll(rolled)
-  }
-
-  const serverDice = state?.dice
-
+/* ===== wspólne UI ===== */
+function SimpleModal(props: { title?: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div style={{fontFamily:'system-ui, sans-serif', padding:16}}>
-      <h1>Shatterpoint — Online MVP (Client)</h1>
-
-      <section style={{border:'1px solid #ddd', padding:12, borderRadius:8, marginBottom:12}}>
-        <h3>Online</h3>
-        <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
-          <input placeholder="Room" value={room} onChange={e=>setRoom(e.target.value)} />
-          <select value={role} onChange={e=>setRole(e.target.value as any)}>
-            <option value="player">player</option>
-            <option value="spectator">spectator</option>
-          </select>
-          <input placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} />
-          <input placeholder="Paste Google ID token (dev)" value={idToken} onChange={e=>setIdToken(e.target.value)} style={{width:420}}/>
-          <button onClick={doJoin}>Join room</button>
-          <button onClick={doServerRoll} disabled={!connected}>Roll (server)</button>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        background: "rgba(0,0,0,0.35)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+      }}
+      onClick={props.onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="modal-card"
+        style={{
+          width: "min(920px,96vw)",
+          maxHeight: "86vh",
+          overflow: "hidden",
+          display: "grid",
+          gridTemplateRows: "auto 1fr",
+          background: "var(--card-bg, #0f172a)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 12,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: 12,
+            borderBottom: "1px solid #1f2937",
+          }}
+        >
+          <div style={{ fontWeight: 600 }}>{props.title ?? "Details"}</div>
+          <button
+            onClick={props.onClose}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid #334155",
+              background: "#0b1220",
+              color: "#e5e7eb",
+            }}
+          >
+            Close
+          </button>
         </div>
-        <div style={{marginTop:8, fontSize:12, color:'#555'}}>Set VITE_WS_URL in client env. Google token required by server (paste for now).</div>
-      </section>
+        <div style={{ padding: 12, overflow: "auto" }}>{props.children}</div>
+      </div>
+    </div>
+  );
+}
+function DataSourceBanner() {
+  const url = (import.meta as any).env?.VITE_SP_DB_URL as string | undefined;
+  const isRemote = Boolean(url && url.trim());
+  return (
+    <div
+      style={{
+        padding: "8px 12px",
+        borderRadius: 8,
+        border: "1px solid #334155",
+        background: isRemote ? "rgba(16,185,129,0.08)" : "rgba(251,146,60,0.08)",
+        color: "#e5e7eb",
+        fontSize: 14,
+        marginBottom: 12,
+      }}
+    >
+      <b>Cards data:</b>{" "}
+      {isRemote ? (
+        <>
+          remote <code>{url}</code> (<i>VITE_SP_DB_URL</i>)
+        </>
+      ) : (
+        <>
+          local <code>/public/characters</code>
+        </>
+      )}
+    </div>
+  );
+}
 
-      <section style={{border:'1px solid #ddd', padding:12, borderRadius:8, marginBottom:12}}>
-        <h3>Server dice</h3>
-        {serverDice ? (
-          <>
-            <div>Rolled: {serverDice.rolled?.join(', ')}</div>
-            <div>Success: {serverDice.success} | Crit: {serverDice.crit} | Seed: {serverDice.seed}</div>
-          </>
-        ) : <div>No server roll yet.</div>}
+/* ===== ROUTES – strony ===== */
+function BuilderPage() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <DataSourceBanner />
+      <SquadBuilder />
+    </div>
+  );
+}
+function CharactersPage() {
+  const [stanceForId, setStanceForId] = useState<string | null>(null);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
+  const indexUrl = resolveIndexUrl();
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <DataSourceBanner />
+      <CharactersGallery
+        indexUrl={indexUrl}
+        onOpenStance={(id) => setStanceForId(id)}
+        onOpenCard={(id) => setOpenCardId(id)}
+      />
+      {stanceForId && (
+        <SimpleModal title="Stances" onClose={() => setStanceForId(null)}>
+          <div className="stance-panel">
+            <StancePreview stanceUrl={stanceUrlFor(stanceForId)} />
+          </div>
+        </SimpleModal>
+      )}
+      {openCardId && (
+        <SimpleModal title="Character details" onClose={() => setOpenCardId(null)}>
+          <div style={{ fontSize: 14, color: "#cbd5e1" }}>
+            Tu wstawisz komponent szczegółów dla: <code>{openCardId}</code>.
+          </div>
+        </SimpleModal>
+      )}
+    </div>
+  );
+}
+class NetClient {
+  ws?: WebSocket;
+  onState: (s: any) => void = () => {};
+  onError: (m: string) => void = () => {};
+  connect(url = (import.meta as any).env?.VITE_WS_URL as string) {
+    this.ws = new WebSocket(url);
+    this.ws.onmessage = (ev) => {
+      const msg = JSON.parse(ev.data);
+      if (msg.t === "state") this.onState(msg.state);
+      if (msg.t === "error") this.onError(msg.message);
+    };
+  }
+  send(obj: any) {
+    this.ws?.send(JSON.stringify(obj));
+  }
+}
+function OnlinePage() {
+  const [room, setRoom] = useState("ABC123");
+  const [name, setName] = useState("Player");
+  const clientRef = useRef<NetClient | null>(null);
+  const [state, setState] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const client = new NetClient();
+    clientRef.current = client;
+    client.onState = (s) => setState(s);
+    client.onError = (m) => setError(m);
+    client.connect();
+  }, []);
+  const [atk, setAtk] = useState<{ [key in SymbolType]?: number }>({});
+  const [def, setDef] = useState<{ [key in SymbolType]?: number }>({});
+  const [atkText, setAtkText] = useState("");
+  const [defText, setDefText] = useState("");
+  function doRoll(type: "attack" | "defense") {
+    const a = rollDice(type === "attack" ? "attack" : "defense", 7);
+    const d = rollDice(type === "defense" ? "defense" : "attack", 5);
+    const aS = summarizeDice(a);
+    const dS = summarizeDice(d);
+    setAtk(aS);
+    setDef(dS);
+    setAtkText(summaryToString(aS));
+    setDefText(summaryToString(dS));
+  }
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <section style={{ border: "1px solid #334155", padding: 12, borderRadius: 8, marginBottom: 12 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Room</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input value={room} onChange={(e) => setRoom(e.target.value)} placeholder="Room code" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+          <button
+            onClick={() => clientRef.current?.send({ t: "join", room, name })}
+            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334155", background: "#0b1220", color: "#e5e7eb" }}
+          >
+            Join
+          </button>
+          <button
+            onClick={() => clientRef.current?.send({ t: "leave", room })}
+            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334155", background: "#0b1220", color: "#e5e7eb" }}
+          >
+            Leave
+          </button>
+        </div>
+        <pre style={{ marginTop: 8, whiteSpace: "pre-wrap" }}>
+          {error ? `Error: ${error}` : JSON.stringify(state, null, 2)}
+        </pre>
       </section>
-
-      <section style={{border:'1px solid #ddd', padding:12, borderRadius:8}}>
-        <h3>Local dice (demo)</h3>
-        <button onClick={doLocalRoll}>Roll locally</button>
-        <div>{localRoll.join(', ')}</div>
-        <div>normalize: {(() => { const d = normalizeDice(localRoll, [{threshold:1, addSuccess:1}]); return `success=${d.success}, crit=${d.crit}` })()}</div>
+      <section style={{ border: "1px solid #334155", padding: 12, borderRadius: 8 }}>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Dice</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            onClick={() => doRoll("attack")}
+            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334155", background: "#0b1220", color: "#e5e7eb" }}
+          >
+            Roll attack
+          </button>
+          <button
+            onClick={() => doRoll("defense")}
+            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #334155", background: "#0b1220", color: "#e5e7eb" }}
+          >
+            Roll defense
+          </button>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 8 }}>
+          <div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>ATK</div>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{atkText}</pre>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>DEF</div>
+            <pre style={{ whiteSpace: "pre-wrap" }}>{defText}</pre>
+          </div>
+        </div>
       </section>
     </div>
-  )
+  );
+}
+function AdminUiPage() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <AdminRefreshPanel />
+    </div>
+  );
+}
+function EditorPage() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <div className="card">
+        <div className="card__header">
+          <h2 className="card__title">Editor</h2>
+          <p className="card__subtitle">Tu powstanie edytor kart (dostęp: EDITOR/ADMIN).</p>
+        </div>
+        <div className="card__content">Wkrótce…</div>
+      </div>
+    </div>
+  );
+}
+function LogoutScreen() {
+  const { doLogout } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    (async () => {
+      await doLogout();
+      navigate("/", { replace: true });
+    })();
+  }, [doLogout, navigate]);
+  return <div style={{ padding: 16 }}>Wylogowuję…</div>;
+}
+
+/* ===== Główne Routes ===== */
+export default function App() {
+  return (
+    <>
+      <NavBar />
+      {/* sprite glifów (musi być raz w DOM – Safari) */}
+      <GlyphSpriteFull />
+
+      <Routes>
+        {/* public */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<Navigate to="/builder" replace />} />
+
+        {/* wymagają zalogowania */}
+        <Route
+          path="/builder"
+          element={
+            <RequireAuth>
+              <BuilderPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/characters"
+          element={
+            <RequireAuth>
+              <CharactersPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/online"
+          element={
+            <RequireAuth>
+              <OnlinePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <RequireAuth>
+              <UsersPage />
+            </RequireAuth>
+          }
+        />
+
+        {/* tylko EDITOR lub ADMIN */}
+        <Route
+          path="/editor"
+          element={
+            <RequireAuth role="EDITOR">
+              <EditorPage />
+            </RequireAuth>
+          }
+        />
+
+        {/* tylko ADMIN */}
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth role="ADMIN">
+              <AdminPage />
+            </RequireAuth>
+          }
+        />
+
+        {/* Twoje narzędzia (jeśli chcesz – dodaj role="ADMIN") */}
+        <Route path="/admin-ui" element={<AdminUiPage />} />
+
+        <Route path="/logout" element={<LogoutScreen />} />
+        <Route path="*" element={<Navigate to="/builder" replace />} />
+      </Routes>
+    </>
+  );
 }

@@ -1,0 +1,37 @@
+{
+  "id": "stormtrooper-sergeant",
+  "url": "https://shatterpointdb.com/characters/stormtrooper-sergeant",
+  "name": "Stormtrooper Sergeant",
+  "portrait": "https://shatterpointdb.com/media/cusmhjkk/shatterpoint-stormtrooper-sergeant-unit-card.png?height=600&v=1da433c111887d0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Inexorable Advance",
+      "text": "At the start of this Unit's activation, you may choose an allied Galactic Empire Supporting Unit . Each character in the chosen Unit may . Then, if any characters , the chosen Unit suffers . Imperial Firepower Choose an enemy character within 4 of two or more allied Galactic Empire characters. The chosen character gains or . Coordinated Offensive When a character in this Unit or another allied Stormtrooper character makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 1 die to the attack roll for each allied Stormtrooper unit, other than the attacking Unit, that is within 5 and LOS of the target. Only Imperial Stormtroopers are so precise Characters in this Unit have Sharpshooter [1] ."
+    },
+    {
+      "title": "Galactic Empire Supporting Unit",
+      "text": "At the start of this Unit's activation, you may choose an allied  . Each character in the chosen Unit may . Then, if any characters , the chosen Unit suffers ."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "Choose an enemy character within 4 of two or more allied  characters. The chosen character gains or ."
+    },
+    {
+      "title": "Stormtrooper",
+      "text": "When a character in this Unit or another allied  character makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 1 die to the attack roll for each allied Stormtrooper unit, other than the attacking Unit, that is within 5 and LOS of the target."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897079
+  }
+}

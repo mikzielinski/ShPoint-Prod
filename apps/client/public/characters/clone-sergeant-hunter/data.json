@@ -1,0 +1,29 @@
+{
+  "id": "clone-sergeant-hunter",
+  "url": "https://shatterpointdb.com/characters/clone-sergeant-hunter",
+  "name": "Clone Sergeant Hunter",
+  "portrait": "https://shatterpointdb.com/media/yn4f2zrz/shatterpoint-clone-sergeant-hunter-unit-card.png?height=600&v=1da74b1c73cb990",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "We prefer going to them",
+      "text": "At the start of this Unit's activation, choose another allied Clone Trooper Unit. One character in the chosen Unit may . If the chosen Unit is Bad Batch , that character may instead . Striking distance One character in this Unit may and then may make a 5 dice attack. Enhanced tracker When an enemy Primary Unit makes a move action, after all moves have been resolved, this Unit may use this ability. One character in this Unit may Toward a character in that enemy Unit. It's hard to compete with a Jedi When a character in this Unit defends against an attack, it may reroll up to two of its results. If this Unit has [exposed], it may instead reroll all its . The leader of the batch When an allied Clone Trooper character makes an attack as part of a combat action, it may change one result to a [hit]. If the character is Bad Batch , it may instead change one result to a [hit] or [expertise]."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "At the start of this Unit's activation, choose another allied  Unit. One character in the chosen Unit may . If the chosen Unit is Bad Batch , that character may instead ."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When an enemy  makes a move action, after all moves have been resolved, this Unit may use this ability. One character in this Unit may Toward a character in that enemy Unit."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897003
+  }
+}

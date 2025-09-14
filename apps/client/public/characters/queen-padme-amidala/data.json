@@ -1,0 +1,41 @@
+{
+  "id": "queen-padme-amidala",
+  "url": "https://shatterpointdb.com/characters/queen-padme-amidala",
+  "name": "Queen Padmé Amidala",
+  "portrait": "https://shatterpointdb.com/media/g2hnmz1n/shatterpoint-padme-amidala-unit-card.png?height=600&v=1d9ceff846c1b40",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Royal Command",
+      "text": "Choose an allied Galactic Republic Unit. Each character in the chosen Unit may . Coordinated Fire: When a character in an allied Handmaiden Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit suffers . Crack Shot Characters in this Unit have Sharpshooter [2] . When this Unit makes a focus action, each character in this Unit may . Servant of the People While this Unit is not Wounded and while one or more characters in this Unit are contesting an Active objective, if this Unit's Active Stance is Faith in Diplomacy , allied Galactic Republic Supporting characters can contest the same Active objective, even while they are Wounded. While this Unit is not Wounded, if this Unit's Active Stance is Aggressive Negotiations , allied Galactic Republic Supporting characters within 4 add 1 die to their attack rolls."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "Choose an allied  Unit. Each character in the chosen Unit may ."
+    },
+    {
+      "title": "Handmaiden",
+      "text": "When a character in an allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  . When this Unit makes a focus action, each character in this Unit may ."
+    },
+    {
+      "title": "Faith in Diplomacy",
+      "text": "While this Unit is not Wounded and while one or more characters in this Unit are contesting an Active objective, if this Unit's Active Stance is  , allied Galactic Republic Supporting characters can contest the same Active objective, even while they are Wounded."
+    },
+    {
+      "title": "Aggressive Negotiations",
+      "text": "While this Unit is not Wounded, if this Unit's Active Stance is  , allied Galactic Republic Supporting characters within 4 add 1 die to their attack rolls."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897065
+  }
+}

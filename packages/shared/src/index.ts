@@ -1,57 +1,83 @@
+// --- SHPoint Shared (complete minimal shared) ---
+
 import { z } from "zod";
 
-export type PlayerID = string;
-export type RoomID = string;
-export type Stance = 'A'|'B';
+/** Dice symbols used by client */
+export type SymbolType = "success" | "crit" | "strike" | "fail" | "expertise";
 
-export type SymbolType = "success" | "crit" | "expertise" | "block" | "blank";
+/** Default faces distribution for 8-sided die */
+export const sidesDefault: SymbolType[] = [
+  "crit", "success", "success", "strike",
+  "strike", "expertise", "fail", "fail"
+];
 
-export interface ExpertiseStep {
-  threshold: number;
-  addSuccess?: number;
-  addCrit?: number;
-}
+/** Equal weights by default */
+export const weightsDefault: number[] = Array(sidesDefault.length).fill(1);
 
-export interface DiceResult {
-  rolled: SymbolType[];
-  success: number;
-  crit: number;
-  spent: number;
-  expertiseApplied: boolean;
-}
-
-export const sidesDefault: SymbolType[] = ["success","crit","expertise","block","blank"];
-export const weightsDefault: number[] = [0.375, 0.125, 0.25, 0.125, 0.125];
-
-export function normalizeWeights(w: number[]): number[] {
-  const s = w.reduce((a,b)=>a+b,0); return s>0 ? w.map(x=>x/s) : w.map(()=>1/w.length);
-}
-export function rollOne(sides: SymbolType[], weights: number[], rng: ()=>number=Math.random): SymbolType {
-  const w = normalizeWeights(weights);
-  const r = rng();
-  let acc = 0;
-  for (let i=0;i<sides.length;i++){ acc+=w[i]; if (r<=acc) return sides[i]; }
-  return sides[sides.length-1];
-}
-export function normalizeDice(rolled: SymbolType[], expertise: ExpertiseStep[]): Omit<DiceResult,'spent'> {
-  const exp = rolled.filter(x=>x==='expertise').length;
-  const crit = rolled.filter(x=>x==='crit').length;
-  let success = rolled.filter(x=>x==='success').length + crit;
-  let applied = false;
-  for (const s of expertise) {
-    if (exp >= s.threshold) { if (s.addSuccess) success += s.addSuccess; if (s.addCrit) success += s.addCrit; applied = true; }
+/** Pick weighted index helper */
+export function weightedIndex(weights: number[]): number {
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < weights.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return i;
   }
-  return { rolled, success, crit, expertiseApplied: applied };
+  return weights.length - 1;
 }
 
-// Protocol
-export const ClientJoin = z.object({ t: z.literal('join'), room: z.string(), name: z.string(), idToken: z.string(), role: z.enum(['player','spectator']) });
-export const ClientRoll = z.object({ t: z.literal('roll'), pool: z.enum(['attack','defense']).default('attack') });
-export const ClientSelectNode = z.object({ t: z.literal('select_node'), id: z.string() });
-export const ClientUndoNode = z.object({ t: z.literal('undo_node'), id: z.string() });
+/** Roll a single die -> face index 0..7 */
+export function rollOneIndex(weights = weightsDefault): number {
+  return weightedIndex(weights);
+}
 
-export const ServerState = z.object({ t: z.literal('state'), state: z.any() });
-export const ServerError = z.object({ t: z.literal('error'), message: z.string() });
+/** Roll N dice -> array of SymbolType */
+export function rollDice(n: number, weights = weightsDefault, faces = sidesDefault): SymbolType[] {
+  const nn = Math.max(0, Math.floor(n));
+  const out: SymbolType[] = [];
+  for (let i = 0; i < nn; i++) {
+    const idx = rollOneIndex(weights);
+    out.push(faces[idx] ?? "fail");
+  }
+  return out;
+}
 
-export type ClientMsg = z.infer<typeof ClientJoin> | z.infer<typeof ClientRoll> | z.infer<typeof ClientSelectNode> | z.infer<typeof ClientUndoNode>;
-export type ServerMsg = z.infer<typeof ServerState> | z.infer<typeof ServerError>;
+/** Summary of rolled dice */
+export function summarizeDice(rolled: SymbolType[]) {
+  const counts = { success: 0, crit: 0, strike: 0, fail: 0, expertise: 0 };
+  for (const s of rolled) (counts as any)[s] = (counts as any)[s] + 1;
+  const success = counts.success + counts.crit;
+  const crit = counts.crit;
+  return { ...counts, success, crit };
+}
+
+/** Human readable summary string */
+export function summaryToString(s: ReturnType<typeof summarizeDice>) {
+  return `success=${s.success}, crit=${s.crit}, strike=${s.strike}, expertise=${s.expertise}, fail=${s.fail}`;
+}
+
+/** Legacy helpers kept for compatibility */
+export function rollOne(): number { return Math.floor(Math.random() * sidesDefault.length) + 1; }
+export function normalizeDice(n: number): number { return Math.max(0, Math.floor(n)); }
+
+/* -------------------- Zod schemas for server -------------------- */
+
+/** Message: client -> server join */
+export const ClientJoin = z.object({
+  t: z.literal("join"),
+  room: z.string().min(1),
+  name: z.string().min(1),
+  idToken: z.string().min(1),
+  role: z.enum(["player","spectator"]).default("player")
+});
+export type ClientJoinT = z.infer<typeof ClientJoin>;
+
+/** Message: client -> server roll */
+export const ClientRoll = z.object({
+  t: z.literal("roll"),
+  pool: z.enum(["attack","defense"]).optional()
+});
+export type ClientRollT = z.infer<typeof ClientRoll>;
+
+/** Default export (optional metadata) */
+const sharedDefault = { version: "0.0.3" };
+export default sharedDefault;

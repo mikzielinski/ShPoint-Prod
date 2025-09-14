@@ -1,0 +1,25 @@
+{
+  "id": "obi-wan-kenobi-out-of-hiding",
+  "url": "https://shatterpointdb.com/characters/obi-wan-kenobi-out-of-hiding",
+  "name": "Obi-Wan Kenobi, Out of Hiding",
+  "portrait": "https://shatterpointdb.com/media/bo4dgs2m/star-wars-shatterpoint-obiwan-jedi-out-of-hiding-unit-card.png?height=600&v=1d9a2e88f47cca0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Run",
+      "text": "At the start of this Unit's activation, choose a character in this Unit or another allied character that is Engaged with an enemy character. The chosen character may and Mind Trick When an enemy character within 5 targets an allied character with an attack, this Unit may use this ability. If the attacking character's Unit does not have , it gains . Greater Purpose This Unit has Immunity . When this Unit would gain , one character in this Unit may instead. Last stand of the Jedi For each injured token this Unit has, characters in this Unit add 2 dice to the attack and defense rolls."
+    },
+    {
+      "title": "Immunity",
+      "text": "This Unit has  . When this Unit would gain , one character in this Unit may instead."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897059
+  }
+}

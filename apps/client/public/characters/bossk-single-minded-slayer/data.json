@@ -1,0 +1,25 @@
+{
+  "id": "bossk-single-minded-slayer",
+  "url": "https://shatterpointdb.com/characters/bossk-single-minded-slayer",
+  "name": "Bossk, Single-Minded Slayer",
+  "portrait": "https://shatterpointdb.com/media/dixhkiof/shatterpoint-bossk-singleminded-slayer-unit-card-new.png?height=600&v=1db14e8580125c0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Regeneration",
+      "text": "At the start of this Unit's activation, if it does not have [strain], it removes all and conditions from itself. Explosive Ordnance Choose an enemy character within 5 and roll 5 Attack Dice. Each Unit within 2 of the chosen character suffers for each [expertise] result in the roll. Then, one character in this Unit may . Payday After you reveal an Order Card, this Unit may use this ability. If it does, this Unit gains one Tag of your choice until the end of the Turn. We have a job to do When an enemy character Wounds another allied Bounty Hunter Unit with an attack, after the effect is resolved, this Unit may use this ability. One character in this Unit may Toward a character in that allied Unit and may make a 5 dice attack targeting the enemy character that caused the effect."
+    },
+    {
+      "title": "Bounty Hunter",
+      "text": "When an enemy character Wounds another allied  Unit with an attack, after the effect is resolved, this Unit may use this ability. One character in this Unit may Toward a character in that allied Unit and may make a 5 dice attack targeting the enemy character that caused the effect."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896994
+  }
+}

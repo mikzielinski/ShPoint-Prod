@@ -1,0 +1,25 @@
+{
+  "id": "lando-and-r2-d2-inside-job",
+  "url": "https://shatterpointdb.com/characters/lando-and-r2-d2-inside-job",
+  "name": "Lando and R2-D2, Inside Job",
+  "portrait": "https://shatterpointdb.com/media/cumplhyw/shatterpoint-lando-and-r2d2-inside-job-unit-card.png?height=600&v=1da33ebdfd832b0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Mingle",
+      "text": "Each character in this Unit may . If there are no enemy characters within 3, each character in this Unit may instead. Element of Suprise When this Unit makes a combat action, before dice are rolled, it may use this ability. Characters in this Unit add 2 dice to each attack roll made as part of this combat action. After each attack is resolved, if that attack roll contained 2 or more results, this Unit gains . Forward planning When an allied Primary Unit within 4 or an allied Secondary Unit within 4 starts its activation, this Unit may use this ability. The activating Unit may remove one condition from itself. Clever disguise While this Unit's Order Card is in the Order Deck or in reserve, characters in this Unit cannot be targeted by attacks."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When an allied  within 4 or an allied Secondary Unit within 4 starts its activation, this Unit may use this ability. The activating Unit may remove one condition from itself."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897047
+  }
+}

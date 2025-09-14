@@ -1,0 +1,61 @@
+/* ========= SHPoint — Typography reset ========= */
+
+/* 1) Stosy fontów (systemowe = zero dodatkowych bundli) */
+:root{
+  --font-sans: system-ui, -apple-system, "SF Pro Text", "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans",
+               "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+  --text: #111827;   /* neutral-900 */
+  --muted: #6b7280;  /* neutral-500 */
+}
+
+/* 2) Global – TYLKO tekst (ikony są w .sp / .sp-icon i mają swój font) */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body, input, button, select, textarea {
+  font-family: var(--font-sans);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "clig" 1, "calt" 1;
+  font-kerning: normal;
+}
+
+/* 3) Nagłówki – mocniejsze, ale bez “krzyku” */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0 0 .2em 0;
+}
+h1 { font-size: clamp(1.4rem, 1.2rem + 1.2vw, 2rem); line-height: 1.15; }
+h2 { font-size: clamp(1.2rem, 1.1rem + .8vw, 1.6rem); line-height: 1.18; }
+h3 { font-size: 1.125rem; line-height: 1.2; font-weight: 600; }
+
+/* 4) Treść, etykiety, opisy */
+p, li, label, small { color: var(--text); }
+small, .text-muted { color: var(--muted); }
+
+/* 5) Tabularne cyfry (ładnie w stat-boxach) */
+.stat-pill, .stat, .digit, .num,
+[aria-label~="Dice"], [aria-label~="Defense"], [aria-label~="Range"] {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 600;
+}
+
+/* 6) Przyciski i inputy – tylko typografia */
+button, .btn { font-family: var(--font-sans); font-weight: 600; }
+input, select, textarea { font-family: var(--font-sans); }
+
+/* 7) Karty/modale – subtelne wygładzanie */
+.card, .modal, .panel {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 8) Safari potrafi “pływać” wagą fontu – zablokuj syntezę */
+* { font-synthesis-weight: none; }

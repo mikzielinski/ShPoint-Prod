@@ -1,0 +1,25 @@
+{
+  "id": "hera-syndulla-spectre-2",
+  "url": "https://shatterpointdb.com/characters/hera-syndulla-spectre-2",
+  "name": "Hera Syndulla, Spectre-2",
+  "portrait": "https://shatterpointdb.com/media/hylihepi/shatterpoint-hera-syndulla-spectre-2-unit-card.png?height=600&v=1daa6b765965d30",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Phoenix Leader",
+      "text": "Aft the start of this Unit's activation, choose another allied Rebel Alliance Unit. One character in the chosen Unit may . If the chosen Unit is a Spectre , one character in the chosen Unit may instead . We will not stand down Choose an allied Rebel Alliance Unit and an Active objective. The chosen Unit may remove one Wounded token, all , and one condition from itself. Then the chosen Unit gains an Injured token and one character in the chosen Unit may Toward the chosen Active objective. Crew of the Ghost Allied Rebel Alliance characters within 4 have Cover [1] . We have hope At the start of this Unit's activation, you may spend 1 Momentum. If you do, each allied Rebel Alliance Unit within 5 may remove and one condition from itself. If this Unit was chosen to activate with a Shatterpoint Card, you may resolve this effect without spending Momentum."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "Aft the start of this Unit's activation, choose another allied  Unit. One character in the chosen Unit may . If the chosen Unit is a Spectre , one character in the chosen Unit may instead ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897033
+  }
+}

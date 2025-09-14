@@ -1,0 +1,25 @@
+{
+  "id": "asajj-ventress-sith-assassin",
+  "url": "https://shatterpointdb.com/characters/asajj-ventress-sith-assassin",
+  "name": "Asajj Ventress, Sith Assassin",
+  "portrait": "https://shatterpointdb.com/media/gtbhclqv/shatterpoint-asajj-ventress-sith-assassin-abilities-new.jpg",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Dathomirian Dexterity",
+      "text": "Each character in this Unit may . This Unit may use this ability two times during its activation instead of the normal one. Force Push Choose a character in this Unit and an enemy character within 3 of that character. Push the chosen enemy character 3 away from the chosen allied character. Riposte After a attack targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers Swift Retreat When a character in this Unit would , it may instead . Sith Assassin When a character in this Unit Wounds an enemy, after the effect is resolved, refresh . Then, if it Wounded a Primary Unit or Secondary Unit , it may or . Finally, if it Wounded a Primary Unit , refresh ."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When a character in this Unit Wounds an enemy, after the effect is resolved, refresh . Then, if it Wounded a  or Secondary Unit , it may or . Finally, if it Wounded a Primary Unit , refresh ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896988
+  }
+}

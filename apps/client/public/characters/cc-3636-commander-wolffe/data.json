@@ -1,0 +1,25 @@
+{
+  "id": "cc-3636-commander-wolffe",
+  "url": "https://shatterpointdb.com/characters/cc-3636-commander-wolffe",
+  "name": "CC-3636 Commander Wolffe",
+  "portrait": "https://shatterpointdb.com/media/aupalptu/shatterpoint-cc3636-commander-wolffe-unit-card.png?height=600&v=1da5950f9d284b0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Flank 'Em!",
+      "text": "At the start of this Unit's activation, choose an allied Clone Trooper Unit. Each character in the chosen Unit may . Run and Gun Each character in this Unit may . If any characters , this Unit immediately makes a focus action. Pack Hunter When a character in this Unit makes a attack targeting an enemy character that is Engaged with another allied Clone Trooper character, it adds 2 dice to the attack roll. Wolfpack While this Unit is not Wounded, when an allied Clone Trooper character makes an attack targeting an enemy character within 5 of another allied Clone Trooper Unit, the attacker's [crit] results cannot be modified by enemy effects."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "At the start of this Unit's activation, choose an allied  Unit. Each character in the chosen Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896998
+  }
+}

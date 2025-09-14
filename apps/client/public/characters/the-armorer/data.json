@@ -1,0 +1,25 @@
+{
+  "id": "the-armorer",
+  "url": "https://shatterpointdb.com/characters/the-armorer",
+  "name": "The Armorer",
+  "portrait": "https://shatterpointdb.com/media/mkhhhls4/shatterpoint-the-armorer-unit-new.png?height=600&v=1db09c1c95a2d70",
+  "squad_points": 9,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Wisdom of the Mandalore",
+      "text": "At the start of this Unit's activation, choose another allied Mandalorian character. The chosen character and each character in this Unit may . Both Hunter and Prey Choose an enemy character. Each character in this Unit may or Toward the chosen character. After all moves are resolved, if one or more characters in this Unit are Engaged with the chosen character, this Unit and the chosen enemy character gain . Just as we shape Mandalorian steel, we shape ourselves For every 3 this Unit has, characters in this Unit add 1 die to their defense rolls against attacks. Additionally, for each Injured token this Unit has, characters in this Unit add 1 die to their defense rolls again attacks. Our survival is our strength. This is the way Allied Mandalorian Units doe not increase the cost of their and abilities due to having Wounded and Injured tokens."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "At the start of this Unit's activation, choose another allied  character. The chosen character and each character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897081
+  }
+}

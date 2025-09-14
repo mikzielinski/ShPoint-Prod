@@ -1,0 +1,25 @@
+{
+  "id": "ahsoka-tano-fulcrum",
+  "url": "https://shatterpointdb.com/characters/ahsoka-tano-fulcrum",
+  "name": "Ahsoka Tano Fulcrum",
+  "portrait": "https://shatterpointdb.com/media/1ocfyvzw/shatterpoint-ahsoka-tano-fulcrum-unit.png?height=600&v=1db888985187030",
+  "squad_points": 8,
+  "force": 4,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": ["Spy", "Jedi"],
+  "abilities": [
+    {
+      "title": "She is fearless",
+      "text": "Each character in this Unit may . This Unit may use this ability two times during its activation instead of the normal one. Riposte After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers . Then I will avenge his death After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS. I am no Jedi Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a  or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896985
+  }
+}

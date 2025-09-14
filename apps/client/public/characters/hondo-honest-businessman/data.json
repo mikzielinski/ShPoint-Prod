@@ -1,0 +1,25 @@
+{
+  "id": "hondo-honest-businessman",
+  "url": "https://shatterpointdb.com/characters/hondo-honest-businessman",
+  "name": "Hondo, Honest Businessman",
+  "portrait": "https://shatterpointdb.com/media/ykyj2zvy/shatterpoint-hondo-honest-businessman-new.jpg?height=600&v=1dbc839cdf0e810",
+  "squad_points": 7,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "[tactical] That's just good business",
+      "text": "At the start of this Unit's activation, refresh for each Active objective controlled by another player. Inspiring stories, so many of them true Choose an allied Unit. One character in this Unit and each character in the chosen Unit may . What have we here? Choose an enemy Unit within 2. The chosen Unit gains and [strain]. Then, if that Unit's Order Card is in reserve, you may spend to shuffle it into its controlling player's Order Deck. This effort is no longer profitable When another allied Unit within 4 becomes Wounded, this Unit may use this ability. One character in this Unit may . That character may not end this movement Engaged. Fair? What's fair? When an allied Scoundrel character makes an attack as part of a combat action, if the defender is Engaged with one or more characters in other allied Units that are not wounded, it may add 2 dice to the attack roll. If it does, after the attack is resolved, each allied Unit within 2 of the defender, except the attacking Unit, gains [strain]."
+    },
+    {
+      "title": "Scoundrel",
+      "text": "When an allied  character makes an attack as part of a combat action, if the defender is Engaged with one or more characters in other allied Units that are not wounded, it may add 2 dice to the attack roll. If it does, after the attack is resolved, each allied Unit within 2 of the defender, except the attacking Unit, gains [strain]."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897034
+  }
+}

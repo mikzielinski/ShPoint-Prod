@@ -1,0 +1,29 @@
+{
+  "id": "rc-1138-boss",
+  "url": "https://shatterpointdb.com/characters/rc-1138-boss",
+  "name": "RC-1138 \"Boss\"",
+  "portrait": "https://shatterpointdb.com/media/cgapiphb/shatterpoint-rc1338-boss-unit-card.png?height=600&v=1dbf5c89dfc8d00",
+  "squad_points": 9,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Hang Tight Trooper, Delta Squad on our way",
+      "text": "At the start of this Unit's activation, each allied Unit Delta Squad character within 4 may . Delta, Give me an Explosive Solution Choose an objective within 3 of an allied Clone Trooper character. Each allied character within 2 of that objective may and gain . Then each Unit within 2 of that objective suffers and removes any it has. Let's get in there and start breaking things When a character in this Unit would , it may suffer . If it does, it may instead . Additionally, when a character in this Unit would , it may suffer . If it does, it may instead . You need to learn I'm a lot scarier than you are For every 3 this Unit has, characters in this Unit add 1 die to their attack rolls. For each Injured token this Unit has, characters in this Unit add 3 dice to their attack rolls. Additionally, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh ."
+    },
+    {
+      "title": "Delta Squad",
+      "text": "At the start of this Unit's activation, each allied Unit  character within 4 may ."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "Choose an objective within 3 of an allied  character. Each allied character within 2 of that objective may and gain . Then each Unit within 2 of that objective suffers and removes any it has."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897066
+  }
+}

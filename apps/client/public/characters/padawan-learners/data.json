@@ -1,0 +1,21 @@
+{
+  "id": "padawan-learners",
+  "url": "https://shatterpointdb.com/characters/padawan-learners",
+  "name": "Padawan Learners",
+  "portrait": "https://shatterpointdb.com/media/gpenhu0z/shatterpoint-padawan-learners.png?height=600&v=1db531b77f61540",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Lessons Learned",
+      "text": "At the start of this Unit's activation, one character in this Unit may . Force Rush Each character in this Unit may . After all moves have been resolved, If a character in this Unit is within 2 of another allied Force User character, this Unit immediately makes a focus action. Deflect After a attack targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Stretch out with your feelings When a character in this Unit makes a attack as part of a combat action, before dice are rolled, this Unit may use this ability. During this attack, when resolving a from one of its chosen Combat Tree Options, the attacker may choose another allied character within 3 instead of the normal 2, to remove a condition or from."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897061
+  }
+}

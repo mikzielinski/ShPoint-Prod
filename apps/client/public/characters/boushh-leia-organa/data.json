@@ -1,0 +1,29 @@
+{
+  "id": "boushh-leia-organa",
+  "url": "https://shatterpointdb.com/characters/boushh-leia-organa",
+  "name": "Boushh (Leia Organa)",
+  "portrait": "https://shatterpointdb.com/media/wxqeini3/shatterpoint-boush-leia-organa-unit-card.png?height=600&v=1da33eba6305f10",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Fan out",
+      "text": "At the start of this Unit's activation, one character in this Unit or another allied Spy character may . Low Blow Choose a character in this Unit and an enemy character it is Engaged with. Push the chosen enemy character 2 away from the chosen allied character. Then, Push the chosen allied character 2 Toward the chosen enemy character. After all moves are resolved, this Unit may make a focus action. Fearless and Inventive When a character in this Unit makes a attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 2 dice to the attack for each enemy character, other than the target, that is not Wounded and is engaged with one or more characters in this Unit. I want fifty thousand, no less When a character in this Unit Wounds an enemy Primary Unit , gain an additional Momentum token unless that Unit's controlling player spends ."
+    },
+    {
+      "title": "Spy",
+      "text": "At the start of this Unit's activation, one character in this Unit or another allied  character may ."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When a character in this Unit Wounds an enemy  , gain an additional Momentum token unless that Unit's controlling player spends ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896995
+  }
+}

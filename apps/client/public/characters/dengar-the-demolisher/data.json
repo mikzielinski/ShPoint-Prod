@@ -1,0 +1,28 @@
+{
+  "id": "dengar-the-demolisher",
+  "url": "https://shatterpointdb.com/characters/dengar-the-demolisher",
+  "name": "Dengar, The Demolisher",
+  "portrait": "https://shatterpointdb.com/media/5uhc4dyg/shatterpoint-dengar-the-demolisher-unit-card-new.png?height=600&v=1db14e80fa177d0",
+  "squad_points": 4,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "On the trail",
+      "text": "At the start of this Unit's activation, each character in this Unit may Toward an enemy character. Payday After you reveal an Order FCard, this Unit may use this ability. If it does, this Unit gains one Tag of your choice until the end of the Turn. Explosive Regards When this Unit is Wounded by a attack, after the effect is resolved, this Unit may use this ability. Roll 5 attack dice. The Unit that Wounded this Unit suffers for each [hit] and [crit] result in the roll. Being underestimated has its values When you spend to put an allied Bounty Hunter Unit's Order Card in reserve, spend 1 less . Not just a pretty face Characters in this Unit have Steadfast , and Immunity ."
+    },
+    {
+      "title": "Bounty Hunter",
+      "text": "When you spend to put an allied  Unit's Order Card in reserve, spend 1 less ."
+    },
+    {
+      "title": "Steadfast",
+      "text": "Characters in this Unit have  , and Immunity ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897015
+  }
+}

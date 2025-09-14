@@ -1,0 +1,25 @@
+{
+  "id": "paploo-curious-creature",
+  "url": "https://shatterpointdb.com/characters/paploo-curious-creature",
+  "name": "Paploo, Curious Creature",
+  "portrait": "https://shatterpointdb.com/media/ksoflaee/shatterpoint-paploo-curious-creature-unit-card.png?height=600&v=1da3e93a1ab6590",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Feigned Retreat",
+      "text": "Choose another allied Ewok character within 3 and an enemy character that the chosen character is Engaged with. The chosen allied character may Away from the chosen enemy character and gain . Then the chosen enemy character gains [exposed] and may Toward the chosen allied character. Stealthy Approach Each character in this Unit may . Then this Unit may gain or immediately make a focus action. Fearless and Inventive When a character in this Unit makes a attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 2 dice to the attack pool for each enemy character, other than the target, that is not Wounded and is Engaged with one or more characters in this Unit. What does this do? When a character in this Unit makes a attack targeting an enemy character that has or , the attacking character may choose to use the defender's Expertise Chart, instead of its own, during the Apply Expertise Charts step of that attack."
+    },
+    {
+      "title": "Ewok",
+      "text": "Choose another allied  character within 3 and an enemy character that the chosen character is Engaged with. The chosen allied character may Away from the chosen enemy character and gain . Then the chosen enemy character gains [exposed] and may Toward the chosen allied character."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897062
+  }
+}

@@ -1,0 +1,547 @@
+/* ========= SHPoint – UI (clean CSS) ========= */
+
+/* =========================================
+   1) Design tokens (light/dark)
+   ========================================= */
+:root{
+  /* Light */
+  --ui-text:#111827;
+  --ui-muted:#6b7280;
+  --ui-bg:#ffffff;         /* app shell */
+  --ui-surface:#ffffff;    /* cards/panels */
+  --ui-surface-2:#f8fafc;  /* jaśniejszy wariant panelu (np. karty/sekcje) */
+  --ui-border:#d1d5db;
+  --ui-border-strong:#9ca3af;
+  --ui-hover:#f3f4f6;
+
+  --ui-primary:#2563eb;
+  --ui-primary-600:#1d4ed8;
+  --ui-danger:#dc2626;
+  --ui-danger-600:#b91c1c;
+
+  --ui-nav-surface:#f8fafc;
+  --ui-nav-border:#e5e7eb;
+
+  --ui-ring:0 0 0 3px rgba(37,99,235,.35);
+
+  /* Akcent (rule of 3) + pola */
+  --accent: #4f6cf0;
+  --accent-600: #3e58d3;
+  --line:   color-mix(in srgb, #000 14%, transparent);
+  --field-bg: #f6f7fb;
+  --field-txt: #0e1321;
+  --field-muted:#6b7280;
+}
+
+/* Systemowy dark */
+@media (prefers-color-scheme: dark){
+  :root{
+    --ui-text:#e9eef7;
+    --ui-muted:#b6c1d8;
+
+    --ui-bg:#0a0f1e;
+    --ui-surface:#0e1627;
+    --ui-surface-2:#121c31;
+
+    --ui-border:#22304a;
+    --ui-border-strong:#334663;
+    --ui-hover:#14223a;
+
+    --ui-nav-surface:#0c1426;
+    --ui-nav-border:#22304a;
+
+    --ui-ring:0 0 0 3px rgba(37,99,235,.45);
+
+    --accent: #6d8bff;
+    --accent-600: #5873f2;
+    --line: color-mix(in srgb, #fff 14%, transparent);
+    --field-bg: color-mix(in srgb, var(--accent) 6%, var(--ui-surface-2));
+    --field-txt: #eaf0ff;
+    --field-muted:#b6c1d8;
+  }
+}
+
+/* === THEME BRIDGE: jeśli masz <html data-theme="dark"> ... === */
+html[data-theme="dark"], body[data-theme="dark"]{
+  --ui-text:#e9eef7;
+  --ui-muted:#b6c1d8;
+
+  --ui-bg:#0a0f1e;
+  --ui-surface:#0e1627;
+  --ui-surface-2:#121c31;
+
+  --ui-border:#22304a;
+  --ui-border-strong:#334663;
+  --ui-hover:#14223a;
+
+  --ui-nav-surface:#0c1426;
+  --ui-nav-border:#22304a;
+
+  --ui-ring:0 0 0 3px rgba(37,99,235,.45);
+
+  --accent:#6d8bff;
+  --accent-600:#5873f2;
+  --line: color-mix(in srgb, #fff 14%, transparent);
+  --field-bg: color-mix(in srgb, #ffffff 7%, var(--ui-surface));
+  --field-txt:#eef3ff;
+  --field-muted:#b6c1d8;
+}
+
+/* =========================================
+   2) Layout helpers
+   ========================================= */
+.container{ max-width:1200px; margin:0 auto; padding:16px; }
+
+/* =========================================
+   3) Cards & tables
+   ========================================= */
+.card{
+  background:var(--ui-surface);
+  color:var(--ui-text);
+  border:1px solid var(--ui-border);
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 1px 2px rgba(0,0,0,.05);
+}
+
+/* Rounded table-card */
+.rounded-card{ border-radius:16px !important; overflow:hidden; }
+.rounded-card table{ width:100%; border-collapse:separate; border-spacing:0; }
+.rounded-card thead th{ border-bottom:1px solid var(--ui-border); }
+.rounded-card thead th:first-child{ border-top-left-radius:16px; }
+.rounded-card thead th:last-child{ border-top-right-radius:16px; }
+.rounded-card tbody tr:last-child td:first-child{ border-bottom-left-radius:16px; }
+.rounded-card tbody tr:last-child td:last-child{ border-bottom-right-radius:16px; }
+.rounded-card tbody tr + tr td{ border-top:1px solid var(--ui-border); }
+
+/* Tables */
+.table{ width:100%; border-collapse:separate; border-spacing:0; }
+.table th, .table td{ padding:12px 14px; text-align:left; }
+.table thead th{ font-weight:800; color:var(--ui-muted); border-bottom:1px solid var(--ui-border); }
+.table tbody tr + tr td{ border-top:1px solid var(--ui-border); }
+.table tbody td:nth-child(2){ color:var(--ui-text); font-weight:600; }
+.table tbody tr:hover td{ background:color-mix(in srgb, var(--ui-text) 4%, transparent); }
+.table tr.is-self td{ background:color-mix(in srgb, var(--ui-primary) 7%, var(--ui-surface)); color:var(--ui-text); }
+
+/* =========================================
+   4) Buttons, badges, kbd
+   ========================================= */
+.btn{
+  appearance:none;
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  border:1px solid var(--ui-border-strong);
+  background:var(--ui-surface);
+  color:var(--ui-text);
+  padding:.5rem .9rem; border-radius:10px;
+  font-weight:600; cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, opacity .15s ease;
+}
+.btn:hover{ background:var(--ui-hover); }
+.btn:focus{ outline:none; box-shadow:var(--ui-ring); }
+.btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+.btn.primary{ background: var(--ui-primary); color:#fff; border-color:var(--ui-primary-600); }
+.btn.primary:hover{ background: var(--ui-primary-600); }
+
+.btn.danger{ background: var(--ui-danger); color:#fff; border-color: var(--ui-danger-600); }
+.btn.ghost{ background:transparent; border-color: var(--ui-border); color: var(--ui-text); }
+.btn.sm{ padding:.35rem .7rem; border-radius:9px; font-size:.925rem; }
+
+.badge{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.15rem .5rem; border-radius:999px;
+  border:1px solid var(--ui-border);
+  font-size:.75rem; line-height:1;
+}
+
+.kbd{
+  font-family:var(--font-mono, ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  border:1px solid var(--ui-border);
+  padding:.1rem .35rem; border-radius:6px;
+  background:var(--ui-hover); font-size:.825em;
+}
+
+/* =========================================
+   5) Navbar + role chips
+   ========================================= */
+.navbar{ background:transparent; border-bottom:0; }
+.navbar > .container{
+  background:var(--ui-nav-surface);
+  border:1px solid var(--ui-nav-border);
+  border-radius:14px;
+  padding-block:8px;
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  margin-top:8px;
+}
+.navbar .chip{
+  --c:var(--ui-muted);
+  display:inline-flex; align-items:center;
+  height:24px; padding:0 10px; border-radius:999px;
+  background:color-mix(in srgb, var(--c) 18%, transparent);
+  border:1px solid color-mix(in srgb, var(--c) 42%, transparent);
+  color:var(--c); font-weight:800; font-size:11px; letter-spacing:.06em; text-transform:uppercase; line-height:1;
+}
+.navbar .chip--xs{ height:20px; padding:0 8px; font-size:10px; }
+.navbar .chip--role-ADMIN{ --c:#fbbf24; background:color-mix(in srgb, #fbbf24 18%, transparent); border-color:color-mix(in srgb, #fbbf24 42%, transparent); }
+.navbar .chip--role-EDITOR{ --c:#60a5fa; background:color-mix(in srgb, #60a5fa 18%, transparent); border-color:color-mix(in srgb, #60a5fa 42%, transparent); }
+.navbar .chip--role-USER{ --c:#cbd5e1; background:color-mix(in srgb, #cbd5e1 18%, transparent); border-color:color-mix(in srgb, #cbd5e1 38%, transparent); }
+.navbar .chip + .btn{ margin-left:8px; }
+
+/* =========================================
+   6) Users page backdrop
+   ========================================= */
+.page--users{
+  background:
+    radial-gradient(900px 260px at 50% -140px, color-mix(in srgb, var(--ui-primary) 9%, transparent), transparent),
+    var(--ui-bg);
+  padding-bottom:24px;
+}
+
+/* =========================================
+   7) Role dropdown (simple select)
+   ========================================= */
+.role-select-wrap{ position:relative; display:inline-flex; width:100%; max-width:180px; }
+.role-select{
+  appearance:none; width:100%; height:34px;
+  padding:0 34px 0 12px; border-radius:10px;
+  border:1px solid var(--ui-border);
+  background:var(--ui-surface); color:var(--ui-text);
+  font-weight:700; cursor:pointer;
+}
+.role-select:focus{ outline:none; box-shadow:var(--ui-ring); }
+.role-select-wrap::after{
+  content:"▾"; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+  pointer-events:none; opacity:.8;
+}
+.role-select-wrap[data-role="ADMIN"] .role-select{ border-color:color-mix(in srgb, #fbbf24 42%, transparent); background:color-mix(in srgb, #fbbf24 12%, var(--ui-surface)); color:#fbbf24; }
+.role-select-wrap[data-role="EDITOR"] .role-select{ border-color:color-mix(in srgb, #60a5fa 42%, transparent); background:color-mix(in srgb, #60a5fa 12%, var(--ui-surface)); color:#60a5fa; }
+.role-select-wrap[data-role="USER"] .role-select{ border-color:color-mix(in srgb, #cbd5e1 38%, transparent); background:color-mix(in srgb, #cbd5e1 12%, var(--ui-surface)); color:#cbd5e1; }
+.role-select:disabled{ opacity:.7; cursor:not-allowed; }
+
+/* =========================================
+   8) Utility shim (Tailwind-like, minimalist)
+   ========================================= */
+.flex{ display:flex; }
+.inline-flex{ display:inline-flex; }
+.flex-wrap{ flex-wrap:wrap; }
+.items-center{ align-items:center; }
+.justify-between{ justify-content:space-between; }
+.ml-auto{ margin-left:auto; }
+
+.w-full{ width:100%; }
+.h-7{ height:1.75rem; }
+.h-9{ height:2.25rem; }
+.h-10{ height:2.5rem; }
+.rounded-lg{ border-radius:.5rem; }
+.rounded-full{ border-radius:9999px; }
+.shadow-inner{ box-shadow:inset 0 1px 2px rgba(0,0,0,.1); }
+
+.gap-1{ gap:.25rem; }
+.gap-2{ gap:.5rem; }
+.gap-3{ gap:.75rem; }
+.gap-4{ gap:1rem; }
+.mt-1{ margin-top:.25rem; }
+.mt-2{ margin-top:.5rem; }
+.mt-3{ margin-top:.75rem; }
+.mb-2{ margin-bottom:.5rem; }
+.mb-3{ margin-bottom:.75rem; }
+.p-3{ padding:.75rem; }
+.p-4{ padding:1rem; }
+.px-2\.5{ padding-left:.625rem; padding-right:.625rem; }
+.px-3{ padding-left:.75rem; padding-right:.75rem; }
+
+.mr-1{ margin-right:.25rem; }
+.mr-2{ margin-right:.5rem; }
+.ml-2{ margin-left:.5rem; }
+
+.text-sm{ font-size:.875rem; }
+.text-xs{ font-size:.75rem; }
+.whitespace-nowrap{ white-space:nowrap; }
+
+/* (UWAGA) Nie nadpisujemy globalnie .grid tu — patrz sekcja 13 */
+
+/* =========================================
+   9) Characters page
+   ========================================= */
+.characters-container{ max-width:1400px; margin:0 auto; padding:0 16px; }
+.filters-row{ display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-bottom:.75rem; }
+
+.character-card{
+  display:block; border-radius:12px; overflow:hidden;
+  background: var(--ui-surface-2);
+  border:1px solid var(--ui-border);
+  box-shadow: 0 1px 2px rgba(0,0,0,.12);
+}
+.character-card img{ width:100%; height:auto; display:block; }
+.character-card, .character-card .card-body{
+  color:var(--ui-text) !important;
+  background: var(--ui-surface-2);
+}
+.character-card .badge{ border-color: var(--ui-border); color: var(--ui-text); }
+
+@media (max-width:380px){ .characters-container{ padding:0 8px; } }
+
+/* =========================================
+   10) Filters – multi-select dropdown
+   ========================================= */
+.filter-input{
+  padding:.6rem .8rem; border-radius:12px;
+  border:1px solid var(--ui-border);
+  background:var(--ui-surface); color:var(--ui-text);
+  font-size:.925rem; min-width:280px;
+}
+.filter-input:focus{ outline:none; box-shadow:var(--ui-ring); }
+
+.dropdown{ position:relative; }
+.chip{
+  display:inline-flex; align-items:center; gap:.5rem;
+  height:34px; padding:0 .8rem; border-radius:999px;
+  border:1px solid var(--ui-border);
+  background:var(--ui-surface); color:var(--ui-text);
+  font-weight:700; font-size:.85rem; cursor:pointer;
+}
+.chip--active{
+  border-color:color-mix(in srgb, var(--ui-primary) 45%, transparent);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--ui-primary) 18%, transparent);
+}
+.chip-count{
+  display:inline-block; min-width:20px; height:20px; padding:0 6px; border-radius:999px;
+  background:color-mix(in srgb, var(--ui-primary) 15%, transparent);
+  border:1px solid color-mix(in srgb, var(--ui-primary) 35%, transparent);
+  font-size:.75rem; line-height:18px; text-align:center;
+}
+
+.dropdown-menu{
+  position:absolute; inset-inline-start:0; top:calc(100% + 8px); z-index:50;
+  min-width:240px; max-height:360px; overflow:auto;
+  background:var(--ui-surface); color:var(--ui-text);
+  border:1px solid var(--ui-border);
+  border-radius:12px;
+  box-shadow:0 14px 40px rgba(0,0,0,.28);
+  padding:6px;
+}
+.dropdown-wide{ min-width:360px; }
+
+.dropdown-option{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:10px; border-radius:10px;
+  background:transparent; border:0; cursor:pointer; text-align:left; font-size:.95rem;
+}
+.dropdown-option:hover{ background:var(--ui-hover); }
+.dropdown-option.is-active{
+  background:color-mix(in srgb, var(--ui-primary) 12%, transparent);
+  border:1px solid color-mix(in srgb, var(--ui-primary) 34%, transparent);
+}
+.option-check{ opacity:.9; }
+.dropdown-sep{ border:0; border-top:1px solid var(--ui-border); margin:6px; }
+.dropdown-link{ width:100%; text-align:left; padding:8px 10px; border-radius:10px; border:0; background:transparent; cursor:pointer; }
+.dropdown-link:hover{ background:var(--ui-hover); }
+
+.active-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-left:8px; }
+.chip--pill{ height:28px; padding:0 .65rem; font-weight:700; }
+.chip--removable{ padding-right:.4rem; }
+.chip-x{ margin-left:.35rem; opacity:.65; }
+.chip--removable:hover .chip-x{ opacity:1; }
+
+/* =========================================
+   11) Modal – „premium” wygląd (czytelny)
+   ========================================= */
+.modal-backdrop{
+  position:fixed; inset:0; z-index:60;
+  background:rgba(0,0,0,.55);
+  display:grid; place-items:center;
+  padding:16px;
+  backdrop-filter: blur(2px);
+  animation: modalFade .16s ease-out;
+}
+@keyframes modalFade{ from{opacity:0} to{opacity:1} }
+
+.modal-sheet{
+  width:min(1120px, 100%);
+  max-height:92vh; overflow:auto;
+  background:var(--ui-surface); color:var(--ui-text);
+  border:1px solid var(--ui-border); border-radius:16px;
+  box-shadow:0 24px 80px rgba(0,0,0,.45);
+  padding-bottom:6px;
+  overscroll-behavior:contain;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               Inter, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+               "Segoe UI Emoji", "Segoe UI Symbol";
+}
+.modal-sheet.is-wide{ width:min(1180px, 100%); }
+.modal-sheet.is-roomy{ width:min(1240px, 100%); }
+
+@media (prefers-color-scheme: dark){
+  .modal-sheet{ background: color-mix(in srgb, var(--ui-surface) 94%, #000 6%); }
+}
+
+.modal-header{
+  position:sticky; top:0; z-index:1;
+  background:var(--ui-surface);
+  border-bottom:1px solid var(--ui-border);
+  padding:16px 18px;
+  display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+  box-shadow:0 2px 0 rgba(0,0,0,.04);
+}
+.modal-title{ margin:0; font-weight:900; font-size:20px; letter-spacing:.2px; }
+.modal-subtitle{ margin-left:6px; font-weight:500; color:var(--ui-muted); }
+.modal-tabs{ display:flex; align-items:center; gap:8px; }
+.tab{
+  padding:7px 12px; border-radius:12px;
+  border:1px solid var(--ui-border);
+  background:var(--ui-surface); color:var(--ui-text);
+  font-size:13px; font-weight:700; cursor:pointer;
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+.tab:hover{ background:var(--ui-hover); }
+.tab:active{ transform: translateY(1px); }
+.tab:focus-visible{ outline:none; box-shadow: var(--ui-ring); }
+.tab.is-active{ background:#111827; color:#fff; border-color:#111827; }
+.tab--ghost{ background:transparent; }
+
+.modal-body{ padding:18px; }
+
+/* Character Card – duża wersja */
+.data-wrap{ display:flex; justify-content:center; }
+.card-box{ border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+.card-box--data{ width:min(760px, 100%); }
+
+/* Stance – szeroko */
+.stance-wrap{ display:flex; justify-content:center; overflow-x:auto; padding: 8px 10px 10px; scroll-padding: 12px; }
+.stance-box{ width:min(1200px, 100%); padding:4px; }
+
+/* =========================================
+   12) Misc
+   ========================================= */
+.muted{ color:var(--ui-muted); }
+.error{ color:var(--ui-danger); }
+.pre{
+  padding:12px; border-radius:10px; border:1px solid var(--ui-border);
+  background:var(--ui-hover); overflow:auto;
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:.875rem;
+}
+
+/* =========================================
+   13) **FIX** – stabilna siatka galerii Characters
+   ========================================= */
+.characters-container ul.grid{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 1rem;
+}
+@media (min-width:768px){
+  .characters-container ul.grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (min-width:1280px){
+  .characters-container ul.grid{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+}
+@media (min-width:1536px){
+  .characters-container ul.grid{ grid-template-columns: repeat(5, minmax(0,1fr)); }
+}
+.characters-container ul.grid > li{ min-width:0; }
+
+/* =========================================
+   14) Modal readability – staty/skills (kontrast)
+   ========================================= */
+
+/* Pola (Stamina / Durability / Force / Skills) */
+.modal-sheet .modal-body input,
+.modal-sheet .modal-body textarea,
+.modal-sheet .modal-body .input,
+.modal-sheet .modal-body .textarea,
+.modal-sheet .modal-body .pre,
+.modal-sheet .modal-body .form-control,
+.modal-sheet .modal-body .card .card-body > .pre {
+  background: var(--field-bg) !important;
+  color: var(--field-txt) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.04);
+}
+
+/* Labelki – mocny bold */
+.modal-sheet .modal-body label,
+.modal-sheet .modal-body .label,
+.modal-sheet .modal-body h5,
+.modal-sheet .modal-body h6,
+.modal-sheet .modal-body .section-title,
+.modal-sheet .modal-body .panel-title {
+  color: var(--ui-text);
+  font-weight: 800;
+  letter-spacing: .015em;
+}
+
+/* „Skills” / nagłówki sekcji */
+.modal-sheet .modal-body .skills-title,
+.modal-sheet .modal-body h4 {
+  color: var(--ui-text);
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+/* Nazwy skilli – chip */
+.modal-sheet .modal-body .skill-name,
+.modal-sheet .modal-body .skill-title,
+.modal-sheet .modal-body strong.skill,
+.modal-sheet .modal-body b.skill {
+  display: inline-block;
+  font-weight: 800;
+  color: var(--ui-text);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin: 6px 0 4px;
+}
+
+/* Wartości liczbowe – kapsuła */
+.modal-sheet .modal-body .stat-value,
+.modal-sheet .modal-body .value,
+.modal-sheet .modal-body .chip.value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 10px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+  background: var(--accent);
+  border: 1px solid var(--accent-600);
+  border-radius: 999px;
+}
+
+/* Focus ring spójny z akcentem */
+.modal-sheet .modal-body input:focus,
+.modal-sheet .modal-body textarea:focus,
+.modal-sheet .modal-body .input:focus,
+.modal-sheet .modal-body .textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent) !important;
+}
+
+/* Separator panelu „Skills” */
+.modal-sheet .modal-body .pre {
+  border-radius: 12px;
+  line-height: 1.5;
+}
+
+/* Przyciski zakładek – akcent */
+.modal-sheet .tab.is-active{
+  background: var(--accent) !important;
+  border-color: var(--accent-600) !important;
+  color: #fff !important;
+}
+.modal-sheet .tab:hover{ border-color: var(--accent-600); }
+
+/* Badge w modalu */
+.modal-sheet .badge{
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--ui-text);
+}

@@ -1,0 +1,25 @@
+{
+  "id": "jango-fett-bounty-hunter",
+  "url": "https://shatterpointdb.com/characters/jango-fett-bounty-hunter",
+  "name": "Jango Fett, Bounty Hunter",
+  "portrait": "https://shatterpointdb.com/media/0h1jydyw/shatterpoint-jango-fett-bounty-hunter-abilities-new.jpg",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Jet pack",
+      "text": "Each character in this Unit may . Capture wire Choose a character in this unit and an enemy character within 3 of that character. Pull the chosen enemy character 2 toward the chosen allied character. Then the chosen enemy character gains . No so fast When an opposing player chooses to active a Unit from reserve, this Unit may use this ability. One character in this Unit may immediately then may make a 5 dice attack targeting a character in the Unit that was chosen to activate. I'm just looking to get paid When a character in this unit wounds an enemy Primary Unit or Secondary Unit , after the effect is resolved, refresh and one character in this unit may . My client is getting impatient After this unit makes a focus action, one character in this unit may ."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When a character in this unit wounds an enemy  or Secondary Unit , after the effect is resolved, refresh and one character in this unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897038
+  }
+}

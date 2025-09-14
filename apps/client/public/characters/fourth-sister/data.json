@@ -1,0 +1,21 @@
+{
+  "id": "fourth-sister",
+  "url": "https://shatterpointdb.com/characters/fourth-sister",
+  "name": "Fourth Sister",
+  "portrait": "https://shatterpointdb.com/media/31zl5j4v/star-wars-shatterpoint-fourth-sister-unit-card.png?height=600&v=1d9a3ad71725bd0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Inquisitorius",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 4 of a character in this Unit, the target Unit gains ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897023
+  }
+}

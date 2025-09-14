@@ -1,0 +1,37 @@
+{
+  "id": "director-krennic",
+  "url": "https://shatterpointdb.com/characters/director-krennic",
+  "name": "Director Krennic",
+  "portrait": "https://shatterpointdb.com/media/ai4hgops/shatterpoint-director-krennic-unit.png?height=600&v=1db88872537ad90",
+  "squad_points": 9,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Deploy the Garrison",
+      "text": "Choose an allied Stormtrooper Supporting character. The chosen character may Toward an Active objective. Then it gains and may make a 5 dice attack. Your concerns are hardly warranted When another allied Unit becomes Wounded, before the opposing player gains one or more Momentum, this Unit may use this ability if it is not Wounded. The opposing player gains one less Momentum. We stand here amidst my achievement When another allied Primary or Secondary character Wounds an enemy Unit, after the effect is resolved, this Unit may use this ability. One character in this Unit may and then may make a 5 dice attack. Peace and Security for the Galaxy At the end of this Unit's activation, if its Active Stance is High Aspirations , choose an Active objective it is contesting and take control of it. You cannot lose control of that objective until next Turn. While this Unit is not Wounded, if its Active Stance is Arrogance , reduce the cost of the first or ability it uses each Turn by ."
+    },
+    {
+      "title": "Stormtrooper Supporting",
+      "text": "Choose an allied  character. The chosen character may Toward an Active objective. Then it gains and may make a 5 dice attack."
+    },
+    {
+      "title": "Primary",
+      "text": "When another allied  or Secondary character Wounds an enemy Unit, after the effect is resolved, this Unit may use this ability. One character in this Unit may and then may make a 5 dice attack."
+    },
+    {
+      "title": "High Aspirations",
+      "text": "At the end of this Unit's activation, if its Active Stance is  , choose an Active objective it is contesting and take control of it. You cannot lose control of that objective until next Turn."
+    },
+    {
+      "title": "Arrogance",
+      "text": "While this Unit is not Wounded, if its Active Stance is  , reduce the cost of the first or ability it uses each Turn by ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897015
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "agent-kallus-inside-man",
+  "url": "https://shatterpointdb.com/characters/agent-kallus-inside-man",
+  "name": "Agent Kallus, Inside Man",
+  "portrait": "https://shatterpointdb.com/media/fjjd5wpz/shatterpoint-agent-kallus-inside-man-unit.png?height=600&v=1dad24b41ab3390",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "All leads must be pursued",
+      "text": "At the start of this Unit's activation, each character in this Unit may Toward an enemy character. Prepared for any encounter This Unit immediately makes a focus action. Additionally, characters in this Unit have Sharpshooter [2] and Impact [2] until the end of the Turn. Imperial Intelligence When an allied character is attacking or defending, this Unit may use this ability during the Modify Dice Rolls step. That allied character may reroll one die for each Tag it shared with this unit. Uncertain Loyalties At the end of Setup, choose one of the following: - Loyal Servant : This Unit has the Galactic Empire , Spy , and Trooper Tags.\n- Double Agent : This Unit has the Rebel Alliance , Scoundrel , and Spectre Tags."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Additionally, characters in this Unit have  and Impact [2] until the end of the Turn."
+    },
+    {
+      "title": "Loyal Servant",
+      "text": "This Unit has the Galactic Empire , Spy , and Trooper Tags.\n- Double Agent : This Unit has the Rebel Alliance , Scoundrel , and Spectre Tags."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896984
+  }
+}

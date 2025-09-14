@@ -1,0 +1,73 @@
+:root {
+  --background: #0b1220;
+  --panel: rgba(9, 14, 24, 0.7);
+  --text: #cfd6e5;
+  --text-muted: #9aa3b2;
+  --text-strong: #e7ecf8;
+  --border: #233048;
+  --hover: rgba(255, 255, 255, 0.06);
+  --accent: #6ee7ff;
+}
+
+html[data-theme="light"] {
+  --background: #ffffff;
+  --panel: rgba(255, 255, 255, 0.8);
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --text-strong: #0b1320;
+  --border: #e5e7eb;
+  --hover: rgba(0, 0, 0, 0.05);
+  --accent: #38bdf8;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  background: var(--background);
+  color: var(--text);
+}
+
+/* bazowy kontener */
+.sp-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* żeby treść nie wchodziła pod sticky NavBar */
+main.sp-page {
+  padding-top: 10px; /* NavBar jest “sticky”, ale bez offsetu zawartość może przyklejać się do krawędzi */
+}
+
+/* Cards */
+.card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.card__header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.card__title {
+  margin: 0;
+}
+.card__subtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.card__content {
+  padding: 16px;
+}

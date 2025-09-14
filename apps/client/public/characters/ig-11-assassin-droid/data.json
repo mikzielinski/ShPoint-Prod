@@ -1,0 +1,21 @@
+{
+  "id": "ig-11-assassin-droid",
+  "url": "https://shatterpointdb.com/characters/ig-11-assassin-droid",
+  "name": "IG-11, Assassin Droid",
+  "portrait": "https://shatterpointdb.com/media/r0ponaz2/shatterpoint-ig-11-assassin-droid-unit-card.png?height=600&v=1da6f49238b2bf0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "On the hunt",
+      "text": "At the start of this Unit's activation, this Unit may remove one condition from itself. Then one character in this Unit may . Multithread targeting protocol After this Unit makes an attack as part of a combat action, it may use this ability. One character in this Unit may make a 5 dice attack targeting a character in another enemy Unit within range and LOS. Are you refusing my request? Each time a character in this Unit makes an attack targeting an enemy character that is contesting an Active Objective that you do not control, it may add 3 dice to the attack roll. If it does and the defender is not Wounded by the attack, lose a Momentum. Victory through combat is impossible... While this Unit is Wounded, each time an opposing player gains a Momentum token, if there are more enemy characters than other allied characters within 3, roll one Attack Die for each Wounded and Injured token this Unit has. If the roll contains any results, each character in this Unit may , then each character with 3 suffers . After this effect is resolved, this Unit is Defeated."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897035
+  }
+}

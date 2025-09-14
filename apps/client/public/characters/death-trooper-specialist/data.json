@@ -1,0 +1,29 @@
+{
+  "id": "death-trooper-specialist",
+  "url": "https://shatterpointdb.com/characters/death-trooper-specialist",
+  "name": "Death Trooper Specialist",
+  "portrait": "https://shatterpointdb.com/media/u4zlmt2f/shatterpoint-death-trooper-specialist.png?height=600&v=1db8f82257cfbf0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Oppression",
+      "text": "At the start of this Unit's activation, each character in this Unit may . Then choose an enemy Unit within 3. The chosen Unit gains or . Imperial Brutality Choose this Unit or an allied Galactic Empire Supporting Unit . One character in the chose Unit may . Then, if one or more characters in that Unit are Engaged, choose one of the enemy characters Engaged with that Unit. The chosen allied Unit gains [exposed] and the chosen enemy character gains [exposed]. Unrelenting Assault After a character in this Unit makes an attack as part of a combat action, this Unit may use this ability. One character in this Unit may make a 5 dice attack targeting a character in a different enemy Unit. Elite Conditioning Characters in this Unit have Protection and Immunity [[exposed]] ."
+    },
+    {
+      "title": "Galactic Empire Supporting Unit",
+      "text": "Choose this Unit or an allied  . One character in the chose Unit may . Then, if one or more characters in that Unit are Engaged, choose one of the enemy characters Engaged with that Unit. The chosen allied Unit gains [exposed] and the chosen enemy character gains [exposed]."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  and Immunity [[exposed]] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897013
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "death-trooper-escort",
+  "url": "https://shatterpointdb.com/characters/death-trooper-escort",
+  "name": "Death Trooper Escort",
+  "portrait": "https://shatterpointdb.com/media/ipun0yn3/shatterpoint-death-trooper-escort-unit-card.png?height=600&v=1da70786c76ea90",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Imperial Efficiency",
+      "text": "At the start of this Unit's activation, choose this Unit or an allied Galactic Empire Supporting Unit . Each character in the chosen Unit may . If the chosen Unit has any , each character in that Unit may instead . Tactical advance Each character in this Unit may . If any characters , this Unit immediately makes a focus action. Disciplined After an attack targetting a character in this Unit is resolved, if this Unit is not Wounded, this Unit may use this ability. Each character in this Unit may Toward an Active objective. After the move is resolved, is no characters in this Unit are Engaged, this Unit gains . Rigorous Training Characters in this Unit have Protection and Sharpshooter [1] ."
+    },
+    {
+      "title": "Galactic Empire Supporting Unit",
+      "text": "At the start of this Unit's activation, choose this Unit or an allied  . Each character in the chosen Unit may . If the chosen Unit has any , each character in that Unit may instead ."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  and Sharpshooter [1] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897012
+  }
+}

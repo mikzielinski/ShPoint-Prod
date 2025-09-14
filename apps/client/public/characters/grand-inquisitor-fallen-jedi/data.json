@@ -1,0 +1,29 @@
+{
+  "id": "grand-inquisitor-fallen-jedi",
+  "url": "https://shatterpointdb.com/characters/grand-inquisitor-fallen-jedi",
+  "name": "Grand Inquisitor, Fallen Jedi",
+  "portrait": "https://shatterpointdb.com/media/amrbqebc/shatterpoint-grand-inquisitor-fallen-jedi-abilities-new.jpg",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "You know who we are",
+      "text": "At the start of this Unit's Activation, choose an allied Inquisitorius Secondary character or an allied Inquisitorius Supporting character. One character in this Unit and the chosen character may . Secrets uncovered Choose an Active objective that is controlled by an opposing player. Remove the opposing player's Control token from the chosen objective. The temple records are quite complete When a character in this Unit is targeted with a attack, this Unit may use this ability. This Unit may change its Active Stance. Additionally, if the attacker is a Force User , add 2 dice to the defense roll. Clearly, you were a poor student When an allied Galactic Empire character Wounds an enemy Unit, after the effect is resolved, refresh and one allied Inquisitorius character may . Then, if the Wounded Unit was a Force User , refresh and one allied Inquisitorius character may ."
+    },
+    {
+      "title": "Inquisitorius Secondary",
+      "text": "At the start of this Unit's Activation, choose an allied  character or an allied Inquisitorius Supporting character. One character in this Unit and the chosen character may ."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "When an allied  character Wounds an enemy Unit, after the effect is resolved, refresh and one allied Inquisitorius character may . Then, if the Wounded Unit was a Force User , refresh and one allied Inquisitorius character may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897031
+  }
+}

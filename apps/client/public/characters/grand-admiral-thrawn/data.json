@@ -1,0 +1,33 @@
+{
+  "id": "grand-admiral-thrawn",
+  "url": "https://shatterpointdb.com/characters/grand-admiral-thrawn",
+  "name": "Grand Admiral Thrawn",
+  "portrait": "https://shatterpointdb.com/media/wcsfrrxu/shatterpoint-grand-admiral-thrawn-unit.png?height=600&v=1dad24b4bc801f0",
+  "squad_points": 7,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "I want you to know failure, Utter Defeat",
+      "text": "One character in this Unit may . If it ends that movement contesting an Active objective, that character adds 3 dice to its next attack roll during this activation. Battle Tactics: Architects of their own destruction When you create your starting Order Deck, you may include up to two Grand Strategy Battle Tactics Cards. When you draw a Battle Tactics Card, resolve the effects of that card then reveal another Order Card and continue your Turn as normal. We must wait and watch When you spend to place an allied Galactic Empire Unit's Order Card in reserve, spend 1 less . Then, if there are one or more cards in your Order Deck, you may spend . If you do, the reserved Unit may remove or one condition from itself and one character in that Unit may . To defeat an enemy you must know whem Characters in allied Galactic Empire Units that have one or more Injured tokens and that are Engaged with one or more enemy characters have Protection . Additionally, when an allied Primary Unit is Wounded by an enemy attack, after the effect is resolved, you may refresh your Order Deck."
+    },
+    {
+      "title": "Grand Strategy",
+      "text": "When you create your starting Order Deck, you may include up to two  Battle Tactics Cards. When you draw a Battle Tactics Card, resolve the effects of that card then reveal another Order Card and continue your Turn as normal."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "When you spend to place an allied  Unit's Order Card in reserve, spend 1 less . Then, if there are one or more cards in your Order Deck, you may spend . If you do, the reserved Unit may remove or one condition from itself and one character in that Unit may ."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "Additionally, when an allied  is Wounded by an enemy attack, after the effect is resolved, you may refresh your Order Deck."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897030
+  }
+}

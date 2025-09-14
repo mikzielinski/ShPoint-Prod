@@ -1,0 +1,29 @@
+{
+  "id": "princess-leia-charming-to-the-last",
+  "url": "https://shatterpointdb.com/characters/princess-leia-charming-to-the-last",
+  "name": "Princess Leia, Charming to the last",
+  "portrait": "https://shatterpointdb.com/media/wufn3gss/shatterpoint-princess-leia-charming-to-the-last-unit.png?height=600&v=1dae8ea2fb0fb10",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Into the Garbage Chute, Flyboy",
+      "text": "At the start of this Unit's activation, choose another allied Rebel Alliance or Spy unit. Each character in the chosen Unit may . After all moves are resolved, the chosen Unit gains . It's a wonder you're still alive Choose a character in this Unit and another allied character. One of the chosen characters may . After the effect is resolved, the other chosen character may . Crack Shot Characters in this Unit have Sharpshooter [2] . When this Unit makes a focus action, each character in this Unit may . Somebody's gotta save our skins When an enemy character Wounds another allied Unit, after the effect is resolved, one character in this Unit may Toward the enemy character that caused the effect and then may make a 5 dice attack targeting that character. Then choose another allied Unit within 3. The chosen Unit gains .\nAdditionally, characters in this Unit add 1 die to their defense rolls for each Wounded allied Unit within 3."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "At the start of this Unit's activation, choose another allied  or Spy unit. Each character in the chosen Unit may . After all moves are resolved, the chosen Unit gains ."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  . When this Unit makes a focus action, each character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897065
+  }
+}

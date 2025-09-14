@@ -1,0 +1,29 @@
+{
+  "id": "weequay-pirates",
+  "url": "https://shatterpointdb.com/characters/weequay-pirates",
+  "name": "Weequay Pirates",
+  "portrait": "https://shatterpointdb.com/media/hyyjvkqj/shatterpoint-weequay-pirates-new.jpg?height=600&v=1dbc83e32677490",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Raiding party",
+      "text": "Each character in this Unit may . Exit Strategy Characters in this Unit can even while they are Engaged. Greedy While a character in this Unit is contesting one or more Active objectives, it has Steadfast . Pack hunter When a character in this Unit makes a attack targeting an enemy character is Engaged with another allied Weequay character, it adds 2 dice to the attack roll."
+    },
+    {
+      "title": "Steadfast",
+      "text": "While a character in this Unit is contesting one or more Active objectives, it has  ."
+    },
+    {
+      "title": "Weequay",
+      "text": "When a character in this Unit makes a attack targeting an enemy character is Engaged with another allied  character, it adds 2 dice to the attack roll."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897084
+  }
+}

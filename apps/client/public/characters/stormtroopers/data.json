@@ -1,0 +1,29 @@
+{
+  "id": "stormtroopers",
+  "url": "https://shatterpointdb.com/characters/stormtroopers",
+  "name": "Stormtroopers",
+  "portrait": "https://shatterpointdb.com/media/yxlh3upn/shatterpoint-stormtroopers-unit-card.png?height=600&v=1da433c06841870",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Assault Tactics",
+      "text": "Each character in this unit may . Then this Unit may suffer to immediately perform a focus action. For the Empire! Action: Choose an enemy character Engaged with one or more characters in this Unit and one of the allied characters it is Engaged with. Push the chosen character 2 Away from the chosen allied character. Then this Unit gains . Only Imperial Stormtroopers are so Precise Characters in this Unit have SHARPSHOOTER [1] ."
+    },
+    {
+      "title": "Action:",
+      "text": "Choose an enemy character Engaged with one or more characters in this Unit and one of the allied characters it is Engaged with. Push the chosen character 2 Away from the chosen allied character. Then this Unit gains ."
+    },
+    {
+      "title": "SHARPSHOOTER [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897080
+  }
+}

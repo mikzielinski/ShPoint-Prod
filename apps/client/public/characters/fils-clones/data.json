@@ -1,0 +1,33 @@
+{
+  "id": "fils-clones",
+  "url": "https://shatterpointdb.com/characters/fils-clones",
+  "name": "Fil's Clones",
+  "portrait": "https://shatterpointdb.com/media/5owbr3md/shatterpoint-fils-clones-unit-card.png?height=600&v=1db7e581e4ee3b0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Defensive Maneuver",
+      "text": "Each character in this Unit may . If any characters , this Unit gains . Supporting Fire: When a character in another allied Galactic Republic Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the attacking character is within 5, that character may . We can take him down easily When a character in this Unit makes an attack targeting an enemy Primary character, this Unit may use this ability. Add 2 dice to the attack roll. Brother in arms While this Unit has one or more , characters in this Unit have Steadfast ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the attacking character is within 5, that character may ."
+    },
+    {
+      "title": "Primary",
+      "text": "When a character in this Unit makes an attack targeting an enemy  character, this Unit may use this ability. Add 2 dice to the attack roll."
+    },
+    {
+      "title": "Steadfast",
+      "text": "While this Unit has one or more , characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897022
+  }
+}

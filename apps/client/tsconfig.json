@@ -1,11 +1,8 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@shpoint/shared": ["../../packages/shared/src"]
+      "@shpoint/shared": ["../../packages/shared/src/index.ts"]
     }
-  },
-  "include": ["src"]
+  }
 }
