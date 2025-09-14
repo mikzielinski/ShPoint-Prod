@@ -5,7 +5,7 @@ import { rollDice, summarizeDice, summaryToString, type SymbolType } from "@shpo
 
 import NavBar from "./components/NavBar";
 import SquadBuilder from "./components/SquadBuilder";
-import CharactersGallery from "./components/CharactersGallery";
+// import CharactersGallery from "./components/CharactersGallery"; // DISABLED - using new filter system
 import AdminRefreshPanel from "./components/AdminRefreshPanel";
 import StancePreview from "./components/StancePreview";
 
@@ -134,11 +134,9 @@ function CharactersPage() {
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
       <DataSourceBanner />
-      <CharactersGallery
-        indexUrl={indexUrl}
-        onOpenStance={(id) => setStanceForId(id)}
-        onOpenCard={(id) => setOpenCardId(id)}
-      />
+      <div style={{padding: "20px", textAlign: "center", color: "#6b7280"}}>
+        Characters page moved to new filter system in AppRoutes.tsx
+      </div>
       {stanceForId && (
         <SimpleModal title="Stances" onClose={() => setStanceForId(null)}>
           <div className="stance-panel">

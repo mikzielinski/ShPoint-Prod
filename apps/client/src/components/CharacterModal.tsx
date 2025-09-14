@@ -1,6 +1,7 @@
 import * as React from "react";
 import UnitDataCard from "./UnitDataCard";
 import StanceCard from "./StanceCard";
+import { api } from "../lib/env";
 
 type UnitType = "Primary" | "Secondary" | "Support";
 
@@ -65,14 +66,17 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
         setLoading(true);
         setErr(null);
         const [dRes, sRes] = await Promise.allSettled([
-          fetch(`/characters/${id}/data.json`, { cache: "no-store" }),
-          fetch(`/characters/${id}/stance.json`, { cache: "no-store" }),
+          fetch(api(`/characters/${id}/data.json`), { cache: "no-store" }),
+          fetch(api(`/characters/${id}/stance.json`), { cache: "no-store" }),
         ]);
         if (!alive) return;
 
         if (dRes.status === "fulfilled" && dRes.value.ok) {
-          setDataObj(await dRes.value.json());
-        } else setDataObj(null);
+          const data = await dRes.value.json();
+          setDataObj(data);
+        } else {
+          setDataObj(null);
+        }
 
         if (sRes.status === "fulfilled" && sRes.value.ok) {
           setStanceObj(await sRes.value.json());
@@ -90,22 +94,45 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
 
   if (!open) return null;
 
+
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div 
+      className="modal-backdrop" 
+      role="dialog" 
+      aria-modal="true" 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.65)', // Ciemniejsze tło
+        backdropFilter: 'blur(8px)', // Rozmycie tła
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px'
+      }}
+    >
       <div
         className={`modal-sheet ${tab === "stance" ? "is-wide" : "is-roomy"}`}
         onClick={(e) => e.stopPropagation()}
+        style={{
+          width: 'min(1120px, 100%)',
+          maxHeight: '92vh',
+          overflow: 'auto',
+          backgroundColor: 'var(--ui-surface)',
+          color: 'var(--ui-text)',
+          border: '1px solid var(--ui-border)',
+          borderRadius: '16px',
+          boxShadow: '0 32px 120px rgba(0,0,0,.6), 0 8px 32px rgba(0,0,0,.4)'
+        }}
       >
         {/* HEADER */}
         <div className="modal-header">
-          <h2 className="modal-title">
-            {character.name}
-            <span className="modal-subtitle">
-              • {character.unit_type} • {character.squad_points} PC
-            </span>
-          </h2>
-
-        <div className="modal-tabs">
+          <div className="modal-tabs">
             <button
               type="button"
               className={`tab ${tab === "data" ? "is-active" : ""}`}

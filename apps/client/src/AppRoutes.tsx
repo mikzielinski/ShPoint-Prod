@@ -1,5 +1,9 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import CollectionsPage from "./pages/CollectionsPage";
+import FiltersPanel, { type Filters } from "./components/FiltersPanel";
+import CharacterModal from "./components/CharacterModal";
+import "./components/NavBar.css";
 
 /* ===== NavBar (w tym pliku dla prostoty) ===== */
 type MeResponse =
@@ -27,9 +31,9 @@ function useAuthMe() {
 
 function RoleChip({ role }: { role?: string }) {
   const cls =
-    role === "ADMIN" ? "role-chip role-admin"
-      : role === "EDITOR" ? "role-chip role-editor"
-      : "role-chip";
+    role === "ADMIN" ? "nb-role r-admin"
+      : role === "EDITOR" ? "nb-role r-editor"
+      : "nb-role r-user";
   return <span className={cls}>{role ?? "USER"}</span>;
 }
 
@@ -47,37 +51,38 @@ function NavBar() {
   const doLogout = async () => { await fetch("/auth/logout", { method: "POST", credentials: "include" }); location.href = "/"; };
 
   return (
-    <nav className="sp-nav">
-      <div className="sp-nav__inner">
-        <NavLink to="/" className="sp-brand">ShPoint</NavLink>
-        <div className="sp-menu">
-          <NavLink to="/" className={({isActive}) => `sp-link ${isActive ? "active" : ""}`}>Home</NavLink>
-          <NavLink to="/characters" className={({isActive}) => `sp-link ${isActive ? "active" : ""}`}>Characters</NavLink>
-          <NavLink to="/builder" className={({isActive}) => `sp-link ${isActive ? "active" : ""}`}>Builder</NavLink>
-
-          <div className="sp-menu__right">
-            {!loading && !me && (
-              <button className="sp-link" onClick={gotoLogin}>Sign in</button>
-            )}
-            <div className="sp-profile">
-              {loading ? (
-                <span>...</span>
-              ) : me ? (
-                <>
-                  {me.picture ? (
-                    <img className="avatar" src={me.picture} alt="avatar" />
-                  ) : (
-                    <div className="avatar" style={{display:"grid",placeItems:"center",fontSize:12,fontWeight:600}}>{initials}</div>
-                  )}
-                  <span className="sp-profile__name">{me.name ?? me.email ?? "User"}</span>
-                  <RoleChip role={me.role} />
-                  <button className="sp-link" onClick={doLogout}>Sign out</button>
-                </>
+    <nav className="nb-root">
+      <div className="nb-inner">
+        <NavLink to="/" className="nb-brand">
+          <div className="nb-brand-dot"></div>
+          <span className="nb-brand-name">ShPoint</span>
+        </NavLink>
+        <div className="nb-nav">
+          <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Home</NavLink>
+          <NavLink to="/characters" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Characters</NavLink>
+          <NavLink to="/collections" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Collections</NavLink>
+          <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
+        </div>
+        <div className="nb-actions">
+          {!loading && !me && (
+            <button className="nb-btn" onClick={gotoLogin}>Sign in</button>
+          )}
+          {loading ? (
+            <span className="nb-guest">...</span>
+          ) : me ? (
+            <>
+              {me.picture ? (
+                <img className="nb-btn-icon" src={me.picture} alt="avatar" style={{borderRadius: "50%"}} />
               ) : (
-                <span className="sp-profile__name">Guest</span>
+                <div className="nb-btn-icon" style={{borderRadius: "50%", fontSize:12, fontWeight:600, background: "#374151"}}>{initials}</div>
               )}
-            </div>
-          </div>
+              <span className="nb-user">{me.name ?? me.email ?? "User"}</span>
+              <RoleChip role={me.role} />
+              <button className="nb-btn" onClick={doLogout}>Sign out</button>
+            </>
+          ) : (
+            <span className="nb-guest">Guest</span>
+          )}
         </div>
       </div>
     </nav>
@@ -85,12 +90,27 @@ function NavBar() {
 }
 
 /* ====== Characters (galeria) ====== */
-type Character = { id: string; name: string; image?: string | null };
+type Character = { 
+  id: string; 
+  name: string; 
+  role?: string;
+  faction?: string;
+  portrait?: string | null;
+  tags?: string[];
+  sp?: number | null;
+  pc?: number | null;
+  force?: number;
+  stamina?: number;
+  durability?: number;
+  era?: string;
+};
 type ApiList = { items: Character[]; total: number };
 
 function CharactersPage() {
   const [data, setData] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<Filters>({});
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -105,23 +125,254 @@ function CharactersPage() {
     return () => { alive = false; };
   }, []);
 
+  // Filter characters based on current filters
+  const filteredData = useMemo(() => {
+    return data.filter((char) => {
+      // Text search
+      if (filters.text) {
+        const searchText = filters.text.toLowerCase();
+        const matchesText = 
+          char.name.toLowerCase().includes(searchText) ||
+          char.faction?.toLowerCase().includes(searchText) ||
+          char.tags?.some(tag => tag.toLowerCase().includes(searchText));
+        if (!matchesText) return false;
+      }
+
+      // Unit type filter
+      if (filters.unitTypes?.length && !filters.unitTypes.includes(char.role || '')) {
+        return false;
+      }
+
+      // Faction filter
+      if (filters.factions?.length && !filters.factions.some(f => char.faction?.includes(f))) {
+        return false;
+      }
+
+      // Era filter
+      if (filters.eras?.length && !filters.eras.includes(char.era || '')) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [data, filters]);
+
+  // Generate facets from data
+  const facets = useMemo(() => {
+    const unitTypes = [...new Set(data.map(c => c.role).filter(Boolean))];
+    const factions = [...new Set(data.flatMap(c => c.faction?.split(', ') || []).filter(Boolean))];
+    const tags = [...new Set(data.flatMap(c => c.tags || []))];
+    const eras = [...new Set(data.map(c => c.era).filter(Boolean))];
+    
+    return {
+      unitTypes,
+      factions,
+      eras,
+      tags
+    };
+  }, [data]);
+
   return (
-    <div>
-      <h1 style={{maxWidth:1100, margin:"18px auto 0", padding:"0 16px"}}>Characters</h1>
-      {loading ? <p style={{maxWidth:1100, margin:"0 auto", padding:"0 16px"}}>Loading…</p> : null}
+    <div style={{maxWidth: 1200, margin: "0 auto", padding: "0 16px"}}>
+      <h1 style={{margin: "18px 0"}}>Characters</h1>
+      {loading ? <p>Loading…</p> : null}
+      
+      {!loading && data.length > 0 && (
+        <>
+          {/* Filters Panel - Single Line */}
+          <div style={{ display: 'block', width: '100%' }}>
+            <FiltersPanel
+              facets={facets}
+              filters={filters}
+              onChange={setFilters}
+            />
+          </div>
+
+          {/* Results count */}
+          <div style={{marginBottom: "16px", fontSize: "14px", color: "#6b7280"}}>
+            Showing {filteredData.length} of {data.length} characters
+          </div>
+        </>
+      )}
+
       {!loading && data.length === 0 ? (
-        <p style={{maxWidth:1100, margin:"0 auto", padding:"0 16px"}}>No data (empty list).</p>
+        <p>No data (empty list).</p>
       ) : null}
 
-      <div className="grid">
-        {data.map(c => (
-          <div className="card" key={c.id}>
-            <img src={c.image ?? "https://picsum.photos/seed/placeholder/400/520"} alt={c.name} />
-            <div className="title">{c.name}</div>
-            <div className="meta">id: {c.id}</div>
-          </div>
+      {!loading && filteredData.length === 0 && data.length > 0 ? (
+        <p>No characters match your filters.</p>
+      ) : null}
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: "16px",
+        marginTop: "20px"
+      }}>
+        {filteredData.map(c => (
+            <div key={c.id} style={{
+              background: "#1f2937",
+              borderRadius: "12px",
+              overflow: "hidden",
+              border: "1px solid #374151",
+              transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              cursor: "pointer"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+            onClick={() => setSelectedCharacter(c)}>
+              <div style={{
+                width: "100%",
+                height: "320px",
+                overflow: "hidden",
+                position: "relative",
+                background: "#f8f9fa",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <img 
+                  src={c.portrait?.startsWith('/') ? c.portrait : (c.portrait ?? "https://picsum.photos/seed/placeholder/400/520")} 
+                  alt={c.name}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    width: "auto",
+                    height: "auto",
+                    objectFit: "contain",
+                    objectPosition: "center"
+                  }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://picsum.photos/seed/placeholder/400/520";
+                  }}
+                />
+              </div>
+              <div style={{padding: "12px"}}>
+                <div style={{
+                  fontWeight: "600",
+                  color: "#f9fafb",
+                  marginBottom: "4px",
+                  fontSize: "14px",
+                  lineHeight: "1.3"
+                }}>{c.name}</div>
+                <div style={{
+                  fontSize: "12px",
+                  color: "#9ca3af",
+                  marginBottom: "6px"
+                }}>
+                  {c.role} • {c.faction || "Unknown"}
+                </div>
+                <div style={{
+                  fontSize: "11px",
+                  color: "#6b7280",
+                  marginBottom: "8px",
+                  fontStyle: "italic"
+                }}>
+                  {c.era || "Unknown Era"}
+                </div>
+                <div style={{
+                  display: "flex",
+                  gap: "6px",
+                  fontSize: "11px",
+                  marginBottom: "6px"
+                }}>
+                  {c.sp && (
+                    <span style={{
+                      background: "#374151",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      color: "#d1d5db",
+                      fontWeight: "500"
+                    }}>SP: {c.sp}</span>
+                  )}
+                  {c.pc && (
+                    <span style={{
+                      background: "#374151", 
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      color: "#d1d5db",
+                      fontWeight: "500"
+                    }}>PC: {c.pc}</span>
+                  )}
+                  {c.force && c.force > 0 && (
+                    <span style={{
+                      background: "#7c2d12",
+                      padding: "2px 6px",
+                      borderRadius: "4px",
+                      color: "#fbbf24",
+                      fontWeight: "500"
+                    }}>Force: {c.force}</span>
+                  )}
+                </div>
+                {(c.stamina || c.durability) && (
+                  <div style={{
+                    fontSize: "10px",
+                    color: "#6b7280",
+                    marginBottom: "8px"
+                  }}>
+                    {c.stamina && `Stamina: ${c.stamina}`}
+                    {c.stamina && c.durability && " • "}
+                    {c.durability && `Durability: ${c.durability}`}
+                  </div>
+                )}
+                {c.tags && c.tags.length > 0 && (
+                  <div style={{
+                    marginTop: "8px",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "3px"
+                  }}>
+                    {c.tags.slice(0, 2).map((tag, i) => (
+                      <span key={i} style={{
+                        background: "#1e40af",
+                        color: "#dbeafe",
+                        padding: "1px 4px",
+                        borderRadius: "3px",
+                        fontSize: "10px",
+                        fontWeight: "500"
+                      }}>
+                        {tag}
+                      </span>
+                    ))}
+                    {c.tags.length > 2 && (
+                      <span style={{
+                        background: "#4b5563",
+                        color: "#d1d5db",
+                        padding: "1px 4px",
+                        borderRadius: "3px",
+                        fontSize: "10px"
+                      }}>
+                        +{c.tags.length - 2}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
         ))}
       </div>
+
+      {/* Character Modal */}
+      {selectedCharacter && (
+        <CharacterModal
+          open={!!selectedCharacter}
+          onClose={() => setSelectedCharacter(null)}
+          id={selectedCharacter.id}
+          character={{
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            unit_type: selectedCharacter.role as "Primary" | "Secondary" | "Support",
+            squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
+            portrait: selectedCharacter.portrait
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -138,6 +389,7 @@ export default function AppRoutes() {
           </div>
         }/>
         <Route path="/characters" element={<CharactersPage/>}/>
+        <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/builder" element={
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
             <h1>Builder</h1><p>Work in progress…</p>

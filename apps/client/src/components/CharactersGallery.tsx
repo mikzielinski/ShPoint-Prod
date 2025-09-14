@@ -61,7 +61,7 @@ function Portrait({ src, alt }: { src?: string | null; alt: string }) {
   );
 }
 
-export default function CharactersPage() {
+export default function CharactersPageOLD_DISABLED() {
   const { filters, setFilters, facets, filtered, all } = useCharacterFilters({ exposeAll: true });
   const { role } = useMeRole();
   const canEdit = role === "EDITOR" || role === "ADMIN";

@@ -84,9 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       ? `${window.location.pathname}${window.location.search}${window.location.hash}`
       : "/";
 
-  const googleLoginHref = `${API_BASE}/auth/google/start?redirect=${encodeURIComponent(
-    redirectTarget
-  )}`;
+  const googleLoginHref = `${API_BASE}/auth/google`;
 
   return (
     <AuthContext.Provider value={{ auth, googleLoginHref, refresh, doLogout }}>

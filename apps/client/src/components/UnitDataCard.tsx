@@ -66,14 +66,15 @@ function StatPill({ label, value }: { label: string; value?: React.ReactNode }) 
   return (
     <div
       style={{
-        border: "1px solid #E5E7EB",
+        border: "2px solid #60a5fa", // Jasna niebieska ramka
         borderRadius: 10,
         padding: "8px 12px",
         minWidth: 160,
-        background: "#fff",
+        background: "#1e293b", // Ciemne niebieskie tło
+        color: "#f8fafc" // Bardzo jasne litery
       }}
     >
-      <div style={{ fontSize: 12, color: "#6B7280", marginBottom: 6 }}>
+      <div style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 6 }}>
         {label}
       </div>
       <div style={{ fontWeight: 600 }}>{value ?? "—"}</div>
@@ -93,24 +94,26 @@ export default function UnitDataCard({ character, data }: Props) {
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
+      {/* Główny kontener nadrzędny - portret z lewej, opis z prawej */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(220px, 280px) 1fr",
-          gap: 16,
-          alignItems: "start",
+          gridTemplateColumns: "280px 1fr",
+          gap: "24px",
+          background: "#0f172a", // Ciemne niebieskie tło
+          border: "2px solid #3b82f6", // Niebieska ramka
+          borderRadius: 12,
+          padding: "24px",
+          alignItems: "start"
         }}
       >
-        <div
-          style={{
-            display: "grid",
-            placeItems: "center",
-            background: "#F3F4F6",
-            border: "1px solid #E5E7EB",
-            borderRadius: 12,
-            overflow: "hidden",
-          }}
-        >
+        {/* Lewa strona - Portret */}
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center",
+          height: "100%"
+        }}>
           {portrait ? (
             <img
               src={portrait}
@@ -121,6 +124,7 @@ export default function UnitDataCard({ character, data }: Props) {
                 objectFit: "cover",
                 display: "block",
                 aspectRatio: "3 / 4",
+                borderRadius: "8px"
               }}
               loading="lazy"
             />
@@ -129,7 +133,44 @@ export default function UnitDataCard({ character, data }: Props) {
           )}
         </div>
 
-        <div style={{ display: "grid", gap: 12 }}>
+        {/* Prawa strona - Opis, stats, skills */}
+        <div style={{ 
+          display: "grid", 
+          gap: 16,
+          color: "#f8fafc" // Bardzo jasne litery
+        }}>
+          {/* Nazwa postaci i przyciski */}
+          <div>
+            <div style={{ fontWeight: 700, fontSize: "20px", marginBottom: "8px" }}>
+              {c.name.toUpperCase()}
+            </div>
+            <div style={{ fontSize: "14px", color: "#cbd5e1", marginBottom: "12px" }}>
+              {c.name} • Primary Unit
+            </div>
+            {factions && factions.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {factions.map((f) => (
+                  <span
+                    key={f}
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 12px",
+                      borderRadius: 999,
+                      border: "2px solid #60a5fa",
+                      background: "#1e293b",
+                      fontSize: 12,
+                      color: "#f8fafc",
+                      fontWeight: 600
+                    }}
+                  >
+                    {f}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Stats */}
           <div
             style={{
               display: "grid",
@@ -144,30 +185,32 @@ export default function UnitDataCard({ character, data }: Props) {
 
           <div
             style={{
-              border: "1px solid #E5E7EB",
+              border: "2px solid #60a5fa", // Jasna niebieska ramka
               borderRadius: 12,
-              background: "#fff",
+              background: "#1e293b", // Ciemne niebieskie tło
+              padding: "16px",
+              maxHeight: 400, // Większa wysokość dla scrollowania
+              overflow: "auto"
             }}
           >
             <div
               style={{
-                padding: "10px 14px",
-                borderBottom: "1px solid #E5E7EB",
                 fontWeight: 700,
+                color: "#f8fafc", // Bardzo jasne litery
+                marginBottom: "12px",
+                fontSize: "16px"
               }}
             >
               Skills
             </div>
             <div
               style={{
-                padding: 14,
-                maxHeight: 260,
-                overflow: "auto",
                 fontSize: 14,
+                color: "#f8fafc" // Bardzo jasne litery
               }}
             >
               {abilities.length === 0 ? (
-                <div style={{ color: "#6B7280" }}>Brak umiejętności.</div>
+                <div style={{ color: "#cbd5e1" }}>Brak umiejętności.</div>
               ) : (
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
                   {abilities.map((ab, i) => (
@@ -178,7 +221,7 @@ export default function UnitDataCard({ character, data }: Props) {
                         </div>
                       )}
                       {ab.text && (
-                        <div style={{ color: "#111827" }}>
+                        <div style={{ color: "#f8fafc" }}>
                           {renderWithGlyphs(ab.text)}
                         </div>
                       )}
@@ -189,26 +232,6 @@ export default function UnitDataCard({ character, data }: Props) {
             </div>
           </div>
 
-          {factions && factions.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {factions.map((f) => (
-                <span
-                  key={f}
-                  style={{
-                    display: "inline-block",
-                    padding: "6px 10px",
-                    borderRadius: 999,
-                    border: "1px solid #E5E7EB",
-                    background: "#F9FAFB",
-                    fontSize: 12,
-                    color: "#111827",
-                  }}
-                >
-                  {f}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>

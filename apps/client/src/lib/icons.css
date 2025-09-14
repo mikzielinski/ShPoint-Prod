@@ -9,10 +9,11 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0030-007F, U+E900-E928; /* Dodajemy zakres Unicode */
 }
 
 /* 2) Bazowa klasa na glify */
-.spicon {
+.spicon, .sp {
   font-family: "ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   font-variant-ligatures: none;
   -webkit-font-smoothing: antialiased;

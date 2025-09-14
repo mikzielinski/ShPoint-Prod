@@ -158,11 +158,11 @@ type Props = { stance: StanceData };
 
 /** ====== Ustawienia kolorów ====== */
 const C = {
-  border: "#E5E7EB",
-  text: "#111827",
-  sub: "#6B7280",
-  cardBg: "#FFFFFF",
-  chipBg: "#F9FAFB",
+  border: "#60a5fa", // Jasna niebieska ramka
+  text: "#f8fafc", // Bardzo jasne litery
+  sub: "#cbd5e1", // Jasne szare litery
+  cardBg: "#1e293b", // Ciemne niebieskie tło
+  chipBg: "#0f172a", // Ciemniejsze niebieskie tło
 
   attack: "#F97316",
   defense: "#3B82F6",
@@ -248,9 +248,33 @@ function convertNewSideToOneSide(ns: NewSide | undefined | null): OneSide | null
 }
 
 /** ====== Tokeny / glify ====== */
-function renderGlyphToken(token: string, key?: React.Key) {
+function renderGlyphToken(token: string, key?: React.Key, variant: 'default' | 'expertise' = 'default') {
   const cls = tokenToSpClass(token);
   const ch = iconChar(token);
+  
+  // Specjalne style dla Expertise section
+  const isExpertise = variant === 'expertise';
+  const isTransition = typeof key === 'string' && (key.includes('-from') || key.includes('-to'));
+  
+  let backgroundColor = C.treeNodeBg;
+  let borderColor = C.treeNodeBorder;
+  let textColor = C.treeNodeFg;
+  
+  if (isExpertise) {
+    // W Expertise section używamy kolorowych stylów
+    if (isTransition) {
+      // Przejścia (Crit → Strike) - kolorowe
+      backgroundColor = '#f59e0b'; // pomarańczowy
+      borderColor = '#d97706';
+      textColor = '#ffffff';
+    } else {
+      // Zwykłe symbole - ciemne
+      backgroundColor = C.treeNodeBg;
+      borderColor = C.treeNodeBorder;
+      textColor = C.treeNodeFg;
+    }
+  }
+  
   return (
     <span
       key={key}
@@ -263,25 +287,55 @@ function renderGlyphToken(token: string, key?: React.Key) {
         borderRadius: 6,
         alignItems: "center",
         justifyContent: "center",
-        border: `1.5px solid ${C.treeNodeBorder}`,
-        color: C.treeNodeFg,
-        background: C.treeNodeBg,
+        border: `1.5px solid ${borderColor}`,
+        color: textColor,
+        background: backgroundColor,
         fontWeight: 700,
         fontSize: 12,
         lineHeight: 1,
+        fontFamily: '"ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       }}
     >
-      {/* Fallback: jeśli nie ma klasowego mapowania, użyj znaku */}
-      {cls ? null : ch}
+      {/* Wyświetlamy znak bezpośrednio - czcionka powinna go zamienić na ikonę */}
+      {ch}
     </span>
   );
 }
 
-function renderGlyphLine(tokens: string[] | undefined) {
+function renderGlyphLine(tokens: string[] | undefined, variant: 'default' | 'expertise' = 'default') {
   if (!tokens || tokens.length === 0) return "—";
   return (
     <span style={{ display: "inline-flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-      {tokens.map((t, i) => renderGlyphToken(t, i))}
+      {tokens.map((t, i) => {
+        // Sprawdź czy to przejście (np. "b->a")
+        if (t.includes("->")) {
+          const [from, to] = t.split("->");
+          return (
+            <span key={i} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
+              {renderGlyphToken(from.trim(), `${i}-from`, variant)}
+              <span style={{ color: C.treeNodeFg, fontSize: 12, fontWeight: 700 }}>→</span>
+              {renderGlyphToken(to.trim(), `${i}-to`, variant)}
+            </span>
+          );
+        }
+        return (
+          <span key={i} style={{ display: "inline-flex", alignItems: "center" }}>
+            {renderGlyphToken(t, i, variant)}
+            {/* Dodaj przecinek po każdym glifie (oprócz ostatniego) */}
+            {i < tokens.length - 1 && (
+              <span style={{ 
+                color: '#ffffff', 
+                fontSize: 16, 
+                fontWeight: 700, 
+                marginLeft: 6,
+                marginRight: 2
+              }}>
+                ,
+              </span>
+            )}
+          </span>
+        );
+      })}
     </span>
   );
 }
@@ -563,19 +617,7 @@ function CombatTree({
                   zIndex: 1, // nad liniami
                 }}
               >
-                {tokens.map((t, i) =>
-                  isFirstCol
-                    ? (() => {
-                        const cls = tokenToSpClass(t);
-                        const ch = iconChar(t);
-                        return (
-                          <span key={i} className={`sp ${cls}`} style={{ color: C.treeFirstFg }}>
-                            {cls ? null : ch}
-                          </span>
-                        );
-                      })()
-                    : renderGlyphToken(t, i)
-                )}
+                {tokens.map((t, i) => renderGlyphToken(t, i))}
               </div>
             );
           })
@@ -614,7 +656,7 @@ function ExpertiseTable({ title, data }: { title: string; data?: Expertise }) {
             }}
           >
             <div style={{ fontWeight: 700, fontSize: 12, color: C.sub }}>{range}</div>
-            <div>{renderGlyphLine(effects)}</div>
+            <div>{renderGlyphLine(effects, 'expertise')}</div>
           </div>
         ))}
       </div>
@@ -656,7 +698,14 @@ export default function StanceCard({ stance }: { stance: StanceData }) {
   }
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div style={{ 
+      display: "grid", 
+      gap: 16,
+      background: "#0f172a", // Ciemne niebieskie tło
+      border: "2px solid #3b82f6", // Niebieska ramka
+      borderRadius: 12,
+      padding: "24px"
+    }}>
       {/* Pasek tytułu + switch A/B */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center" }}>
         <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{data.name}</h3>
@@ -669,9 +718,9 @@ export default function StanceCard({ stance }: { stance: StanceData }) {
                   key={s}
                   onClick={() => setSide(s)}
                   style={{
-                    border: `1px solid ${active ? C.attack : C.border}`,
+                    border: `2px solid ${active ? C.attack : C.border}`,
                     color: active ? "#fff" : C.text,
-                    background: active ? C.attack : "#fff",
+                    background: active ? C.attack : C.cardBg,
                     borderRadius: 8,
                     padding: "6px 10px",
                     fontWeight: 700,

@@ -46,3 +46,56 @@ export async function getCharacters(): Promise<Character[]> {
     throw e;
   }
 }
+
+// Collections API
+export type Collection = {
+  id: string;
+  title?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: CollectionItem[];
+};
+
+export type CollectionItem = {
+  id: string;
+  cardId: string;
+  status: 'OWNED' | 'PAINTED' | 'WISHLIST';
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function getCollections(): Promise<Collection[]> {
+  return request<Collection[]>('/api/collections');
+}
+
+export async function createCollection(title?: string): Promise<{ collection: Collection }> {
+  return request<{ collection: Collection }>('/api/collections', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  });
+}
+
+export async function getCollectionItems(collectionId: string): Promise<CollectionItem[]> {
+  return request<CollectionItem[]>(`/api/collections/${collectionId}/items`);
+}
+
+export async function updateCollectionItem(
+  collectionId: string,
+  cardId: string,
+  status: 'OWNED' | 'PAINTED' | 'WISHLIST',
+  notes?: string
+): Promise<{ item: CollectionItem }> {
+  return request<{ item: CollectionItem }>(`/api/collections/${collectionId}/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cardId, status, notes }),
+  });
+}
+
+export async function deleteCollectionItem(collectionId: string, itemId: string): Promise<void> {
+  return request<void>(`/api/collections/${collectionId}/items/${itemId}`, {
+    method: 'DELETE',
+  });
+}

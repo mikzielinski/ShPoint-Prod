@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./styles/global.css";
+import "./lib/icons.css";
 import AppRoutes from "./AppRoutes";
 import { AuthProvider } from "./auth/AuthContext";
 import { initTheme } from "./theme/theme-init";

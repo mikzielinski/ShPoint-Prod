@@ -21,6 +21,7 @@ model User {
   image        String?
   passwordHash String?
   cards        Card[]
+  collections  Collection[]
 
   @@index([createdAt])
   @@index([email])
@@ -46,9 +47,10 @@ model Card {
 }
 
 enum Role {
+  GUEST
   USER
-  ADMIN
   EDITOR
+  ADMIN
 }
 
 enum UserStatus {
@@ -60,4 +62,41 @@ enum CardStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+model Collection {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?  // np. "My Painted", "Wishlist"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  CollectionItem[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model CollectionItem {
+  id           String       @id @default(cuid())
+  collectionId String
+  cardId       String       // ID jednostki/karty (Primary/Secondary/Support/Mission)
+  status       ItemStatus   @default(OWNED) // OWNED/PAINTED/WISHLIST
+  notes        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, cardId])
+  @@index([collectionId])
+  @@index([cardId])
+  @@index([status])
+}
+
+enum ItemStatus {
+  OWNED
+  PAINTED
+  WISHLIST
 }

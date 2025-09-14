@@ -41,7 +41,9 @@ export default function FiltersPanel({
     return () => document.removeEventListener("click", onDoc);
   }, []);
 
-  const toggle = (k: typeof open) => setOpen((cur) => (cur === k ? null : k));
+  const toggle = (k: typeof open) => {
+    setOpen((cur) => (cur === k ? null : k));
+  };
 
   const applyMulti = (key: keyof Filters, value: string, checked: boolean) => {
     const prev = new Set<string>((filters[key] as string[]) ?? []);
@@ -50,31 +52,29 @@ export default function FiltersPanel({
     onChange({ ...filters, [key]: Array.from(prev) });
   };
 
-  const chips = useMemo(() => {
-    const out: string[] = [];
-    if (filters.unitTypes?.length) out.push(`Type: ${filters.unitTypes.join(", ")}`);
-    if (filters.factions?.length) out.push(`Faction: ${filters.factions.join(", ")}`);
-    if (filters.eras?.length) out.push(`Era: ${filters.eras.join(", ")}`);
-    if (filters.tags?.length)
-      out.push(`Tags: ${filters.tags.slice(0, 3).join(", ")}${filters.tags!.length > 3 ? "…" : ""}`);
-    if (filters.hasSet) out.push(filters.hasSet === "With set" ? "Has set" : "No set");
-    return out;
-  }, [filters]);
+  // Helper function to get display text for dropdown buttons
+  const getButtonText = (type: keyof Filters, label: string) => {
+    const values = filters[type] as string[] | undefined;
+    if (!values || values.length === 0) return label;
+    if (values.length === 1) return `${label}: ${values[0]}`;
+    return `${label}: ${values.length} selected`;
+  };
+
 
   return (
-    <div ref={rootRef} className="filters-row">
+    <div ref={rootRef} className="filters-row" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center', gap: '12px' }}>
       {/* TEXT */}
       <input
         value={filters.text ?? ""}
         onChange={(e) => onChange({ ...filters, text: e.target.value })}
-        className="p-2 rounded-lg border border-gray-300 text-sm"
+        className="filter-input"
         placeholder="Search name / tag / faction..."
         aria-label="Search by text"
       />
 
       {/* CLEAR ALL */}
       <button
-        className="btn btn-ghost btn-sm ml-2"
+        className="btn-clear"
         onClick={() => onChange({})}
         disabled={
           !(
@@ -92,8 +92,13 @@ export default function FiltersPanel({
 
       {/* DROPDOWNS */}
       <div className="dropdown">
-        <button className="chip" onClick={() => toggle("unit")} aria-expanded={open === "unit"}>
-          Unit type
+        <button 
+          className="chip" 
+          onClick={() => toggle("unit")} 
+          aria-expanded={open === "unit"}
+          data-active={filters.unitTypes && filters.unitTypes.length > 0}
+        >
+          {getButtonText("unitTypes", "Unit type")}
         </button>
         {open === "unit" && (
           <div className="dropdown-menu">
@@ -115,8 +120,13 @@ export default function FiltersPanel({
       </div>
 
       <div className="dropdown">
-        <button className="chip" onClick={() => toggle("faction")} aria-expanded={open === "faction"}>
-          Faction
+        <button 
+          className="chip" 
+          onClick={() => toggle("faction")} 
+          aria-expanded={open === "faction"}
+          data-active={filters.factions && filters.factions.length > 0}
+        >
+          {getButtonText("factions", "Faction")}
         </button>
         {open === "faction" && (
           <div className="dropdown-menu">
@@ -138,8 +148,13 @@ export default function FiltersPanel({
       </div>
 
       <div className="dropdown">
-        <button className="chip" onClick={() => toggle("era")} aria-expanded={open === "era"}>
-          Era
+        <button 
+          className="chip" 
+          onClick={() => toggle("era")} 
+          aria-expanded={open === "era"}
+          data-active={filters.eras && filters.eras.length > 0}
+        >
+          {getButtonText("eras", "Era")}
         </button>
         {open === "era" && (
           <div className="dropdown-menu">
@@ -161,8 +176,13 @@ export default function FiltersPanel({
       </div>
 
       <div className="dropdown">
-        <button className="chip" onClick={() => toggle("tags")} aria-expanded={open === "tags"}>
-          Tags
+        <button 
+          className="chip" 
+          onClick={() => toggle("tags")} 
+          aria-expanded={open === "tags"}
+          data-active={filters.tags && filters.tags.length > 0}
+        >
+          {getButtonText("tags", "Tags")}
         </button>
         {open === "tags" && (
           <div className="dropdown-menu dropdown-wide">
@@ -184,8 +204,13 @@ export default function FiltersPanel({
       </div>
 
       <div className="dropdown">
-        <button className="chip" onClick={() => toggle("set")} aria-expanded={open === "set"}>
-          Set code
+        <button 
+          className="chip" 
+          onClick={() => toggle("set")} 
+          aria-expanded={open === "set"}
+          data-active={!!filters.hasSet}
+        >
+          {filters.hasSet ? (filters.hasSet === "With set" ? "Set code: With set" : "Set code: Without set") : "Set code"}
         </button>
         {open === "set" && (
           <div className="dropdown-menu">
@@ -229,10 +254,6 @@ export default function FiltersPanel({
         )}
       </div>
 
-      {/* aktywne „chipsy” (skrót) */}
-      {chips.map((c) => (
-        <span key={c} className="chip chip--soft">{c}</span>
-      ))}
     </div>
   );
 }

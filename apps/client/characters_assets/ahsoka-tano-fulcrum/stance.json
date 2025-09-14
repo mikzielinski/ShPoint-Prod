@@ -25,7 +25,7 @@
         "expertise": [
           { "value": "1-2", "effects": ["e"] },
           { "value": "3-4", "effects": ["e", "e"] },
-          { "value": "5+",  "effects": ["e", "f"] }
+          { "value": "5+",  "effects": ["e->f"] }
         ]
       },
       "tree": {
