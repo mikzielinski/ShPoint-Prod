@@ -341,6 +341,221 @@ app.delete("/api/collections/:id/items/:itemId", ensureAuth, async (req, res) =>
   }
 });
 
+// ===== SHATTERPOINT COLLECTIONS API
+
+// GET /api/shatterpoint/characters — get user's character collection
+app.get("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const characterCollections = await prisma.characterCollection.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+    
+    res.json({ ok: true, collections: characterCollections });
+  } catch (error) {
+    console.error("Error fetching character collections:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch character collections" });
+  }
+});
+
+// POST /api/shatterpoint/characters — add character to collection
+app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { characterId, status, notes } = req.body;
+    
+    if (!characterId) {
+      return res.status(400).json({ ok: false, error: "characterId is required" });
+    }
+    
+    const collection = await prisma.characterCollection.upsert({
+      where: {
+        userId_characterId: {
+          userId,
+          characterId,
+        },
+      },
+      update: {
+        status: status || "OWNED",
+        notes: notes || null,
+      },
+      create: {
+        userId,
+        characterId,
+        status: status || "OWNED",
+        notes: notes || null,
+      },
+    });
+    
+    res.json({ ok: true, collection });
+  } catch (error) {
+    console.error("Error updating character collection:", error);
+    res.status(500).json({ ok: false, error: "Failed to update character collection" });
+  }
+});
+
+// DELETE /api/shatterpoint/characters/:characterId — remove character from collection
+app.delete("/api/shatterpoint/characters/:characterId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { characterId } = req.params;
+    
+    await prisma.characterCollection.deleteMany({
+      where: { userId, characterId },
+    });
+    
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error removing character from collection:", error);
+    res.status(500).json({ ok: false, error: "Failed to remove character from collection" });
+  }
+});
+
+// PATCH /api/shatterpoint/characters/:collectionId — update character collection status
+app.patch("/api/shatterpoint/characters/:collectionId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { collectionId } = req.params;
+    const { status } = req.body;
+    
+    if (!status || !['OWNED', 'PAINTED', 'WISHLIST', 'SOLD', 'FAVORITE'].includes(status)) {
+      return res.status(400).json({ ok: false, error: "Invalid status provided" });
+    }
+    
+    const updatedCollection = await prisma.characterCollection.update({
+      where: { 
+        id: collectionId,
+        userId: userId // Ensure user owns this collection item
+      },
+      data: { status },
+    });
+    
+    res.json({ ok: true, collection: updatedCollection });
+  } catch (error) {
+    console.error("Error updating character collection status:", error);
+    res.status(500).json({ ok: false, error: "Failed to update character collection status" });
+  }
+});
+
+// GET /api/shatterpoint/sets — get user's set collection
+app.get("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const setCollections = await prisma.setCollection.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+    
+    res.json({ ok: true, collections: setCollections });
+  } catch (error) {
+    console.error("Error fetching set collections:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch set collections" });
+  }
+});
+
+// POST /api/shatterpoint/sets — add set to collection
+app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { setId, status, notes } = req.body;
+    
+    if (!setId) {
+      return res.status(400).json({ ok: false, error: "setId is required" });
+    }
+    
+    const collection = await prisma.setCollection.upsert({
+      where: {
+        userId_setId: {
+          userId,
+          setId,
+        },
+      },
+      update: {
+        status: status || "OWNED",
+        notes: notes || null,
+      },
+      create: {
+        userId,
+        setId,
+        status: status || "OWNED",
+        notes: notes || null,
+      },
+    });
+    
+    res.json({ ok: true, collection });
+  } catch (error) {
+    console.error("Error updating set collection:", error);
+    res.status(500).json({ ok: false, error: "Failed to update set collection" });
+  }
+});
+
+// DELETE /api/shatterpoint/sets/:setId — remove set from collection
+app.delete("/api/shatterpoint/sets/:setId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { setId } = req.params;
+    
+    await prisma.setCollection.deleteMany({
+      where: { userId, setId },
+    });
+    
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error removing set from collection:", error);
+    res.status(500).json({ ok: false, error: "Failed to remove set from collection" });
+  }
+});
+
+// GET /api/shatterpoint/stats — get collection statistics
+app.get("/api/shatterpoint/stats", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    // Get character collections
+    const characterCollections = await prisma.characterCollection.findMany({
+      where: { userId },
+    });
+    
+    // Get set collections
+    const setCollections = await prisma.setCollection.findMany({
+      where: { userId },
+    });
+    
+    // TODO: Add logic to calculate statistics based on character data
+    // This would require reading the character data and grouping by faction, era, etc.
+    
+    res.json({ 
+      ok: true, 
+      stats: {
+        characters: {
+          total: characterCollections.length,
+          owned: characterCollections.filter(c => c.status === 'OWNED').length,
+          painted: characterCollections.filter(c => c.status === 'PAINTED').length,
+          wishlist: characterCollections.filter(c => c.status === 'WISHLIST').length,
+        },
+        sets: {
+          total: setCollections.length,
+          owned: setCollections.filter(c => c.status === 'OWNED').length,
+          painted: setCollections.filter(c => c.status === 'PAINTED').length,
+          wishlist: setCollections.filter(c => c.status === 'WISHLIST').length,
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching collection stats:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch collection stats" });
+  }
+});
+
 // ===== CHARACTERS API
 // GET /api/characters — publiczny katalog kart/misji
 app.get("/api/characters", async (req, res) => {
@@ -365,8 +580,9 @@ app.get("/api/characters", async (req, res) => {
     });
     
     // Helper function to determine era from character name (matching official ShatterpointDB)
-    const getCharacterEra = (name: string): string => {
+    const getCharacterEras = (name: string): string[] => {
       const nameLower = name.toLowerCase();
+      const eras: string[] = [];
       
       // Clone Wars Era
       if (nameLower.includes('clone') || nameLower.includes('anakin') || nameLower.includes('obi-wan') || 
@@ -379,7 +595,7 @@ app.get("/api/characters", async (req, res) => {
           nameLower.includes('queen padmé') || nameLower.includes('sabé') || nameLower.includes('handmaiden') ||
           nameLower.includes('mother talzin') || nameLower.includes('savage opress') || nameLower.includes('nightsister') ||
           nameLower.includes('jango fett') || nameLower.includes('kalani') || nameLower.includes('kraken')) {
-        return "Clone Wars";
+        eras.push("Clone Wars");
       }
       
       // Galactic Civil War Era
@@ -387,7 +603,7 @@ app.get("/api/characters", async (req, res) => {
           nameLower.includes('vader') || nameLower.includes('rebel') || nameLower.includes('stormtrooper') ||
           nameLower.includes('c-3po') || nameLower.includes('r2-d2') || nameLower.includes('lando') ||
           nameLower.includes('boushh') || nameLower.includes('jedi knight luke') || nameLower.includes('freedom fighter')) {
-        return "Galactic Civil War";
+        eras.push("Galactic Civil War");
       }
       
       // Reign of the Empire Era
@@ -399,7 +615,7 @@ app.get("/api/characters", async (req, res) => {
           nameLower.includes('isb agents') || nameLower.includes('es-04') || nameLower.includes('agent kallus') ||
           nameLower.includes('grand admiral thrawn') || nameLower.includes('general veers') || nameLower.includes('elite squad') ||
           nameLower.includes('ct-9904') || nameLower.includes('director krennic')) {
-        return "Reign of the Empire";
+        eras.push("Reign of the Empire");
       }
       
       // The New Republic Era
@@ -413,23 +629,25 @@ app.get("/api/characters", async (req, res) => {
           nameLower.includes('sabine') || nameLower.includes('chopper') || nameLower.includes('hera') ||
           nameLower.includes('spectre') || nameLower.includes('captain cassian') || nameLower.includes('k-2so') ||
           nameLower.includes('jyn erso') || nameLower.includes('bodhi rook') || nameLower.includes('baze malbus') ||
-          nameLower.includes('chirrut imwe') || nameLower.includes('rebel pathfinders') || nameLower.includes('death trooper specialist') ||
-          nameLower.includes('death troopers') || nameLower.includes('nossor ri') || nameLower.includes('riff tamson') ||
-          nameLower.includes('aqua droids') || nameLower.includes('rc-1138') || nameLower.includes('rc-1140') ||
-          nameLower.includes('sev') || nameLower.includes('scorch') || nameLower.includes('jedi master shaak ti') ||
-          nameLower.includes('padawan learners') || nameLower.includes('jedi master kit fisto') || nameLower.includes('nahdar vebb') ||
-          nameLower.includes('cc-3714') || nameLower.includes('fil\'s clones') || nameLower.includes('shoretroopers')) {
-        return "The New Republic";
+          nameLower.includes('chirrut imwe') || nameLower.includes('rebel pathfinders') || nameLower.includes('rebel commandos') ||
+          nameLower.includes('death trooper specialist') || nameLower.includes('death troopers') || nameLower.includes('nossor ri') ||
+          nameLower.includes('riff tamson') || nameLower.includes('aqua droids') || nameLower.includes('rc-1138') ||
+          nameLower.includes('rc-1140') || nameLower.includes('sev') || nameLower.includes('scorch') ||
+          nameLower.includes('jedi master shaak ti') || nameLower.includes('padawan learners') || nameLower.includes('jedi master kit fisto') ||
+          nameLower.includes('nahdar vebb') || nameLower.includes('cc-3714') || nameLower.includes('fil\'s clones') ||
+          nameLower.includes('shoretroopers')) {
+        eras.push("The New Republic");
       }
       
       // Endor/Rebellion Era (Ewoks)
       if (nameLower.includes('ewok') || nameLower.includes('wicket') || nameLower.includes('paploo') || 
           nameLower.includes('logray') || nameLower.includes('chief chirpa') || nameLower.includes('ewok trappers') ||
           nameLower.includes('ewok hunters') || nameLower.includes('ewok traps')) {
-        return "Galactic Civil War"; // Ewoks are part of the Galactic Civil War era
+        eras.push("Galactic Civil War"); // Ewoks are part of the Galactic Civil War era
       }
       
-      return "Unknown Era";
+      // Return eras array, or ["Unknown Era"] if none found
+      return eras.length > 0 ? eras : ["Unknown Era"];
     };
 
     // Transform the data to match the expected format
@@ -449,7 +667,7 @@ app.get("/api/characters", async (req, res) => {
         force: char.force || 0,
         stamina: char.stamina || 0,
         durability: char.durability || 0,
-        era: getCharacterEra(char.name)
+        era: getCharacterEras(char.name)
       };
     });
 
@@ -486,6 +704,203 @@ app.get("/api/characters/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching character details:", error);
     res.status(500).json({ ok: false, error: "Failed to fetch character details" });
+  }
+});
+
+// ===== SHATTERPOINT STRIKE TEAMS API =====
+
+// GET /api/shatterpoint/strike-teams — get user's strike teams
+app.get("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { type } = req.query; // MY_TEAMS or DREAM_TEAMS
+    
+    const whereClause: any = { userId };
+    if (type && ['MY_TEAMS', 'DREAM_TEAMS'].includes(type as string)) {
+      whereClause.type = type;
+    }
+    
+    const strikeTeams = await prisma.strikeTeam.findMany({
+      where: whereClause,
+      include: {
+        characters: {
+          orderBy: { order: 'asc' }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({ ok: true, strikeTeams });
+  } catch (error) {
+    console.error("Error fetching strike teams:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch strike teams" });
+  }
+});
+
+// POST /api/shatterpoint/strike-teams — create new strike team
+app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { name, type, description, characters } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ ok: false, error: "Team name is required" });
+    }
+    
+    if (!type || !['MY_TEAMS', 'DREAM_TEAMS'].includes(type)) {
+      return res.status(400).json({ ok: false, error: "Invalid team type" });
+    }
+    
+    // Validate characters array (should have 6 characters: 2 squads of 3 each)
+    if (!characters || characters.length !== 6) {
+      return res.status(400).json({ ok: false, error: "Strike team must have exactly 6 characters (2 squads of 3)" });
+    }
+    
+                // Validate roles: each squad should have 1 Primary, 1 Secondary, 1 Supporting
+                const squad1 = characters.slice(0, 3);
+                const squad2 = characters.slice(3, 6);
+                
+                const validateSquad = (squad: any[], squadName: string) => {
+                  const roles = squad.map(c => c.role);
+                  const primaryCount = roles.filter(r => r === 'PRIMARY').length;
+                  const secondaryCount = roles.filter(r => r === 'SECONDARY').length;
+                  const supportCount = roles.filter(r => r === 'SUPPORT').length;
+                  
+                  if (primaryCount !== 1) {
+                    throw new Error(`${squadName} must have exactly 1 Primary character (found ${primaryCount})`);
+                  }
+                  if (secondaryCount !== 1) {
+                    throw new Error(`${squadName} must have exactly 1 Secondary character (found ${secondaryCount})`);
+                  }
+                  if (supportCount !== 1) {
+                    throw new Error(`${squadName} must have exactly 1 Support character (found ${supportCount})`);
+                  }
+                  
+                  // Check for duplicate character IDs within the squad
+                  const characterIds = squad.map(c => c.characterId);
+                  const uniqueIds = new Set(characterIds);
+                  if (uniqueIds.size !== characterIds.length) {
+                    throw new Error(`${squadName} cannot have duplicate characters`);
+                  }
+                };
+                
+                validateSquad(squad1, 'Squad 1');
+                validateSquad(squad2, 'Squad 2');
+    
+    // Check for duplicate characters across the entire strike team
+    const allCharacterIds = characters.map(c => c.characterId);
+    const uniqueTeamIds = new Set(allCharacterIds);
+    if (uniqueTeamIds.size !== allCharacterIds.length) {
+      throw new Error("Strike team cannot have duplicate characters across squads");
+    }
+    
+    // Create strike team with characters in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      const strikeTeam = await tx.strikeTeam.create({
+        data: {
+          userId,
+          name,
+          type,
+          description: description || null
+        }
+      });
+      
+      // Add characters to the team
+      const teamCharacters = await Promise.all(
+        characters.map((char: any, index: number) =>
+          tx.strikeTeamCharacter.create({
+            data: {
+              strikeTeamId: strikeTeam.id,
+              characterId: char.characterId,
+              role: char.role,
+              order: index
+            }
+          })
+        )
+      );
+      
+      return { strikeTeam, characters: teamCharacters };
+    });
+    
+    res.json({ ok: true, strikeTeam: result.strikeTeam });
+  } catch (error) {
+    console.error("Error creating strike team:", error);
+    res.status(500).json({ ok: false, error: error instanceof Error ? error.message : "Failed to create strike team" });
+  }
+});
+
+// PUT /api/shatterpoint/strike-teams/:id — update strike team
+app.put("/api/shatterpoint/strike-teams/:id", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { name, description, characters } = req.body;
+    
+    // Validate characters array
+    if (characters && characters.length !== 6) {
+      return res.status(400).json({ ok: false, error: "Strike team must have exactly 6 characters (2 squads of 3)" });
+    }
+    
+    const result = await prisma.$transaction(async (tx) => {
+      // Update strike team
+      const updatedTeam = await tx.strikeTeam.update({
+        where: { id, userId },
+        data: {
+          name: name || undefined,
+          description: description !== undefined ? description : undefined
+        }
+      });
+      
+      // Update characters if provided
+      if (characters) {
+        // Delete existing characters
+        await tx.strikeTeamCharacter.deleteMany({
+          where: { strikeTeamId: id }
+        });
+        
+        // Add new characters
+        await Promise.all(
+          characters.map((char: any, index: number) =>
+            tx.strikeTeamCharacter.create({
+              data: {
+                strikeTeamId: id,
+                characterId: char.characterId,
+                role: char.role,
+                order: index
+              }
+            })
+          )
+        );
+      }
+      
+      return updatedTeam;
+    });
+    
+    res.json({ ok: true, strikeTeam: result });
+  } catch (error) {
+    console.error("Error updating strike team:", error);
+    res.status(500).json({ ok: false, error: "Failed to update strike team" });
+  }
+});
+
+// DELETE /api/shatterpoint/strike-teams/:id — delete strike team
+app.delete("/api/shatterpoint/strike-teams/:id", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    
+    await prisma.strikeTeam.delete({
+      where: { id, userId }
+    });
+    
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error deleting strike team:", error);
+    res.status(500).json({ ok: false, error: "Failed to delete strike team" });
   }
 });
 

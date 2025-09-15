@@ -22,6 +22,9 @@ model User {
   passwordHash String?
   cards        Card[]
   collections  Collection[]
+  characterCollections CharacterCollection[]
+  setCollections      SetCollection[]
+  strikeTeams  StrikeTeam[]
 
   @@index([createdAt])
   @@index([email])
@@ -99,4 +102,90 @@ enum ItemStatus {
   OWNED
   PAINTED
   WISHLIST
+}
+
+// ====== SHATTERPOINT COLLECTION MODELS ======
+
+model CharacterCollection {
+  id        String   @id @default(cuid())
+  userId    String
+  characterId String // ID postaci z characters.json (np. "ahsoka-tano-fulcrum")
+  status    CollectionStatus @default(OWNED)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, characterId])
+  @@index([userId])
+  @@index([characterId])
+  @@index([status])
+}
+
+model SetCollection {
+  id        String   @id @default(cuid())
+  userId    String
+  setId     String   // ID zestawu (np. "ahsoka-tano-fulcrum-set")
+  status    CollectionStatus @default(OWNED)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, setId])
+  @@index([userId])
+  @@index([setId])
+  @@index([status])
+}
+
+enum CollectionStatus {
+  OWNED     // Posiadane
+  PAINTED   // Pomalowane
+  WISHLIST  // Lista życzeń
+  SOLD      // Sprzedane
+  FAVORITE  // Ulubione
+}
+
+enum StrikeTeamType {
+  MY_TEAMS    // Drużyny z posiadanych postaci
+  DREAM_TEAMS // Drużyny z wishlisty
+}
+
+enum CharacterRole {
+  PRIMARY   // Główna postać
+  SECONDARY // Postać drugorzędna
+  SUPPORT   // Postać wspierająca
+}
+
+model StrikeTeam {
+  id          String        @id @default(cuid())
+  userId      String
+  name        String
+  type        StrikeTeamType @default(MY_TEAMS)
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characters StrikeTeamCharacter[]
+
+  @@index([userId])
+  @@index([type])
+}
+
+model StrikeTeamCharacter {
+  id            String        @id @default(cuid())
+  strikeTeamId  String
+  characterId   String        // ID postaci z characters.json
+  role          CharacterRole
+  order         Int           // Kolejność w drużynie
+  createdAt     DateTime      @default(now())
+
+  strikeTeam StrikeTeam @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
+
+  @@unique([strikeTeamId, characterId])
+  @@index([strikeTeamId])
+  @@index([characterId])
 }

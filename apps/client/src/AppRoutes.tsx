@@ -1,6 +1,8 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import CollectionsPage from "./pages/CollectionsPage";
+import MyCollectionPage from "./pages/MyCollectionPage";
+import MyStrikeTeamsPage from "./pages/MyStrikeTeamsPage";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import "./components/NavBar.css";
@@ -60,7 +62,12 @@ function NavBar() {
         <div className="nb-nav">
           <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Home</NavLink>
           <NavLink to="/characters" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Characters</NavLink>
-          <NavLink to="/collections" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Collections</NavLink>
+          {me && (
+            <>
+              <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
+              <NavLink to="/my-strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Strike Teams</NavLink>
+            </>
+          )}
           <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
         </div>
         <div className="nb-actions">
@@ -111,6 +118,8 @@ function CharactersPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({});
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const { data: authData } = useAuthMe();
+  const me = authData?.user;
 
   useEffect(() => {
     let alive = true;
@@ -156,6 +165,93 @@ function CharactersPage() {
       return true;
     });
   }, [data, filters]);
+
+  // Handle adding character to collection
+  const handleAddToCollection = async (characterId: string) => {
+    if (!me) return;
+    
+    try {
+      const response = await fetch("/api/shatterpoint/characters", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          characterId,
+          status: "OWNED"
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to add character to collection");
+      }
+      
+      // Show success message (you could add a toast notification here)
+      alert(`Added ${characterId} to your collection!`);
+    } catch (error) {
+      console.error("Error adding character to collection:", error);
+      alert("Failed to add character to collection");
+    }
+  };
+
+  // Handle adding character to wishlist
+  const handleAddToWishlist = async (characterId: string) => {
+    if (!me) return;
+    
+    try {
+      const response = await fetch("/api/shatterpoint/characters", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          characterId,
+          status: "WISHLIST"
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to add character to wishlist");
+      }
+      
+      // Show success message
+      alert(`Added ${characterId} to your wishlist!`);
+    } catch (error) {
+      console.error("Error adding character to wishlist:", error);
+      alert("Failed to add character to wishlist");
+    }
+  };
+
+  // Handle adding character to favorites
+  const handleAddToFavorites = async (characterId: string) => {
+    if (!me) return;
+    
+    try {
+      const response = await fetch("/api/shatterpoint/characters", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          characterId,
+          status: "FAVORITE"
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to add character to favorites");
+      }
+      
+      // Show success message
+      alert(`Added ${characterId} to your favorites!`);
+    } catch (error) {
+      console.error("Error adding character to favorites:", error);
+      alert("Failed to add character to favorites");
+    }
+  };
 
   // Generate facets from data
   const facets = useMemo(() => {
@@ -252,6 +348,118 @@ function CharactersPage() {
                     (e.target as HTMLImageElement).src = "https://picsum.photos/seed/placeholder/400/520";
                   }}
                 />
+                {/* Collection, Wishlist and Favorites buttons - only show for logged in users */}
+                {me && (
+                  <div style={{
+                    position: "absolute",
+                    top: "8px",
+                    right: "8px",
+                    display: "flex",
+                    gap: "4px"
+                  }}>
+                    {/* Collection button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent opening modal
+                        handleAddToCollection(c.id);
+                      }}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        background: "rgba(0, 0, 0, 0.7)",
+                        color: "white",
+                        border: "none",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 0.2s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.9)";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                      title="Add to collection"
+                    >
+                      +
+                    </button>
+                    
+                    {/* Wishlist button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent opening modal
+                        handleAddToWishlist(c.id);
+                      }}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        background: "rgba(0, 0, 0, 0.7)",
+                        color: "white",
+                        border: "none",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 0.2s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(220, 38, 38, 0.9)";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                      title="Add to wishlist"
+                    >
+                      ⭐
+                    </button>
+
+                    {/* Favorites button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent opening modal
+                        handleAddToFavorites(c.id);
+                      }}
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        background: "rgba(0, 0, 0, 0.7)",
+                        color: "white",
+                        border: "none",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "all 0.2s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(255, 193, 7, 0.9)";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                      title="Add to favorites"
+                    >
+                      ♥
+                    </button>
+                  </div>
+                )}
               </div>
               <div style={{padding: "12px"}}>
                 <div style={{
@@ -389,6 +597,8 @@ export default function AppRoutes() {
           </div>
         }/>
         <Route path="/characters" element={<CharactersPage/>}/>
+        <Route path="/my-collection" element={<MyCollectionPage/>}/>
+        <Route path="/my-strike-teams" element={<MyStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/builder" element={
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>

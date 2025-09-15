@@ -70,6 +70,15 @@ export default function NavBar() {
             Characters
           </NavLink>
 
+          {user && (
+            <NavLink
+              to="/my-collection"
+              className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+            >
+              My Collection
+            </NavLink>
+          )}
+
           {isEditor && (
             <NavLink
               to="/editor"
@@ -139,6 +148,11 @@ export default function NavBar() {
         <NavLink to="/characters" className="nb-drawer-link">
           Characters
         </NavLink>
+        {user && (
+          <NavLink to="/my-collection" className="nb-drawer-link">
+            My Collection
+          </NavLink>
+        )}
         {isEditor && (
           <NavLink to="/editor" className="nb-drawer-link">
             Editor
