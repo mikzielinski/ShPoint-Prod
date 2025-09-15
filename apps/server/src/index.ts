@@ -514,6 +514,110 @@ app.delete("/api/shatterpoint/sets/:setId", ensureAuth, async (req, res) => {
   }
 });
 
+// GET /api/shatterpoint/missions — get user's mission collection
+app.get("/api/shatterpoint/missions", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const missionCollections = await prisma.missionCollection.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+    
+    res.json({ ok: true, collections: missionCollections });
+  } catch (error) {
+    console.error("Error fetching mission collections:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch mission collections" });
+  }
+});
+
+// POST /api/shatterpoint/missions — add mission to collection
+app.post("/api/shatterpoint/missions", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { missionId, status, notes } = req.body;
+    
+    if (!missionId) {
+      return res.status(400).json({ ok: false, error: "missionId is required" });
+    }
+    
+    const collection = await prisma.missionCollection.upsert({
+      where: {
+        userId_missionId: {
+          userId,
+          missionId,
+        },
+      },
+      update: {
+        status: status || "OWNED",
+        notes: notes || null,
+      },
+      create: {
+        userId,
+        missionId,
+        status: status || "OWNED",
+        notes: notes || null,
+      },
+    });
+    
+    res.json({ ok: true, collection });
+  } catch (error) {
+    console.error("Error updating mission collection:", error);
+    res.status(500).json({ ok: false, error: "Failed to update mission collection" });
+  }
+});
+
+// PATCH /api/shatterpoint/missions/:missionId — update mission collection status
+app.patch("/api/shatterpoint/missions/:missionId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { missionId } = req.params;
+    const { status } = req.body;
+    
+    if (!status || !['OWNED', 'COMPLETED', 'WISHLIST', 'LOCKED'].includes(status)) {
+      return res.status(400).json({ ok: false, error: "Invalid status provided" });
+    }
+    
+    const updatedCollection = await prisma.missionCollection.update({
+      where: { 
+        userId_missionId: {
+          userId,
+          missionId
+        }
+      },
+      data: { 
+        status,
+        completedAt: status === 'COMPLETED' ? new Date() : null
+      },
+    });
+    
+    res.json({ ok: true, collection: updatedCollection });
+  } catch (error) {
+    console.error("Error updating mission collection status:", error);
+    res.status(500).json({ ok: false, error: "Failed to update mission collection status" });
+  }
+});
+
+// DELETE /api/shatterpoint/missions/:missionId — remove mission from collection
+app.delete("/api/shatterpoint/missions/:missionId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { missionId } = req.params;
+    
+    await prisma.missionCollection.deleteMany({
+      where: { userId, missionId },
+    });
+    
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error removing mission from collection:", error);
+    res.status(500).json({ ok: false, error: "Failed to remove mission from collection" });
+  }
+});
+
 // GET /api/shatterpoint/stats — get collection statistics
 app.get("/api/shatterpoint/stats", ensureAuth, async (req, res) => {
   try {
@@ -527,6 +631,11 @@ app.get("/api/shatterpoint/stats", ensureAuth, async (req, res) => {
     
     // Get set collections
     const setCollections = await prisma.setCollection.findMany({
+      where: { userId },
+    });
+    
+    // Get mission collections
+    const missionCollections = await prisma.missionCollection.findMany({
       where: { userId },
     });
     
@@ -547,6 +656,12 @@ app.get("/api/shatterpoint/stats", ensureAuth, async (req, res) => {
           owned: setCollections.filter(c => c.status === 'OWNED').length,
           painted: setCollections.filter(c => c.status === 'PAINTED').length,
           wishlist: setCollections.filter(c => c.status === 'WISHLIST').length,
+        },
+        missions: {
+          total: missionCollections.length,
+          owned: missionCollections.filter(c => c.status === 'OWNED').length,
+          completed: missionCollections.filter(c => c.status === 'COMPLETED').length,
+          wishlist: missionCollections.filter(c => c.status === 'WISHLIST').length,
         }
       }
     });

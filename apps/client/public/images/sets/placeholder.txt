@@ -1,0 +1,8 @@
+# Placeholder for set images
+
+To add real product images:
+1. Download images from Atomic Mass Games website
+2. Save them as: swp01.jpg, swp03.jpg, swp04.jpg, etc.
+3. Place them in this directory
+
+For now, the system will show icons as fallback.

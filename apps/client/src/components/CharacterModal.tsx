@@ -30,6 +30,15 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
   const [loading, setLoading] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
 
+  // Debug log
+  React.useEffect(() => {
+    if (open && character) {
+      console.log('CharacterModal - character prop:', character);
+      console.log('CharacterModal - character.portrait:', character.portrait);
+    }
+  }, [open, character]);
+
+
   // preload ikon
   React.useEffect(() => {
     if (!open) return;
@@ -75,14 +84,19 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
           const data = await dRes.value.json();
           setDataObj(data);
         } else {
-          setDataObj(null);
+          // Use character prop data as fallback
+          setDataObj(character);
         }
 
         if (sRes.status === "fulfilled" && sRes.value.ok) {
           setStanceObj(await sRes.value.json());
         } else setStanceObj(null);
       } catch (e: any) {
-        if (alive) setErr(e?.message ?? "Failed to load character files.");
+        if (alive) {
+          setErr(e?.message ?? "Failed to load character files.");
+          // Use character prop data as fallback
+          setDataObj(character);
+        }
       } finally {
         if (alive) setLoading(false);
       }
@@ -90,7 +104,7 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
     return () => {
       alive = false;
     };
-  }, [open, id]);
+  }, [open, id, character]);
 
   if (!open) return null;
 

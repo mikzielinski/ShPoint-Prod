@@ -88,7 +88,8 @@ export default function UnitDataCard({ character, data }: Props) {
   const stamina = c.stamina ?? "—";
   const durability = c.durability ?? "—";
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
-  const portrait = c.portrait;
+  // Use local portrait.png instead of external image
+  const portrait = c.id ? `/characters/${c.id}/portrait.png` : null;
   const abilities: Ability[] = Array.isArray(c.abilities) ? c.abilities! : [];
   const factions = Array.isArray(c.factions) ? c.factions : null;
 
@@ -121,7 +122,8 @@ export default function UnitDataCard({ character, data }: Props) {
               style={{
                 width: "100%",
                 height: "100%",
-                objectFit: "cover",
+                objectFit: "contain",
+                objectPosition: "center",
                 display: "block",
                 aspectRatio: "3 / 4",
                 borderRadius: "8px"

@@ -3,6 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
 import MyStrikeTeamsPage from "./pages/MyStrikeTeamsPage";
+import ShatterpointLibraryPage from "./pages/ShatterpointLibraryPage";
+import SetsPage from "./pages/SetsPage";
+import MissionsPage from "./pages/MissionsPage";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import "./components/NavBar.css";
@@ -61,7 +64,7 @@ function NavBar() {
         </NavLink>
         <div className="nb-nav">
           <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Home</NavLink>
-          <NavLink to="/characters" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Characters</NavLink>
+          <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
           {me && (
             <>
               <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
@@ -71,14 +74,14 @@ function NavBar() {
           <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
         </div>
         <div className="nb-actions">
-          {!loading && !me && (
+            {!loading && !me && (
             <button className="nb-btn" onClick={gotoLogin}>Sign in</button>
-          )}
-          {loading ? (
+            )}
+              {loading ? (
             <span className="nb-guest">...</span>
-          ) : me ? (
-            <>
-              {me.picture ? (
+              ) : me ? (
+                <>
+                  {me.picture ? (
                 <img className="nb-btn-icon" src={me.picture} alt="avatar" style={{borderRadius: "50%"}} />
               ) : (
                 <div className="nb-btn-icon" style={{borderRadius: "50%", fontSize:12, fontWeight:600, background: "#374151"}}>{initials}</div>
@@ -142,7 +145,7 @@ function CharactersPage() {
         const searchText = filters.text.toLowerCase();
         const matchesText = 
           char.name.toLowerCase().includes(searchText) ||
-          char.faction?.toLowerCase().includes(searchText) ||
+          (char.faction && char.faction.toLowerCase().includes(searchText)) ||
           char.tags?.some(tag => tag.toLowerCase().includes(searchText));
         if (!matchesText) return false;
       }
@@ -152,19 +155,173 @@ function CharactersPage() {
         return false;
       }
 
-      // Faction filter
-      if (filters.factions?.length && !filters.factions.some(f => char.faction?.includes(f))) {
-        return false;
+      // Faction filter - handle string format
+      if (filters.factions?.length) {
+        if (!filters.factions.includes(char.faction || '')) {
+          return false;
+        }
       }
 
-      // Era filter
-      if (filters.eras?.length && !filters.eras.includes(char.era || '')) {
+      // Era filter - handle both array and string formats
+      if (filters.eras?.length) {
+        const charEras = Array.isArray(char.era) ? char.era : [char.era].filter(Boolean);
+        if (!filters.eras.some(e => charEras.includes(e))) {
+          return false;
+        }
+      }
+
+      // Tags filter
+      if (filters.tags?.length && !filters.tags.some(t => char.tags?.includes(t))) {
         return false;
       }
 
       return true;
     });
   }, [data, filters]);
+
+  // Helper function to map character names to character IDs (same as in SetsPage)
+  const getCharacterId = (characterName: string): string => {
+    const nameMap: { [key: string]: string } = {
+      // SWP24 - Certified Guild Squad Pack
+      'Din Djarin (The Mandalorian)': 'the-mandalorian',
+      'The Mandalorian': 'the-mandalorian', // Alternative name
+      'IG-11': 'ig-11-assassin-droid',
+      'IG-11, Assassin Droid': 'ig-11-assassin-droid', // Alternative name
+      'Greef Karga': 'greef-karga',
+      
+      // Core Set and other common characters
+      'General Anakin Skywalker': 'general-anakin-skywalker',
+      'Captain Rex (CC-7567)': 'cc-7567-captain-rex',
+      '501st Clone Troopers': '501st-clone-troopers',
+      'Ahsoka Tano, Jedi no more': 'ahsoka-tano-jedi-no-more',
+      'Ahsoka Tano (Rebels era)': 'ahsoka-tano-fulcrum',
+      'Bo-Katan Kryze': 'bo-katan-kryze',
+      'Clan Kryze Mandalorians': 'clan-kryze-mandalorians',
+      'Asajj Ventress, Sith Assassin': 'asajj-ventress-sith-assassin',
+      'Kalani (Super Tactical Droid)': 'kalani-super-tactical-droid',
+      'B1 Battle Droids': 'b1-battle-droids',
+      'Darth Maul (Lord Maul)': 'lord-maul',
+      'Gar Saxon': 'gar-saxon-merciless-commander',
+      'Shadow Collective Commandos': 'mandalorian-super-commandos',
+      
+      // More characters from various sets
+      'The Armorer': 'the-armorer',
+      'Paz Vizsla': 'paz-vizsla',
+      'Covert Mandalorians': 'covert-mandalorians',
+      'Darth Vader': 'darth-vader-jedi-hunter',
+      'Commander (Imperial Officer)': 'commander-iden-versio',
+      'Stormtroopers': 'stormtroopers',
+      'Luke Skywalker (Jedi Knight)': 'jedi-knight-luke-skywalker',
+      'Leia Organa (Boushh Disguise)': 'boushh-leia-organa',
+      'Lando Calrissian & R2-D2': 'lando-and-r2-d2-inside-job',
+    };
+    
+    return nameMap[characterName] || characterName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  };
+
+  // Auto-add sets to collection when character is added
+  const checkAndAutoAddSets = async () => {
+    if (!me) return;
+    
+    try {
+      // Get current character collections
+      const charResponse = await fetch("/api/shatterpoint/characters", {
+        credentials: "include"
+      });
+      
+      if (!charResponse.ok) return;
+      
+      const charData = await charResponse.json();
+      const characterCollections = charData.collections || charData || [];
+      
+      // Get all sets (we'll need to define this or fetch from API)
+      const sets = [
+        {
+          id: 'swp24',
+          name: 'Certified Guild Squad Pack',
+          code: 'SWP24',
+          type: 'Squad Pack',
+          description: 'Din Djarin and his allies',
+          characters: [
+            { role: 'Primary', name: 'Din Djarin (The Mandalorian)' },
+            { role: 'Secondary', name: 'IG-11' },
+            { role: 'Supporting', name: 'Greef Karga' }
+          ]
+        }
+        // Add more sets as needed
+      ];
+      
+      // Check each set for auto-add
+      for (const set of sets) {
+        if (!set.characters || set.characters.length === 0) continue;
+        
+        // Check if user has all characters from this set
+        const hasAllCharacters = set.characters.every(character => {
+          const characterId = getCharacterId(character.name);
+          return characterCollections.some(collection => 
+            collection.characterId === characterId && 
+            (collection.status === 'OWNED' || collection.status === 'PAINTED')
+          );
+        });
+        
+        if (hasAllCharacters) {
+          console.log(`🎉 Auto-adding set "${set.name}" to collection!`);
+          
+          // Add set to collection
+          const setResponse = await fetch("/api/shatterpoint/sets", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              setId: set.id,
+              status: 'OWNED'
+            })
+          });
+          
+          if (setResponse.ok) {
+            console.log(`✅ Successfully auto-added set "${set.name}"`);
+            alert(`🎉 Set "${set.name}" automatically added to your collection!`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking auto-add sets:", error);
+    }
+  };
+
+  // Make the function available globally for testing
+  (window as any).checkAndAutoAddSets = checkAndAutoAddSets;
+  
+  // Add a function to manually add SWP24 set
+  (window as any).addSWP24Set = async () => {
+    try {
+      const response = await fetch('/api/shatterpoint/sets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          setId: 'swp24',
+          status: 'OWNED'
+        })
+      });
+      
+      const result = await response.json();
+      console.log('SWP24 set add result:', result);
+      
+      if (response.ok) {
+        alert('✅ SWP24 set added successfully! Please refresh the page to see it.');
+      } else {
+        alert('❌ Failed to add SWP24 set: ' + (result.error || 'Unknown error'));
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error adding SWP24 set:', error);
+      alert('❌ Error adding SWP24 set: ' + error.message);
+    }
+  };
 
   // Handle adding character to collection
   const handleAddToCollection = async (characterId: string) => {
@@ -187,8 +344,12 @@ function CharactersPage() {
         throw new Error("Failed to add character to collection");
       }
       
-      // Show success message (you could add a toast notification here)
+      // Show success message
       alert(`Added ${characterId} to your collection!`);
+      
+      // Check if any sets should be auto-added
+      await checkAndAutoAddSets();
+      
     } catch (error) {
       console.error("Error adding character to collection:", error);
       alert("Failed to add character to collection");
@@ -218,6 +379,10 @@ function CharactersPage() {
       
       // Show success message
       alert(`Added ${characterId} to your wishlist!`);
+      
+      // Check if any sets should be auto-added (wishlist doesn't trigger auto-add, but we can check for owned characters)
+      // await checkAndAutoAddSets();
+      
     } catch (error) {
       console.error("Error adding character to wishlist:", error);
       alert("Failed to add character to wishlist");
@@ -247,6 +412,10 @@ function CharactersPage() {
       
       // Show success message
       alert(`Added ${characterId} to your favorites!`);
+      
+      // Check if any sets should be auto-added (favorites don't trigger auto-add, but we can check for owned characters)
+      // await checkAndAutoAddSets();
+      
     } catch (error) {
       console.error("Error adding character to favorites:", error);
       alert("Failed to add character to favorites");
@@ -256,9 +425,30 @@ function CharactersPage() {
   // Generate facets from data
   const facets = useMemo(() => {
     const unitTypes = [...new Set(data.map(c => c.role).filter(Boolean))];
-    const factions = [...new Set(data.flatMap(c => c.faction?.split(', ') || []).filter(Boolean))];
+    
+    // Fix factions - handle string format from API
+    const allFactions = data.map(c => {
+      if (typeof c.faction === 'string' && c.faction !== 'Unknown') {
+        return c.faction;
+      }
+      return null;
+    }).filter(Boolean);
+    
+    const factions = [...new Set(allFactions)];
+    
+    // Fix eras - handle both array and string formats, remove duplicates
+    const allEras = data.flatMap(c => {
+      if (Array.isArray(c.era)) {
+        return c.era;
+      } else if (typeof c.era === 'string') {
+        return [c.era];
+      }
+      return [];
+    });
+    const eras = [...new Set(allEras.filter(Boolean))];
+    
+    // Tags - get all unique tags
     const tags = [...new Set(data.flatMap(c => c.tags || []))];
-    const eras = [...new Set(data.map(c => c.era).filter(Boolean))];
     
     return {
       unitTypes,
@@ -562,7 +752,7 @@ function CharactersPage() {
                   </div>
                 )}
               </div>
-            </div>
+          </div>
         ))}
       </div>
 
@@ -596,7 +786,10 @@ export default function AppRoutes() {
             <h1>Home</h1><p>Welcome to ShPoint.</p>
           </div>
         }/>
+        <Route path="/library" element={<ShatterpointLibraryPage/>}/>
         <Route path="/characters" element={<CharactersPage/>}/>
+        <Route path="/sets" element={<SetsPage/>}/>
+        <Route path="/missions" element={<MissionsPage/>}/>
         <Route path="/my-collection" element={<MyCollectionPage/>}/>
         <Route path="/my-strike-teams" element={<MyStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>

@@ -24,6 +24,7 @@ model User {
   collections  Collection[]
   characterCollections CharacterCollection[]
   setCollections      SetCollection[]
+  missionCollections  MissionCollection[]
   strikeTeams  StrikeTeam[]
 
   @@index([createdAt])
@@ -140,12 +141,37 @@ model SetCollection {
   @@index([status])
 }
 
+model MissionCollection {
+  id        String   @id @default(cuid())
+  userId    String
+  missionId String   // ID misji (np. "m01", "m02")
+  status    MissionStatus @default(OWNED)
+  notes     String?
+  completedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, missionId])
+  @@index([userId])
+  @@index([missionId])
+  @@index([status])
+}
+
 enum CollectionStatus {
   OWNED     // Posiadane
   PAINTED   // Pomalowane
   WISHLIST  // Lista życzeń
   SOLD      // Sprzedane
   FAVORITE  // Ulubione
+}
+
+enum MissionStatus {
+  OWNED     // Posiadane
+  COMPLETED // Ukończone
+  WISHLIST  // Lista życzeń
+  LOCKED    // Zablokowane
 }
 
 enum StrikeTeamType {
