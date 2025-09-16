@@ -397,14 +397,17 @@ export default function MyCollectionPage() {
         );
         
         // If set is marked as PAINTED, also mark all characters from this set as PAINTED
-        if (newStatus === 'PAINTED') {
-          const set = mockSets.find(s => s.id === setId);
-          if (set && set.characters) {
-            for (const character of set.characters) {
+        // If set is marked as OWNED (from PAINTED), also mark all characters from this set as OWNED
+        const currentSet = mockSets.find(s => s.id === setId);
+        const currentSetCollection = setCollections.find(sc => sc.setId === setId);
+        
+        if (newStatus === 'PAINTED' || (newStatus === 'OWNED' && currentSetCollection?.status === 'PAINTED')) {
+          if (currentSet && currentSet.characters) {
+            for (const character of currentSet.characters) {
               const characterId = getCharacterId(character.name);
               const existingCollection = characterCollections.find(c => c.characterId === characterId);
               
-              if (existingCollection && existingCollection.status === 'OWNED') {
+              if (existingCollection) {
                 try {
                   await fetch(api(`/api/shatterpoint/characters/${existingCollection.id}`), {
                     method: 'PATCH',
@@ -412,7 +415,7 @@ export default function MyCollectionPage() {
                       'Content-Type': 'application/json',
                     },
                     credentials: 'include',
-                    body: JSON.stringify({ status: 'PAINTED' }),
+                    body: JSON.stringify({ status: newStatus }),
                   });
                 } catch (error) {
                   console.error(`Error updating character ${character.name} status:`, error);
@@ -1335,7 +1338,14 @@ export default function MyCollectionPage() {
                       {['OWNED', 'PAINTED', 'WISHLIST', 'SOLD'].map((status) => (
                         <button
                           key={status}
-                          onClick={() => handleUpdateStatus(set.id, status as any)}
+                          onClick={() => {
+                            // Toggle logic for PAINTED status
+                            if (status === 'PAINTED' && set.collection?.status === 'PAINTED') {
+                              handleUpdateStatus(set.id, 'OWNED');
+                            } else {
+                              handleUpdateStatus(set.id, status as any);
+                            }
+                          }}
                           style={{
                             padding: "4px 8px",
                             borderRadius: "4px",
