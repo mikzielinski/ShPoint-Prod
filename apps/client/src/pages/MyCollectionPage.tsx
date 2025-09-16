@@ -1699,22 +1699,6 @@ export default function MyCollectionPage() {
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      {/* Role indicator */}
-                      <div style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        background: getRoleColor(character.role),
-                        color: 'white',
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>
-                        {character.role}
-                      </div>
 
                       {/* Character Portrait */}
                       <div style={{
