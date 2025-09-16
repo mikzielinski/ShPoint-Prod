@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { api } from '../lib/api';
+import { api } from '../lib/env';
 import { Set } from '../types';
 import { setsData } from '../data/sets';
 import CharacterModal from '../components/CharacterModal';
