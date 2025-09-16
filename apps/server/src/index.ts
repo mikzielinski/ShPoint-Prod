@@ -188,6 +188,7 @@ app.post("/auth/logout", (req, res, next) => {
   });
 });
 
+
 // prosty profil (przykład API chronionego)
 app.get("/api/me", ensureAuth, (req, res) => {
   // @ts-ignore
