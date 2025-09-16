@@ -260,7 +260,7 @@ function CharactersPage() {
           const characterId = getCharacterId(character.name);
           return characterCollections.some(collection => 
             collection.characterId === characterId && 
-            (collection.status === 'OWNED' || collection.status === 'PAINTED')
+            (collection.isOwned || collection.isPainted)
           );
         });
         

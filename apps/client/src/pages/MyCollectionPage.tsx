@@ -156,7 +156,11 @@ const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
 interface CharacterCollection {
   id: string;
   characterId: string;
-  status: 'OWNED' | 'PAINTED' | 'WISHLIST' | 'SOLD';
+  isOwned: boolean;
+  isPainted: boolean;
+  isWishlist: boolean;
+  isSold: boolean;
+  isFavorite: boolean;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -180,7 +184,11 @@ interface Character {
 interface SetCollection {
   id: string;
   setId: string;
-  status: 'OWNED' | 'PAINTED' | 'WISHLIST' | 'SOLD';
+  isOwned: boolean;
+  isPainted: boolean;
+  isWishlist: boolean;
+  isSold: boolean;
+  isFavorite: boolean;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -312,6 +320,7 @@ export default function MyCollectionPage() {
       });
       if (!characterResponse.ok) throw new Error('Failed to load character collections');
       const characterData = await characterResponse.json();
+      console.log('🔍 Character collections loaded:', characterData.collections);
       setCharacterCollections(characterData.collections || []);
 
       // Load set collections
@@ -320,6 +329,7 @@ export default function MyCollectionPage() {
       });
       if (!setResponse.ok) throw new Error('Failed to load set collections');
       const setData = await setResponse.json();
+      console.log('🔍 Set collections loaded:', setData.collections);
       setSetCollections(setData.collections || []);
 
       // Load stats
@@ -412,13 +422,28 @@ export default function MyCollectionPage() {
 
       if (response.ok) {
         if (existingCollection) {
-          // Update existing collection
+          // Update existing collection with boolean fields
           setSetCollections(prev => 
-            prev.map(c => c.setId === setId ? { ...c, status: newStatus } : c)
+            prev.map(c => c.setId === setId ? { 
+              ...c, 
+              isOwned: newStatus === 'OWNED' || newStatus === 'PAINTED',
+              isPainted: newStatus === 'PAINTED',
+              isWishlist: newStatus === 'WISHLIST',
+              isSold: newStatus === 'SOLD',
+              isFavorite: newStatus === 'FAVORITE'
+            } : c)
           );
         } else {
-          // Add new collection entry
-          setSetCollections(prev => [...prev, { setId, status: newStatus, id: Date.now().toString() }]);
+          // Add new collection entry with boolean fields
+          setSetCollections(prev => [...prev, { 
+            setId, 
+            isOwned: newStatus === 'OWNED' || newStatus === 'PAINTED',
+            isPainted: newStatus === 'PAINTED',
+            isWishlist: newStatus === 'WISHLIST',
+            isSold: newStatus === 'SOLD',
+            isFavorite: newStatus === 'FAVORITE',
+            id: Date.now().toString() 
+          }]);
         }
         
         // If set is marked as PAINTED, also mark all characters from this set as PAINTED
@@ -426,7 +451,7 @@ export default function MyCollectionPage() {
         const currentSet = mockSets.find(s => s.id === setId);
         const currentSetCollection = setCollections.find(sc => sc.setId === setId);
         
-        if (newStatus === 'PAINTED' || (newStatus === 'OWNED' && currentSetCollection?.status === 'PAINTED')) {
+        if (newStatus === 'PAINTED' || (newStatus === 'OWNED' && currentSetCollection?.isPainted)) {
           if (currentSet && currentSet.characters) {
             for (const character of currentSet.characters) {
               const characterId = getCharacterId(character.name);
@@ -481,11 +506,18 @@ export default function MyCollectionPage() {
       });
       if (!response.ok) throw new Error('Failed to update character status');
       
-      // Update local state
+      // Update local state with boolean fields
       setCharacterCollections(prev => 
         prev.map(c => 
           c.id === collectionId 
-            ? { ...c, status: newStatus as any }
+            ? { 
+                ...c, 
+                isOwned: newStatus === 'OWNED' || newStatus === 'PAINTED',
+                isPainted: newStatus === 'PAINTED',
+                isWishlist: newStatus === 'WISHLIST',
+                isSold: newStatus === 'SOLD',
+                isFavorite: newStatus === 'FAVORITE'
+              }
             : c
         )
       );
@@ -538,7 +570,16 @@ export default function MyCollectionPage() {
     
     // Filter by status
     if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(c => c.collection.status === statusFilter);
+      filtered = filtered.filter(c => {
+        switch (statusFilter) {
+          case 'OWNED': return c.collection.isOwned;
+          case 'PAINTED': return c.collection.isPainted;
+          case 'WISHLIST': return c.collection.isWishlist;
+          case 'SOLD': return c.collection.isSold;
+          case 'FAVORITE': return c.collection.isFavorite;
+          default: return true;
+        }
+      });
     }
     
     // Filter by faction - handle string format
@@ -576,7 +617,13 @@ export default function MyCollectionPage() {
     return mockSets.map(set => ({
       ...set,
       collection: getSetCollection(set.id)
-    })).filter(set => set.collection);
+    })).filter(set => set.collection && (
+      set.collection.isOwned || 
+      set.collection.isPainted || 
+      set.collection.isWishlist || 
+      set.collection.isSold || 
+      set.collection.isFavorite
+    ));
   };
 
   const getFilteredSets = () => {
@@ -584,7 +631,15 @@ export default function MyCollectionPage() {
     
     // Filter by status
     if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(s => s.collection?.status === statusFilter);
+      filtered = filtered.filter(s => {
+        switch (statusFilter) {
+          case 'OWNED': return s.collection?.isOwned;
+          case 'PAINTED': return s.collection?.isPainted;
+          case 'WISHLIST': return s.collection?.isWishlist;
+          case 'SOLD': return s.collection?.isSold;
+          default: return true;
+        }
+      });
     }
     
     return filtered;
@@ -988,19 +1043,24 @@ export default function MyCollectionPage() {
                         borderRadius: "4px",
                         fontSize: "10px",
                         fontWeight: "600",
-                        backgroundColor: character.collection.status === 'OWNED' ? '#16a34a' :
-                                        character.collection.status === 'PAINTED' ? '#2563eb' :
-                                        character.collection.status === 'WISHLIST' ? '#ea580c' :
-                                        character.collection.status === 'FAVORITE' ? '#f59e0b' :
+                        backgroundColor: character.collection.isOwned ? '#16a34a' :
+                                        character.collection.isPainted ? '#2563eb' :
+                                        character.collection.isWishlist ? '#ea580c' :
+                                        character.collection.isFavorite ? '#f59e0b' :
+                                        character.collection.isSold ? '#dc2626' :
                                         '#6b7280',
                         color: "white"
                       }}>
-                        {character.collection.status}
+                        {character.collection.isOwned ? 'OWNED' :
+                         character.collection.isPainted ? 'PAINTED' :
+                         character.collection.isWishlist ? 'WISHLIST' :
+                         character.collection.isFavorite ? 'FAVORITE' :
+                         character.collection.isSold ? 'SOLD' : 'UNKNOWN'}
                       </span>
                     </div>
                     
                     {/* Mark as Painted Button */}
-                    {character.collection.status === 'OWNED' && (
+                    {character.collection.isOwned && !character.collection.isPainted && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1154,7 +1214,7 @@ export default function MyCollectionPage() {
                       flexWrap: "wrap"
                     }}>
                       {/* Unpaint Button - only show for painted characters */}
-                      {character.collection.status === 'PAINTED' && (
+                      {character.collection.isPainted && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1185,7 +1245,7 @@ export default function MyCollectionPage() {
                       )}
 
                       {/* Mark as Favorite Button - only show for non-favorite characters */}
-                      {character.collection.status !== 'FAVORITE' && (
+                      {!character.collection.isFavorite && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1366,7 +1426,7 @@ export default function MyCollectionPage() {
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent modal from opening
                             // Toggle logic for PAINTED status
-                            if (status === 'PAINTED' && set.collection?.status === 'PAINTED') {
+                            if (status === 'PAINTED' && set.collection?.isPainted) {
                               handleUpdateStatus(set.id, 'OWNED');
                             } else {
                               handleUpdateStatus(set.id, status as any);
@@ -1376,11 +1436,15 @@ export default function MyCollectionPage() {
                             padding: "4px 8px",
                             borderRadius: "4px",
                             border: "none",
-                            background: set.collection?.status === status ? 
-                              (status === 'OWNED' ? '#16a34a' :
-                               status === 'PAINTED' ? '#2563eb' :
-                               status === 'WISHLIST' ? '#ea580c' :
-                               status === 'SOLD' ? '#dc2626' : '#6b7280') : '#374151',
+                            background: (() => {
+                              switch (status) {
+                                case 'OWNED': return set.collection?.isOwned ? '#16a34a' : '#374151';
+                                case 'PAINTED': return set.collection?.isPainted ? '#2563eb' : '#374151';
+                                case 'WISHLIST': return set.collection?.isWishlist ? '#ea580c' : '#374151';
+                                case 'SOLD': return set.collection?.isSold ? '#dc2626' : '#374151';
+                                default: return '#374151';
+                              }
+                            })(),
                             color: 'white',
                             fontSize: "11px",
                             fontWeight: "600",
@@ -1388,12 +1452,30 @@ export default function MyCollectionPage() {
                             transition: "background 0.2s ease"
                           }}
                           onMouseEnter={(e) => {
-                            if (set.collection?.status !== status) {
+                            const isActive = (() => {
+                              switch (status) {
+                                case 'OWNED': return set.collection?.isOwned;
+                                case 'PAINTED': return set.collection?.isPainted;
+                                case 'WISHLIST': return set.collection?.isWishlist;
+                                case 'SOLD': return set.collection?.isSold;
+                                default: return false;
+                              }
+                            })();
+                            if (!isActive) {
                               e.currentTarget.style.background = '#4b5563';
                             }
                           }}
                           onMouseLeave={(e) => {
-                            if (set.collection?.status !== status) {
+                            const isActive = (() => {
+                              switch (status) {
+                                case 'OWNED': return set.collection?.isOwned;
+                                case 'PAINTED': return set.collection?.isPainted;
+                                case 'WISHLIST': return set.collection?.isWishlist;
+                                case 'SOLD': return set.collection?.isSold;
+                                default: return false;
+                              }
+                            })();
+                            if (!isActive) {
                               e.currentTarget.style.background = '#374151';
                             }
                           }}
@@ -1437,7 +1519,7 @@ export default function MyCollectionPage() {
                     gap: "8px",
                     flexWrap: "wrap"
                   }}>
-                    {!set.collection && (
+                    {(!set.collection || (!set.collection.isOwned && !set.collection.isPainted && !set.collection.isWishlist && !set.collection.isSold && !set.collection.isFavorite)) && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent modal from opening
@@ -1465,7 +1547,7 @@ export default function MyCollectionPage() {
                       </button>
                     )}
                     
-                    {!set.collection && (
+                    {(!set.collection || (!set.collection.isOwned && !set.collection.isPainted && !set.collection.isWishlist && !set.collection.isSold && !set.collection.isFavorite)) && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent modal from opening

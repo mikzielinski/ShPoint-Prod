@@ -372,6 +372,15 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       return res.status(400).json({ ok: false, error: "characterId is required" });
     }
     
+    // Convert status to boolean fields
+    const statusData = {
+      isOwned: status === 'OWNED' || status === 'PAINTED' || !status, // Default to owned
+      isPainted: status === 'PAINTED',
+      isWishlist: status === 'WISHLIST',
+      isSold: status === 'SOLD',
+      isFavorite: status === 'FAVORITE',
+    };
+    
     const collection = await prisma.characterCollection.upsert({
       where: {
         userId_characterId: {
@@ -380,13 +389,13 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
         },
       },
       update: {
-        status: status || "OWNED",
+        ...statusData,
         notes: notes || null,
       },
       create: {
         userId,
         characterId,
-        status: status || "OWNED",
+        ...statusData,
         notes: notes || null,
       },
     });
@@ -428,12 +437,21 @@ app.patch("/api/shatterpoint/characters/:collectionId", ensureAuth, async (req, 
       return res.status(400).json({ ok: false, error: "Invalid status provided" });
     }
     
+    // Convert status to boolean fields
+    const statusData = {
+      isOwned: status === 'OWNED' || status === 'PAINTED',
+      isPainted: status === 'PAINTED',
+      isWishlist: status === 'WISHLIST',
+      isSold: status === 'SOLD',
+      isFavorite: status === 'FAVORITE',
+    };
+    
     const updatedCollection = await prisma.characterCollection.update({
       where: { 
         id: collectionId,
         userId: userId // Ensure user owns this collection item
       },
-      data: { status },
+      data: statusData,
     });
     
     res.json({ ok: true, collection: updatedCollection });
@@ -471,6 +489,15 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
       return res.status(400).json({ ok: false, error: "setId is required" });
     }
     
+    // Convert status to boolean fields
+    const statusData = {
+      isOwned: status === 'OWNED' || status === 'PAINTED' || !status, // Default to owned
+      isPainted: status === 'PAINTED',
+      isWishlist: status === 'WISHLIST',
+      isSold: status === 'SOLD',
+      isFavorite: status === 'FAVORITE',
+    };
+    
     const collection = await prisma.setCollection.upsert({
       where: {
         userId_setId: {
@@ -479,13 +506,13 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
         },
       },
       update: {
-        status: status || "OWNED",
+        ...statusData,
         notes: notes || null,
       },
       create: {
         userId,
         setId,
-        status: status || "OWNED",
+        ...statusData,
         notes: notes || null,
       },
     });
@@ -509,10 +536,19 @@ app.patch("/api/shatterpoint/sets/:setId", ensureAuth, async (req, res) => {
       return res.status(400).json({ ok: false, error: "status is required" });
     }
     
+    // Convert status to boolean fields
+    const statusData = {
+      isOwned: status === 'OWNED' || status === 'PAINTED',
+      isPainted: status === 'PAINTED',
+      isWishlist: status === 'WISHLIST',
+      isSold: status === 'SOLD',
+      isFavorite: status === 'FAVORITE',
+    };
+    
     const collection = await prisma.setCollection.updateMany({
       where: { userId, setId },
       data: {
-        status,
+        ...statusData,
         notes: notes || null,
       },
     });
