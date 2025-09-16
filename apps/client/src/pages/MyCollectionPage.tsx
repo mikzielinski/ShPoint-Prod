@@ -229,6 +229,57 @@ export default function MyCollectionPage() {
   
   // Use shared sets data
   const mockSets: Set[] = setsData;
+
+  // Helper function to map character names to character IDs
+  const getCharacterId = (characterName: string): string => {
+    const nameMap: { [key: string]: string } = {
+      // SWP24 - Certified Guild Squad Pack
+      'Din Djarin (The Mandalorian)': 'the-mandalorian',
+      'The Mandalorian': 'the-mandalorian', // Alternative name
+      'IG-11': 'ig-11-assassin-droid',
+      'IG-11, Assassin Droid': 'ig-11-assassin-droid', // Alternative name
+      'Greef Karga': 'greef-karga',
+      
+      // Core Set and other common characters
+      'General Anakin Skywalker': 'general-anakin-skywalker',
+      'Captain Rex (CC-7567)': 'cc-7567-captain-rex',
+      '501st Clone Troopers': '501st-clone-troopers',
+      'Ahsoka Tano, Jedi no more': 'ahsoka-tano-jedi-no-more',
+      'Ahsoka Tano (Rebels era)': 'ahsoka-tano-fulcrum',
+      'Bo-Katan Kryze': 'bo-katan-kryze',
+      'Clan Kryze Mandalorians': 'clan-kryze-mandalorians',
+      'Asajj Ventress, Sith Assassin': 'asajj-ventress-sith-assassin',
+      'Kalani (Super Tactical Droid)': 'kalani-super-tactical-droid',
+      'B1 Battle Droids': 'b1-battle-droids',
+      'Darth Maul (Lord Maul)': 'lord-maul',
+      'Gar Saxon': 'gar-saxon-merciless-commander',
+      'Shadow Collective Commandos': 'mandalorian-super-commandos',
+      
+      // More characters from various sets
+      'The Armorer': 'the-armorer',
+      'Paz Vizsla': 'paz-vizsla',
+      'Covert Mandalorians': 'covert-mandalorians',
+      'Darth Vader': 'darth-vader-jedi-hunter',
+      'Commander (Imperial Officer)': 'commander-iden-versio',
+      'Stormtroopers': 'stormtroopers',
+      'Luke Skywalker (Jedi Knight)': 'jedi-knight-luke-skywalker',
+      'Leia Organa (Boushh Disguise)': 'boushh-leia-organa',
+      'Lando Calrissian & R2-D2': 'lando-and-r2-d2-inside-job',
+
+      // Additional character mappings
+      'Cad Bane': 'cad-bane-notorious-hunter',
+      'Cad Bane, Notorious Hunter': 'cad-bane-notorious-hunter',
+      'Aurra Sing': 'aurra-sing',
+      'Bounty Hunters (Chadra-Fan, Todo 360, Devaronian)': 'bounty-hunters',
+      'Count Dooku': 'count-dooku-separatist-leader',
+      'Count Dooku, Separatist Leader': 'count-dooku-separatist-leader',
+      'Jango Fett': 'jango-fett-bounty-hunter',
+      'Jango Fett, Bounty Hunter': 'jango-fett-bounty-hunter',
+      'IG-100 MagnaGuards': 'magnaguard',
+    };
+    
+    return nameMap[characterName] || characterName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  };
   
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
