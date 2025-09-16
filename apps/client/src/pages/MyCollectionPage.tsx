@@ -380,21 +380,46 @@ export default function MyCollectionPage() {
     if (!user) return;
 
     try {
-      const response = await fetch(api(`/api/shatterpoint/sets/${setId}`), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          status: newStatus
-        }),
-      });
+      const existingCollection = setCollections.find(c => c.setId === setId);
+      let response;
+
+      if (existingCollection) {
+        // Update existing collection
+        response = await fetch(api(`/api/shatterpoint/sets/${setId}`), {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            status: newStatus
+          }),
+        });
+      } else {
+        // Create new collection entry
+        response = await fetch(api('/api/shatterpoint/sets'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            setId: setId,
+            status: newStatus
+          }),
+        });
+      }
 
       if (response.ok) {
-        setSetCollections(prev => 
-          prev.map(c => c.setId === setId ? { ...c, status: newStatus } : c)
-        );
+        if (existingCollection) {
+          // Update existing collection
+          setSetCollections(prev => 
+            prev.map(c => c.setId === setId ? { ...c, status: newStatus } : c)
+          );
+        } else {
+          // Add new collection entry
+          setSetCollections(prev => [...prev, { setId, status: newStatus, id: Date.now().toString() }]);
+        }
         
         // If set is marked as PAINTED, also mark all characters from this set as PAINTED
         // If set is marked as OWNED (from PAINTED), also mark all characters from this set as OWNED
@@ -1385,12 +1410,11 @@ export default function MyCollectionPage() {
                     gap: "8px",
                     flexWrap: "wrap"
                   }}>
-                    {set.collection?.status !== 'OWNED' && (
+                    {!set.collection && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent modal from opening
-                          // TODO: Add to collection
-                          console.log('Add to collection:', set.id);
+                          handleUpdateStatus(set.id, 'OWNED');
                         }}
                         style={{
                           background: "#16a34a",
@@ -1414,7 +1438,7 @@ export default function MyCollectionPage() {
                       </button>
                     )}
                     
-                    {set.collection?.status !== 'WISHLIST' && (
+                    {!set.collection && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent modal from opening
