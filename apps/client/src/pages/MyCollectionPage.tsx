@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
 import CharacterModal from '../components/CharacterModal';
+import Modal from '../components/Modal';
 import { setsData } from '../data/sets';
 
 // SetImageWithFallback component for displaying set images
@@ -223,6 +224,8 @@ export default function MyCollectionPage() {
   // Usunięto activeTab - teraz mamy jeden główny widok
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [activeTab, setActiveTab] = useState<'characters' | 'sets' | 'missions'>('characters');
+  const [selectedSet, setSelectedSet] = useState<Set | null>(null);
+  const [showSetModal, setShowSetModal] = useState(false);
   
   // Use shared sets data
   const mockSets: Set[] = setsData;
@@ -341,6 +344,35 @@ export default function MyCollectionPage() {
         setSetCollections(prev => 
           prev.map(c => c.setId === setId ? { ...c, status: newStatus } : c)
         );
+        
+        // If set is marked as PAINTED, also mark all characters from this set as PAINTED
+        if (newStatus === 'PAINTED') {
+          const set = mockSets.find(s => s.id === setId);
+          if (set && set.characters) {
+            for (const character of set.characters) {
+              const characterId = getCharacterId(character.name);
+              const existingCollection = characterCollections.find(c => c.characterId === characterId);
+              
+              if (existingCollection && existingCollection.status === 'OWNED') {
+                try {
+                  await fetch(api(`/api/shatterpoint/characters/${existingCollection.id}`), {
+                    method: 'PATCH',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ status: 'PAINTED' }),
+                  });
+                } catch (error) {
+                  console.error(`Error updating character ${character.name} status:`, error);
+                }
+              }
+            }
+            // Reload character collections to reflect changes
+            loadCollections();
+          }
+        }
+        
         alert(`Set status updated to ${newStatus.toLowerCase()}!`);
       } else {
         console.error('Failed to update set status');
@@ -350,6 +382,12 @@ export default function MyCollectionPage() {
       console.error('Error updating set status:', error);
       alert('Error updating set status');
     }
+  };
+
+  // Handle set click to show character modal
+  const handleSetClick = (set: Set) => {
+    setSelectedSet(set);
+    setShowSetModal(true);
   };
 
   const handleUpdateCharacterStatus = async (collectionId: string, newStatus: string) => {
@@ -1179,12 +1217,14 @@ export default function MyCollectionPage() {
               getFilteredSets().map((set) => (
                 <div
                   key={set.id}
+                  onClick={() => handleSetClick(set)}
                   style={{
                     background: "#1f2937",
                     borderRadius: "8px",
                     border: "1px solid #374151",
                     padding: "16px",
-                    transition: "all 0.2s ease"
+                    transition: "all 0.2s ease",
+                    cursor: "pointer"
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = "#4b5563";
@@ -1432,6 +1472,100 @@ export default function MyCollectionPage() {
             portrait: selectedCharacter.portrait
           }}
         />
+      )}
+
+      {/* Set Modal */}
+      {selectedSet && (
+        <Modal
+          open={showSetModal}
+          onClose={() => {
+            setShowSetModal(false);
+            setSelectedSet(null);
+          }}
+          maxWidth={800}
+        >
+          <div style={{
+            background: '#1f2937',
+            color: '#f9fafb',
+            borderRadius: '8px',
+            padding: '20px'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              color: '#f9fafb'
+            }}>
+              {selectedSet.name}
+            </h2>
+            
+            <div style={{
+              display: 'flex',
+              gap: '20px',
+              marginBottom: '20px'
+            }}>
+              <SetImageWithFallback set={selectedSet} />
+              <div>
+                <p style={{
+                  fontSize: '16px',
+                  color: '#d1d5db',
+                  marginBottom: '8px'
+                }}>
+                  {selectedSet.type}
+                </p>
+                <p style={{
+                  fontSize: '14px',
+                  color: '#9ca3af',
+                  lineHeight: '1.5'
+                }}>
+                  {selectedSet.description}
+                </p>
+              </div>
+            </div>
+
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              marginBottom: '16px',
+              color: '#f9fafb'
+            }}>
+              Characters in this set:
+            </h3>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+              gap: '16px'
+            }}>
+              {selectedSet.characters?.map((character, index) => (
+                <div
+                  key={index}
+                  style={{
+                    background: '#374151',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    border: '1px solid #4b5563'
+                  }}
+                >
+                  <div style={{
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    color: '#f9fafb',
+                    marginBottom: '4px'
+                  }}>
+                    {character.name}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#9ca3af'
+                  }}>
+                    {character.role}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
