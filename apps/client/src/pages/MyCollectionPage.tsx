@@ -1338,7 +1338,8 @@ export default function MyCollectionPage() {
                       {['OWNED', 'PAINTED', 'WISHLIST', 'SOLD'].map((status) => (
                         <button
                           key={status}
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent modal from opening
                             // Toggle logic for PAINTED status
                             if (status === 'PAINTED' && set.collection?.status === 'PAINTED') {
                               handleUpdateStatus(set.id, 'OWNED');
@@ -1386,7 +1387,8 @@ export default function MyCollectionPage() {
                   }}>
                     {set.collection?.status !== 'OWNED' && (
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent modal from opening
                           // TODO: Add to collection
                           console.log('Add to collection:', set.id);
                         }}
@@ -1414,7 +1416,10 @@ export default function MyCollectionPage() {
                     
                     {set.collection?.status !== 'WISHLIST' && (
                       <button
-                        onClick={() => handleUpdateStatus(set.id, 'WISHLIST')}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent modal from opening
+                          handleUpdateStatus(set.id, 'WISHLIST');
+                        }}
                         style={{
                           background: "#ea580c",
                           color: "white",
@@ -1439,7 +1444,10 @@ export default function MyCollectionPage() {
                     
                     {set.collection && (
                       <button
-                        onClick={() => handleRemoveFromCollection(set.id)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent modal from opening
+                          handleRemoveFromCollection(set.id);
+                        }}
                         style={{
                           background: "#dc2626",
                           color: "white",
