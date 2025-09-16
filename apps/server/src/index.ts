@@ -496,6 +496,37 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
   }
 });
 
+// PATCH /api/shatterpoint/sets/:setId — update set status
+app.patch("/api/shatterpoint/sets/:setId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { setId } = req.params;
+    const { status, notes } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ ok: false, error: "status is required" });
+    }
+    
+    const collection = await prisma.setCollection.updateMany({
+      where: { userId, setId },
+      data: {
+        status,
+        notes: notes || null,
+      },
+    });
+    
+    if (collection.count === 0) {
+      return res.status(404).json({ ok: false, error: "Set not found in collection" });
+    }
+    
+    res.json({ ok: true, collection });
+  } catch (error) {
+    console.error("Error updating set status:", error);
+    res.status(500).json({ ok: false, error: "Failed to update set status" });
+  }
+});
+
 // DELETE /api/shatterpoint/sets/:setId — remove set from collection
 app.delete("/api/shatterpoint/sets/:setId", ensureAuth, async (req, res) => {
   try {
