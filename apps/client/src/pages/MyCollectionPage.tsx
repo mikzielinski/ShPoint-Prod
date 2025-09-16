@@ -1548,15 +1548,33 @@ export default function MyCollectionPage() {
             onClick={(e) => e.stopPropagation()}
             style={{
               width: "100%",
-              maxWidth: 800,
+              maxWidth: 900,
+              maxHeight: "90vh",
               background: "#1f2937",
               borderRadius: 16,
               boxShadow: "0 20px 40px rgba(0,0,0,.2)",
               overflow: "hidden",
-              border: "1px solid #374151"
+              border: "1px solid #374151",
+              display: "flex",
+              flexDirection: "column"
             }}
           >
-            <div style={{ display: "flex", justifyContent: "flex-end", padding: 8 }}>
+            {/* Header with title and close button */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center",
+              padding: "16px 20px 8px 20px",
+              borderBottom: "1px solid #374151"
+            }}>
+              <h2 style={{
+                fontSize: '22px',
+                fontWeight: '600',
+                margin: 0,
+                color: '#f9fafb'
+              }}>
+                {selectedSet.name}
+              </h2>
               <button
                 onClick={() => {
                   setShowSetModal(false);
@@ -1575,58 +1593,61 @@ export default function MyCollectionPage() {
                 ✕
               </button>
             </div>
-            <div style={{ padding: 20 }}>
-              <h2 style={{
-                fontSize: '24px',
-                fontWeight: '600',
-                marginBottom: '16px',
-                color: '#f9fafb'
-              }}>
-                {selectedSet.name}
-              </h2>
-              
+            
+            {/* Scrollable content */}
+            <div style={{ 
+              padding: "16px 20px 20px 20px",
+              overflowY: "auto",
+              flex: 1
+            }}>
+              {/* Set info section */}
               <div style={{
                 display: 'flex',
-                gap: '20px',
-                marginBottom: '20px'
+                gap: '16px',
+                marginBottom: '16px',
+                alignItems: 'flex-start'
               }}>
-                <SetImageWithFallback set={selectedSet} />
-                <div>
+                <div style={{ flexShrink: 0 }}>
+                  <SetImageWithFallback set={selectedSet} />
+                </div>
+                <div style={{ flex: 1 }}>
                   <p style={{
-                    fontSize: '16px',
+                    fontSize: '14px',
                     color: '#d1d5db',
-                    marginBottom: '8px'
+                    marginBottom: '6px',
+                    fontWeight: '500'
                   }}>
                     {selectedSet.type}
                   </p>
                   <p style={{
-                    fontSize: '14px',
+                    fontSize: '13px',
                     color: '#9ca3af',
-                    lineHeight: '1.5'
+                    lineHeight: '1.4',
+                    margin: 0
                   }}>
                     {selectedSet.description}
                   </p>
                 </div>
               </div>
 
+              {/* Characters section header */}
               <h3 style={{
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: '600',
-                marginBottom: '20px',
+                marginBottom: '12px',
                 color: '#f9fafb',
                 textAlign: 'center',
-                borderBottom: '2px solid #374151',
-                paddingBottom: '12px'
+                borderBottom: '1px solid #374151',
+                paddingBottom: '8px'
               }}>
                 Characters in this set
               </h3>
 
+              {/* Characters grid */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '20px',
-                maxHeight: '400px',
-                overflowY: 'auto',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gap: '12px',
                 padding: '4px'
               }}>
                 {selectedSet.characters?.map((character, index) => {
@@ -1655,16 +1676,17 @@ export default function MyCollectionPage() {
                       }}
                       style={{
                         background: 'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
-                        borderRadius: '12px',
-                        padding: '16px',
+                        borderRadius: '10px',
+                        padding: '12px',
                         border: '2px solid #4b5563',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '16px',
+                        gap: '12px',
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        minHeight: '80px'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = getRoleColor(character.role);
@@ -1696,9 +1718,9 @@ export default function MyCollectionPage() {
 
                       {/* Character Portrait */}
                       <div style={{
-                        width: '60px',
-                        height: '60px',
-                        borderRadius: '10px',
+                        width: '56px',
+                        height: '56px',
+                        borderRadius: '8px',
                         border: '2px solid #6b7280',
                         overflow: 'hidden',
                         flexShrink: 0,
@@ -1735,28 +1757,29 @@ export default function MyCollectionPage() {
                       {/* Character Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
-                          fontSize: '16px',
-                          fontWeight: '700',
+                          fontSize: '14px',
+                          fontWeight: '600',
                           color: '#f9fafb',
-                          marginBottom: '6px',
-                          lineHeight: '1.3',
+                          marginBottom: '4px',
+                          lineHeight: '1.2',
                           textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                         }}>
                           {character.name}
                         </div>
                         <div style={{
-                          fontSize: '13px',
+                          fontSize: '12px',
                           color: '#d1d5db',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '8px'
+                          gap: '6px',
+                          flexWrap: 'wrap'
                         }}>
                           <span style={{
                             background: getRoleColor(character.role),
                             color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
+                            padding: '2px 5px',
+                            borderRadius: '3px',
+                            fontSize: '10px',
                             fontWeight: '600'
                           }}>
                             {character.role}
@@ -1765,9 +1788,9 @@ export default function MyCollectionPage() {
                             <span style={{
                               background: '#374151',
                               color: '#9ca3af',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontSize: '11px'
+                              padding: '2px 5px',
+                              borderRadius: '3px',
+                              fontSize: '10px'
                             }}>
                               {characterData.faction}
                             </span>
@@ -1778,8 +1801,9 @@ export default function MyCollectionPage() {
                       {/* Click indicator */}
                       <div style={{
                         color: '#9ca3af',
-                        fontSize: '12px',
-                        opacity: 0.7
+                        fontSize: '14px',
+                        opacity: 0.6,
+                        flexShrink: 0
                       }}>
                         →
                       </div>
