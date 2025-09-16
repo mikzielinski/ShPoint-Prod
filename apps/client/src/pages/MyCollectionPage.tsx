@@ -1610,22 +1610,38 @@ export default function MyCollectionPage() {
               </div>
 
               <h3 style={{
-                fontSize: '18px',
+                fontSize: '20px',
                 fontWeight: '600',
-                marginBottom: '16px',
-                color: '#f9fafb'
+                marginBottom: '20px',
+                color: '#f9fafb',
+                textAlign: 'center',
+                borderBottom: '2px solid #374151',
+                paddingBottom: '12px'
               }}>
-                Characters in this set:
+                Characters in this set
               </h3>
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                gap: '16px'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '20px',
+                maxHeight: '400px',
+                overflowY: 'auto',
+                padding: '4px'
               }}>
                 {selectedSet.characters?.map((character, index) => {
                   const characterId = getCharacterId(character.name);
                   const characterData = allCharacters.find(c => c.id === characterId);
+                  
+                  // Get role color
+                  const getRoleColor = (role: string) => {
+                    switch (role.toLowerCase()) {
+                      case 'primary': return '#ef4444'; // Red
+                      case 'secondary': return '#f59e0b'; // Amber
+                      case 'supporting': return '#10b981'; // Green
+                      default: return '#6b7280'; // Gray
+                    }
+                  };
                   
                   return (
                     <div
@@ -1638,33 +1654,55 @@ export default function MyCollectionPage() {
                         }
                       }}
                       style={{
-                        background: '#374151',
-                        borderRadius: '8px',
-                        padding: '12px',
-                        border: '1px solid #4b5563',
+                        background: 'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        border: '2px solid #4b5563',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease',
+                        transition: 'all 0.3s ease',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '12px'
+                        gap: '16px',
+                        position: 'relative',
+                        overflow: 'hidden'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = '#6b7280';
-                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.borderColor = getRoleColor(character.role);
+                        e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                        e.currentTarget.style.boxShadow = `0 8px 25px rgba(0,0,0,0.3), 0 0 20px ${getRoleColor(character.role)}40`;
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.borderColor = '#4b5563';
-                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
+                      {/* Role indicator */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: getRoleColor(character.role),
+                        color: 'white',
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        {character.role}
+                      </div>
+
                       {/* Character Portrait */}
                       <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '6px',
-                        border: '1px solid #4b5563',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '10px',
+                        border: '2px solid #6b7280',
                         overflow: 'hidden',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        position: 'relative'
                       }}>
                         {characterData?.portrait ? (
                           <img
@@ -1681,12 +1719,13 @@ export default function MyCollectionPage() {
                           <div style={{
                             width: '100%',
                             height: '100%',
-                            background: '#4b5563',
+                            background: 'linear-gradient(135deg, #4b5563 0%, #6b7280 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: '#9ca3af',
-                            fontSize: '12px'
+                            color: '#d1d5db',
+                            fontSize: '20px',
+                            fontWeight: '600'
                           }}>
                             ?
                           </div>
@@ -1696,20 +1735,53 @@ export default function MyCollectionPage() {
                       {/* Character Info */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
+                          fontSize: '16px',
+                          fontWeight: '700',
                           color: '#f9fafb',
-                          marginBottom: '4px',
-                          lineHeight: '1.3'
+                          marginBottom: '6px',
+                          lineHeight: '1.3',
+                          textShadow: '0 1px 2px rgba(0,0,0,0.5)'
                         }}>
                           {character.name}
                         </div>
                         <div style={{
-                          fontSize: '12px',
-                          color: '#9ca3af'
+                          fontSize: '13px',
+                          color: '#d1d5db',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
                         }}>
-                          {character.role}
+                          <span style={{
+                            background: getRoleColor(character.role),
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: '600'
+                          }}>
+                            {character.role}
+                          </span>
+                          {characterData?.faction && characterData.faction !== 'Unknown' && (
+                            <span style={{
+                              background: '#374151',
+                              color: '#9ca3af',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '11px'
+                            }}>
+                              {characterData.faction}
+                            </span>
+                          )}
                         </div>
+                      </div>
+
+                      {/* Click indicator */}
+                      <div style={{
+                        color: '#9ca3af',
+                        fontSize: '12px',
+                        opacity: 0.7
+                      }}>
+                        →
                       </div>
                     </div>
                   );
