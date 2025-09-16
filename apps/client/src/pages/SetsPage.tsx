@@ -1,192 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { api } from '../lib/env';
-import CharacterModal from '../components/CharacterModal';
+import { api } from '../lib/api';
+import { Set } from '../types';
 import { setsData } from '../data/sets';
-
-// Component to handle image loading with multiple fallback URLs
-const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showFallback, setShowFallback] = useState(false);
-
-  const getSetIcon = (set: Set) => {
-    switch (set.type) {
-      case 'Core Set': return '🎯';
-      case 'Squad Pack': return '👥';
-      case 'Terrain Pack': return '🏗️';
-      case 'Duel Pack': return '⚔️';
-      case 'Mission Pack': return '📋';
-      case 'Accessories': return '🎲';
-      default: return '📦';
-    }
-  };
-
-            // Generate URLs - use actual URLs scraped from AMG gallery
-            const generateUrls = () => {
-              const urls = [];
-              const code = set.code.toUpperCase();
-              
-              // Real URLs scraped from AMG gallery
-              const knownUrls: { [key: string]: string[] } = {
-                'SWP01': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP01_3DBox-Black-Background.webp'],
-                'SWP02': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP02-image0@500-3.webp'],
-                'SWP03': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP03-Featured-Image.webp'],
-                'SWP04': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/07/SWP04-Featured-Image.webp'],
-                'SWP05': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/07/SWP05-Featured-Image.webp'],
-                'SWP06': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP06-Featured-Image-1.webp'],
-                'SWP07': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/05/SWP07-Featured-Image.webp'],
-                'SWP08': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/05/SWP08-Featured-Image.webp'],
-                'SWP09': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/07/SWP09-Product-Image.webp'],
-                'SWP10': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/02/SWP10-Featured-Image.webp'],
-                'SWP11': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/12/SWP11-web@500.webp'],
-                'SWP12': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/05/SWP12-Featured-Image.webp'],
-                'SWP15': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/07/SWP15-Featured-Image.webp'],
-                'SWP16': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/08/SWP16-Featured-Image.webp'],
-                'SWP17': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP17-Featured-Image.webp'],
-                'SWP18': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/05/SWP18-Featured-Image.webp'],
-                'SWP19': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP19-Featured-Image.webp'],
-                'SWP20': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/02/SWP20-Featured-Image.webp'],
-                'SWP21': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/11/SWP21_Feature-Image.webp'],
-                'SWP22': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/11/SWP22_Featured-Image.webp'],
-                'SWP24': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/02/SWP24-Featured-Image.webp'],
-                'SWP25': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/08/SWP25-Featured-Image.webp'],
-                'SWP26': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/02/SWP26-Featured-Image.webp'],
-                'SWP27': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/12/SWP27-web@500.webp'],
-                'SWP28': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/05/SWP28-Featured-Image.webp'],
-                'SWP29': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/05/SWP29-Featured-Image-2.webp'],
-                'SWP30': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/05/SWP30-Featured-Image.webp'],
-                'SWP31': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/01/SWP31-Featured-Image.webp'],
-                'SWP34': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/04/SWP34-Featured-Image.webp'],
-                'SWP35': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/04/SWP35-Featured-Image.webp'],
-                'SWP36': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/07/SWP36-Featured-Image.webp'],
-                'SWP37': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/12/SWP37-Featured-Image.webp'],
-                'SWP38': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/02/SWP38-Featured-Image.webp'],
-                'SWP39': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/12/SWP39-web@500.webp'],
-                'SWP41': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/05/SWP41-Featured-Image.webp'],
-                'SWP42': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/07/SWP42-image0@500.webp'],
-                'SWP44': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/05/SWP44-Featured-Image.webp'],
-                'SWP45': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2023/09/SWP45-Featured-Image-1.webp'],
-                'SWP46': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/08/SWP46-Featured-Image.webp'],
-                'SWP47': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/08/SWP47-Featured-Image.webp'],
-                'SWP48': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/04/SWP48-Featured-Image.webp'],
-                'SWP49': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/01/SWP49-Featured-Image.webp'],
-                'SWP50': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2024/12/SWP50-Featured-Image.webp'],
-                'SWP51': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/01/SWP51-Featured-Image.webp'],
-                'SWP52': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/07/SWP52@500.webp'],
-                'SWP60': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/07/SWP60@500.webp'],
-                'SWP63': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/07/SWP63@500.webp'],
-                'SWP81': ['https://cdn.svc.asmodee.net/production-amgcom/uploads/image-converter/2025/02/SWP81-Featured-Image.webp']
-              };
-              
-              // Add known URLs for this set
-              if (knownUrls[code] && Array.isArray(knownUrls[code])) {
-                urls.push(...knownUrls[code]);
-              }
-              
-              // Local fallback
-              urls.push(`/images/sets/${set.code.toLowerCase()}.jpg`);
-              
-              return urls;
-            };
-
-  const possibleUrls = generateUrls();
-
-  const handleImageError = () => {
-    if (currentImageIndex < possibleUrls.length - 1) {
-      // Try next URL
-      setCurrentImageIndex(currentImageIndex + 1);
-    } else {
-      // All URLs failed, show icon fallback
-      setShowFallback(true);
-    }
-  };
-
-  if (showFallback) {
-    return (
-      <div style={{
-        textAlign: 'center',
-        color: '#f9fafb',
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{
-          fontSize: '48px',
-          marginBottom: '8px'
-        }}>
-          {getSetIcon(set)}
-        </div>
-        <div style={{
-          fontSize: '12px',
-          fontWeight: '600',
-          color: '#d1d5db',
-          maxWidth: '200px',
-          lineHeight: '1.2'
-        }}>
-          {set.name}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={possibleUrls[currentImageIndex]}
-      alt={set.name}
-      style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'contain',
-        objectPosition: 'center',
-        display: 'block'
-      }}
-      onError={handleImageError}
-    />
-  );
-};
-
-interface Set {
-  id: string;
-  name: string;
-  code: string; // SWPXX
-  type: 'Core Set' | 'Squad Pack' | 'Terrain Pack' | 'Duel Pack' | 'Mission Pack' | 'Accessories';
-  image?: string;
-  characters?: Array<{
-    role: 'Primary' | 'Secondary' | 'Supporting';
-    name: string;
-  }>;
-  description?: string;
-  product_url?: string;
-}
-
-interface SetCollection {
-  id: string;
-  setId: string;
-  status: 'OWNED' | 'PAINTED' | 'WISHLIST' | 'SOLD';
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import CharacterModal from '../components/CharacterModal';
 
 const SetsPage: React.FC = () => {
-  const { auth } = useAuth();
-  
-  // Get user from auth state
-  const me = auth.status === 'authenticated' ? auth.user : null;
-  
+  const { auth, me } = useAuth();
   const [allSets, setAllSets] = useState<Set[]>([]);
-  const [setCollections, setSetCollections] = useState<SetCollection[]>([]);
+  const [setCollections, setSetCollections] = useState<any[]>([]);
   const [characterCollections, setCharacterCollections] = useState<any[]>([]);
-  
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'OWNED' | 'PAINTED' | 'WISHLIST' | 'SOLD'>('ALL');
-  const [typeFilter, setTypeFilter] = useState<'ALL' | 'Core Set' | 'Squad Pack' | 'Terrain Pack' | 'Duel Pack' | 'Mission Pack' | 'Accessories'>('ALL');
-  
-  // Modal state
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'Core Set' | 'Squad Pack' | 'Duel Pack' | 'Terrain Pack' | 'Mission Pack' | 'Accessories'>('ALL');
   const [selectedSet, setSelectedSet] = useState<Set | null>(null);
   const [showSetModal, setShowSetModal] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
@@ -195,643 +21,6 @@ const SetsPage: React.FC = () => {
 
   // Use shared sets data
   const mockSets: Set[] = setsData;
-  useEffect(() => {
-    setAllSets(mockSets);
-    setLoading(false);
-  }, []);
-
-  // Load user's set collections
-  useEffect(() => {
-    const loadSetCollections = async () => {
-      // Only proceed if user is authenticated
-      if (auth.status !== 'authenticated' || !me) {
-        setSetCollections([]);
-        return;
-      }
-      
-      try {
-        const response = await fetch(api('/api/shatterpoint/sets'), {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const responseData = await response.json();
-          
-          // Extract collections array from response
-          const collections = responseData.collections || responseData;
-          setSetCollections(collections);
-        } else {
-          // If unauthorized, set empty collections so buttons show
-          if (response.status === 401) {
-            setSetCollections([]);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading set collections:', error);
-        // On error, set empty collections so buttons show
-        setSetCollections([]);
-      }
-    };
-
-    loadSetCollections();
-  }, [auth.status, me]);
-
-  // Load user's character collections
-  useEffect(() => {
-    const loadCharacterCollections = async () => {
-      if (auth.status !== 'authenticated' || !me) {
-        setCharacterCollections([]);
-        return;
-      }
-      
-      try {
-        const response = await fetch(api('/api/shatterpoint/characters'), {
-          credentials: 'include'
-        });
-        
-        if (response.ok) {
-          const responseData = await response.json();
-          const collections = responseData.collections || responseData || [];
-          setCharacterCollections(collections);
-        } else if (response.status === 401) {
-          setCharacterCollections([]);
-        } else {
-          console.error('Error loading character collections:', response.status);
-          setCharacterCollections([]);
-        }
-      } catch (error) {
-        console.error('Error loading character collections:', error);
-        setCharacterCollections([]);
-      }
-    };
-
-    loadCharacterCollections();
-  }, [auth.status, me]);
-
-  // Auto-add sets to collection when character collections change
-  useEffect(() => {
-    if (characterCollections.length > 0 && allSets.length > 0) {
-      allSets.forEach(set => {
-        autoAddSetIfComplete(set);
-      });
-    }
-  }, [characterCollections, allSets, me]);
-
-  // Helper function to map character names to character IDs
-      name: 'Twice the Pride Squad Pack',
-      code: 'SWP03',
-      type: 'Squad Pack',
-      description: 'Count Dooku and his allies',
-      product_url: 'https://www.atomicmassgames.com/character/twice-the-pride-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Count Dooku, Separatist Leader' },
-        { role: 'Secondary', name: 'Jango Fett, Bounty Hunter' },
-        { role: 'Supporting', name: 'IG-100 MagnaGuards' }
-      ]
-    },
-    {
-      id: 'swp04',
-      name: 'Plans and Preparations Squad Pack',
-      code: 'SWP04',
-      type: 'Squad Pack',
-      description: 'Luminara Unduli and her allies',
-      product_url: 'https://www.atomicmassgames.com/character/plans-and-preparations-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Jedi Master Luminara Unduli' },
-        { role: 'Secondary', name: 'Barriss Offee, Jedi Padawan' },
-        { role: 'Supporting', name: 'Republic Clone Commandos' }
-      ]
-    },
-    {
-      id: 'swp05',
-      name: 'Appetite for Destruction Squad Pack',
-      code: 'SWP05',
-      type: 'Squad Pack',
-      description: 'General Grievous and his allies',
-      product_url: 'https://www.atomicmassgames.com/character/appetite-for-destruction-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'General Grievous' },
-        { role: 'Secondary', name: 'Kraken (Super Tactical Droid)' },
-        { role: 'Supporting', name: 'B2 Battle Droids' }
-      ]
-    },
-    {
-      id: 'swp06',
-      name: 'Hello There Squad Pack',
-      code: 'SWP06',
-      type: 'Squad Pack',
-      description: 'General Obi-Wan Kenobi and his allies',
-      product_url: 'https://www.atomicmassgames.com/character/hello-there-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'General Obi-Wan Kenobi' },
-        { role: 'Secondary', name: 'Clone Commander Cody' },
-        { role: 'Supporting', name: '212th Clone Troopers' }
-      ]
-    },
-    {
-      id: 'swp07',
-      name: 'Witches of Dathomir Squad Pack',
-      code: 'SWP07',
-      type: 'Squad Pack',
-      description: 'Mother Talzin and the Nightsisters',
-      product_url: 'https://www.atomicmassgames.com/character/witches-of-dathomir-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Mother Talzin' },
-        { role: 'Secondary', name: 'Savage Opress' },
-        { role: 'Supporting', name: 'Nightsister Acolytes' }
-      ]
-    },
-    {
-      id: 'swp08',
-      name: 'This Party\'s Over Squad Pack',
-      code: 'SWP08',
-      type: 'Squad Pack',
-      description: 'Mace Windu and his allies',
-      product_url: 'https://www.atomicmassgames.com/character/this-partys-over-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Jedi Master Mace Windu' },
-        { role: 'Secondary', name: 'CT-411 Commander Ponds' },
-        { role: 'Supporting', name: 'ARF Clone Troopers' }
-      ]
-    },
-    {
-      id: 'swp09',
-      name: 'Fistful of Credits Squad Pack',
-      code: 'SWP09',
-      type: 'Squad Pack',
-      description: 'Cad Bane and the bounty hunters',
-      product_url: 'https://www.atomicmassgames.com/character/fistful-of-credits-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Cad Bane, Notorious Hunter' },
-        { role: 'Secondary', name: 'Aurra Sing' },
-        { role: 'Supporting', name: 'Bounty Hunters (Chadra-Fan, Todo 360, Devaronian)' }
-      ]
-    },
-    {
-      id: 'swp10',
-      name: 'That\'s Good Business Squad Pack',
-      code: 'SWP10',
-      type: 'Squad Pack',
-      description: 'Hondo Ohnaka and his pirates',
-      product_url: 'https://www.atomicmassgames.com/character/thats-good-business-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Hondo, Honest Businessman' },
-        { role: 'Secondary', name: 'Gwarm' },
-        { role: 'Supporting', name: 'Weequay Pirates' }
-      ]
-    },
-    {
-      id: 'swp11',
-      name: 'Lead By Example Squad Pack',
-      code: 'SWP11',
-      type: 'Squad Pack',
-      description: 'Plo Koon and the Wolfpack',
-      product_url: 'https://www.atomicmassgames.com/character/lead-by-example-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Jedi Master Plo Koon' },
-        { role: 'Secondary', name: 'Clone Commander Wolffe' },
-        { role: 'Supporting', name: '104th Wolfpack Troopers' }
-      ]
-    },
-    {
-      id: 'swp16',
-      name: 'This Is the Way Squad Pack',
-      code: 'SWP16',
-      type: 'Squad Pack',
-      description: 'The Armorer and her Mandalorians',
-      product_url: 'https://www.atomicmassgames.com/character/this-is-the-way-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'The Armorer' },
-        { role: 'Secondary', name: 'Paz Vizsla' },
-        { role: 'Supporting', name: 'Covert Mandalorians' }
-      ]
-    },
-    {
-      id: 'swp21',
-      name: 'Fear and Dead Men Squad Pack',
-      code: 'SWP21',
-      type: 'Squad Pack',
-      description: 'Darth Vader and the Empire',
-      product_url: 'https://www.atomicmassgames.com/character/fear-and-dead-men-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Darth Vader' },
-        { role: 'Secondary', name: 'Commander (Imperial Officer)' },
-        { role: 'Supporting', name: 'Stormtroopers' }
-      ]
-    },
-    {
-      id: 'swp22',
-      name: 'Fearless and Inventive Squad Pack',
-      code: 'SWP22',
-      type: 'Squad Pack',
-      description: 'Luke Skywalker and the Rebellion',
-      product_url: 'https://www.atomicmassgames.com/character/fearless-and-inventive-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Luke Skywalker (Jedi Knight)' },
-        { role: 'Secondary', name: 'Leia Organa (Boushh Disguise)' },
-        { role: 'Supporting', name: 'Lando Calrissian & R2-D2' }
-      ]
-    },
-    {
-      id: 'swp24',
-      name: 'Certified Guild Squad Pack',
-      code: 'SWP24',
-      type: 'Squad Pack',
-      description: 'Din Djarin and his allies',
-      product_url: 'https://www.atomicmassgames.com/character/certified-guild-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Din Djarin (The Mandalorian)' },
-        { role: 'Secondary', name: 'IG-11' },
-        { role: 'Supporting', name: 'Greef Karga' }
-      ]
-    },
-    {
-      id: 'swp25',
-      name: 'We Don\'t Need Their Scum Squad Pack',
-      code: 'SWP25',
-      type: 'Squad Pack',
-      description: 'Bossk and the bounty hunters',
-      product_url: 'https://www.atomicmassgames.com/character/we-dont-need-their-scum-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Bossk' },
-        { role: 'Secondary', name: 'Zuckuss & 4-LOM' },
-        { role: 'Supporting', name: 'Bounty Hunters' }
-      ]
-    },
-    {
-      id: 'swp36',
-      name: 'Good Soldiers Follow Orders Squad Pack',
-      code: 'SWP36',
-      type: 'Squad Pack',
-      description: 'Crosshair and the Empire',
-      product_url: 'https://www.atomicmassgames.com/character/good-soldiers-follow-orders-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'CT-9904 "Crosshair"' },
-        { role: 'Secondary', name: 'ES-04' },
-        { role: 'Supporting', name: 'Elite Squad Troopers' }
-      ]
-    },
-    {
-      id: 'swp38',
-      name: 'Clone Force 99 Squad Pack',
-      code: 'SWP38',
-      type: 'Squad Pack',
-      description: 'The Bad Batch',
-      product_url: 'https://www.atomicmassgames.com/character/clone-force-99-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Hunter' },
-        { role: 'Secondary', name: 'Wrecker & Omega' },
-        { role: 'Supporting', name: 'Echo & Tech' },
-        { role: 'Secondary', name: 'Crosshair (Clone Force 99)' }
-      ]
-    },
-    {
-      id: 'swp41',
-      name: 'This Is Some Rescue! Squad Pack',
-      code: 'SWP41',
-      type: 'Squad Pack',
-      description: 'Princess Leia and the rescue team',
-      product_url: 'https://www.atomicmassgames.com/character/this-is-some-rescue-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Princess Leia Organa' },
-        { role: 'Secondary', name: 'Luke Skywalker (Stormtrooper Disguise)' },
-        { role: 'Secondary', name: 'Han Solo (Stormtrooper Disguise)' },
-        { role: 'Supporting', name: 'Chewbacca' }
-      ]
-    },
-    {
-      id: 'swp44',
-      name: 'Make The Impossible Possible Squad Pack',
-      code: 'SWP44',
-      type: 'Squad Pack',
-      description: 'Hera Syndulla and the Ghost crew',
-      product_url: 'https://www.atomicmassgames.com/character/make-the-impossible-possible-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Hera Syndulla' },
-        { role: 'Secondary', name: 'Sabine Wren' },
-        { role: 'Supporting', name: 'C1-10P "Chopper"' }
-      ]
-    },
-    {
-      id: 'swp52',
-      name: 'This Is Rogue One Squad Pack',
-      code: 'SWP52',
-      type: 'Squad Pack',
-      description: 'Jyn Erso and Rogue One',
-      product_url: 'https://www.atomicmassgames.com/character/this-is-rogue-one-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Jyn Erso' },
-        { role: 'Secondary', name: 'Chirrut Îmwe' },
-        { role: 'Supporting', name: 'Baze Malbus' },
-        { role: 'Supporting', name: 'Bodhi Rook' }
-      ]
-    },
-    {
-      id: 'swp48',
-      name: 'Never Tell Me the Odds Mission Pack',
-      code: 'SWP48',
-      type: 'Mission Pack',
-      description: 'Mission pack for campaign play',
-      product_url: 'https://www.atomicmassgames.com/character/never-tell-me-the-odds-mission-pack/',
-      characters: []
-    },
-    {
-      id: 'swp12',
-      name: 'Jedi Hunters Squad Pack',
-      code: 'SWP12',
-      type: 'Squad Pack',
-      description: 'Jedi hunters and their allies',
-      product_url: 'https://www.atomicmassgames.com/character/jedi-hunters-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Jedi Hunter' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp15',
-      name: 'We Are Brave Squad Pack',
-      code: 'SWP15',
-      type: 'Squad Pack',
-      description: 'Brave heroes and their allies',
-      product_url: 'https://www.atomicmassgames.com/character/we-are-brave-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Brave Hero' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp17',
-      name: 'Take Cover Terrain Pack',
-      code: 'SWP17',
-      type: 'Terrain Pack',
-      description: 'Terrain for cover and tactical gameplay',
-      product_url: 'https://www.atomicmassgames.com/character/take-cover-terrain-pack/',
-      characters: []
-    },
-    {
-      id: 'swp18',
-      name: 'Maintenance Bay Terrain Pack',
-      code: 'SWP18',
-      type: 'Terrain Pack',
-      description: 'Industrial terrain for maintenance areas',
-      product_url: 'https://www.atomicmassgames.com/character/maintenance-bay-terrain-pack/',
-      characters: []
-    },
-    {
-      id: 'swp19',
-      name: 'Shatterpoint Dice Pack',
-      code: 'SWP19',
-      type: 'Accessories',
-      description: 'Additional dice for gameplay',
-      product_url: 'https://www.atomicmassgames.com/character/shatterpoint-dice-pack/',
-      characters: []
-    },
-    {
-      id: 'swp20',
-      name: 'Shatterpoint Measuring Tools',
-      code: 'SWP20',
-      type: 'Accessories',
-      description: 'Measuring tools for precise gameplay',
-      product_url: 'https://www.atomicmassgames.com/character/shatterpoint-measuring-tools/',
-      characters: []
-    },
-    {
-      id: 'swp26',
-      name: 'You Have Something I Want Squad Pack',
-      code: 'SWP26',
-      type: 'Squad Pack',
-      description: 'Bounty hunters and their targets',
-      product_url: 'https://www.atomicmassgames.com/character/you-have-something-i-want-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Bounty Hunter' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp27',
-      name: 'Ee Chee Wa Maa! Squad Pack',
-      code: 'SWP27',
-      type: 'Squad Pack',
-      description: 'Ewok warriors and their allies',
-      product_url: 'https://www.atomicmassgames.com/character/ee-chee-wa-maa-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Ewok Chief' },
-        { role: 'Secondary', name: 'Ewok Warriors' },
-        { role: 'Supporting', name: 'Ewok Scouts' }
-      ]
-    },
-    {
-      id: 'swp28',
-      name: 'Not Accepting Surrenders Squad Pack',
-      code: 'SWP28',
-      type: 'Squad Pack',
-      description: 'Determined warriors who fight to the end',
-      product_url: 'https://www.atomicmassgames.com/character/not-accepting-surrenders-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Determined Leader' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp29',
-      name: 'Stronger Than Fear Squad Pack',
-      code: 'SWP29',
-      type: 'Squad Pack',
-      description: 'Heroes who overcome their fears',
-      product_url: 'https://www.atomicmassgames.com/character/stronger-than-fear-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Fearless Hero' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp30',
-      name: 'You Cannot Run Duel Pack',
-      code: 'SWP30',
-      type: 'Duel Pack',
-      description: 'Epic duel between two powerful characters',
-      product_url: 'https://www.atomicmassgames.com/character/you-cannot-run-duel-pack/',
-      characters: [
-        { role: 'Primary', name: 'Duelist 1' },
-        { role: 'Primary', name: 'Duelist 2' }
-      ]
-    },
-    {
-      id: 'swp31',
-      name: 'All The Way Squad Pack',
-      code: 'SWP31',
-      type: 'Squad Pack',
-      description: 'Characters who go all the way',
-      product_url: 'https://www.atomicmassgames.com/character/all-the-way-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'All-in Leader' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp34',
-      name: 'Today The Rebellion Dies Squad Pack',
-      code: 'SWP34',
-      type: 'Squad Pack',
-      description: 'Imperial forces determined to crush the rebellion',
-      product_url: 'https://www.atomicmassgames.com/character/today-the-rebellion-dies-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Imperial Commander' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp35',
-      name: 'Real Quiet Like Squad Pack',
-      code: 'SWP35',
-      type: 'Squad Pack',
-      description: 'Stealthy operatives and their missions',
-      product_url: 'https://www.atomicmassgames.com/character/real-quiet-like-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Stealth Operative' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp37',
-      name: 'Requesting Your Surrender Squad Pack',
-      code: 'SWP37',
-      type: 'Squad Pack',
-      description: 'Diplomatic but firm approach to conflict',
-      product_url: 'https://www.atomicmassgames.com/character/requesting-your-surrender-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Diplomatic Leader' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp39',
-      name: 'Yub Nub Squad Pack',
-      code: 'SWP39',
-      type: 'Squad Pack',
-      description: 'Ewok celebration and victory',
-      product_url: 'https://www.atomicmassgames.com/character/yub-nub-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Ewok Chief' },
-        { role: 'Secondary', name: 'Ewok Warriors' },
-        { role: 'Supporting', name: 'Ewok Scouts' }
-      ]
-    },
-    {
-      id: 'swp45',
-      name: 'Sabotage Showdown Mission Pack',
-      code: 'SWP45',
-      type: 'Mission Pack',
-      description: 'Mission pack for sabotage scenarios',
-      product_url: 'https://www.atomicmassgames.com/character/sabotage-showdown-mission-pack/',
-      characters: []
-    },
-    {
-      id: 'swp46',
-      name: 'Maximum Firepower Squad Pack',
-      code: 'SWP46',
-      type: 'Squad Pack',
-      description: 'Heavy weapons and maximum destruction',
-      product_url: 'https://www.atomicmassgames.com/character/maximum-firepower-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Heavy Weapons Specialist' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp47',
-      name: 'What Have We Here Squad Pack',
-      code: 'SWP47',
-      type: 'Squad Pack',
-      description: 'Curious characters and their discoveries',
-      product_url: 'https://www.atomicmassgames.com/character/what-have-we-here-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Curious Explorer' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp49',
-      name: 'First Contact Mission Pack',
-      code: 'SWP49',
-      type: 'Mission Pack',
-      description: 'Mission pack for first contact scenarios',
-      product_url: 'https://www.atomicmassgames.com/character/first-contact-mission-pack/',
-      characters: []
-    },
-    {
-      id: 'swp50',
-      name: 'Wisdom of the Council Squad Pack',
-      code: 'SWP50',
-      type: 'Squad Pack',
-      description: 'Jedi Council members and their wisdom',
-      product_url: 'https://www.atomicmassgames.com/character/wisdom-of-the-council-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Jedi Master' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp51',
-      name: 'Deploy the Garrison Squad Pack',
-      code: 'SWP51',
-      type: 'Squad Pack',
-      description: 'Military garrison deployment',
-      product_url: 'https://www.atomicmassgames.com/character/deploy-the-garrison-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Garrison Commander' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp60',
-      name: 'Outer Rim Outpost Terrain Pack',
-      code: 'SWP60',
-      type: 'Terrain Pack',
-      description: 'Terrain for outer rim outposts',
-      product_url: 'https://www.atomicmassgames.com/character/outer-rim-outpost-terrain-pack/',
-      characters: []
-    },
-    {
-      id: 'swp63',
-      name: 'Terror from Below Squad Pack',
-      code: 'SWP63',
-      type: 'Squad Pack',
-      description: 'Creatures and terrors from below',
-      product_url: 'https://www.atomicmassgames.com/character/terror-from-below-squad-pack/',
-      characters: [
-        { role: 'Primary', name: 'Terror Leader' },
-        { role: 'Secondary', name: 'Secondary Unit' },
-        { role: 'Supporting', name: 'Supporting Unit' }
-      ]
-    },
-    {
-      id: 'swp81',
-      name: 'I Am No Jedi Duel Pack',
-      code: 'SWP81',
-      type: 'Duel Pack',
-      description: 'Ahsoka Tano vs Darth Vader',
-      product_url: 'https://www.atomicmassgames.com/character/i-am-no-jedi-duel-pack/',
-      characters: [
-        { role: 'Primary', name: 'Ahsoka Tano (Rebels era)' },
-        { role: 'Primary', name: 'Darth Vader' }
-      ]
-    }
-  ];
-
   useEffect(() => {
     setAllSets(mockSets);
     setLoading(false);
@@ -1290,7 +479,6 @@ const SetsPage: React.FC = () => {
     }
   };
 
-
   // Modal handlers
   const handleSetClick = (set: Set) => {
     setSelectedSet(set);
@@ -1450,248 +638,129 @@ const SetsPage: React.FC = () => {
             {/* Header */}
             <div style={{
               display: 'flex',
-              gap: '20px',
-              marginBottom: '24px'
+              alignItems: 'center',
+              gap: '16px',
+              marginBottom: '20px'
             }}>
-              {/* Set Image */}
               <div style={{
-                width: '200px',
-                height: '200px',
+                width: '80px',
+                height: '80px',
                 borderRadius: '8px',
-                overflow: 'hidden',
-                background: '#000000',
+                border: '1px solid #374151',
+                background: '#374151',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '2px solid #6b7280',
-                flexShrink: 0
+                color: '#9ca3af',
+                fontSize: '12px',
+                fontWeight: '600'
               }}>
-                <SetImageWithFallback set={set} />
+                {set.code}
               </div>
-
-              {/* Set Info */}
-              <div style={{ flex: 1 }}>
-                <div style={{
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: 'white',
-                  background: getTypeColor(set.type),
-                  display: 'inline-block',
-                  marginBottom: '12px'
-                }}>
-                  {set.type}
-                </div>
-
+              <div>
                 <h2 style={{
+                  margin: 0,
                   fontSize: '24px',
                   fontWeight: '700',
-                  color: '#f9fafb',
-                  marginBottom: '8px'
+                  color: '#f9fafb'
                 }}>
                   {set.name}
                 </h2>
-
                 <div style={{
-                  fontSize: '16px',
-                  color: '#3b82f6',
-                  fontWeight: '600',
-                  marginBottom: '12px'
+                  display: 'flex',
+                  gap: '8px',
+                  marginTop: '8px'
                 }}>
-                  {set.code}
-                </div>
-
-                {set.description && (
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#9ca3af',
-                    marginBottom: '16px',
-                    lineHeight: '1.5'
-                  }}>
-                    {set.description}
-                  </p>
-                )}
-
-                {/* Status Badge */}
-                {collection && (
-                  <div style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '14px',
+                  <span style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
                     fontWeight: '600',
-                    color: 'white',
-                    background: getStatusColor(collection.status),
-                    display: 'inline-block',
-                    marginBottom: '16px'
+                    backgroundColor: getTypeColor(set.type),
+                    color: 'white'
                   }}>
-                    {collection.status}
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                {me && (
-                  <div style={{
-                    display: 'flex',
-                    gap: '8px',
-                    flexWrap: 'wrap'
-                  }}>
-                    {!collection ? (
-                      <>
-                        <button
-                          onClick={() => {
-                            handleAddToCollection(set.id, 'OWNED');
-                            onClose();
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: '#16a34a',
-                            color: 'white',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s ease'
-                          }}
-                        >
-                          Add to Collection
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleAddToCollection(set.id, 'WISHLIST');
-                            onClose();
-                          }}
-                          style={{
-                            padding: '8px 16px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: '#f59e0b',
-                            color: 'white',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s ease'
-                          }}
-                        >
-                          ⭐ Add to Wishlist
-                        </button>
-                      </>
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        gap: '6px',
-                        flexWrap: 'wrap'
-                      }}>
-                        {['OWNED', 'PAINTED', 'WISHLIST', 'SOLD'].map((status) => (
-                          <button
-                            key={status}
-                            onClick={() => handleUpdateStatus(set.id, status as any)}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '4px',
-                              border: 'none',
-                              background: collection?.status === status ? getStatusColor(status) : '#374151',
-                              color: 'white',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              cursor: 'pointer',
-                              transition: 'background 0.2s ease'
-                            }}
-                          >
-                            {status}
-                          </button>
-                        ))}
-                        <button
-                          onClick={() => {
-                            handleRemoveFromCollection(set.id);
-                            onClose();
-                          }}
-                          style={{
-                            padding: '6px 12px',
-                            borderRadius: '4px',
-                            border: 'none',
-                            background: '#dc2626',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s ease'
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                    {set.type}
+                  </span>
+                  {collection && (
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      backgroundColor: getStatusColor(collection.status),
+                      color: 'white'
+                    }}>
+                      {collection.status}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Characters Section */}
+            {/* Description */}
+            {set.description && (
+              <p style={{
+                margin: '0 0 20px 0',
+                color: '#d1d5db',
+                lineHeight: '1.5'
+              }}>
+                {set.description}
+              </p>
+            )}
+
+            {/* Characters */}
             {set.characters && set.characters.length > 0 && (
-              <div>
+              <div style={{ marginBottom: '20px' }}>
                 <h3 style={{
-                  fontSize: '20px',
+                  margin: '0 0 12px 0',
+                  fontSize: '18px',
                   fontWeight: '600',
-                  color: '#f9fafb',
-                  marginBottom: '16px'
+                  color: '#f9fafb'
                 }}>
-                  Characters in this Set ({set.characters.length})
+                  Characters ({set.characters.length})
                 </h3>
-                
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                  gap: '16px'
+                  gap: '12px'
                 }}>
                   {set.characters.map((character, index) => (
                     <div
                       key={index}
-                      style={{
-                        background: 'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
-                        borderRadius: '8px',
-                        padding: '12px',
-                        border: '1px solid #4b5563',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer'
-                      }}
                       onClick={() => handleCharacterClick(character.name)}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <div style={{
+                      style={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: '12px',
-                        marginBottom: '8px'
-                      }}>
-                        <CharacterPortrait character={character} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            color: character.role === 'Primary' ? '#dc2626' :
-                                   character.role === 'Secondary' ? '#2563eb' :
-                                   '#16a34a',
-                            marginBottom: '2px'
-                          }}>
-                            {character.role}
-                          </div>
-                          <div style={{
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            color: '#f9fafb',
-                            lineHeight: '1.2'
-                          }}>
-                            {character.name}
-                          </div>
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid #374151',
+                        backgroundColor: '#374151',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#4b5563';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#374151';
+                      }}
+                    >
+                      <CharacterPortrait character={character} />
+                      <div>
+                        <div style={{
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: '#f9fafb',
+                          marginBottom: '2px'
+                        }}>
+                          {character.name}
+                        </div>
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#9ca3af'
+                        }}>
+                          {character.role}
                         </div>
                       </div>
                     </div>
@@ -1700,20 +769,15 @@ const SetsPage: React.FC = () => {
               </div>
             )}
 
-            {/* Product Link */}
+            {/* Product URL */}
             {set.product_url && (
-              <div style={{
-                marginTop: '24px',
-                paddingTop: '16px',
-                borderTop: '1px solid #374151',
-                textAlign: 'center'
-              }}>
+              <div style={{ marginBottom: '20px' }}>
                 <a
                   href={set.product_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    fontSize: '14px',
+                    fontSize: '12px',
                     color: '#3b82f6',
                     textDecoration: 'none',
                     fontWeight: '500'
@@ -1729,12 +793,139 @@ const SetsPage: React.FC = () => {
                 </a>
               </div>
             )}
+
+            {/* Action Buttons */}
+            {me && (
+              <div 
+                style={{
+                  display: 'flex',
+                  gap: '8px',
+                  flexWrap: 'wrap'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {!set.collection ? (
+                  <>
+                    <button
+                      onClick={() => handleAddToCollection(set.id, 'OWNED')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#16a34a',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#15803d';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#16a34a';
+                      }}
+                    >
+                      Add to Collection
+                    </button>
+                    <button
+                      onClick={() => handleAddToCollection(set.id, 'WISHLIST')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#f59e0b',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#d97706';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#f59e0b';
+                      }}
+                    >
+                      Add to Wishlist
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleUpdateStatus(set.id, 'OWNED')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: collection?.status === 'OWNED' ? '#16a34a' : '#374151',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Owned
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(set.id, 'PAINTED')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: collection?.status === 'PAINTED' ? '#3b82f6' : '#374151',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Painted
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(set.id, 'WISHLIST')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: collection?.status === 'WISHLIST' ? '#f59e0b' : '#374151',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Wishlist
+                    </button>
+                    <button
+                      onClick={() => handleRemoveFromCollection(set.id)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#dc2626',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
     );
   };
-
 
   if (loading) {
     return (
@@ -1750,452 +941,322 @@ const SetsPage: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
+  return (
+    <div style={{ padding: '20px' }}>
+      <h1 style={{
+        margin: '0 0 20px 0',
+        fontSize: '28px',
+        fontWeight: '700',
+        color: '#f9fafb'
+      }}>
+        Sets & Boxes Collection
+      </h1>
+
+      {/* Filters */}
       <div style={{
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '200px',
-        color: '#ef4444'
+        gap: '16px',
+        marginBottom: '20px',
+        flexWrap: 'wrap'
       }}>
-        Error: {error}
-      </div>
-    );
-  }
-
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      padding: '20px'
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
-        {/* Header */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '40px'
-        }}>
-          <h1 style={{
-            fontSize: '36px',
-            fontWeight: '700',
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as any)}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            background: '#1f2937',
             color: '#f9fafb',
-            marginBottom: '16px'
-          }}>
-            Sets & Boxes Collection
-          </h1>
-          <p style={{
-            fontSize: '18px',
-            color: '#9ca3af',
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
-            Track your Star Wars: Shatterpoint expansion sets and core boxes
-          </p>
-        </div>
+            fontSize: '14px'
+          }}
+        >
+          <option value="ALL">All Status</option>
+          <option value="OWNED">Owned</option>
+          <option value="PAINTED">Painted</option>
+          <option value="WISHLIST">Wishlist</option>
+          <option value="SOLD">Sold</option>
+        </select>
 
-        {/* Filters */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          marginBottom: '24px',
-          flexWrap: 'wrap',
-          justifyContent: 'center'
-        }}>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as any)}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '6px',
+            border: '1px solid #374151',
+            background: '#1f2937',
+            color: '#f9fafb',
+            fontSize: '14px'
+          }}
+        >
+          <option value="ALL">All Types</option>
+          <option value="Core Set">Core Set</option>
+          <option value="Squad Pack">Squad Pack</option>
+          <option value="Duel Pack">Duel Pack</option>
+          <option value="Terrain Pack">Terrain Pack</option>
+          <option value="Mission Pack">Mission Pack</option>
+          <option value="Accessories">Accessories</option>
+        </select>
+      </div>
+
+      {/* Sets Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: '20px'
+      }}>
+        {getFilteredSets.map((set) => (
+          <div
+            key={set.id}
+            onClick={() => handleSetClick(set)}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
+              padding: '16px',
+              borderRadius: '12px',
               border: '1px solid #374151',
-              background: '#1f2937',
-              color: '#f9fafb',
-              fontSize: '14px'
+              backgroundColor: '#1f2937',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              position: 'relative'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#6b7280';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#374151';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <option value="ALL">All Status</option>
-            <option value="OWNED">Owned</option>
-            <option value="PAINTED">Painted</option>
-            <option value="WISHLIST">Wishlist</option>
-            <option value="SOLD">Sold</option>
-          </select>
-
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as any)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: '1px solid #374151',
-              background: '#1f2937',
-              color: '#f9fafb',
-              fontSize: '14px'
-            }}
-          >
-            <option value="ALL">All Types</option>
-            <option value="Core Set">Core Set</option>
-            <option value="Squad Pack">Squad Pack</option>
-            <option value="Duel Pack">Duel Pack</option>
-          </select>
-        </div>
-
-        {/* Sets Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '20px'
-        }}>
-          {getFilteredSets.map((set) => (
-            <div
-              key={set.id}
-              style={{
-                background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-                borderRadius: '12px',
-                padding: '20px',
-                border: '1px solid #374151',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                cursor: 'pointer'
-              }}
-              onClick={() => handleSetClick(set)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              {/* Type Badge - moved above image */}
+            {/* Status Badge */}
+            {set.collection && (
               <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
                 padding: '4px 8px',
                 borderRadius: '4px',
                 fontSize: '12px',
                 fontWeight: '600',
-                color: 'white',
-                background: getTypeColor(set.type),
-                display: 'inline-block',
-                marginBottom: '12px'
+                backgroundColor: getStatusColor(set.collection.status),
+                color: 'white'
               }}>
-                {set.type}
+                {set.collection.status}
               </div>
+            )}
 
-              {/* Product Image/Icon */}
+            {/* Set Info */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginBottom: '12px'
+            }}>
               <div style={{
-                width: '100%',
-                height: '200px',
-                marginBottom: '16px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                background: '#000000',
+                width: '60px',
+                height: '60px',
+                borderRadius: '6px',
+                border: '1px solid #374151',
+                background: '#374151',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                position: 'relative',
-                border: '2px solid #6b7280'
+                color: '#9ca3af',
+                fontSize: '12px',
+                fontWeight: '600'
               }}>
-                {/* Status Badge - now inside image container */}
-                {set.collection && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: 'white',
-                    background: getStatusColor(set.collection.status),
-                    zIndex: 10
-                  }}>
-                    {set.collection.status}
-                  </div>
-                )}
-                <SetImageWithFallback set={set} />
+                {set.code}
               </div>
-
-              {/* Content */}
               <div>
                 <h3 style={{
-                  fontSize: '18px',
+                  margin: 0,
+                  fontSize: '16px',
                   fontWeight: '600',
                   color: '#f9fafb',
-                  marginBottom: '8px'
+                  marginBottom: '4px'
                 }}>
                   {set.name}
                 </h3>
-                
                 <div style={{
-                  fontSize: '14px',
-                  color: '#3b82f6',
-                  fontWeight: '600',
-                  marginBottom: '8px'
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'center'
                 }}>
-                  {set.code}
-                </div>
-                
-                {set.description && (
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#9ca3af',
-                    marginBottom: '12px',
-                    lineHeight: '1.4'
+                  <span style={{
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    backgroundColor: getTypeColor(set.type),
+                    color: 'white'
                   }}>
-                    {set.description}
-                  </p>
-                )}
-
-                {/* Characters included */}
-                {set.characters && set.characters.length > 0 && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{
+                    {set.type}
+                  </span>
+                  {set.characters && (
+                    <span style={{
                       fontSize: '12px',
-                      color: '#d1d5db',
-                      fontWeight: '600',
-                      marginBottom: '6px'
+                      color: '#9ca3af'
                     }}>
-                      Characters ({set.characters.length}):
-                    </div>
-                    <div style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '4px'
-                    }}>
-                      {set.characters.slice(0, 3).map((char, index) => (
-                        <span
-                          key={index}
-                          style={{
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                            background: char.role === 'Primary' ? '#dc2626' :
-                                       char.role === 'Secondary' ? '#2563eb' :
-                                       '#16a34a',
-                            color: 'white',
-                            fontWeight: '500'
-                          }}
-                        >
-                          {char.name}
-                        </span>
-                      ))}
-                      {set.characters.length > 3 && (
-                        <span style={{
-                          fontSize: '10px',
-                          padding: '2px 6px',
-                          borderRadius: '3px',
-                          background: '#6b7280',
-                          color: 'white',
-                          fontWeight: '500'
-                        }}>
-                          +{set.characters.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Product link */}
-                {set.product_url && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <a
-                      href={set.product_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        fontSize: '12px',
-                        color: '#3b82f6',
-                        textDecoration: 'none',
-                        fontWeight: '500'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.textDecoration = 'underline';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.textDecoration = 'none';
-                      }}
-                    >
-                      View on Atomic Mass Games →
-                    </a>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                {me && (
-                  <div 
-                    style={{
-                      display: 'flex',
-                      gap: '8px',
-                      flexWrap: 'wrap'
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {!set.collection ? (
-                      <>
-                        <button
-                          onClick={() => handleAddToCollection(set.id, 'OWNED')}
-                          style={{
-                            padding: '6px 12px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: '#16a34a',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#15803d';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#16a34a';
-                          }}
-                        >
-                          Add to Collection
-                        </button>
-                        <button
-                          onClick={() => handleAddToCollection(set.id, 'WISHLIST')}
-                          style={{
-                            padding: '6px 12px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: '#f59e0b',
-                            color: 'white',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#d97706';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#f59e0b';
-                          }}
-                        >
-                          ⭐ Wishlist
-                        </button>
-                      </>
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        gap: '4px',
-                        flexWrap: 'wrap'
-                      }}>
-                        {['OWNED', 'PAINTED', 'WISHLIST', 'SOLD'].map((status) => (
-                          <button
-                            key={status}
-                            onClick={() => handleUpdateStatus(set.id, status as any)}
-                            style={{
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              border: 'none',
-                              background: set.collection?.status === status ? getStatusColor(status) : '#374151',
-                              color: 'white',
-                              fontSize: '11px',
-                              fontWeight: '600',
-                              cursor: 'pointer',
-                              transition: 'background 0.2s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (set.collection?.status !== status) {
-                                e.currentTarget.style.background = '#4b5563';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (set.collection?.status !== status) {
-                                e.currentTarget.style.background = '#374151';
-                              }
-                            }}
-                          >
-                            {status}
-                          </button>
-                        ))}
-                        <button
-                          onClick={() => handleRemoveFromCollection(set.id)}
-                          style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            border: 'none',
-                            background: '#dc2626',
-                            color: 'white',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#b91c1c';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#dc2626';
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      {set.characters.length} characters
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Empty State */}
-        {getFilteredSets.length === 0 && (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            color: '#9ca3af'
-          }}>
-            <div style={{
-              fontSize: '48px',
-              marginBottom: '16px'
-            }}>
-              📦
-            </div>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: '600',
-              color: '#d1d5db',
-              marginBottom: '8px'
-            }}>
-              No sets found
-            </h3>
-            <p style={{
-              fontSize: '16px',
-              color: '#9ca3af'
-            }}>
-              Try adjusting your filters or add some sets to your collection
-            </p>
+            {/* Description */}
+            {set.description && (
+              <p style={{
+                margin: '0 0 12px 0',
+                fontSize: '14px',
+                color: '#d1d5db',
+                lineHeight: '1.4'
+              }}>
+                {set.description}
+              </p>
+            )}
+
+            {/* Action Buttons */}
+            {me && (
+              <div 
+                style={{
+                  display: 'flex',
+                  gap: '8px',
+                  flexWrap: 'wrap'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {!set.collection ? (
+                  <>
+                    <button
+                      onClick={() => handleAddToCollection(set.id, 'OWNED')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#16a34a',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#15803d';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#16a34a';
+                      }}
+                    >
+                      Add to Collection
+                    </button>
+                    <button
+                      onClick={() => handleAddToCollection(set.id, 'WISHLIST')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#f59e0b',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#d97706';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#f59e0b';
+                      }}
+                    >
+                      Add to Wishlist
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleUpdateStatus(set.id, 'OWNED')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: set.collection?.status === 'OWNED' ? '#16a34a' : '#374151',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Owned
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(set.id, 'PAINTED')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: set.collection?.status === 'PAINTED' ? '#3b82f6' : '#374151',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Painted
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(set.id, 'WISHLIST')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: set.collection?.status === 'WISHLIST' ? '#f59e0b' : '#374151',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Wishlist
+                    </button>
+                    <button
+                      onClick={() => handleRemoveFromCollection(set.id)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#dc2626',
+                        color: 'white',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s ease'
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
-        )}
+        ))}
       </div>
 
-      {/* Set Modal */}
+      {/* Modals */}
       {showSetModal && selectedSet && (
         <SetModal set={selectedSet} onClose={handleCloseSetModal} />
       )}
 
-      {/* Character Modal */}
       {showCharacterModal && selectedCharacter && (
         <CharacterModal
           open={showCharacterModal}
           onClose={handleCloseCharacterModal}
-          id={selectedCharacter.id}
-          character={{
-            id: selectedCharacter.id,
-            name: selectedCharacter.name,
-            unit_type: selectedCharacter.role as "Primary" | "Secondary" | "Support",
-            squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
-            portrait: selectedCharacter.portrait
-          }}
+          character={selectedCharacter}
         />
       )}
     </div>
