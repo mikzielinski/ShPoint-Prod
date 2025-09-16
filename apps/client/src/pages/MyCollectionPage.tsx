@@ -1239,7 +1239,7 @@ export default function MyCollectionPage() {
                       alignItems: "center",
                       gap: "4px",
                       marginBottom: "12px",
-                      flexWrap: "wrap"
+                      flexWrap: "nowrap"
                     }}>
                       {['OWNED', 'PAINTED', 'WISHLIST', 'SOLD'].map((status) => (
                         <button
