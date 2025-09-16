@@ -1475,97 +1475,198 @@ export default function MyCollectionPage() {
       )}
 
       {/* Set Modal */}
-      {selectedSet && (
-        <Modal
-          open={showSetModal}
-          onClose={() => {
+      {selectedSet && showSetModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => {
             setShowSetModal(false);
             setSelectedSet(null);
           }}
-          maxWidth={800}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.5)",
+            display: "grid",
+            placeItems: "center",
+            zIndex: 50,
+            padding: 16,
+          }}
         >
-          <div style={{
-            background: '#1f2937',
-            color: '#f9fafb',
-            borderRadius: '8px',
-            padding: '20px'
-          }}>
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: '600',
-              marginBottom: '16px',
-              color: '#f9fafb'
-            }}>
-              {selectedSet.name}
-            </h2>
-            
-            <div style={{
-              display: 'flex',
-              gap: '20px',
-              marginBottom: '20px'
-            }}>
-              <SetImageWithFallback set={selectedSet} />
-              <div>
-                <p style={{
-                  fontSize: '16px',
-                  color: '#d1d5db',
-                  marginBottom: '8px'
-                }}>
-                  {selectedSet.type}
-                </p>
-                <p style={{
-                  fontSize: '14px',
-                  color: '#9ca3af',
-                  lineHeight: '1.5'
-                }}>
-                  {selectedSet.description}
-                </p>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 800,
+              background: "#1f2937",
+              borderRadius: 16,
+              boxShadow: "0 20px 40px rgba(0,0,0,.2)",
+              overflow: "hidden",
+              border: "1px solid #374151"
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "flex-end", padding: 8 }}>
+              <button
+                onClick={() => {
+                  setShowSetModal(false);
+                  setSelectedSet(null);
+                }}
+                style={{
+                  border: "1px solid #4b5563",
+                  borderRadius: 999,
+                  padding: "6px 10px",
+                  background: "#374151",
+                  color: "#f9fafb",
+                  cursor: "pointer",
+                }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div style={{ padding: 20 }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '600',
+                marginBottom: '16px',
+                color: '#f9fafb'
+              }}>
+                {selectedSet.name}
+              </h2>
+              
+              <div style={{
+                display: 'flex',
+                gap: '20px',
+                marginBottom: '20px'
+              }}>
+                <SetImageWithFallback set={selectedSet} />
+                <div>
+                  <p style={{
+                    fontSize: '16px',
+                    color: '#d1d5db',
+                    marginBottom: '8px'
+                  }}>
+                    {selectedSet.type}
+                  </p>
+                  <p style={{
+                    fontSize: '14px',
+                    color: '#9ca3af',
+                    lineHeight: '1.5'
+                  }}>
+                    {selectedSet.description}
+                  </p>
+                </div>
+              </div>
+
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                marginBottom: '16px',
+                color: '#f9fafb'
+              }}>
+                Characters in this set:
+              </h3>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: '16px'
+              }}>
+                {selectedSet.characters?.map((character, index) => {
+                  const characterId = getCharacterId(character.name);
+                  const characterData = allCharacters.find(c => c.id === characterId);
+                  
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => {
+                        if (characterData) {
+                          setSelectedCharacter(characterData);
+                          setShowSetModal(false);
+                          setSelectedSet(null);
+                        }
+                      }}
+                      style={{
+                        background: '#374151',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        border: '1px solid #4b5563',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#6b7280';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#4b5563';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      {/* Character Portrait */}
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '6px',
+                        border: '1px solid #4b5563',
+                        overflow: 'hidden',
+                        flexShrink: 0
+                      }}>
+                        {characterData?.portrait ? (
+                          <img
+                            src={characterData.portrait}
+                            alt={character.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              objectPosition: 'center'
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: '100%',
+                            height: '100%',
+                            background: '#4b5563',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#9ca3af',
+                            fontSize: '12px'
+                          }}>
+                            ?
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Character Info */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: '#f9fafb',
+                          marginBottom: '4px',
+                          lineHeight: '1.3'
+                        }}>
+                          {character.name}
+                        </div>
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#9ca3af'
+                        }}>
+                          {character.role}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-
-            <h3 style={{
-              fontSize: '18px',
-              fontWeight: '600',
-              marginBottom: '16px',
-              color: '#f9fafb'
-            }}>
-              Characters in this set:
-            </h3>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '16px'
-            }}>
-              {selectedSet.characters?.map((character, index) => (
-                <div
-                  key={index}
-                  style={{
-                    background: '#374151',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    border: '1px solid #4b5563'
-                  }}
-                >
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#f9fafb',
-                    marginBottom: '4px'
-                  }}>
-                    {character.name}
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#9ca3af'
-                  }}>
-                    {character.role}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
-        </Modal>
+        </div>
       )}
     </div>
   );
