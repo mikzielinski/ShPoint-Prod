@@ -1401,6 +1401,33 @@ export default function MyCollectionPage() {
                           {status}
                         </button>
                       ))}
+                      
+                      {/* Remove button in same row */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent modal from opening
+                          handleRemoveFromCollection(set.id);
+                        }}
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          border: "none",
+                          background: "#dc2626",
+                          color: 'white',
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          transition: "background 0.2s ease"
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#b91c1c';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#dc2626';
+                        }}
+                      >
+                        Remove
+                      </button>
                     </div>
                   )}
                   
@@ -1466,33 +1493,6 @@ export default function MyCollectionPage() {
                       </button>
                     )}
                     
-                    {set.collection && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent modal from opening
-                          handleRemoveFromCollection(set.id);
-                        }}
-                        style={{
-                          background: "#dc2626",
-                          color: "white",
-                          border: "none",
-                          padding: "6px 12px",
-                          borderRadius: "4px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          cursor: "pointer",
-                          transition: "background 0.2s ease"
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "#b91c1c";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "#dc2626";
-                        }}
-                      >
-                        Remove
-                      </button>
-                    )}
                   </div>
                 </div>
               ))
