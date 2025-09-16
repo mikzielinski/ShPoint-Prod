@@ -111,7 +111,11 @@ model CharacterCollection {
   id        String   @id @default(cuid())
   userId    String
   characterId String // ID postaci z characters.json (np. "ahsoka-tano-fulcrum")
-  status    CollectionStatus @default(OWNED)
+  isOwned   Boolean  @default(false)
+  isPainted Boolean  @default(false)
+  isWishlist Boolean @default(false)
+  isSold    Boolean  @default(false)
+  isFavorite Boolean @default(false)
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -121,14 +125,20 @@ model CharacterCollection {
   @@unique([userId, characterId])
   @@index([userId])
   @@index([characterId])
-  @@index([status])
+  @@index([isOwned])
+  @@index([isPainted])
+  @@index([isWishlist])
 }
 
 model SetCollection {
   id        String   @id @default(cuid())
   userId    String
   setId     String   // ID zestawu (np. "ahsoka-tano-fulcrum-set")
-  status    CollectionStatus @default(OWNED)
+  isOwned   Boolean  @default(false)
+  isPainted Boolean  @default(false)
+  isWishlist Boolean @default(false)
+  isSold    Boolean  @default(false)
+  isFavorite Boolean @default(false)
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,7 +148,9 @@ model SetCollection {
   @@unique([userId, setId])
   @@index([userId])
   @@index([setId])
-  @@index([status])
+  @@index([isOwned])
+  @@index([isPainted])
+  @@index([isWishlist])
 }
 
 model MissionCollection {
