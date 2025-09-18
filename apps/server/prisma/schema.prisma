@@ -85,6 +85,18 @@ model AllowedEmail {
   @@index([expiresAt])
 }
 
+model SystemSettings {
+  id                    String   @id @default(cuid())
+  key                   String   @unique
+  value                 String
+  description           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  updatedBy             String?
+
+  @@index([key])
+}
+
 model Collection {
   id        String           @id @default(cuid())
   userId    String

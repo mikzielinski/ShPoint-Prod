@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
+import AdminInvitationSettings from "../components/AdminInvitationSettings";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -71,7 +72,8 @@ export default function AdminPage() {
   // Collapsible sections state
   const [sectionsExpanded, setSectionsExpanded] = useState({
     invitations: true,
-    users: true
+    users: true,
+    invitationSettings: true
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
@@ -911,6 +913,36 @@ export default function AdminPage() {
           )}
         </div>
           </>
+        )}
+      </section>
+
+      {/* Invitation Settings Section */}
+      <section className="card" style={{ marginTop: "24px" }}>
+        <div className="card-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="btn btn-sm btn--outline"
+              onClick={() => toggleSection('invitationSettings')}
+              style={{ 
+                minWidth: "32px", 
+                height: "32px", 
+                padding: "0", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                fontSize: "16px"
+              }}
+            >
+              {sectionsExpanded.invitationSettings ? "▼" : "▶"}
+            </button>
+            <h2>Invitation Settings</h2>
+          </div>
+        </div>
+        
+        {sectionsExpanded.invitationSettings && (
+          <div style={{ padding: "24px" }}>
+            <AdminInvitationSettings />
+          </div>
         )}
       </section>
     </main>

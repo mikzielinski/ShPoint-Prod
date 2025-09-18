@@ -171,7 +171,32 @@ function publicUser(u: any) {
   };
 }
 
-// Function to set invitation limits based on user role
+// Function to get invitation limits from system settings
+async function getInvitationLimit(role: string): Promise<number> {
+  try {
+    const setting = await prisma.systemSettings.findUnique({
+      where: { key: `invitation_limit_${role.toLowerCase()}` }
+    });
+    
+    if (setting) {
+      return parseInt(setting.value) || 0;
+    }
+    
+    // Default limits if not set in system settings
+    const defaultLimits = {
+      admin: 100,
+      editor: 10,
+      user: 3,
+    };
+    
+    return defaultLimits[role.toLowerCase() as keyof typeof defaultLimits] || 0;
+  } catch (error) {
+    console.error('Error getting invitation limit:', error);
+    return 0;
+  }
+}
+
+// Function to set invitation limits based on user role (legacy)
 function setInvitationLimits(user: any) {
   const limits = {
     ADMIN: 100,    // Admins can send unlimited invitations
@@ -1320,6 +1345,129 @@ app.delete("/api/admin/allowed-emails/:id", ensureAuth, ensureAdmin, async (req,
   } catch (error) {
     console.error("Error removing allowed email:", error);
     res.status(500).json({ ok: false, error: "Failed to remove allowed email" });
+  }
+});
+
+// ===== ADMIN INVITATION SETTINGS ENDPOINTS =====
+
+// Get invitation limits settings
+app.get("/api/admin/invitation-limits", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const settings = await prisma.systemSettings.findMany({
+      where: {
+        key: {
+          startsWith: 'invitation_limit_'
+        }
+      }
+    });
+
+    // Create object with role limits
+    const limits = {
+      admin: 100,
+      editor: 10,
+      user: 3,
+    };
+
+    settings.forEach(setting => {
+      const role = setting.key.replace('invitation_limit_', '');
+      if (role in limits) {
+        limits[role as keyof typeof limits] = parseInt(setting.value) || 0;
+      }
+    });
+
+    res.json({ ok: true, limits });
+  } catch (error) {
+    console.error("Error fetching invitation limits:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch invitation limits" });
+  }
+});
+
+// Update invitation limits settings
+app.patch("/api/admin/invitation-limits", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    // @ts-ignore
+    const adminId = req.user.id;
+    const { limits } = req.body;
+
+    if (!limits || typeof limits !== 'object') {
+      return res.status(400).json({ ok: false, error: 'Invalid limits data' });
+    }
+
+    const updates = [];
+    
+    for (const [role, limit] of Object.entries(limits)) {
+      if (['admin', 'editor', 'user'].includes(role) && typeof limit === 'number' && limit >= 0) {
+        const key = `invitation_limit_${role}`;
+        
+        const update = prisma.systemSettings.upsert({
+          where: { key },
+          update: { 
+            value: limit.toString(),
+            updatedBy: adminId
+          },
+          create: {
+            key,
+            value: limit.toString(),
+            description: `Maximum invitations for ${role} role`,
+            updatedBy: adminId
+          }
+        });
+        
+        updates.push(update);
+      }
+    }
+
+    await Promise.all(updates);
+
+    res.json({ ok: true, message: 'Invitation limits updated successfully' });
+  } catch (error) {
+    console.error("Error updating invitation limits:", error);
+    res.status(500).json({ ok: false, error: "Failed to update invitation limits" });
+  }
+});
+
+// Update all users' invitation limits based on new settings
+app.post("/api/admin/update-user-limits", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const settings = await prisma.systemSettings.findMany({
+      where: {
+        key: {
+          startsWith: 'invitation_limit_'
+        }
+      }
+    });
+
+    const limits = {
+      ADMIN: 100,
+      EDITOR: 10,
+      USER: 3,
+    };
+
+    settings.forEach(setting => {
+      const role = setting.key.replace('invitation_limit_', '').toUpperCase();
+      if (role in limits) {
+        limits[role as keyof typeof limits] = parseInt(setting.value) || 0;
+      }
+    });
+
+    // Update all users with new limits
+    const updates = Object.entries(limits).map(([role, limit]) =>
+      prisma.user.updateMany({
+        where: { role: role as any },
+        data: { invitationsLimit: limit }
+      })
+    );
+
+    await Promise.all(updates);
+
+    res.json({ 
+      ok: true, 
+      message: 'User invitation limits updated successfully',
+      updatedLimits: limits
+    });
+  } catch (error) {
+    console.error("Error updating user limits:", error);
+    res.status(500).json({ ok: false, error: "Failed to update user limits" });
   }
 });
 
