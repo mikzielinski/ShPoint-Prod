@@ -122,8 +122,8 @@ passport.use(
           },
         });
 
-        // Mark invitation as used if this is a new user
-        if (user.createdAt.getTime() === user.updatedAt.getTime()) {
+        // Mark invitation as used if it hasn't been used yet
+        if (!allowedEmail.usedAt) {
           await prisma.allowedEmail.update({
             where: { id: allowedEmail.id },
             data: { usedAt: new Date() }
