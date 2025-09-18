@@ -156,8 +156,12 @@ model SetCollection {
 model MissionCollection {
   id        String   @id @default(cuid())
   userId    String
-  missionId String   // ID misji (np. "m01", "m02")
-  status    MissionStatus @default(OWNED)
+  missionId String   // ID misji (np. "sabotage-showdown", "dont-tell-me-odds")
+  isOwned   Boolean  @default(false)
+  isCompleted Boolean @default(false)
+  isWishlist Boolean @default(false)
+  isLocked  Boolean  @default(false)
+  isFavorite Boolean @default(false)
   notes     String?
   completedAt DateTime?
   createdAt DateTime @default(now())
@@ -168,7 +172,9 @@ model MissionCollection {
   @@unique([userId, missionId])
   @@index([userId])
   @@index([missionId])
-  @@index([status])
+  @@index([isOwned])
+  @@index([isCompleted])
+  @@index([isWishlist])
 }
 
 enum CollectionStatus {
@@ -179,12 +185,6 @@ enum CollectionStatus {
   FAVORITE  // Ulubione
 }
 
-enum MissionStatus {
-  OWNED     // Posiadane
-  COMPLETED // Ukończone
-  WISHLIST  // Lista życzeń
-  LOCKED    // Zablokowane
-}
 
 enum StrikeTeamType {
   MY_TEAMS    // Drużyny z posiadanych postaci
