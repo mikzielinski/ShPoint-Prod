@@ -32,7 +32,14 @@ export default function AdminInvitationSettings() {
         const data = await response.json();
         setLimits(data.limits);
       } else {
-        setError('Failed to load invitation limits');
+        const errorData = await response.json();
+        if (response.status === 401) {
+          setError('Please log in to access this feature');
+        } else if (response.status === 403) {
+          setError('Admin access required');
+        } else {
+          setError(errorData.error || 'Failed to load invitation limits');
+        }
       }
     } catch (err) {
       setError('Network error');
@@ -63,7 +70,13 @@ export default function AdminInvitationSettings() {
         // Apply changes to existing users
         await applyToUsers();
       } else {
-        setError(data.error || 'Failed to update invitation limits');
+        if (response.status === 401) {
+          setError('Please log in to access this feature');
+        } else if (response.status === 403) {
+          setError('Admin access required');
+        } else {
+          setError(data.error || 'Failed to update invitation limits');
+        }
       }
     } catch (err) {
       setError('Network error');
