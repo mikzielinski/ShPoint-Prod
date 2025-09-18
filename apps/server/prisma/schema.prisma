@@ -12,14 +12,21 @@ model User {
   id           String     @id @default(cuid())
   email        String     @unique
   name         String?
+  username     String?    @unique // Custom username/alias
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   avatarUrl    String?
   role         Role       @default(USER)
   lastLoginAt  DateTime?
   status       UserStatus @default(ACTIVE)
+  suspendedUntil DateTime? // Data do której użytkownik jest zawieszony
+  suspendedReason String? // Powód zawieszenia
+  suspendedBy  String?    // ID administratora który zawiesił użytkownika
+  suspendedAt  DateTime?  // Data zawieszenia
   image        String?
   passwordHash String?
+  invitedBy    String?    // ID użytkownika, który zaprosił
+  invitedAt    DateTime?  // Data zaproszenia
   cards        Card[]
   collections  Collection[]
   characterCollections CharacterCollection[]
@@ -29,8 +36,12 @@ model User {
 
   @@index([createdAt])
   @@index([email])
+  @@index([username])
   @@index([role])
   @@index([status])
+  @@index([suspendedUntil])
+  @@index([suspendedBy])
+  @@index([invitedBy])
 }
 
 model Card {
@@ -48,6 +59,25 @@ model Card {
   @@index([slug])
   @@index([status, publishedAt])
   @@index([createdAt])
+}
+
+model AllowedEmail {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      Role     @default(USER)
+  invitedBy String?  // ID użytkownika, który dodał email
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+  usedAt    DateTime? // Kiedy zaproszenie zostało użyte (konto utworzone)
+  expiresAt DateTime? // Data wygaśnięcia zaproszenia (3 dni)
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([invitedBy])
+  @@index([usedAt])
+  @@index([expiresAt])
 }
 
 enum Role {

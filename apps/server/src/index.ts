@@ -91,6 +91,15 @@ passport.use(
         const email = profile.emails?.[0]?.value?.toLowerCase().trim() || null;
         if (!email) return done(new Error("Email not provided by Google"));
 
+        // Check if email is in allowed list
+        const allowedEmail = await prisma.allowedEmail.findUnique({
+          where: { email, isActive: true }
+        });
+
+        if (!allowedEmail) {
+          return done(new Error("Email not authorized. Please contact administrator."));
+        }
+
         const name = profile.displayName || null;
         const image = (profile.photos?.[0]?.value as string | undefined) || null;
 
@@ -100,13 +109,16 @@ passport.use(
           update: {
             ...(name ? { name } : {}),
             image: image ?? null,
+            lastLoginAt: new Date(),
           },
           create: {
             email,
             name,
             image,
-            // rola bazowa USER – podniesiemy na ADMIN, jeśli email na liście
-            role: "USER",
+            role: allowedEmail.role,
+            invitedBy: allowedEmail.invitedBy,
+            invitedAt: allowedEmail.createdAt,
+            lastLoginAt: new Date(),
           },
         });
 
@@ -139,8 +151,10 @@ function publicUser(u: any) {
     id: u.id,
     email: u.email,
     name: u.name ?? null,
+    username: u.username ?? null,
     role: u.role,
     image: u.image ?? null,
+    avatarUrl: u.avatarUrl ?? null,
   };
 }
 
@@ -350,14 +364,27 @@ app.get("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
   try {
     // @ts-ignore
     const userId = req.user.id;
+    // @ts-ignore
+    const userEmail = req.user.email;
+    console.log("🔍 Fetching character collections for user:", userId, "email:", userEmail);
+    
     const characterCollections = await prisma.characterCollection.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
     
-    res.json({ ok: true, collections: characterCollections });
+    console.log("📊 Found character collections:", characterCollections.length);
+    if (characterCollections.length > 0) {
+      console.log("✅ First collection:", characterCollections[0]);
+    } else {
+      console.log("❌ No collections found for user ID:", userId);
+    }
+    
+    const response = { ok: true, collections: characterCollections };
+    console.log("📤 Response size:", JSON.stringify(response).length, "bytes");
+    res.json(response);
   } catch (error) {
-    console.error("Error fetching character collections:", error);
+    console.error("❌ Error fetching character collections:", error);
     res.status(500).json({ ok: false, error: "Failed to fetch character collections" });
   }
 });
@@ -369,7 +396,10 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
     const userId = req.user.id;
     const { characterId, status, notes } = req.body;
     
+    console.log("Adding character to collection:", { userId, characterId, status, notes });
+    
     if (!characterId) {
+      console.log("Error: characterId is required");
       return res.status(400).json({ ok: false, error: "characterId is required" });
     }
     
@@ -401,6 +431,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       },
     });
     
+    console.log("Character collection created/updated:", collection);
     res.json({ ok: true, collection });
   } catch (error) {
     console.error("Error updating character collection:", error);
@@ -1113,6 +1144,400 @@ app.delete("/api/shatterpoint/missions/:missionId", ensureAuth, async (req, res)
   } catch (error) {
     console.error("Error deleting mission collection:", error);
     res.status(500).json({ ok: false, error: "Failed to delete mission collection" });
+  }
+});
+
+// ===== ADMIN ENDPOINTS
+// Middleware to check if user is admin
+const ensureAdmin = (req: Request, res: Response, next: NextFunction) => {
+  // @ts-ignore
+  const user = req.user;
+  if (!user || user.role !== 'ADMIN') {
+    return res.status(403).json({ ok: false, error: 'Admin access required' });
+  }
+  next();
+};
+
+// Get all users (admin only)
+app.get("/api/admin/users", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        lastLoginAt: true,
+        invitedBy: true,
+        invitedAt: true,
+        suspendedUntil: true,
+        suspendedReason: true,
+        suspendedBy: true,
+        suspendedAt: true,
+        avatarUrl: true,
+        image: true,
+        _count: {
+          select: {
+            characterCollections: true,
+            setCollections: true,
+            missionCollections: true,
+            strikeTeams: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({ ok: true, users });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch users" });
+  }
+});
+
+// Get all allowed emails (admin only)
+app.get("/api/admin/allowed-emails", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const allowedEmails = await prisma.allowedEmail.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({ ok: true, allowedEmails });
+  } catch (error) {
+    console.error("Error fetching allowed emails:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch allowed emails" });
+  }
+});
+
+// Add allowed email (admin only)
+app.post("/api/admin/allowed-emails", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    // @ts-ignore
+    const adminId = req.user.id;
+    const { email, role = 'USER' } = req.body;
+    
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ ok: false, error: 'Valid email required' });
+    }
+    
+    const allowedEmail = await prisma.allowedEmail.create({
+      data: {
+        email: email.toLowerCase().trim(),
+        role,
+        invitedBy: adminId
+      }
+    });
+    
+    res.json({ ok: true, allowedEmail });
+  } catch (error) {
+    console.error("Error adding allowed email:", error);
+    if (error.code === 'P2002') {
+      res.status(400).json({ ok: false, error: 'Email already exists' });
+    } else {
+      res.status(500).json({ ok: false, error: "Failed to add allowed email" });
+    }
+  }
+});
+
+// Remove allowed email (admin only)
+app.delete("/api/admin/allowed-emails/:id", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    await prisma.allowedEmail.delete({
+      where: { id }
+    });
+    
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error removing allowed email:", error);
+    res.status(500).json({ ok: false, error: "Failed to remove allowed email" });
+  }
+});
+
+// Update user role (admin only)
+app.patch("/api/admin/users/:id/role", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    
+    if (!['GUEST', 'USER', 'EDITOR', 'ADMIN'].includes(role)) {
+      return res.status(400).json({ ok: false, error: 'Invalid role' });
+    }
+    
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    res.status(500).json({ ok: false, error: "Failed to update user role" });
+  }
+});
+
+// Update user status (admin only)
+app.patch("/api/admin/users/:id/status", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!['ACTIVE', 'SUSPENDED'].includes(status)) {
+      return res.status(400).json({ ok: false, error: 'Invalid status' });
+    }
+    
+    const user = await prisma.user.update({
+      where: { id },
+      data: { status }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error updating user status:", error);
+    res.status(500).json({ ok: false, error: "Failed to update user status" });
+  }
+});
+
+// Delete user (admin only)
+app.delete("/api/admin/users/:id", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // @ts-ignore
+    if (req.user.id === id) {
+      return res.status(400).json({ ok: false, error: 'Cannot delete your own account' });
+    }
+    
+    await prisma.user.delete({
+      where: { id }
+    });
+    
+    res.json({ ok: true });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ ok: false, error: "Failed to delete user" });
+  }
+});
+
+// Suspend user for specified days (admin only)
+app.patch("/api/admin/users/:id/suspend", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { days, reason } = req.body;
+    
+    if (!days || typeof days !== 'number' || days <= 0) {
+      return res.status(400).json({ ok: false, error: "Invalid days parameter" });
+    }
+    
+    if (days > 365) {
+      return res.status(400).json({ ok: false, error: "Suspension cannot exceed 365 days" });
+    }
+    
+    // @ts-ignore
+    if (req.user.id === id) {
+      return res.status(400).json({ ok: false, error: "Cannot suspend yourself" });
+    }
+    
+    const suspendedUntil = new Date();
+    suspendedUntil.setDate(suspendedUntil.getDate() + days);
+    
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        status: 'SUSPENDED',
+        suspendedUntil,
+        suspendedReason: reason || null,
+        suspendedBy: req.user.id,
+        suspendedAt: new Date()
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        status: true,
+        suspendedUntil: true,
+        suspendedReason: true,
+        suspendedAt: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error suspending user:", error);
+    res.status(500).json({ ok: false, error: "Failed to suspend user" });
+  }
+});
+
+// Unsuspend user (admin only)
+app.patch("/api/admin/users/:id/unsuspend", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        status: 'ACTIVE',
+        suspendedUntil: null,
+        suspendedReason: null,
+        suspendedBy: null,
+        suspendedAt: null
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        status: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error unsuspending user:", error);
+    res.status(500).json({ ok: false, error: "Failed to unsuspend user" });
+  }
+});
+
+// Update user avatar (authenticated users only)
+app.patch("/api/user/avatar", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { avatarUrl } = req.body;
+    
+    if (!avatarUrl || typeof avatarUrl !== 'string') {
+      return res.status(400).json({ ok: false, error: 'Avatar URL is required' });
+    }
+    
+    // Validate URL format
+    try {
+      new URL(avatarUrl);
+    } catch {
+      return res.status(400).json({ ok: false, error: 'Invalid avatar URL format' });
+    }
+    
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error updating avatar:", error);
+    res.status(500).json({ ok: false, error: "Failed to update avatar" });
+  }
+});
+
+// Reset avatar to Google image (authenticated users only)
+app.patch("/api/user/avatar/reset", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: null }, // Reset to null so it uses Google image
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error resetting avatar:", error);
+    res.status(500).json({ ok: false, error: "Failed to reset avatar" });
+  }
+});
+
+// Update username (authenticated users only)
+app.patch("/api/user/username", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { username } = req.body;
+    
+    if (username !== null && (typeof username !== 'string' || username.trim().length === 0)) {
+      return res.status(400).json({ ok: false, error: 'Username must be a non-empty string or null' });
+    }
+    
+    // Check if username is already taken (if not null)
+    if (username && username.trim()) {
+      const existingUser = await prisma.user.findUnique({
+        where: { username: username.trim() }
+      });
+      
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ ok: false, error: 'Username is already taken' });
+      }
+    }
+    
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { username: username ? username.trim() : null },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error updating username:", error);
+    res.status(500).json({ ok: false, error: "Failed to update username" });
+  }
+});
+
+// Emergency endpoint to promote user to admin (temporary)
+app.post("/api/admin/promote-to-admin", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { email } = req.body;
+    
+    // Check if user is trying to promote themselves or if email matches
+    // @ts-ignore
+    if (req.user.email === email || !email) {
+      const user = await prisma.user.update({
+        where: { id: userId },
+        data: { role: 'ADMIN' }
+      });
+      
+      res.json({ ok: true, user, message: 'Promoted to admin' });
+    } else {
+      // Promote specific email
+      const user = await prisma.user.update({
+        where: { email },
+        data: { role: 'ADMIN' }
+      });
+      
+      res.json({ ok: true, user, message: `${email} promoted to admin` });
+    }
+  } catch (error) {
+    console.error("Error promoting user:", error);
+    res.status(500).json({ ok: false, error: "Failed to promote user" });
   }
 });
 

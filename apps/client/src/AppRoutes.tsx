@@ -6,6 +6,7 @@ import MyStrikeTeamsPage from "./pages/MyStrikeTeamsPage";
 import ShatterpointLibraryPage from "./pages/ShatterpointLibraryPage";
 import SetsPage from "./pages/SetsPage";
 import MissionsPage from "./pages/MissionsPage";
+import AdminPage from "./pages/AdminPage";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import "./components/NavBar.css";
@@ -69,6 +70,9 @@ function NavBar() {
             <>
               <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
               <NavLink to="/my-strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Strike Teams</NavLink>
+              {me.role === "ADMIN" && (
+                <NavLink to="/admin" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Admin</NavLink>
+              )}
             </>
           )}
           <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
@@ -861,6 +865,7 @@ export default function AppRoutes() {
         <Route path="/my-collection" element={<MyCollectionPage/>}/>
         <Route path="/my-strike-teams" element={<MyStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
+        <Route path="/admin" element={<AdminPage/>}/>
         <Route path="/builder" element={
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
             <h1>Builder</h1><p>Work in progress…</p>

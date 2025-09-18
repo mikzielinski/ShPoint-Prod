@@ -176,12 +176,59 @@
 }
 
 /* Tabela */
+/* ====== Dropdown Menu ====== */
+.dropdown-container {
+  position: relative;
+  overflow: visible;
+  z-index: 1001;
+}
+
+.dropdown-menu {
+  position: fixed;
+  background: var(--ad-panel);
+  border: 1px solid var(--ad-b);
+  border-radius: 6px;
+  box-shadow: var(--ad-shadow);
+  z-index: 9999;
+  margin-top: 4px;
+  min-width: 120px;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--ad-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover:not(:disabled) {
+  background: var(--ad-hover);
+}
+
+.dropdown-item:disabled {
+  color: var(--ad-muted);
+  cursor: not-allowed;
+}
+
+.dropdown-item:not(:first-child) {
+  border-top: 1px solid var(--ad-b);
+}
+
+.table__cell:last-child {
+  overflow: visible;
+}
+
 .table{ width:100%; }
 
 /* Wiersze danych */
 .table__row{
   display: grid;
-  grid-template-columns: 1.6fr 1fr .7fr 1.2fr; /* Email | Name | Role | Actions */
+  grid-template-columns: 1.6fr 1fr .8fr .7fr .8fr 1.2fr; /* Email | Name | UserName | Role | Status | Actions */
   gap: 12px; align-items: center;
   padding: 16px 18px;
   border-top: 1px solid var(--ad-b);
@@ -195,7 +242,7 @@
 .table__row--header{
   position: sticky; top: 0; z-index: 10;
   display: grid;
-  grid-template-columns: 1.6fr 1fr .7fr 1.2fr;
+  grid-template-columns: 1.6fr 1fr .8fr .7fr .8fr 1.2fr;
   gap: 12px; align-items: center;
   padding: 14px 18px;
   background: var(--ad-header);
