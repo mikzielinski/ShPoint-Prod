@@ -9,11 +9,13 @@ import MissionsPage from "./pages/MissionsPage";
 import AdminPage from "./pages/AdminPage";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
+import AvatarManager from "./components/AvatarManager";
+import Modal from "./components/Modal";
 import "./components/NavBar.css";
 
 /* ===== NavBar (w tym pliku dla prostoty) ===== */
 type MeResponse =
-  | { user: { id: string; email?: string; name?: string; role?: string; picture?: string | null } }
+  | { user: { id: string; email?: string; name?: string; username?: string | null; role?: string; image?: string | null; avatarUrl?: string | null } }
   | { user?: undefined };
 
 function useAuthMe() {
@@ -43,15 +45,16 @@ function RoleChip({ role }: { role?: string }) {
   return <span className={cls}>{role ?? "USER"}</span>;
 }
 
-function NavBar() {
-  const { data, loading } = useAuthMe();
+function NavBar({ onAvatarClick }: { onAvatarClick?: () => void }) {
+  const { data, loading, refetch } = useAuthMe();
   const me = data?.user;
 
   const initials = useMemo(() => {
-    const n = me?.name || me?.email || "User";
+    // For initials, prefer name over username to get proper initials like "MZ" from "Mikolaj Zieliński"
+    const n = me?.name || me?.username || me?.email || "User";
     const p = n.split(" ");
     return (p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase();
-  }, [me?.name, me?.email]);
+  }, [me?.name, me?.username, me?.email]);
 
   const gotoLogin = () => (window.location.href = "/auth/google");
   const doLogout = async () => { await fetch("/auth/logout", { method: "POST", credentials: "include" }); location.href = "/"; };
@@ -85,15 +88,80 @@ function NavBar() {
             <span className="nb-guest">...</span>
               ) : me ? (
                 <>
-                  {me.picture ? (
-                <img className="nb-btn-icon" src={me.picture} alt="avatar" style={{borderRadius: "50%"}} />
-              ) : (
-                <div className="nb-btn-icon" style={{borderRadius: "50%", fontSize:12, fontWeight:600, background: "#374151"}}>{initials}</div>
-              )}
-              <span className="nb-user">{me.name ?? me.email ?? "User"}</span>
-              <RoleChip role={me.role} />
-              <button className="nb-btn" onClick={doLogout}>Sign out</button>
-            </>
+                  <div 
+                    style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "8px", 
+                      cursor: "pointer",
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      transition: "background-color 0.2s"
+                    }}
+                    onClick={onAvatarClick}
+                    onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = "#374151"}
+                    onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = "transparent"}
+                  >
+                    {(me.avatarUrl || me.image) ? (
+                      <img 
+                        className="nb-btn-icon" 
+                        src={me.avatarUrl || me.image} 
+                        alt="avatar" 
+                        style={{
+                          borderRadius: "50%", 
+                          width: "32px", 
+                          height: "32px",
+                          objectFit: "cover"
+                        }}
+                        onError={(e) => {
+                          console.log("Avatar load error:", e.target.src);
+                          // Hide the broken image and show initials
+                          e.target.style.display = "none";
+                          e.target.nextElementSibling.style.display = "flex";
+                        }}
+                        onLoad={async (e) => {
+                          console.log("Avatar loaded successfully:", e.target.src);
+                          
+                          // If this is Google image and user doesn't have custom avatarUrl, save it as backup
+                          if (me.image && e.target.src === me.image && !me.avatarUrl) {
+                            try {
+                              await fetch("/api/user/save-google-avatar", {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                credentials: "include",
+                                body: JSON.stringify({ imageUrl: me.image })
+                              });
+                              console.log("Google avatar saved as backup");
+                              // Refresh user data to get updated avatarUrl
+                              refetch();
+                            } catch (error) {
+                              console.error("Failed to save Google avatar:", error);
+                            }
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className="nb-btn-icon" 
+                      style={{
+                        borderRadius: "50%", 
+                        width: "32px", 
+                        height: "32px",
+                        fontSize: 12, 
+                        fontWeight: 600, 
+                        background: "#374151",
+                        display: (me.avatarUrl || me.image) ? "none" : "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
+                    >
+                      {initials}
+                    </div>
+                    <span className="nb-user">{me.username ?? me.name ?? me.email ?? "User"}</span>
+                    <RoleChip role={me.role} />
+                  </div>
+                  <button className="nb-btn" onClick={doLogout}>Sign out</button>
+                </>
           ) : (
             <span className="nb-guest">Guest</span>
           )}
@@ -849,9 +917,11 @@ function CharactersPage() {
 
 /* ====== Routes ====== */
 export default function AppRoutes() {
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+
   return (
     <>
-      <NavBar />
+      <NavBar onAvatarClick={() => setShowAvatarModal(true)} />
       <Routes>
         <Route path="/" element={
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
@@ -870,8 +940,18 @@ export default function AppRoutes() {
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
             <h1>Builder</h1><p>Work in progress…</p>
           </div>
-        }/>
+        }        />
       </Routes>
+      
+      {/* Avatar Manager Modal */}
+      {showAvatarModal && (
+        <Modal open={showAvatarModal} onClose={() => setShowAvatarModal(false)}>
+          <AvatarManager 
+            onAvatarUpdate={() => setShowAvatarModal(false)}
+            onClose={() => setShowAvatarModal(false)}
+          />
+        </Modal>
+      )}
     </>
   );
 }

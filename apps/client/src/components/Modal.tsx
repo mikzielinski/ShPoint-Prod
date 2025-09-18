@@ -25,12 +25,17 @@ export default function Modal({
       onClick={onClose}
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         background: "rgba(0,0,0,.5)",
-        display: "grid",
-        placeItems: "center",
-        zIndex: 50,
-        padding: 16,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+        padding: "20px",
+        overflowY: "auto",
       }}
     >
       <div
@@ -38,28 +43,15 @@ export default function Modal({
         style={{
           width: "100%",
           maxWidth,
-          background: "#fff",
+          background: "transparent",
           borderRadius: 16,
-          boxShadow: "0 20px 40px rgba(0,0,0,.2)",
-          overflow: "hidden",
+          boxShadow: "none",
+          overflow: "visible",
+          maxHeight: "90vh",
+          overflowY: "auto",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "flex-end", padding: 8 }}>
-          <button
-            onClick={onClose}
-            style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: 999,
-              padding: "6px 10px",
-              background: "#fff",
-              cursor: "pointer",
-            }}
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-        <div style={{ padding: 16 }}>{children}</div>
+        <div style={{ padding: 0 }}>{children}</div>
       </div>
     </div>
   );

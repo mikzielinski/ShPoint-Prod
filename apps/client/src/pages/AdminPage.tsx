@@ -29,6 +29,18 @@ type AdminUser = {
   };
 };
 
+type AllowedEmail = {
+  id: string;
+  email: string;
+  role: Role;
+  invitedBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  expiresAt?: string | null;
+  usedAt?: string | null;
+};
+
 const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
 
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
@@ -38,7 +50,9 @@ async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export default function AdminPage() {
+  console.log("AdminPage component rendering");
   const { auth } = useAuth();
+  console.log("AdminPage auth:", auth);
   const [rows, setRows] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -46,22 +60,36 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  
+  // Invitations state
+  const [invitations, setInvitations] = useState<AllowedEmail[]>([]);
+  const [invitationsLoading, setInvitationsLoading] = useState(false);
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<Role>("USER");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
   const canManage = auth.user?.role === "ADMIN";
   const myId = auth.user?.id;
+  console.log("AdminPage canManage:", canManage, "myId:", myId);
 
   const load = async (q?: string, r?: Role | "") => {
+    console.log("AdminPage load function called with:", q, r);
     setLoading(true);
     setError(null);
     try {
       const qs = new URLSearchParams();
       if (q) qs.set("search", q);
       if (r) qs.set("role", r);
-      const data = await apiFetch<{ ok: boolean; users: AdminUser[] }>(
-        `${API}/api/admin/users?${qs.toString()}`
-      );
+      const url = `${API}/api/admin/users?${qs.toString()}`;
+      console.log("AdminPage fetching URL:", url);
+      console.log("AdminPage API constant:", API);
+      const data = await apiFetch<{ ok: boolean; users: AdminUser[] }>(url);
+      console.log("AdminPage users data:", data.users);
+      console.log("AdminPage data.ok:", data.ok);
+      console.log("AdminPage first user:", data.users[0]);
+      console.log("AdminPage first user username:", data.users[0]?.username);
       setRows(data.users);
     } catch (e: any) {
       setError(e?.message ?? "Load error");
@@ -72,10 +100,22 @@ export default function AdminPage() {
 
   /* debounce search */
   useEffect(() => {
-    const t = setTimeout(() => load(search, role), 300);
+    console.log("AdminPage useEffect - search:", search, "role:", role);
+    const t = setTimeout(() => {
+      console.log("AdminPage calling load with:", search, role);
+      load(search, role);
+    }, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, role]);
+
+  // Load invitations on mount
+  useEffect(() => {
+    if (canManage) {
+      loadInvitations();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canManage]);
 
   const handleSetRole = async (u: AdminUser, next: Role) => {
     if (!canManage) return;
@@ -187,6 +227,80 @@ export default function AdminPage() {
     }
   };
 
+  const handleSaveGoogleAvatar = async (u: AdminUser) => {
+    if (!u.image) {
+      setError("User doesn't have a Google image to save");
+      return;
+    }
+
+    try {
+      setSavingId(u.id);
+      await apiFetch(`${API}/api/admin/users/${u.id}/save-google-avatar`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: u.image }),
+      });
+      setOk(`Google avatar saved as backup for ${u.email}`);
+      load(search, role);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  // Invitation management functions
+  const loadInvitations = async () => {
+    try {
+      setInvitationsLoading(true);
+      const data = await apiFetch<{ ok: boolean; allowedEmails: AllowedEmail[] }>(`${API}/api/admin/allowed-emails`);
+      setInvitations(data.allowedEmails);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setInvitationsLoading(false);
+    }
+  };
+
+  const handleInviteUser = async () => {
+    if (!inviteEmail.trim() || !inviteEmail.includes('@')) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      await apiFetch(`${API}/api/admin/allowed-emails`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          email: inviteEmail.trim().toLowerCase(), 
+          role: inviteRole 
+        }),
+      });
+      setOk(`Invitation sent to ${inviteEmail}`);
+      setInviteEmail("");
+      setInviteRole("USER");
+      setShowInviteForm(false);
+      loadInvitations();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleRemoveInvitation = async (invitation: AllowedEmail) => {
+    if (!confirm(`Remove invitation for ${invitation.email}?`)) return;
+
+    try {
+      await apiFetch(`${API}/api/admin/allowed-emails/${invitation.id}`, {
+        method: "DELETE",
+      });
+      setOk(`Invitation removed for ${invitation.email}`);
+      loadInvitations();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   const handleDropdownToggle = (userId: string, buttonElement: HTMLElement) => {
     if (openDropdown === userId) {
       setOpenDropdown(null);
@@ -233,9 +347,134 @@ export default function AdminPage() {
   return (
     <main className="admin-page">
       <header className="page-head">
-        <h1>Users</h1>
-        <p>Manage all accounts, assign roles, and keep everything in one place.</p>
+        <h1>Admin Panel</h1>
+        <p>Manage users, invitations, and system settings.</p>
       </header>
+
+      {/* Invitations Section */}
+      <section className="card" style={{ marginBottom: "24px" }}>
+        <div className="card-header">
+          <h2>User Invitations</h2>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowInviteForm(!showInviteForm)}
+          >
+            {showInviteForm ? "Cancel" : "Invite User"}
+          </button>
+        </div>
+        
+        {showInviteForm && (
+          <div className="card-body" style={{ padding: "20px", borderTop: "1px solid #334155" }}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "end", marginBottom: "16px" }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#e2e8f0" }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  className="input"
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div style={{ minWidth: "120px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#e2e8f0" }}>
+                  Role
+                </label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value as Role)}
+                  className="input"
+                  style={{ width: "100%" }}
+                >
+                  <option value="USER">User</option>
+                  <option value="EDITOR">Editor</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+              <button 
+                className="btn btn-primary"
+                onClick={handleInviteUser}
+                disabled={!inviteEmail.trim()}
+              >
+                Send Invitation
+              </button>
+            </div>
+            <p style={{ margin: 0, fontSize: "12px", color: "#94a3b8" }}>
+              The user will receive access to sign in with their Google account.
+            </p>
+          </div>
+        )}
+
+        <div className="table">
+          <div className="table__row--header" role="rowheader">
+            <div className="table__cell">Email</div>
+            <div className="table__cell">Role</div>
+            <div className="table__cell">Invited</div>
+            <div className="table__cell">Status</div>
+            <div className="table__cell">Actions</div>
+          </div>
+          
+          {invitationsLoading ? (
+            <div className="table__row">
+              <div className="table__cell" colSpan={5} style={{ textAlign: "center", padding: "40px" }}>
+                Loading invitations...
+              </div>
+            </div>
+          ) : invitations.length === 0 ? (
+            <div className="table__row">
+              <div className="table__cell" colSpan={5} style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>
+                No pending invitations
+              </div>
+            </div>
+          ) : (
+            invitations.map((invitation) => (
+              <div className="table__row" key={invitation.id}>
+                <div className="table__cell">
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {invitation.email}
+                  </span>
+                </div>
+                <div className="table__cell">
+                  <span className="badge" data-role={invitation.role}>{invitation.role}</span>
+                </div>
+                <div className="table__cell">
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {new Date(invitation.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="table__cell">
+                  <span style={{ 
+                    color: invitation.usedAt ? "#16a34a" : invitation.isActive ? "#f59e0b" : "#6b7280",
+                    fontWeight: "600"
+                  }}>
+                    {invitation.usedAt ? "Used" : invitation.isActive ? "Pending" : "Inactive"}
+                  </span>
+                </div>
+                <div className="table__cell">
+                  {!invitation.usedAt && (
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleRemoveInvitation(invitation)}
+                      disabled={savingId === invitation.id}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      {/* Users Section */}
+      <section className="card">
+        <div className="card-header">
+          <h2>Users</h2>
+        </div>
 
       <div className="toolbar">
         <div className="toolbar-left">
@@ -282,11 +521,42 @@ export default function AdminPage() {
               <div className="table__row" role="row" key={u.id ?? u.email}>
                 <div className="table__cell">
                   <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                    <img
-                      src={u.avatarUrl ?? "/characters/placeholder.png"}
-                      alt=""
+                    {(u.avatarUrl || u.image) ? (
+                      <img
+                        src={u.avatarUrl || u.image}
+                        alt=""
+                        className="avatar"
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          objectFit: "cover"
+                        }}
+                        onError={(e) => {
+                          // Hide the broken image and show initials
+                          e.target.style.display = "none";
+                          e.target.nextElementSibling.style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
                       className="avatar"
-                    />
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        backgroundColor: "#374151",
+                        color: "white",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        display: (u.avatarUrl || u.image) ? "none" : "flex"
+                      }}
+                    >
+                      {/* Generate initials from name */}
+                      {u.name ? u.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : u.email[0].toUpperCase()}
+                    </div>
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {u.email}
                     </span>
@@ -301,6 +571,7 @@ export default function AdminPage() {
 
                 <div className="table__cell">
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {console.log("Rendering username for user:", u.email, "username:", u.username)}
                     {u.username ? (
                       <span style={{ color: "#16a34a", fontWeight: "600" }}>{u.username}</span>
                     ) : (
@@ -501,6 +772,18 @@ export default function AdminPage() {
                         {/* Delete user */}
                         <button
                           className="dropdown-item"
+                          disabled={!u.image}
+                          onClick={() => {
+                            handleSaveGoogleAvatar(u);
+                            setOpenDropdown(null);
+                            setDropdownPosition(null);
+                          }}
+                          style={{ color: "#059669" }}
+                        >
+                          Save Google Avatar
+                        </button>
+                        <button
+                          className="dropdown-item"
                           disabled={u.id === myId}
                           onClick={() => {
                             if (confirm(`Delete user ${u.email}? This action cannot be undone!`)) {
@@ -528,6 +811,7 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+      </section>
     </main>
   );
 }
