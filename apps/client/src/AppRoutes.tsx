@@ -84,14 +84,22 @@ function NavBar({ onAvatarClick }: { onAvatarClick?: () => void }) {
           <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
           {me && (
             <>
-              <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
-              <NavLink to="/my-strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Strike Teams</NavLink>
-              {me.role === "ADMIN" && (
+              {/* Only show these links if user is not suspended */}
+              {me.status !== 'SUSPENDED' && (
+                <>
+                  <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
+                  <NavLink to="/my-strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Strike Teams</NavLink>
+                </>
+              )}
+              {me.role === "ADMIN" && me.status !== 'SUSPENDED' && (
                 <NavLink to="/admin" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Admin</NavLink>
               )}
             </>
           )}
-          <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
+          {/* Builder is also restricted for suspended users */}
+          {(!me || me.status !== 'SUSPENDED') && (
+            <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
+          )}
         </div>
         <div className="nb-actions">
             {!loading && !me && (
