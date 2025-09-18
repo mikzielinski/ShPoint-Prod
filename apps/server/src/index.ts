@@ -580,6 +580,50 @@ app.patch("/api/shatterpoint/characters/:collectionId", ensureAuth, async (req, 
   }
 });
 
+// PATCH /api/shatterpoint/characters/:collectionId/stats — update character stats
+app.patch("/api/shatterpoint/characters/:collectionId/stats", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { collectionId } = req.params;
+    const { kills, deaths } = req.body;
+    
+    // Validate that at least one stat is provided
+    if (kills === undefined && deaths === undefined) {
+      return res.status(400).json({ ok: false, error: "At least one stat (kills, deaths) must be provided" });
+    }
+    
+    // Validate values are non-negative integers
+    if (kills !== undefined && (kills < 0 || !Number.isInteger(kills))) {
+      return res.status(400).json({ ok: false, error: "Kills must be a non-negative integer" });
+    }
+    if (deaths !== undefined && (deaths < 0 || !Number.isInteger(deaths))) {
+      return res.status(400).json({ ok: false, error: "Deaths must be a non-negative integer" });
+    }
+    
+    // Build update object with only provided fields
+    const updateData: any = {};
+    if (kills !== undefined) updateData.kills = kills;
+    if (deaths !== undefined) updateData.deaths = deaths;
+    
+    const updatedCollection = await prisma.characterCollection.update({
+      where: { 
+        id: collectionId,
+        userId: userId // Ensure user owns this collection item
+      },
+      data: updateData,
+      include: {
+        character: true
+      }
+    });
+    
+    res.json({ ok: true, collection: updatedCollection });
+  } catch (error) {
+    console.error("Error updating character stats:", error);
+    res.status(500).json({ ok: false, error: "Failed to update character stats" });
+  }
+});
+
 // GET /api/shatterpoint/sets — get user's set collection
 app.get("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
   try {
@@ -1096,6 +1140,114 @@ app.delete("/api/shatterpoint/strike-teams/:id", ensureAuth, async (req, res) =>
   } catch (error) {
     console.error("Error deleting strike team:", error);
     res.status(500).json({ ok: false, error: "Failed to delete strike team" });
+  }
+});
+
+// PATCH /api/shatterpoint/strike-teams/:id/stats — update strike team stats
+app.patch("/api/shatterpoint/strike-teams/:id/stats", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { wins, losses, draws } = req.body;
+    
+    // Validate that at least one stat is provided
+    if (wins === undefined && losses === undefined && draws === undefined) {
+      return res.status(400).json({ ok: false, error: "At least one stat (wins, losses, draws) must be provided" });
+    }
+    
+    // Validate values are non-negative integers
+    if (wins !== undefined && (wins < 0 || !Number.isInteger(wins))) {
+      return res.status(400).json({ ok: false, error: "Wins must be a non-negative integer" });
+    }
+    if (losses !== undefined && (losses < 0 || !Number.isInteger(losses))) {
+      return res.status(400).json({ ok: false, error: "Losses must be a non-negative integer" });
+    }
+    if (draws !== undefined && (draws < 0 || !Number.isInteger(draws))) {
+      return res.status(400).json({ ok: false, error: "Draws must be a non-negative integer" });
+    }
+    
+    // Build update object with only provided fields
+    const updateData: any = {};
+    if (wins !== undefined) updateData.wins = wins;
+    if (losses !== undefined) updateData.losses = losses;
+    if (draws !== undefined) updateData.draws = draws;
+    
+    const updatedTeam = await prisma.strikeTeam.update({
+      where: { id, userId },
+      data: updateData,
+      include: {
+        characters: {
+          orderBy: { order: 'asc' }
+        }
+      }
+    });
+    
+    res.json({ ok: true, strikeTeam: updatedTeam });
+  } catch (error) {
+    console.error("Error updating strike team stats:", error);
+    res.status(500).json({ ok: false, error: "Failed to update strike team stats" });
+  }
+});
+
+// PATCH /api/shatterpoint/strike-teams/:id/publish — toggle publication status
+app.patch("/api/shatterpoint/strike-teams/:id/publish", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { isPublished } = req.body;
+    
+    if (typeof isPublished !== 'boolean') {
+      return res.status(400).json({ ok: false, error: "isPublished must be a boolean value" });
+    }
+    
+    const updatedTeam = await prisma.strikeTeam.update({
+      where: { id, userId },
+      data: { isPublished },
+      include: {
+        characters: {
+          orderBy: { order: 'asc' }
+        }
+      }
+    });
+    
+    res.json({ ok: true, strikeTeam: updatedTeam });
+  } catch (error) {
+    console.error("Error updating strike team publication status:", error);
+    res.status(500).json({ ok: false, error: "Failed to update strike team publication status" });
+  }
+});
+
+// GET /api/shatterpoint/strike-teams/public — get all published strike teams
+app.get("/api/shatterpoint/strike-teams/public", async (req, res) => {
+  try {
+    const publishedTeams = await prisma.strikeTeam.findMany({
+      where: { isPublished: true },
+      include: {
+        characters: {
+          orderBy: { order: 'asc' }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true,
+            image: true
+          }
+        }
+      },
+      orderBy: [
+        { updatedAt: 'desc' },
+        { createdAt: 'desc' }
+      ]
+    });
+    
+    res.json({ ok: true, strikeTeams: publishedTeams });
+  } catch (error) {
+    console.error("Error fetching published strike teams:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch published strike teams" });
   }
 });
 

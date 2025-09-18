@@ -4,6 +4,7 @@ import { api } from '../lib/env';
 import CharacterModal from '../components/CharacterModal';
 import Modal from '../components/Modal';
 import { MissionModal } from '../components/MissionModal';
+import SquadBuilder from '../components/SquadBuilder';
 import { setsData } from '../data/sets';
 import { missionsData, Mission } from '../data/missions';
 import FiltersPanel from '../components/FiltersPanel';
@@ -214,6 +215,27 @@ interface MissionCollection {
   updatedAt: string;
 }
 
+interface StrikeTeam {
+  id: string;
+  name: string;
+  type: 'MY_TEAMS' | 'DREAM_TEAMS';
+  description?: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  characters: StrikeTeamCharacter[];
+}
+
+interface StrikeTeamCharacter {
+  id: string;
+  characterId: string;
+  role: 'PRIMARY' | 'SECONDARY' | 'SUPPORT';
+  order: number;
+}
+
 interface Set {
   id: string;
   name: string;
@@ -239,6 +261,7 @@ interface CollectionStats {
   };
 }
 
+
 export default function MyCollectionPage() {
   const { auth } = useAuth();
   const user = auth.status === 'authenticated' ? auth.user : null;
@@ -252,10 +275,13 @@ export default function MyCollectionPage() {
   const [error, setError] = useState<string | null>(null);
   // Usunięto activeTab - teraz mamy jeden główny widok
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
-  const [activeTab, setActiveTab] = useState<'characters' | 'sets' | 'missions'>('characters');
+  const [activeTab, setActiveTab] = useState<'characters' | 'sets' | 'missions' | 'strike-teams'>('characters');
+  const [strikeTeamSubTab, setStrikeTeamSubTab] = useState<'published' | 'private' | 'builder'>('published');
   const [selectedSet, setSelectedSet] = useState<Set | null>(null);
   const [showSetModal, setShowSetModal] = useState(false);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+  const [strikeTeams, setStrikeTeams] = useState<StrikeTeam[]>([]);
+  const [showSquadBuilder, setShowSquadBuilder] = useState(false);
   
   // Use shared sets data
   const mockSets: Set[] = setsData;
@@ -372,6 +398,15 @@ export default function MyCollectionPage() {
       const missionData = await missionResponse.json();
       console.log('🔍 Mission collections loaded:', missionData.missionCollections || missionData.collections);
       setMissionCollections(missionData.missionCollections || missionData.collections || []);
+
+      // Load strike teams
+      const strikeTeamsResponse = await fetch(api('/api/shatterpoint/strike-teams'), {
+        credentials: 'include',
+      });
+      if (!strikeTeamsResponse.ok) throw new Error('Failed to load strike teams');
+      const strikeTeamsData = await strikeTeamsResponse.json();
+      console.log('🔍 Strike teams loaded:', strikeTeamsData.strikeTeams);
+      setStrikeTeams(strikeTeamsData.strikeTeams || []);
 
       // Load stats
       const statsResponse = await fetch(api('/api/shatterpoint/stats'), {
@@ -718,6 +753,35 @@ export default function MyCollectionPage() {
     }).filter(Boolean) as (Mission & { collection: MissionCollection })[];
   };
 
+  // Strike Teams helper functions
+  const getPublishedStrikeTeams = () => {
+    return strikeTeams.filter(team => team.isPublished);
+  };
+
+  const getPrivateStrikeTeams = () => {
+    return strikeTeams.filter(team => !team.isPublished);
+  };
+
+  const getRealTeams = () => {
+    return strikeTeams.filter(team => {
+      // Real Team = all characters are owned in collection
+      return team.characters.every(teamChar => {
+        const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
+        return collection && collection.isOwned;
+      });
+    });
+  };
+
+  const getDreamTeams = () => {
+    return strikeTeams.filter(team => {
+      // Dream Team = any character is wishlist (not owned)
+      return team.characters.some(teamChar => {
+        const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
+        return !collection || !collection.isOwned || collection.isWishlist;
+      });
+    });
+  };
+
   const getFilteredSets = () => {
     let filtered = getCollectedSets();
     
@@ -813,11 +877,12 @@ export default function MyCollectionPage() {
         {[
           { id: 'characters', label: 'Characters', count: getCollectedCharacters().length },
           { id: 'sets', label: 'Sets/Boxes', count: getCollectedSets().length },
-          { id: 'missions', label: 'Missions', count: getCollectedMissions().length }
+          { id: 'missions', label: 'Missions', count: getCollectedMissions().length },
+          { id: 'strike-teams', label: 'Strike Teams', count: strikeTeams.length }
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as 'characters' | 'sets' | 'missions')}
+            onClick={() => setActiveTab(tab.id as 'characters' | 'sets' | 'missions' | 'strike-teams')}
             style={{
               padding: '12px 20px',
               border: 'none',
@@ -2085,6 +2150,498 @@ export default function MyCollectionPage() {
         </div>
       )}
 
+      {/* Strike Teams Tab */}
+      {activeTab === 'strike-teams' && (
+        <div>
+          {/* Strike Teams Sub-tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            marginBottom: '20px',
+            borderBottom: '1px solid #374151'
+          }}>
+            {[
+              { id: 'published', label: 'Published', count: getPublishedStrikeTeams().length },
+              { id: 'private', label: 'Private', count: getPrivateStrikeTeams().length },
+              { id: 'builder', label: 'Builder', count: null }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setStrikeTeamSubTab(tab.id as 'published' | 'private' | 'builder')}
+                style={{
+                  padding: '12px 20px',
+                  border: 'none',
+                  background: strikeTeamSubTab === tab.id ? '#374151' : 'transparent',
+                  color: strikeTeamSubTab === tab.id ? '#f9fafb' : '#9ca3af',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  borderBottom: strikeTeamSubTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (strikeTeamSubTab !== tab.id) {
+                    e.currentTarget.style.background = '#1f2937';
+                    e.currentTarget.style.color = '#d1d5db';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (strikeTeamSubTab !== tab.id) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#9ca3af';
+                  }
+                }}
+              >
+                {tab.label}{tab.count !== null ? ` (${tab.count})` : ''}
+              </button>
+            ))}
+          </div>
+
+          {/* Published Strike Teams */}
+          {strikeTeamSubTab === 'published' && (
+            <div>
+              {getPublishedStrikeTeams().length === 0 ? (
+                <div style={{
+                  padding: '40px',
+                  textAlign: 'center',
+                  background: '#1f2937',
+                  borderRadius: '8px',
+                  border: '1px solid #374151'
+                }}>
+                  <h2 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#f9fafb',
+                    marginBottom: '16px'
+                  }}>
+                    No published strike teams
+                  </h2>
+                  <p style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    marginBottom: '16px'
+                  }}>
+                    Publish your strike teams to share them with the community.
+                  </p>
+                </div>
+              ) : (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                  gap: '20px'
+                }}>
+                  {getPublishedStrikeTeams().map((team) => (
+                    <StrikeTeamCard 
+                      key={team.id} 
+                      team={team} 
+                      allCharacters={allCharacters}
+                      characterCollections={characterCollections}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Private Strike Teams */}
+          {strikeTeamSubTab === 'private' && (
+            <div>
+              {getPrivateStrikeTeams().length === 0 ? (
+                <div style={{
+                  padding: '40px',
+                  textAlign: 'center',
+                  background: '#1f2937',
+                  borderRadius: '8px',
+                  border: '1px solid #374151'
+                }}>
+                  <h2 style={{
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#f9fafb',
+                    marginBottom: '16px'
+                  }}>
+                    No private strike teams
+                  </h2>
+                  <p style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    marginBottom: '16px'
+                  }}>
+                    Create private strike teams for your personal use.
+                  </p>
+                </div>
+              ) : (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                  gap: '20px'
+                }}>
+                  {getPrivateStrikeTeams().map((team) => (
+                    <StrikeTeamCard 
+                      key={team.id} 
+                      team={team} 
+                      allCharacters={allCharacters}
+                      characterCollections={characterCollections}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Strike Team Builder */}
+          {strikeTeamSubTab === 'builder' && (
+            <div>
+              <div style={{
+                padding: '40px',
+                textAlign: 'center',
+                background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+                borderRadius: '16px',
+                border: '1px solid #4b5563',
+                marginBottom: '30px'
+              }}>
+                <div style={{
+                  fontSize: '4rem',
+                  marginBottom: '20px'
+                }}>
+                  ⚔️
+                </div>
+                <h2 style={{
+                  fontSize: '2rem',
+                  fontWeight: 'bold',
+                  color: '#f9fafb',
+                  marginBottom: '16px'
+                }}>
+                  Strike Team Builder
+                </h2>
+                <p style={{
+                  color: '#9ca3af',
+                  fontSize: '16px',
+                  marginBottom: '24px',
+                  maxWidth: '600px',
+                  margin: '0 auto 24px'
+                }}>
+                  Build your perfect strike teams! Choose from characters in your collection or create dream teams with characters you wish to own.
+                </p>
+                <button 
+                  onClick={() => setShowSquadBuilder(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}>
+                    Start Building
+                </button>
+              </div>
+
+              {/* Quick Stats */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '20px',
+                marginBottom: '30px'
+              }}>
+                <div style={{
+                  background: '#1f2937',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: '1px solid #374151',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    color: '#10b981',
+                    marginBottom: '8px'
+                  }}>
+                    {getRealTeams().length}
+                  </div>
+                  <div style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    🎯 Real Teams
+                  </div>
+                  <div style={{
+                    color: '#6b7280',
+                    fontSize: '12px',
+                    marginTop: '4px'
+                  }}>
+                    Teams with owned characters
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#1f2937',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: '1px solid #374151',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    color: '#f59e0b',
+                    marginBottom: '8px'
+                  }}>
+                    {getDreamTeams().length}
+                  </div>
+                  <div style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    💭 Dream Teams
+                  </div>
+                  <div style={{
+                    color: '#6b7280',
+                    fontSize: '12px',
+                    marginTop: '4px'
+                  }}>
+                    Teams with wishlist characters
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#1f2937',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: '1px solid #374151',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    color: '#3b82f6',
+                    marginBottom: '8px'
+                  }}>
+                    {getPublishedStrikeTeams().length}
+                  </div>
+                  <div style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    🌐 Published
+                  </div>
+                  <div style={{
+                    color: '#6b7280',
+                    fontSize: '12px',
+                    marginTop: '4px'
+                  }}>
+                    Shared with community
+                  </div>
+                </div>
+
+                <div style={{
+                  background: '#1f2937',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: '1px solid #374151',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '2rem',
+                    fontWeight: 'bold',
+                    color: '#8b5cf6',
+                    marginBottom: '8px'
+                  }}>
+                    {getPrivateStrikeTeams().length}
+                  </div>
+                  <div style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    🔒 Private
+                  </div>
+                  <div style={{
+                    color: '#6b7280',
+                    fontSize: '12px',
+                    marginTop: '4px'
+                  }}>
+                    Personal teams only
+                  </div>
+                </div>
+              </div>
+
+              {/* Builder Features */}
+              <div style={{
+                background: '#1f2937',
+                padding: '24px',
+                borderRadius: '12px',
+                border: '1px solid #374151'
+              }}>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  color: '#f9fafb',
+                  marginBottom: '16px'
+                }}>
+                  Builder Features
+                </h3>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                  gap: '16px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{
+                      fontSize: '20px'
+                    }}>🎯</div>
+                    <div>
+                      <div style={{
+                        color: '#f9fafb',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}>
+                        Real Team Validation
+                      </div>
+                      <div style={{
+                        color: '#9ca3af',
+                        fontSize: '12px'
+                      }}>
+                        Build teams only with characters you own
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{
+                      fontSize: '20px'
+                    }}>💭</div>
+                    <div>
+                      <div style={{
+                        color: '#f9fafb',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}>
+                        Dream Team Creation
+                      </div>
+                      <div style={{
+                        color: '#9ca3af',
+                        fontSize: '12px'
+                      }}>
+                        Create teams with wishlist characters
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{
+                      fontSize: '20px'
+                    }}>⚖️</div>
+                    <div>
+                      <div style={{
+                        color: '#f9fafb',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}>
+                        Rules Validation
+                      </div>
+                      <div style={{
+                        color: '#9ca3af',
+                        fontSize: '12px'
+                      }}>
+                        Automatic Shatterpoint rules checking
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <div style={{
+                      fontSize: '20px'
+                    }}>📊</div>
+                    <div>
+                      <div style={{
+                        color: '#f9fafb',
+                        fontWeight: '600',
+                        fontSize: '14px'
+                      }}>
+                        Performance Tracking
+                      </div>
+                      <div style={{
+                        color: '#9ca3af',
+                        fontSize: '12px'
+                      }}>
+                        Track wins, losses, and draws
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Squad Builder Modal */}
+      {showSquadBuilder && (
+        <Modal
+          open={showSquadBuilder}
+          onClose={() => setShowSquadBuilder(false)}
+          maxWidth={1400}
+        >
+          <div style={{
+            padding: '24px',
+            background: '#1f2937',
+            borderRadius: '12px',
+            maxHeight: '85vh',
+            overflowY: 'auto',
+            minHeight: '600px'
+          }}>
+            <h2 style={{
+              color: '#f9fafb',
+              marginBottom: '20px',
+              fontSize: '24px',
+              fontWeight: 'bold'
+            }}>
+              Strike Team Builder
+            </h2>
+            <SquadBuilder 
+              characterCollections={characterCollections}
+              onSave={(teamData) => {
+                console.log('Saving team:', teamData);
+                // TODO: Implement save to database
+                alert('Strike Team saved! (TODO: implement database save)');
+                setShowSquadBuilder(false);
+              }}
+            />
+          </div>
+        </Modal>
+      )}
+
       {/* Mission Modal */}
       {selectedMission && (
         <MissionModal
@@ -2095,3 +2652,231 @@ export default function MyCollectionPage() {
     </div>
   );
 }
+
+// StrikeTeamCard component
+interface StrikeTeamCardProps {
+  team: StrikeTeam;
+  showTeamType?: boolean;
+  teamType?: 'Real' | 'Dream';
+  allCharacters: Character[];
+  characterCollections: CharacterCollection[];
+}
+
+const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({ 
+  team, 
+  showTeamType = false, 
+  teamType,
+  allCharacters,
+  characterCollections 
+}) => {
+  const getCharacterById = (id: string): Character | undefined => {
+    return allCharacters.find(c => c.id === id);
+  };
+
+  return (
+    <div
+      style={{
+        background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+        borderRadius: '16px',
+        padding: '24px',
+        border: '1px solid #4b5563',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+        transition: 'all 0.3s ease'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-4px)';
+        e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+      }}
+    >
+      {/* Team Header */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3 style={{
+          fontSize: '1.5rem',
+          fontWeight: 'bold',
+          marginBottom: '8px',
+          color: '#f9fafb'
+        }}>
+          {team.name}
+        </h3>
+        
+        {team.description && (
+          <p style={{
+            color: '#9ca3af',
+            fontSize: '14px',
+            marginBottom: '12px',
+            lineHeight: '1.4'
+          }}>
+            {team.description}
+          </p>
+        )}
+
+        {/* Team Type and Published Badge */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            fontWeight: '600',
+            background: team.type === 'MY_TEAMS' ? '#16a34a' : '#f59e0b',
+            color: 'white'
+          }}>
+            {team.type === 'MY_TEAMS' ? 'My Team' : 'Dream Team'}
+          </span>
+          {team.isPublished && (
+            <span style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '600',
+              background: '#3b82f6',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              🌐 Published
+            </span>
+          )}
+          {showTeamType && teamType && (
+            <span style={{
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '600',
+              background: teamType === 'Real' ? '#10b981' : '#f59e0b',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              {teamType === 'Real' ? '🎯 Real Team' : '💭 Dream Team'}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Team Statistics */}
+      <div style={{
+        display: 'flex',
+        gap: '16px',
+        marginBottom: '20px',
+        padding: '12px',
+        background: '#111827',
+        borderRadius: '8px',
+        fontSize: '14px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '16px' }}>
+            {team.wins}
+          </div>
+          <div style={{ color: '#9ca3af' }}>Wins</div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '16px' }}>
+            {team.losses}
+          </div>
+          <div style={{ color: '#9ca3af' }}>Losses</div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '16px' }}>
+            {team.draws}
+          </div>
+          <div style={{ color: '#9ca3af' }}>Draws</div>
+        </div>
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ color: '#d1d5db', fontWeight: 'bold', fontSize: '16px' }}>
+            {team.characters.length}
+          </div>
+          <div style={{ color: '#9ca3af' }}>Units</div>
+        </div>
+      </div>
+
+      {/* Characters Preview */}
+      <div>
+        <h4 style={{
+          fontSize: '14px',
+          fontWeight: '600',
+          color: '#d1d5db',
+          marginBottom: '8px'
+        }}>
+          Squad Composition
+        </h4>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '8px'
+        }}>
+          {team.characters.slice(0, 6).map((teamChar) => {
+            const character = getCharacterById(teamChar.characterId);
+            const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
+            
+            return (
+              <div
+                key={teamChar.id}
+                style={{
+                  background: '#111827',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  border: '1px solid #374151',
+                  textAlign: 'center',
+                  position: 'relative'
+                }}
+              >
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
+                         teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
+                  marginBottom: '4px'
+                }}>
+                  {teamChar.role}
+                </div>
+                <div style={{
+                  fontSize: '11px',
+                  color: '#9ca3af',
+                  lineHeight: '1.2'
+                }}>
+                  {character?.name || 'Unknown'}
+                </div>
+                {/* Collection status indicator */}
+                {collection && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: collection.isOwned ? '#10b981' : 
+                               collection.isWishlist ? '#f59e0b' : '#ef4444'
+                  }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Created Date */}
+      <div style={{
+        marginTop: '16px',
+        paddingTop: '12px',
+        borderTop: '1px solid #374151',
+        fontSize: '12px',
+        color: '#6b7280',
+        textAlign: 'center'
+      }}>
+        Created {new Date(team.createdAt).toLocaleDateString()}
+      </div>
+    </div>
+  );
+};

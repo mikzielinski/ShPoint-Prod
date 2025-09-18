@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
-import MyStrikeTeamsPage from "./pages/MyStrikeTeamsPage";
+import PublicStrikeTeamsPage from "./pages/PublicStrikeTeamsPage";
 import ShatterpointLibraryPage from "./pages/ShatterpointLibraryPage";
 import SetsPage from "./pages/SetsPage";
 import MissionsPage from "./pages/MissionsPage";
@@ -90,7 +90,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
               {me.status !== 'SUSPENDED' && (
                 <>
                   <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
-                  <NavLink to="/my-strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Strike Teams</NavLink>
+                  <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
                 </>
               )}
               {me.role === "ADMIN" && me.status !== 'SUSPENDED' && (
@@ -1012,7 +1012,7 @@ export default function AppRoutes() {
         <Route path="/sets" element={<SetsPage/>}/>
         <Route path="/missions" element={<MissionsPage/>}/>
         <Route path="/my-collection" element={<MyCollectionPage/>}/>
-        <Route path="/my-strike-teams" element={<MyStrikeTeamsPage/>}/>
+        <Route path="/strike-teams" element={<PublicStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>

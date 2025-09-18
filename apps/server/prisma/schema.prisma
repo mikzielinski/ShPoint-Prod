@@ -131,6 +131,8 @@ model CharacterCollection {
   userId      String
   characterId String
   notes       String?
+  kills       Int      @default(0)
+  deaths      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isFavorite  Boolean  @default(false)
@@ -199,6 +201,10 @@ model StrikeTeam {
   name        String
   type        StrikeTeamType        @default(MY_TEAMS)
   description String?
+  wins        Int                   @default(0)
+  losses      Int                   @default(0)
+  draws       Int                   @default(0)
+  isPublished Boolean               @default(false)
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
   user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -206,6 +212,7 @@ model StrikeTeam {
 
   @@index([userId])
   @@index([type])
+  @@index([isPublished])
 }
 
 model StrikeTeamCharacter {
