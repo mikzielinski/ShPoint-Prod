@@ -409,145 +409,6 @@ export default function AdminPage() {
         <p>Manage users, invitations, and system settings.</p>
       </header>
 
-      {/* Invitations Section */}
-      <section className="card" style={{ marginBottom: "24px" }}>
-        <div className="card-header">
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <button
-              className="btn btn-sm btn--outline"
-              onClick={() => toggleSection('invitations')}
-              style={{ 
-                minWidth: "32px", 
-                height: "32px", 
-                padding: "0", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                fontSize: "16px"
-              }}
-            >
-              {sectionsExpanded.invitations ? "▼" : "▶"}
-            </button>
-            <h2>User Invitations</h2>
-          </div>
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowInviteForm(!showInviteForm)}
-          >
-            {showInviteForm ? "Cancel" : "Invite User"}
-          </button>
-        </div>
-        
-        {sectionsExpanded.invitations && (
-          <>
-            {showInviteForm && (
-          <div className="card-body" style={{ padding: "20px", borderTop: "1px solid #334155" }}>
-            <div style={{ display: "flex", gap: "12px", alignItems: "end", marginBottom: "16px" }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#e2e8f0" }}>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="user@example.com"
-                  className="input"
-                  style={{ width: "100%" }}
-                />
-              </div>
-              <div style={{ minWidth: "120px" }}>
-                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#e2e8f0" }}>
-                  Role
-                </label>
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as Role)}
-                  className="select"
-                  style={{ width: "100%" }}
-                >
-                  <option value="USER">User</option>
-                  <option value="EDITOR">Editor</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-              <button 
-                className="btn btn-primary"
-                onClick={handleInviteUser}
-                disabled={!inviteEmail.trim()}
-              >
-                Send Invitation
-              </button>
-            </div>
-            <p style={{ margin: 0, fontSize: "12px", color: "#94a3b8" }}>
-              The user will receive access to sign in with their Google account.
-            </p>
-          </div>
-        )}
-
-        <div className="table">
-          <div className="table__row--header" role="rowheader">
-            <div className="table__cell">Email</div>
-            <div className="table__cell">Role</div>
-            <div className="table__cell">Invited</div>
-            <div className="table__cell">Status</div>
-            <div className="table__cell">Actions</div>
-          </div>
-          
-          {invitationsLoading ? (
-            <div className="table__row">
-              <div className="table__cell" colSpan={5} style={{ textAlign: "center", padding: "40px" }}>
-                Loading invitations...
-              </div>
-            </div>
-          ) : invitations.length === 0 ? (
-            <div className="table__row">
-              <div className="table__cell" colSpan={5} style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>
-                No pending invitations
-              </div>
-            </div>
-          ) : (
-            invitations.map((invitation) => (
-              <div className="table__row" key={invitation.id}>
-                <div className="table__cell">
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {invitation.email}
-                  </span>
-                </div>
-                <div className="table__cell">
-                  <span className="badge" data-role={invitation.role}>{invitation.role}</span>
-                </div>
-                <div className="table__cell">
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {new Date(invitation.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="table__cell">
-                  <span style={{ 
-                    color: invitation.usedAt ? "#16a34a" : invitation.isActive ? "#f59e0b" : "#6b7280",
-                    fontWeight: "600"
-                  }}>
-                    {invitation.usedAt ? "Used" : invitation.isActive ? "Pending" : "Inactive"}
-                  </span>
-                </div>
-                <div className="table__cell">
-                  {!invitation.usedAt && (
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveInvitation(invitation)}
-                      disabled={savingId === invitation.id}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-          </>
-        )}
-      </section>
 
       {/* Users Section */}
       <section className="card">
@@ -909,6 +770,146 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+          </>
+        )}
+      </section>
+
+      {/* Invitations Section */}
+      <section className="card" style={{ marginTop: "24px" }}>
+        <div className="card-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="btn btn-sm btn--outline"
+              onClick={() => toggleSection('invitations')}
+              style={{ 
+                minWidth: "32px", 
+                height: "32px", 
+                padding: "0", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                fontSize: "16px"
+              }}
+            >
+              {sectionsExpanded.invitations ? "▼" : "▶"}
+            </button>
+            <h2>User Invitations</h2>
+          </div>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setShowInviteForm(!showInviteForm)}
+          >
+            {showInviteForm ? "Cancel" : "Invite User"}
+          </button>
+        </div>
+        
+        {sectionsExpanded.invitations && (
+          <>
+            {showInviteForm && (
+          <div className="card-body" style={{ padding: "20px", borderTop: "1px solid #334155" }}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "end", marginBottom: "16px" }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#e2e8f0" }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  className="input"
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div style={{ minWidth: "120px" }}>
+                <label style={{ display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "#e2e8f0" }}>
+                  Role
+                </label>
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value as Role)}
+                  className="select"
+                  style={{ width: "100%" }}
+                >
+                  <option value="USER">User</option>
+                  <option value="EDITOR">Editor</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+              <button 
+                className="btn btn-primary"
+                onClick={handleInviteUser}
+                disabled={!inviteEmail.trim()}
+              >
+                Send Invitation
+              </button>
+            </div>
+            <p style={{ margin: 0, fontSize: "12px", color: "#94a3b8" }}>
+              The user will receive access to sign in with their Google account.
+            </p>
+          </div>
+        )}
+
+        <div className="table">
+          <div className="table__row--header" role="rowheader">
+            <div className="table__cell">Email</div>
+            <div className="table__cell">Role</div>
+            <div className="table__cell">Invited</div>
+            <div className="table__cell">Status</div>
+            <div className="table__cell">Actions</div>
+          </div>
+          
+          {invitationsLoading ? (
+            <div className="table__row">
+              <div className="table__cell" colSpan={5} style={{ textAlign: "center", padding: "40px" }}>
+                Loading invitations...
+              </div>
+            </div>
+          ) : invitations.filter(inv => !inv.usedAt).length === 0 ? (
+            <div className="table__row">
+              <div className="table__cell" colSpan={5} style={{ textAlign: "center", padding: "40px", color: "#94a3b8" }}>
+                No pending invitations
+              </div>
+            </div>
+          ) : (
+            invitations.filter(inv => !inv.usedAt).map((invitation) => (
+              <div className="table__row" key={invitation.id}>
+                <div className="table__cell">
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {invitation.email}
+                  </span>
+                </div>
+                <div className="table__cell">
+                  <span className="badge" data-role={invitation.role}>{invitation.role}</span>
+                </div>
+                <div className="table__cell">
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {new Date(invitation.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="table__cell">
+                  <span style={{ 
+                    color: invitation.usedAt ? "#16a34a" : invitation.isActive ? "#f59e0b" : "#6b7280",
+                    fontWeight: "600"
+                  }}>
+                    {invitation.usedAt ? "Used" : invitation.isActive ? "Pending" : "Inactive"}
+                  </span>
+                </div>
+                <div className="table__cell">
+                  {!invitation.usedAt && (
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleRemoveInvitation(invitation)}
+                      disabled={savingId === invitation.id}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
           </>
         )}
       </section>
