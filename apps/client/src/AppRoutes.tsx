@@ -1,5 +1,6 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
 import MyStrikeTeamsPage from "./pages/MyStrikeTeamsPage";
@@ -1005,11 +1006,7 @@ export default function AppRoutes() {
         onInviteClick={() => setShowInvitationModal(true)} 
       />
       <Routes>
-        <Route path="/" element={
-          <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
-            <h1>Home</h1><p>Welcome to ShPoint.</p>
-          </div>
-        }/>
+        <Route path="/" element={<HomePage/>}/>
         <Route path="/library" element={<ShatterpointLibraryPage/>}/>
         <Route path="/characters" element={<CharactersPage/>}/>
         <Route path="/sets" element={<SetsPage/>}/>

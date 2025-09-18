@@ -14,6 +14,7 @@ export default function AdminInvitationSettings() {
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -108,6 +109,30 @@ export default function AdminInvitationSettings() {
       ...prev,
       [role]: Math.max(0, numValue)
     }));
+  };
+
+  const testEmailConfiguration = async () => {
+    try {
+      setTestingEmail(true);
+      setError(null);
+      setSuccess(null);
+      
+      const response = await fetch('/api/admin/test-email', {
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.ok) {
+        setSuccess('✅ Email configuration is working correctly!');
+      } else {
+        setError(`❌ Email configuration error: ${data.error}`);
+      }
+    } catch (err) {
+      setError('Network error while testing email configuration');
+    } finally {
+      setTestingEmail(false);
+    }
   };
 
   if (loading) {
@@ -280,6 +305,33 @@ export default function AdminInvitationSettings() {
           }}
         >
           Reset
+        </button>
+
+        <button
+          onClick={testEmailConfiguration}
+          disabled={testingEmail}
+          style={{
+            background: testingEmail ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: testingEmail ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s',
+            opacity: testingEmail ? 0.6 : 1
+          }}
+          onMouseOver={(e) => {
+            if (!testingEmail) {
+              e.target.style.transform = 'translateY(-1px)';
+            }
+          }}
+          onMouseOut={(e) => {
+            e.target.style.transform = 'translateY(0)';
+          }}
+        >
+          {testingEmail ? 'Testing...' : '📧 Test Email'}
         </button>
         
         <button
