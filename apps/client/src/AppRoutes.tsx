@@ -933,7 +933,7 @@ function CharactersPage() {
 /* ====== Routes ====== */
 export default function AppRoutes() {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const { data: me } = useAuthMe();
+  const { data: me, refetch } = useAuthMe();
 
   // Check user status and redirect if needed
   useEffect(() => {
@@ -941,9 +941,22 @@ export default function AppRoutes() {
       const user = me.user;
       
       // Check if user is suspended
-      if (user.status === 'SUSPENDED' && window.location.pathname !== '/banned' && window.location.pathname !== '/library') {
-        window.location.href = '/banned';
-        return;
+      if (user.status === 'SUSPENDED' && user.suspendedUntil) {
+        const now = new Date();
+        const suspendedUntil = new Date(user.suspendedUntil);
+        
+        // If suspension has ended, refresh user data
+        if (now >= suspendedUntil) {
+          // Refresh user data to get updated status
+          refetch();
+          return;
+        }
+        
+        // Only redirect if suspension is still active
+        if (now < suspendedUntil && !['/banned', '/library'].includes(window.location.pathname)) {
+          window.location.href = '/banned';
+          return;
+        }
       }
       
       // Check if user is not authorized (no role or invalid role)
@@ -955,7 +968,7 @@ export default function AppRoutes() {
         }
       }
     }
-  }, [me]);
+  }, [me, refetch]);
 
   return (
     <>

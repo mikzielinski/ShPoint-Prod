@@ -216,7 +216,43 @@ app.post("/auth/logout", (req, res, next) => {
 
 
 // prosty profil (przykład API chronionego)
-app.get("/api/me", ensureAuth, (req, res) => {
+// Middleware to automatically update user status when suspension ends
+async function updateUserStatusIfNeeded(req: Request, res: Response, next: NextFunction) {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user && user.status === 'SUSPENDED' && user.suspendedUntil) {
+      const now = new Date();
+      const suspendedUntil = new Date(user.suspendedUntil);
+      
+      // If suspension has ended, update user status
+      if (now >= suspendedUntil) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            status: 'ACTIVE',
+            suspendedUntil: null,
+            suspendedReason: null,
+            suspendedBy: null,
+            suspendedAt: null
+          }
+        });
+        
+        // Update the user object in the request
+        // @ts-ignore
+        req.user = await prisma.user.findUnique({
+          where: { id: user.id }
+        });
+      }
+    }
+    next();
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    next();
+  }
+}
+
+app.get("/api/me", ensureAuth, updateUserStatusIfNeeded, (req, res) => {
   // @ts-ignore
   res.json({ ok: true, user: publicUser(req.user) });
 });
