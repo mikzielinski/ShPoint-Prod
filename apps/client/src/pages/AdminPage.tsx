@@ -67,6 +67,12 @@ export default function AdminPage() {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<Role>("USER");
+  
+  // Collapsible sections state
+  const [sectionsExpanded, setSectionsExpanded] = useState({
+    invitations: true,
+    users: true
+  });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
@@ -116,6 +122,24 @@ export default function AdminPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canManage]);
+
+  // Load section states from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('admin-sections-expanded');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSectionsExpanded(parsed);
+      } catch (e) {
+        console.warn('Failed to parse saved section states:', e);
+      }
+    }
+  }, []);
+
+  // Save section states to localStorage
+  useEffect(() => {
+    localStorage.setItem('admin-sections-expanded', JSON.stringify(sectionsExpanded));
+  }, [sectionsExpanded]);
 
   const handleSetRole = async (u: AdminUser, next: Role) => {
     if (!canManage) return;
@@ -301,6 +325,13 @@ export default function AdminPage() {
     }
   };
 
+  const toggleSection = (section: keyof typeof sectionsExpanded) => {
+    setSectionsExpanded(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const handleDropdownToggle = (userId: string, buttonElement: HTMLElement) => {
     if (openDropdown === userId) {
       setOpenDropdown(null);
@@ -354,7 +385,24 @@ export default function AdminPage() {
       {/* Invitations Section */}
       <section className="card" style={{ marginBottom: "24px" }}>
         <div className="card-header">
-          <h2>User Invitations</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="btn btn-sm btn--outline"
+              onClick={() => toggleSection('invitations')}
+              style={{ 
+                minWidth: "32px", 
+                height: "32px", 
+                padding: "0", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                fontSize: "16px"
+              }}
+            >
+              {sectionsExpanded.invitations ? "▼" : "▶"}
+            </button>
+            <h2>User Invitations</h2>
+          </div>
           <button 
             className="btn btn-primary"
             onClick={() => setShowInviteForm(!showInviteForm)}
@@ -363,7 +411,9 @@ export default function AdminPage() {
           </button>
         </div>
         
-        {showInviteForm && (
+        {sectionsExpanded.invitations && (
+          <>
+            {showInviteForm && (
           <div className="card-body" style={{ padding: "20px", borderTop: "1px solid #334155" }}>
             <div style={{ display: "flex", gap: "12px", alignItems: "end", marginBottom: "16px" }}>
               <div style={{ flex: 1 }}>
@@ -468,14 +518,35 @@ export default function AdminPage() {
             ))
           )}
         </div>
+          </>
+        )}
       </section>
 
       {/* Users Section */}
       <section className="card">
         <div className="card-header">
-          <h2>Users</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="btn btn-sm btn--outline"
+              onClick={() => toggleSection('users')}
+              style={{ 
+                minWidth: "32px", 
+                height: "32px", 
+                padding: "0", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                fontSize: "16px"
+              }}
+            >
+              {sectionsExpanded.users ? "▼" : "▶"}
+            </button>
+            <h2>Users</h2>
+          </div>
         </div>
 
+        {sectionsExpanded.users && (
+          <>
       <div className="toolbar">
         <div className="toolbar-left">
           <input
@@ -811,6 +882,8 @@ export default function AdminPage() {
           )}
         </div>
       </div>
+          </>
+        )}
       </section>
     </main>
   );

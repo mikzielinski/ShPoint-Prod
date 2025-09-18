@@ -192,6 +192,18 @@
   color: var(--ad-header-text);
 }
 
+.card-body{
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.card-body.collapsed{
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* Tabela */
 /* ====== Dropdown Menu ====== */
 .dropdown-container {
