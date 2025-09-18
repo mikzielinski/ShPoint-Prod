@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 export default function BannedPage() {
   const { auth } = useAuth();
   const [timeLeft, setTimeLeft] = useState<string>('');
+  const [isExpired, setIsExpired] = useState<boolean>(false);
 
   useEffect(() => {
     if (auth.user?.suspendedUntil) {
@@ -12,7 +13,8 @@ export default function BannedPage() {
         const suspendedUntil = new Date(auth.user.suspendedUntil);
         
         if (now >= suspendedUntil) {
-          setTimeLeft('Your suspension has ended. Please refresh the page.');
+          setTimeLeft('Your suspension has ended!');
+          setIsExpired(true);
           return;
         }
         
@@ -20,18 +22,21 @@ export default function BannedPage() {
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
         if (days > 0) {
-          setTimeLeft(`${days} day${days !== 1 ? 's' : ''}, ${hours} hour${hours !== 1 ? 's' : ''}`);
+          setTimeLeft(`${days} day${days !== 1 ? 's' : ''}, ${hours} hour${hours !== 1 ? 's' : ''}, ${minutes} min`);
         } else if (hours > 0) {
-          setTimeLeft(`${hours} hour${hours !== 1 ? 's' : ''}, ${minutes} minute${minutes !== 1 ? 's' : ''}`);
+          setTimeLeft(`${hours} hour${hours !== 1 ? 's' : ''}, ${minutes} min, ${seconds}s`);
+        } else if (minutes > 0) {
+          setTimeLeft(`${minutes} min, ${seconds}s`);
         } else {
-          setTimeLeft(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+          setTimeLeft(`${seconds} seconds`);
         }
       };
       
       updateTimeLeft();
-      const interval = setInterval(updateTimeLeft, 60000); // Update every minute
+      const interval = setInterval(updateTimeLeft, 1000); // Update every second for better UX
       return () => clearInterval(interval);
     }
   }, [auth.user?.suspendedUntil]);
@@ -100,28 +105,38 @@ export default function BannedPage() {
         {/* Time Left */}
         {timeLeft && (
           <div style={{
-            background: 'rgba(15, 23, 42, 0.5)',
+            background: isExpired ? 'rgba(34, 197, 94, 0.1)' : 'rgba(15, 23, 42, 0.5)',
             borderRadius: '16px',
             padding: '24px',
             marginBottom: '32px',
-            border: '1px solid rgba(71, 85, 105, 0.2)'
+            border: isExpired ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(71, 85, 105, 0.2)'
           }}>
             <h3 style={{
               fontSize: '16px',
               fontWeight: '600',
-              color: '#f1f5f9',
+              color: isExpired ? '#86efac' : '#f1f5f9',
               margin: '0 0 12px'
             }}>
-              Time Remaining
+              {isExpired ? 'Suspension Status' : 'Time Remaining'}
             </h3>
             <p style={{
               fontSize: '20px',
-              color: '#fbbf24',
+              color: isExpired ? '#22c55e' : '#fbbf24',
               margin: '0',
               fontWeight: '700'
             }}>
               {timeLeft}
             </p>
+            {isExpired && (
+              <p style={{
+                fontSize: '14px',
+                color: '#86efac',
+                margin: '12px 0 0',
+                opacity: '0.8'
+              }}>
+                Please refresh the page to regain full access.
+              </p>
+            )}
           </div>
         )}
 
@@ -177,27 +192,93 @@ export default function BannedPage() {
           }}>
             While suspended, you can still browse the character library for reference purposes.
           </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          marginBottom: '24px'
+        }}>
           <button
             onClick={handleViewLibrary}
             style={{
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
-              padding: '10px 16px',
+              borderRadius: '12px',
+              padding: '14px 24px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+            }}
+          >
+            Browse Library
+          </button>
+          
+          {isExpired && (
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '14px 24px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 6px 16px rgba(34, 197, 94, 0.4)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.3)';
+              }}
+            >
+              Refresh Page
+            </button>
+          )}
+          
+          <button
+            onClick={() => window.location.href = '/'}
+            style={{
+              background: 'transparent',
+              color: '#cbd5e1',
+              border: '1px solid rgba(71, 85, 105, 0.5)',
+              borderRadius: '12px',
+              padding: '14px 24px',
               fontSize: '14px',
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
             onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.background = 'rgba(71, 85, 105, 0.2)';
+              e.target.style.borderColor = 'rgba(71, 85, 105, 0.8)';
             }}
             onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)';
+              e.target.style.background = 'transparent';
+              e.target.style.borderColor = 'rgba(71, 85, 105, 0.5)';
             }}
           >
-            Browse Library
+            Go Home
           </button>
         </div>
 
