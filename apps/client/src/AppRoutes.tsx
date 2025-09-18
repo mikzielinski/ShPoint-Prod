@@ -953,9 +953,12 @@ export default function AppRoutes() {
         }
         
         // Only redirect if suspension is still active
-        if (now < suspendedUntil && !['/banned', '/library'].includes(window.location.pathname)) {
-          window.location.href = '/banned';
-          return;
+        if (now < suspendedUntil) {
+          // Allow only /banned and /library pages during suspension
+          if (!['/banned', '/library'].includes(window.location.pathname)) {
+            window.location.href = '/banned';
+            return;
+          }
         }
       }
       
