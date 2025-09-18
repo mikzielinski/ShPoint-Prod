@@ -1161,6 +1161,7 @@ const ensureAdmin = (req: Request, res: Response, next: NextFunction) => {
 // Get all users (admin only)
 app.get("/api/admin/users", ensureAuth, ensureAdmin, async (req, res) => {
   try {
+    console.log("Admin users endpoint called by:", req.user?.email);
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -1190,7 +1191,10 @@ app.get("/api/admin/users", ensureAuth, ensureAdmin, async (req, res) => {
       },
       orderBy: { createdAt: 'desc' }
     });
-    
+    console.log("Admin users found:", users.length, "users");
+    console.log("First user:", users[0]);
+    console.log("First user username field:", users[0]?.username);
+    console.log("First user all fields:", Object.keys(users[0] || {}));
     res.json({ ok: true, users });
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -1464,6 +1468,108 @@ app.patch("/api/user/avatar/reset", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error("Error resetting avatar:", error);
     res.status(500).json({ ok: false, error: "Failed to reset avatar" });
+  }
+});
+
+// Save Google avatar as backup (authenticated users only)
+app.patch("/api/user/save-google-avatar", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { imageUrl } = req.body;
+    
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return res.status(400).json({ ok: false, error: 'Image URL is required' });
+    }
+    
+    // Validate URL format
+    try {
+      new URL(imageUrl);
+    } catch {
+      return res.status(400).json({ ok: false, error: 'Invalid image URL format' });
+    }
+    
+    // Only save if user doesn't have a custom avatarUrl
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatarUrl: true }
+    });
+    
+    if (user?.avatarUrl) {
+      // User already has custom avatar, don't overwrite
+      return res.json({ ok: true, message: 'Custom avatar already exists' });
+    }
+    
+    // Save Google image as backup avatar
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: imageUrl },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user: updatedUser });
+  } catch (error) {
+    console.error("Error saving Google avatar:", error);
+    res.status(500).json({ ok: false, error: "Failed to save Google avatar" });
+  }
+});
+
+// Admin endpoint to manually save Google avatar for any user
+app.patch("/api/admin/users/:id/save-google-avatar", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const adminId = req.user.id;
+    const userId = req.params.id;
+    const { imageUrl } = req.body;
+    
+    // Check if user is admin
+    const admin = await prisma.user.findUnique({
+      where: { id: adminId },
+      select: { role: true }
+    });
+    
+    if (admin?.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin access required' });
+    }
+    
+    if (!imageUrl || typeof imageUrl !== 'string') {
+      return res.status(400).json({ ok: false, error: 'Image URL is required' });
+    }
+    
+    // Validate URL format
+    try {
+      new URL(imageUrl);
+    } catch {
+      return res.status(400).json({ ok: false, error: 'Invalid image URL format' });
+    }
+    
+    // Save Google avatar as backup
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: imageUrl },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user: updatedUser, message: 'Google avatar saved as backup' });
+  } catch (error) {
+    console.error('Error saving Google avatar:', error);
+    res.status(500).json({ ok: false, error: 'Failed to save Google avatar' });
   }
 });
 

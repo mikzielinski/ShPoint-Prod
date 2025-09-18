@@ -9,30 +9,30 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  name         String?
-  username     String?    @unique // Custom username/alias
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  avatarUrl    String?
-  role         Role       @default(USER)
-  lastLoginAt  DateTime?
-  status       UserStatus @default(ACTIVE)
-  suspendedUntil DateTime? // Data do której użytkownik jest zawieszony
-  suspendedReason String? // Powód zawieszenia
-  suspendedBy  String?    // ID administratora który zawiesił użytkownika
-  suspendedAt  DateTime?  // Data zawieszenia
-  image        String?
-  passwordHash String?
-  invitedBy    String?    // ID użytkownika, który zaprosił
-  invitedAt    DateTime?  // Data zaproszenia
-  cards        Card[]
-  collections  Collection[]
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  name                 String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  avatarUrl            String?
+  role                 Role                  @default(USER)
+  lastLoginAt          DateTime?
+  status               UserStatus            @default(ACTIVE)
+  image                String?
+  passwordHash         String?
+  invitedAt            DateTime?
+  invitedBy            String?
+  username             String?               @unique
+  suspendedAt          DateTime?
+  suspendedBy          String?
+  suspendedReason      String?
+  suspendedUntil       DateTime?
+  cards                Card[]
   characterCollections CharacterCollection[]
-  setCollections      SetCollection[]
-  missionCollections  MissionCollection[]
-  strikeTeams  StrikeTeam[]
+  collections          Collection[]
+  missionCollections   MissionCollection[]
+  setCollections       SetCollection[]
+  strikeTeams          StrikeTeam[]
 
   @@index([createdAt])
   @@index([email])
@@ -62,15 +62,15 @@ model Card {
 }
 
 model AllowedEmail {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  role      Role     @default(USER)
-  invitedBy String?  // ID użytkownika, który dodał email
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-  usedAt    DateTime? // Kiedy zaproszenie zostało użyte (konto utworzone)
-  expiresAt DateTime? // Data wygaśnięcia zaproszenia (3 dni)
+  id        String    @id @default(cuid())
+  email     String    @unique
+  role      Role      @default(USER)
+  invitedBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  usedAt    DateTime?
 
   @@index([email])
   @@index([role])
@@ -80,11 +80,136 @@ model AllowedEmail {
   @@index([expiresAt])
 }
 
+model Collection {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CollectionItem[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model CollectionItem {
+  id           String     @id @default(cuid())
+  collectionId String
+  cardId       String
+  status       ItemStatus @default(OWNED)
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, cardId])
+  @@index([collectionId])
+  @@index([cardId])
+  @@index([status])
+}
+
+model CharacterCollection {
+  id          String   @id @default(cuid())
+  userId      String
+  characterId String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isFavorite  Boolean  @default(false)
+  isOwned     Boolean  @default(false)
+  isPainted   Boolean  @default(false)
+  isSold      Boolean  @default(false)
+  isWishlist  Boolean  @default(false)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, characterId])
+  @@index([userId])
+  @@index([characterId])
+  @@index([isOwned])
+  @@index([isPainted])
+  @@index([isWishlist])
+}
+
+model SetCollection {
+  id         String   @id @default(cuid())
+  userId     String
+  setId      String
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isFavorite Boolean  @default(false)
+  isOwned    Boolean  @default(false)
+  isPainted  Boolean  @default(false)
+  isSold     Boolean  @default(false)
+  isWishlist Boolean  @default(false)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, setId])
+  @@index([userId])
+  @@index([setId])
+  @@index([isOwned])
+  @@index([isPainted])
+  @@index([isWishlist])
+}
+
+model MissionCollection {
+  id          String    @id @default(cuid())
+  userId      String
+  missionId   String
+  notes       String?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isCompleted Boolean   @default(false)
+  isFavorite  Boolean   @default(false)
+  isLocked    Boolean   @default(false)
+  isOwned     Boolean   @default(false)
+  isWishlist  Boolean   @default(false)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, missionId])
+  @@index([userId])
+  @@index([missionId])
+  @@index([isOwned])
+  @@index([isCompleted])
+  @@index([isWishlist])
+}
+
+model StrikeTeam {
+  id          String                @id @default(cuid())
+  userId      String
+  name        String
+  type        StrikeTeamType        @default(MY_TEAMS)
+  description String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characters  StrikeTeamCharacter[]
+
+  @@index([userId])
+  @@index([type])
+}
+
+model StrikeTeamCharacter {
+  id           String        @id @default(cuid())
+  strikeTeamId String
+  characterId  String
+  role         CharacterRole
+  order        Int
+  createdAt    DateTime      @default(now())
+  strikeTeam   StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
+
+  @@unique([strikeTeamId, characterId])
+  @@index([strikeTeamId])
+  @@index([characterId])
+}
+
 enum Role {
-  GUEST
   USER
-  EDITOR
   ADMIN
+  EDITOR
+  GUEST
 }
 
 enum UserStatus {
@@ -98,162 +223,27 @@ enum CardStatus {
   ARCHIVED
 }
 
-model Collection {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String?  // np. "My Painted", "Wishlist"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items  CollectionItem[]
-
-  @@index([userId])
-  @@index([createdAt])
-}
-
-model CollectionItem {
-  id           String       @id @default(cuid())
-  collectionId String
-  cardId       String       // ID jednostki/karty (Primary/Secondary/Support/Mission)
-  status       ItemStatus   @default(OWNED) // OWNED/PAINTED/WISHLIST
-  notes        String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
-  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-
-  @@unique([collectionId, cardId])
-  @@index([collectionId])
-  @@index([cardId])
-  @@index([status])
-}
-
 enum ItemStatus {
   OWNED
   PAINTED
   WISHLIST
 }
 
-// ====== SHATTERPOINT COLLECTION MODELS ======
-
-model CharacterCollection {
-  id        String   @id @default(cuid())
-  userId    String
-  characterId String // ID postaci z characters.json (np. "ahsoka-tano-fulcrum")
-  isOwned   Boolean  @default(false)
-  isPainted Boolean  @default(false)
-  isWishlist Boolean @default(false)
-  isSold    Boolean  @default(false)
-  isFavorite Boolean @default(false)
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, characterId])
-  @@index([userId])
-  @@index([characterId])
-  @@index([isOwned])
-  @@index([isPainted])
-  @@index([isWishlist])
-}
-
-model SetCollection {
-  id        String   @id @default(cuid())
-  userId    String
-  setId     String   // ID zestawu (np. "ahsoka-tano-fulcrum-set")
-  isOwned   Boolean  @default(false)
-  isPainted Boolean  @default(false)
-  isWishlist Boolean @default(false)
-  isSold    Boolean  @default(false)
-  isFavorite Boolean @default(false)
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, setId])
-  @@index([userId])
-  @@index([setId])
-  @@index([isOwned])
-  @@index([isPainted])
-  @@index([isWishlist])
-}
-
-model MissionCollection {
-  id        String   @id @default(cuid())
-  userId    String
-  missionId String   // ID misji (np. "sabotage-showdown", "dont-tell-me-odds")
-  isOwned   Boolean  @default(false)
-  isCompleted Boolean @default(false)
-  isWishlist Boolean @default(false)
-  isLocked  Boolean  @default(false)
-  isFavorite Boolean @default(false)
-  notes     String?
-  completedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, missionId])
-  @@index([userId])
-  @@index([missionId])
-  @@index([isOwned])
-  @@index([isCompleted])
-  @@index([isWishlist])
-}
-
 enum CollectionStatus {
-  OWNED     // Posiadane
-  PAINTED   // Pomalowane
-  WISHLIST  // Lista życzeń
-  SOLD      // Sprzedane
-  FAVORITE  // Ulubione
+  OWNED
+  PAINTED
+  WISHLIST
+  SOLD
+  FAVORITE
 }
-
 
 enum StrikeTeamType {
-  MY_TEAMS    // Drużyny z posiadanych postaci
-  DREAM_TEAMS // Drużyny z wishlisty
+  MY_TEAMS
+  DREAM_TEAMS
 }
 
 enum CharacterRole {
-  PRIMARY   // Główna postać
-  SECONDARY // Postać drugorzędna
-  SUPPORT   // Postać wspierająca
-}
-
-model StrikeTeam {
-  id          String        @id @default(cuid())
-  userId      String
-  name        String
-  type        StrikeTeamType @default(MY_TEAMS)
-  description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  characters StrikeTeamCharacter[]
-
-  @@index([userId])
-  @@index([type])
-}
-
-model StrikeTeamCharacter {
-  id            String        @id @default(cuid())
-  strikeTeamId  String
-  characterId   String        // ID postaci z characters.json
-  role          CharacterRole
-  order         Int           // Kolejność w drużynie
-  createdAt     DateTime      @default(now())
-
-  strikeTeam StrikeTeam @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
-
-  @@unique([strikeTeamId, characterId])
-  @@index([strikeTeamId])
-  @@index([characterId])
+  PRIMARY
+  SECONDARY
+  SUPPORT
 }
