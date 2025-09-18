@@ -122,6 +122,14 @@ passport.use(
           },
         });
 
+        // Mark invitation as used if this is a new user
+        if (user.createdAt.getTime() === user.updatedAt.getTime()) {
+          await prisma.allowedEmail.update({
+            where: { id: allowedEmail.id },
+            data: { usedAt: new Date() }
+          });
+        }
+
         // jeśli na liście adminów, podnieś raz (bez zapętlenia)
         if (ADMIN_EMAILS.includes(user.email) && user.role !== "ADMIN") {
           await prisma.user.update({
@@ -153,10 +161,20 @@ function publicUser(u: any) {
     name: u.name ?? null,
     username: u.username ?? null,
     role: u.role,
+    status: u.status,
     image: u.image ?? null,
     avatarUrl: u.avatarUrl ?? null,
+    suspendedUntil: u.suspendedUntil ?? null,
   };
 }
+
+// Error handling middleware for authentication
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err.message === "Email not authorized. Please contact administrator.") {
+    return res.redirect('/unauthorized');
+  }
+  next(err);
+});
 
 // ===== Health
 app.get("/health", (_req, res) => res.json({ ok: true }));
