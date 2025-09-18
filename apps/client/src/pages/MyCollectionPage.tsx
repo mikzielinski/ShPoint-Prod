@@ -3,7 +3,12 @@ import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
 import CharacterModal from '../components/CharacterModal';
 import Modal from '../components/Modal';
+import { MissionModal } from '../components/MissionModal';
 import { setsData } from '../data/sets';
+import { missionsData, Mission } from '../data/missions';
+import FiltersPanel from '../components/FiltersPanel';
+import { Facets } from '../lib/shpoint/characters/facets';
+import { Filters } from '../components/FiltersPanel';
 
 // SetImageWithFallback component for displaying set images
 const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
@@ -194,6 +199,21 @@ interface SetCollection {
   updatedAt: string;
 }
 
+interface MissionCollection {
+  id: string;
+  userId: string;
+  missionId: string;
+  isOwned: boolean;
+  isCompleted: boolean;
+  isWishlist: boolean;
+  isLocked: boolean;
+  isFavorite: boolean;
+  notes?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface Set {
   id: string;
   name: string;
@@ -226,6 +246,7 @@ export default function MyCollectionPage() {
   const [allCharacters, setAllCharacters] = useState<Character[]>([]);
   const [allSets, setAllSets] = useState<Set[]>([]);
   const [setCollections, setSetCollections] = useState<SetCollection[]>([]);
+  const [missionCollections, setMissionCollections] = useState<MissionCollection[]>([]);
   const [stats, setStats] = useState<CollectionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -234,6 +255,7 @@ export default function MyCollectionPage() {
   const [activeTab, setActiveTab] = useState<'characters' | 'sets' | 'missions'>('characters');
   const [selectedSet, setSelectedSet] = useState<Set | null>(null);
   const [showSetModal, setShowSetModal] = useState(false);
+  const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   
   // Use shared sets data
   const mockSets: Set[] = setsData;
@@ -290,16 +312,26 @@ export default function MyCollectionPage() {
   };
   
   // Filters
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [factionFilter, setFactionFilter] = useState<string>('ALL');
-  const [eraFilter, setEraFilter] = useState<string>('ALL');
-  const [tagFilter, setTagFilter] = useState<string>('ALL');
+  const [filters, setFilters] = useState<Filters>({
+    text: '',
+    unitTypes: [],
+    factions: [],
+    eras: [],
+    tags: []
+  });
 
   useEffect(() => {
     if (user) {
       loadCollections();
     }
   }, [user]);
+
+  // Refresh mission collections when switching to missions tab
+  useEffect(() => {
+    if (user && activeTab === 'missions') {
+      loadMissionCollections();
+    }
+  }, [activeTab, user]);
 
   const loadCollections = async () => {
     try {
@@ -332,6 +364,15 @@ export default function MyCollectionPage() {
       console.log('🔍 Set collections loaded:', setData.collections);
       setSetCollections(setData.collections || []);
 
+      // Load mission collections
+      const missionResponse = await fetch(api('/api/shatterpoint/missions'), {
+        credentials: 'include',
+      });
+      if (!missionResponse.ok) throw new Error('Failed to load mission collections');
+      const missionData = await missionResponse.json();
+      console.log('🔍 Mission collections loaded:', missionData.missionCollections || missionData.collections);
+      setMissionCollections(missionData.missionCollections || missionData.collections || []);
+
       // Load stats
       const statsResponse = await fetch(api('/api/shatterpoint/stats'), {
         credentials: 'include',
@@ -345,6 +386,50 @@ export default function MyCollectionPage() {
       console.error('Error loading collections:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMissionCollections = async () => {
+    try {
+      console.log('🔄 Refreshing mission collections...');
+      console.log('🔍 User status:', user ? 'logged in' : 'not logged in');
+      console.log('🔍 Auth status:', auth.status);
+      const missionResponse = await fetch(api('/api/shatterpoint/missions'), {
+        credentials: 'include',
+        cache: 'no-cache' // Force refresh
+      });
+      console.log('📡 Mission response status:', missionResponse.status);
+      if (!missionResponse.ok) {
+        const errorText = await missionResponse.text();
+        console.error('❌ Mission response error:', errorText);
+        throw new Error('Failed to load mission collections');
+      }
+      const missionData = await missionResponse.json();
+      console.log('🔍 Mission collections refreshed:', missionData.missionCollections || missionData.collections);
+      setMissionCollections(missionData.missionCollections || missionData.collections || []);
+    } catch (err) {
+      console.error('Error refreshing mission collections:', err);
+    }
+  };
+
+  const handleRemoveMission = async (missionId: string) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(api(`/api/shatterpoint/missions/${missionId}`), {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        // Remove from local state
+        setMissionCollections(prev =>
+          prev.filter(c => c && c.missionId && c.missionId !== missionId)
+        );
+        console.log('Mission removed from collection');
+      }
+    } catch (error) {
+      console.error('Error removing mission:', error);
     }
   };
 
@@ -568,42 +653,42 @@ export default function MyCollectionPage() {
   const getFilteredCharacters = () => {
     let filtered = getCollectedCharacters();
     
-    // Filter by status
-    if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(c => {
-        switch (statusFilter) {
-          case 'OWNED': return c.collection.isOwned;
-          case 'PAINTED': return c.collection.isPainted;
-          case 'WISHLIST': return c.collection.isWishlist;
-          case 'SOLD': return c.collection.isSold;
-          case 'FAVORITE': return c.collection.isFavorite;
-          default: return true;
-        }
-      });
+    // Filter by text search
+    if (filters.text) {
+      const searchText = filters.text.toLowerCase();
+      filtered = filtered.filter(c => 
+        c.name.toLowerCase().includes(searchText) ||
+        c.faction.toLowerCase().includes(searchText)
+      );
     }
     
-    // Filter by faction - handle string format
-    if (factionFilter !== 'ALL') {
-      filtered = filtered.filter(c => {
-        // Use the correct field name 'faction' from the API (string)
-        return c.faction === factionFilter;
-      });
+    // Filter by unit types (roles)
+    if (filters.unitTypes.length > 0) {
+      filtered = filtered.filter(c => 
+        c.role && filters.unitTypes.includes(c.role)
+      );
     }
     
-    // Filter by era - handle array format
-    if (eraFilter !== 'ALL') {
+    // Filter by factions
+    if (filters.factions.length > 0) {
+      filtered = filtered.filter(c => 
+        filters.factions.includes(c.faction)
+      );
+    }
+    
+    // Filter by eras
+    if (filters.eras.length > 0) {
       filtered = filtered.filter(c => {
-        // Use the correct field name 'era' from the API (array)
         const charEras = Array.isArray(c.era) ? c.era : [c.era].filter(Boolean);
-        return charEras.includes(eraFilter);
+        return filters.eras.some(era => charEras.includes(era));
       });
     }
     
     // Filter by tags
-    if (tagFilter !== 'ALL') {
-      filtered = filtered.filter(c => {
-        return c.tags && c.tags.includes(tagFilter);
-      });
+    if (filters.tags.length > 0) {
+      filtered = filtered.filter(c => 
+        c.tags && filters.tags.some(tag => c.tags.includes(tag))
+      );
     }
     
     return filtered;
@@ -626,23 +711,67 @@ export default function MyCollectionPage() {
     ));
   };
 
+  const getCollectedMissions = () => {
+    return missionCollections.map(collection => {
+      const mission = missionsData.find(m => m.id === collection.missionId);
+      return mission ? { ...mission, collection } : null;
+    }).filter(Boolean) as (Mission & { collection: MissionCollection })[];
+  };
+
   const getFilteredSets = () => {
     let filtered = getCollectedSets();
     
-    // Filter by status
-    if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(s => {
-        switch (statusFilter) {
-          case 'OWNED': return s.collection?.isOwned;
-          case 'PAINTED': return s.collection?.isPainted;
-          case 'WISHLIST': return s.collection?.isWishlist;
-          case 'SOLD': return s.collection?.isSold;
-          default: return true;
-        }
-      });
+    // Filter by text search
+    if (filters.text) {
+      const searchText = filters.text.toLowerCase();
+      filtered = filtered.filter(s => 
+        s.name.toLowerCase().includes(searchText) ||
+        s.type.toLowerCase().includes(searchText)
+      );
+    }
+    
+    // Filter by unit types (set types)
+    if (filters.unitTypes.length > 0) {
+      filtered = filtered.filter(s => 
+        filters.unitTypes.includes(s.type)
+      );
     }
     
     return filtered;
+  };
+
+  // Generate facets for filters
+  const getCharacterFacets = (): Facets => {
+    const characters = getCollectedCharacters();
+    const unitTypes = [...new Set(characters.map(c => c.role).filter(Boolean))];
+    const factions = [...new Set(characters.map(c => c.faction).filter(Boolean))];
+    const eras = [...new Set(characters.flatMap(c => Array.isArray(c.era) ? c.era : [c.era]).filter(Boolean))];
+    const tags = [...new Set(characters.flatMap(c => c.tags || []))];
+
+    return {
+      unitTypes: unitTypes.sort(),
+      factions: factions.sort(),
+      eras: eras.sort(),
+      tags: tags.sort(),
+      squadPointsMin: 0,
+      squadPointsMax: 10,
+      hasSetCode: ["With set", "No set"]
+    };
+  };
+
+  const getSetFacets = (): Facets => {
+    const sets = getCollectedSets();
+    const unitTypes = [...new Set(sets.map(s => s.type).filter(Boolean))];
+
+    return {
+      unitTypes: unitTypes.sort(),
+      factions: [],
+      eras: [],
+      tags: [],
+      squadPointsMin: 0,
+      squadPointsMax: 10,
+      hasSetCode: ["With set", "No set"]
+    };
   };
 
   if (auth.status === 'loading') {
@@ -684,7 +813,7 @@ export default function MyCollectionPage() {
         {[
           { id: 'characters', label: 'Characters', count: getCollectedCharacters().length },
           { id: 'sets', label: 'Sets/Boxes', count: getCollectedSets().length },
-          { id: 'missions', label: 'Missions', count: 0 }
+          { id: 'missions', label: 'Missions', count: getCollectedMissions().length }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -728,142 +857,13 @@ export default function MyCollectionPage() {
       {activeTab === 'characters' && (
         <>
           {/* Filters */}
-      <div style={{
-        display: "flex",
-        gap: "12px",
-        marginBottom: "20px",
-        flexWrap: "wrap"
-      }}>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #374151",
-            background: "#1f2937",
-            color: "#f9fafb",
-            fontSize: "14px"
-          }}
-        >
-          <option value="ALL">All Status</option>
-          <option value="OWNED">Owned</option>
-          <option value="PAINTED">Painted</option>
-          <option value="WISHLIST">Wishlist</option>
-          <option value="FAVORITE">Favorites</option>
-          <option value="SOLD">Sold</option>
-        </select>
-
-        <select
-          value={factionFilter}
-          onChange={(e) => setFactionFilter(e.target.value)}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #374151",
-            background: "#1f2937",
-            color: "#f9fafb",
-            fontSize: "14px"
-          }}
-        >
-          <option value="ALL">All Factions</option>
-          {Array.from(new Set(
-            getCollectedCharacters().map(c => {
-              // Use the correct field name 'faction' from the API (string)
-              if (typeof c.faction === 'string' && c.faction !== 'Unknown') {
-                return c.faction;
-              }
-              return null;
-            }).filter(Boolean) // Filter out null values
-          )).map(faction => (
-            <option key={faction} value={faction}>{faction}</option>
-          ))}
-        </select>
-
-        <select
-          value={eraFilter}
-          onChange={(e) => setEraFilter(e.target.value)}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #374151",
-            background: "#1f2937",
-            color: "#f9fafb",
-            fontSize: "14px"
-          }}
-        >
-          <option value="ALL">All Eras</option>
-          {Array.from(new Set(
-            getCollectedCharacters().flatMap(c => {
-              // Use the correct field name 'era' from the API (array)
-              if (Array.isArray(c.era)) {
-                return c.era;
-              } else if (typeof c.era === 'string') {
-                return [c.era];
-              }
-              return [];
-            }).filter(Boolean) // Filter out empty values
-          )).map(era => (
-            <option key={era} value={era}>{era}</option>
-          ))}
-        </select>
-
-        <select
-          value={tagFilter}
-          onChange={(e) => setTagFilter(e.target.value)}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #374151",
-            background: "#1f2937",
-            color: "#f9fafb",
-            fontSize: "14px"
-          }}
-        >
-          <option value="ALL">All Tags</option>
-          {Array.from(new Set(
-            getCollectedCharacters().flatMap(c => c.tags || [])
-          )).map(tag => (
-            <option key={tag} value={tag}>{tag}</option>
-          ))}
-        </select>
-
-        {/* Quick Paint Filter Button */}
-        <button
-          onClick={() => {
-            if (statusFilter === 'PAINTED') {
-              setStatusFilter('ALL');
-            } else {
-              setStatusFilter('PAINTED');
-            }
-          }}
-          style={{
-            padding: "8px 12px",
-            borderRadius: "6px",
-            border: "1px solid #374151",
-            background: statusFilter === 'PAINTED' ? '#2563eb' : '#1f2937',
-            color: "#f9fafb",
-            fontSize: "14px",
-            cursor: "pointer",
-            transition: "background 0.2s ease",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-          onMouseEnter={(e) => {
-            if (statusFilter !== 'PAINTED') {
-              e.currentTarget.style.background = '#374151';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (statusFilter !== 'PAINTED') {
-              e.currentTarget.style.background = '#1f2937';
-            }
-          }}
-        >
-          🎨 {statusFilter === 'PAINTED' ? 'Show All' : 'Show Painted Only'}
-        </button>
-      </div>
+          <FiltersPanel
+            facets={getCharacterFacets()}
+            filters={filters}
+            onChange={setFilters}
+            darkMode={true}
+            unitTypeLabel="Roles"
+          />
 
       {/* Main layout: Left sidebar with stats, Right main area with characters */}
       <div style={{
@@ -1320,31 +1320,15 @@ export default function MyCollectionPage() {
       {activeTab === 'sets' && (
         <>
           {/* Filters for Sets */}
-          <div style={{
-            display: "flex",
-            gap: "12px",
-            marginBottom: "20px",
-            flexWrap: "wrap"
-          }}>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{
-                padding: "8px 12px",
-                borderRadius: "6px",
-                border: "1px solid #374151",
-                background: "#1f2937",
-                color: "#f9fafb",
-                fontSize: "14px"
-              }}
-            >
-              <option value="ALL">All Status</option>
-              <option value="OWNED">Owned</option>
-              <option value="PAINTED">Painted</option>
-              <option value="WISHLIST">Wishlist</option>
-              <option value="SOLD">Sold</option>
-            </select>
-          </div>
+          <FiltersPanel
+            facets={getSetFacets()}
+            filters={filters}
+            onChange={setFilters}
+            darkMode={true}
+            unitTypeLabel="Set Types"
+            hideFactions={true}
+            hideTags={true}
+          />
 
           {/* Sets Grid */}
           <div style={{
@@ -1607,29 +1591,206 @@ export default function MyCollectionPage() {
 
       {/* Missions Tab */}
       {activeTab === 'missions' && (
-        <div style={{
-          padding: '20px',
-          background: '#1f2937',
-          borderRadius: '8px',
-          border: '1px solid #374151'
-        }}>
-          <h2 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#f9fafb',
-            marginBottom: '16px'
-          }}>
-            Missions Collection
-          </h2>
-          <p style={{
-            color: '#9ca3af',
-            fontSize: '14px',
-            lineHeight: '1.5'
-          }}>
-            Track your completed missions and campaign progress here.
-            <br />
-            <em>Coming soon - this feature will allow you to track mission completion, campaign progress, and unlock rewards.</em>
-          </p>
+        <div>
+          {getCollectedMissions().length === 0 ? (
+            <div style={{
+              padding: '40px',
+              textAlign: 'center',
+              background: '#1f2937',
+              borderRadius: '8px',
+              border: '1px solid #374151'
+            }}>
+              <h2 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#f9fafb',
+                marginBottom: '16px'
+              }}>
+                No missions in collection
+              </h2>
+              <p style={{
+                color: '#9ca3af',
+                fontSize: '14px',
+                marginBottom: '16px'
+              }}>
+                Visit the Missions page to add missions to your collection.
+              </p>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '20px'
+            }}>
+              {getCollectedMissions().map((mission) => (
+                <div
+                  key={mission.id}
+                  onClick={() => setSelectedMission(mission)}
+                  style={{
+                    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                    border: '2px solid #444',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '15px'
+                  }}>
+                    {mission.thumbnail && (
+                      <img
+                        src={mission.thumbnail}
+                        alt={mission.name}
+                        style={{
+                          width: '60px',
+                          height: '60px',
+                          borderRadius: '8px',
+                          marginRight: '15px',
+                          objectFit: 'cover',
+                          border: '2px solid #444'
+                        }}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    )}
+                    <div>
+                      <h3 style={{
+                        color: '#ffd700',
+                        margin: '0 0 5px 0',
+                        fontSize: '18px',
+                        fontWeight: 'bold'
+                      }}>
+                        {mission.name}
+                      </h3>
+                      <p style={{
+                        color: '#ccc',
+                        margin: '0',
+                        fontSize: '14px',
+                        textTransform: 'capitalize'
+                      }}>
+                        {mission.source}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {mission.description && (
+                    <p style={{
+                      color: '#aaa',
+                      fontSize: '14px',
+                      lineHeight: '1.4',
+                      margin: '0 0 15px 0'
+                    }}>
+                      {mission.description}
+                    </p>
+                  )}
+                  
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '12px',
+                    color: '#888',
+                    marginBottom: '15px'
+                  }}>
+                    <span>Struggles: {mission.struggles.length}</span>
+                    <span>Objectives: {mission.objectives.length}</span>
+                  </div>
+
+                  {/* Status Badges */}
+                  <div style={{
+                    display: 'flex',
+                    gap: '6px',
+                    flexWrap: 'wrap'
+                  }}>
+                    {mission.collection.isOwned && (
+                      <span style={{
+                        background: '#10b981',
+                        color: '#fff',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: '600'
+                      }}>
+                        OWNED
+                      </span>
+                    )}
+                    {mission.collection.isCompleted && (
+                      <span style={{
+                        background: '#3b82f6',
+                        color: '#fff',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: '600'
+                      }}>
+                        COMPLETED
+                      </span>
+                    )}
+                    {mission.collection.isWishlist && (
+                      <span style={{
+                        background: '#f59e0b',
+                        color: '#fff',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: '600'
+                      }}>
+                        WISHLIST
+                      </span>
+                    )}
+                    {mission.collection.isFavorite && (
+                      <span style={{
+                        background: '#ef4444',
+                        color: '#fff',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '10px',
+                        fontWeight: '600'
+                      }}>
+                        FAVORITE
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Remove Button */}
+                  <div style={{ marginTop: '10px' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveMission(mission.id);
+                      }}
+                      style={{
+                        background: '#ef4444',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        width: '100%'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = '#dc2626';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = '#ef4444';
+                      }}
+                    >
+                      Remove from Collection
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1922,6 +2083,14 @@ export default function MyCollectionPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Mission Modal */}
+      {selectedMission && (
+        <MissionModal
+          mission={selectedMission}
+          onClose={() => setSelectedMission(null)}
+        />
       )}
     </div>
   );

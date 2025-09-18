@@ -121,6 +121,7 @@ function CharactersPage() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({});
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const [characterCollections, setCharacterCollections] = useState<any[]>([]);
   const { data: authData } = useAuthMe();
   const me = authData?.user;
 
@@ -136,6 +137,30 @@ function CharactersPage() {
     })();
     return () => { alive = false; };
   }, []);
+
+  // Load character collections
+  useEffect(() => {
+    if (!me) return;
+    
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/shatterpoint/characters", { credentials: "include" });
+        const json = await res.json();
+        if (alive && json.ok) {
+          setCharacterCollections(json.collections || []);
+        }
+      } catch (err) {
+        console.error('Error loading character collections:', err);
+      }
+    })();
+    return () => { alive = false; };
+  }, [me]);
+
+  // Check if character is in collection
+  const isCharacterInCollection = (characterId: string) => {
+    return characterCollections.some(c => c.characterId === characterId && c.isOwned);
+  };
 
   // Filter characters based on current filters
   const filteredData = useMemo(() => {
@@ -214,13 +239,19 @@ function CharactersPage() {
       'Luke Skywalker (Jedi Knight)': 'jedi-knight-luke-skywalker',
       'Leia Organa (Boushh Disguise)': 'boushh-leia-organa',
       'Lando Calrissian & R2-D2': 'lando-and-r2-d2-inside-job',
+      
+      // SWP28 - Not Accepting Surrenders Squad Pack
+      'Grand Admiral Thrawn': 'grand-admiral-thrawn',
+      'Agent Kallus': 'agent-kallus-inside-man',
+      'Agent Kallus, Inside Man': 'agent-kallus-inside-man',
+      'ISB Agents': 'isb-agents',
     };
     
     return nameMap[characterName] || characterName.toLowerCase().replace(/[^a-z0-9]/g, '-');
   };
 
   // Auto-add sets to collection when character is added
-  const checkAndAutoAddSets = async () => {
+  const checkAndAutoAddSets = async (addedCharacterId: string) => {
     if (!me) return;
     
     try {
@@ -247,21 +278,46 @@ function CharactersPage() {
             { role: 'Secondary', name: 'IG-11' },
             { role: 'Supporting', name: 'Greef Karga' }
           ]
+        },
+        {
+          id: 'swp28',
+          name: 'Not Accepting Surrenders Squad Pack',
+          code: 'SWP28',
+          type: 'Squad Pack',
+          description: 'Imperial forces led by Grand Admiral Thrawn',
+          characters: [
+            { role: 'Primary', name: 'Grand Admiral Thrawn' },
+            { role: 'Secondary', name: 'Agent Kallus, Inside Man' },
+            { role: 'Supporting', name: 'ISB Agents' }
+          ]
         }
         // Add more sets as needed
       ];
       
-      // Check each set for auto-add
-      for (const set of sets) {
-        if (!set.characters || set.characters.length === 0) continue;
-        
+      // Find sets that contain the added character
+      const relevantSets = sets.filter(set => {
+        if (!set.characters || set.characters.length === 0) return false;
+        return set.characters.some(character => {
+          const characterId = getCharacterId(character.name);
+          return characterId === addedCharacterId;
+        });
+      });
+      
+      console.log(`🔍 Checking sets for character ${addedCharacterId}:`, relevantSets.map(s => s.name));
+      console.log(`📊 Current character collections:`, characterCollections.map(c => ({ characterId: c.characterId, isOwned: c.isOwned, isPainted: c.isPainted })));
+      
+      // Check only relevant sets for auto-add
+      for (const set of relevantSets) {
+        console.log(`🔍 Checking set "${set.name}" for completeness...`);
         // Check if user has all characters from this set
         const hasAllCharacters = set.characters.every(character => {
           const characterId = getCharacterId(character.name);
-          return characterCollections.some(collection => 
+          const hasCharacter = characterCollections.some(collection => 
             collection.characterId === characterId && 
             (collection.isOwned || collection.isPainted)
           );
+          console.log(`  - Character "${character.name}" (ID: ${characterId}): ${hasCharacter ? '✅' : '❌'}`);
+          return hasCharacter;
         });
         
         if (hasAllCharacters) {
@@ -347,8 +403,15 @@ function CharactersPage() {
       // Show success message
       alert(`Added ${characterId} to your collection!`);
       
-      // Check if any sets should be auto-added
-      await checkAndAutoAddSets();
+      // Refresh character collections
+      const res = await fetch("/api/shatterpoint/characters", { credentials: "include" });
+      const json = await res.json();
+      if (json.ok) {
+        setCharacterCollections(json.collections || []);
+      }
+      
+      // Check if any sets should be auto-added for this specific character
+      await checkAndAutoAddSets(characterId);
       
     } catch (error) {
       console.error("Error adding character to collection:", error);
@@ -466,11 +529,17 @@ function CharactersPage() {
       {!loading && data.length > 0 && (
         <>
           {/* Filters Panel - Single Line */}
-          <div style={{ display: 'block', width: '100%' }}>
+          <div style={{ 
+            display: 'flex',
+            gap: '16px',
+            marginBottom: '20px',
+            flexWrap: 'wrap'
+          }}>
             <FiltersPanel
               facets={facets}
               filters={filters}
               onChange={setFilters}
+              darkMode={true}
             />
           </div>
 
@@ -518,7 +587,7 @@ function CharactersPage() {
                 height: "320px",
                 overflow: "hidden",
                 position: "relative",
-                background: "#f8f9fa",
+                background: "#1f2937",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
@@ -527,127 +596,29 @@ function CharactersPage() {
                   src={c.portrait?.startsWith('/') ? c.portrait : (c.portrait ?? "https://picsum.photos/seed/placeholder/400/520")} 
                   alt={c.name}
                   style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    width: "auto",
-                    height: "auto",
-                    objectFit: "contain",
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
                     objectPosition: "center"
                   }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "https://picsum.photos/seed/placeholder/400/520";
                   }}
                 />
-                {/* Collection, Wishlist and Favorites buttons - only show for logged in users */}
-                {me && (
+                {/* Sign in message for unauthenticated users */}
+                {!me && (
                   <div style={{
                     position: "absolute",
                     top: "8px",
                     right: "8px",
-                    display: "flex",
-                    gap: "4px"
+                    background: "rgba(0, 0, 0, 0.8)",
+                    color: "#9ca3af",
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    fontSize: "10px",
+                    fontWeight: "500"
                   }}>
-                    {/* Collection button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent opening modal
-                        handleAddToCollection(c.id);
-                      }}
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "50%",
-                        background: "rgba(0, 0, 0, 0.7)",
-                        color: "white",
-                        border: "none",
-                        fontSize: "16px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.9)";
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                      title="Add to collection"
-                    >
-                      +
-                    </button>
-                    
-                    {/* Wishlist button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent opening modal
-                        handleAddToWishlist(c.id);
-                      }}
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "50%",
-                        background: "rgba(0, 0, 0, 0.7)",
-                        color: "white",
-                        border: "none",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(220, 38, 38, 0.9)";
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                      title="Add to wishlist"
-                    >
-                      ⭐
-                    </button>
-
-                    {/* Favorites button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent opening modal
-                        handleAddToFavorites(c.id);
-                      }}
-                      style={{
-                        width: "28px",
-                        height: "28px",
-                        borderRadius: "50%",
-                        background: "rgba(0, 0, 0, 0.7)",
-                        color: "white",
-                        border: "none",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.2s ease"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255, 193, 7, 0.9)";
-                        e.currentTarget.style.transform = "scale(1.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.7)";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                      title="Add to favorites"
-                    >
-                      ♥
-                    </button>
+                    Sign in to add
                   </div>
                 )}
               </div>
@@ -749,6 +720,103 @@ function CharactersPage() {
                         +{c.tags.length - 2}
                       </span>
                     )}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                {me && (
+                  <div style={{
+                    marginTop: "12px",
+                    display: "flex",
+                    gap: "6px",
+                    flexWrap: "wrap"
+                  }}>
+                    {/* Add to Collection / Owned Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCollection(c.id);
+                      }}
+                      style={{
+                        background: isCharacterInCollection(c.id) ? "#16a34a" : "#16a34a",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "background 0.2s ease",
+                        flex: "1",
+                        minWidth: "80px"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#15803d";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#16a34a";
+                      }}
+                    >
+                      {isCharacterInCollection(c.id) ? "✓ Owned" : "+ Collection"}
+                    </button>
+
+                    {/* Add to Wishlist Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToWishlist(c.id);
+                      }}
+                      style={{
+                        background: "#ea580c",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "background 0.2s ease",
+                        flex: "1",
+                        minWidth: "80px"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#c2410c";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#ea580c";
+                      }}
+                    >
+                      ⭐ Wishlist
+                    </button>
+
+                    {/* Add to Favorites Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToFavorites(c.id);
+                      }}
+                      style={{
+                        background: "#f59e0b",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "4px 8px",
+                        fontSize: "10px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "background 0.2s ease",
+                        flex: "1",
+                        minWidth: "80px"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#d97706";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#f59e0b";
+                      }}
+                    >
+                      ♥ Favorite
+                    </button>
                   </div>
                 )}
               </div>

@@ -19,6 +19,7 @@ export const setsData: Set[] = [
     name: 'Star Wars: Shatterpoint Core Set',
     code: 'SWP01',
     type: 'Core Set',
+    image: '/sets/swp01.jpg',
     description: 'The essential starter set for Star Wars: Shatterpoint',
     product_url: 'https://www.atomicmassgames.com/character/star-wars-shatterpoint-core-set/',
     characters: [
@@ -41,6 +42,7 @@ export const setsData: Set[] = [
     name: 'Twice the Pride Squad Pack',
     code: 'SWP03',
     type: 'Squad Pack',
+    image: '/sets/swp03.jpg',
     description: 'Count Dooku and his allies',
     product_url: 'https://www.atomicmassgames.com/character/twice-the-pride-squad-pack/',
     characters: [

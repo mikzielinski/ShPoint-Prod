@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
-import { Set } from '../types';
+import { Set as SetType } from '../types';
 import { setsData } from '../data/sets';
+import FiltersPanel from '../components/FiltersPanel';
+import { Facets, Filters } from '../lib/shpoint/characters/types';
 import CharacterModal from '../components/CharacterModal';
 
 // SetImageWithFallback component for displaying set images
-const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
+const SetImageWithFallback: React.FC<{ set: SetType; size?: number }> = ({ set, size = 60 }) => {
   const [imageError, setImageError] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -88,7 +90,7 @@ const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
     }
   };
 
-  const getSetIcon = (set: Set): string => {
+  const getSetIcon = (set: SetType): string => {
     switch (set.type) {
       case 'Core Set': return '🎯';
       case 'Squad Pack': return '👥';
@@ -103,8 +105,8 @@ const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
   if (imageError || possibleUrls.length === 0) {
     return (
       <div style={{
-        width: '60px',
-        height: '60px',
+        width: `${size}px`,
+        height: `${size}px`,
         borderRadius: '6px',
         border: '1px solid #374151',
         background: '#374151',
@@ -112,7 +114,7 @@ const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
         alignItems: 'center',
         justifyContent: 'center',
         color: '#9ca3af',
-        fontSize: '20px'
+        fontSize: `${size * 0.33}px`
       }}>
         {getSetIcon(set)}
       </div>
@@ -121,8 +123,8 @@ const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
 
   return (
     <div style={{
-      width: '60px',
-      height: '60px',
+      width: `${size}px`,
+      height: `${size}px`,
       borderRadius: '6px',
       border: '1px solid #374151',
       overflow: 'hidden',
@@ -144,22 +146,24 @@ const SetImageWithFallback: React.FC<{ set: Set }> = ({ set }) => {
 };
 
 const SetsPage: React.FC = () => {
-  const { auth, me } = useAuth();
-  const [allSets, setAllSets] = useState<Set[]>([]);
+  const { auth } = useAuth();
+  const user = auth.status === 'authenticated' ? auth.user : null;
+  const [allSets, setAllSets] = useState<SetType[]>([]);
   const [setCollections, setSetCollections] = useState<any[]>([]);
   const [characterCollections, setCharacterCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'OWNED' | 'PAINTED' | 'WISHLIST' | 'SOLD'>('ALL');
-  const [typeFilter, setTypeFilter] = useState<'ALL' | 'Core Set' | 'Squad Pack' | 'Duel Pack' | 'Terrain Pack' | 'Mission Pack' | 'Accessories'>('ALL');
-  const [selectedSet, setSelectedSet] = useState<Set | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
+  const [selectedSet, setSelectedSet] = useState<SetType | null>(null);
   const [showSetModal, setShowSetModal] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
   const [showCharacterModal, setShowCharacterModal] = useState(false);
   
 
   // Use shared sets data
-  const mockSets: Set[] = setsData;
+  const mockSets: SetType[] = setsData;
   useEffect(() => {
+    console.log('📦 Loading sets data:', mockSets.length, 'sets');
+    console.log('📦 First few sets:', mockSets.slice(0, 3).map(s => ({ id: s.id, name: s.name, type: s.type })));
     setAllSets(mockSets);
     setLoading(false);
   }, []);
@@ -168,7 +172,7 @@ const SetsPage: React.FC = () => {
   useEffect(() => {
     const loadSetCollections = async () => {
       // Only proceed if user is authenticated
-      if (auth.status !== 'authenticated' || !me) {
+      if (auth.status !== 'authenticated' || !user) {
         setSetCollections([]);
         return;
       }
@@ -198,12 +202,12 @@ const SetsPage: React.FC = () => {
     };
 
     loadSetCollections();
-  }, [auth.status, me]);
+  }, [auth.status, user]);
 
   // Load user's character collections
   useEffect(() => {
     const loadCharacterCollections = async () => {
-      if (auth.status !== 'authenticated' || !me) {
+      if (auth.status !== 'authenticated' || !user) {
         setCharacterCollections([]);
         return;
       }
@@ -230,7 +234,7 @@ const SetsPage: React.FC = () => {
     };
 
     loadCharacterCollections();
-  }, [auth.status, me]);
+  }, [auth.status, user]);
 
   // Auto-add sets to collection when character collections change
   useEffect(() => {
@@ -239,7 +243,7 @@ const SetsPage: React.FC = () => {
         autoAddSetIfComplete(set);
       });
     }
-  }, [characterCollections, allSets, me]);
+  }, [characterCollections, allSets, user]);
 
   // Helper function to map character names to character IDs
   const getCharacterId = (characterName: string): string => {
@@ -321,7 +325,7 @@ const SetsPage: React.FC = () => {
   };
 
   // Check if user has all characters from a set
-  const hasAllCharactersFromSet = (set: Set): boolean => {
+  const hasAllCharactersFromSet = (set: SetType): boolean => {
     if (!set.characters || set.characters.length === 0) return false;
     if (!characterCollections || characterCollections.length === 0) return false;
     
@@ -333,7 +337,7 @@ const SetsPage: React.FC = () => {
       const characterId = getCharacterId(character.name);
       const hasCharacter = characterCollections.some(collection => 
         collection.characterId === characterId && 
-        (collection.status === 'OWNED' || collection.status === 'PAINTED')
+        (collection.isOwned || collection.isPainted)
       );
       
       console.log(`  - "${character.name}" → ID: "${characterId}" → ${hasCharacter ? '✅ FOUND' : '❌ NOT FOUND'}`);
@@ -346,11 +350,13 @@ const SetsPage: React.FC = () => {
 
   const getCollectedSets = useMemo(() => {
     if (!allSets || !Array.isArray(allSets)) {
+      console.log('❌ allSets is not valid:', allSets);
       return [];
     }
     
     const result = allSets.map(set => {
       if (!set || typeof set !== 'object') {
+        console.log('❌ Invalid set:', set);
         return null;
       }
       
@@ -364,39 +370,66 @@ const SetsPage: React.FC = () => {
       };
     }).filter(Boolean); // Remove null entries
     
+    console.log('📦 getCollectedSets result:', result.length, 'sets');
+    console.log('📦 Sets with collections:', result.filter(s => s.collection).length);
+    console.log('📦 Sets without collections:', result.filter(s => !s.collection).length);
+    
     return result;
   }, [allSets, setCollections]);
 
   const getFilteredSets = useMemo(() => {
     let filtered = getCollectedSets;
+    console.log('🔍 Starting with', filtered.length, 'sets from getCollectedSets');
     
-    // Only show Duel Packs, Core Sets, and Squad Packs
-    filtered = filtered.filter(s => 
-      s.type === 'Duel Pack' || 
-      s.type === 'Core Set' || 
-      s.type === 'Squad Pack'
-    );
-    
-    // Filter by status
-    if (statusFilter !== 'ALL') {
-      filtered = filtered.filter(s => s.collection?.status === statusFilter);
+    // Filter by text search
+    if (filters.text) {
+      const searchText = filters.text.toLowerCase();
+      filtered = filtered.filter(s => 
+        s.name.toLowerCase().includes(searchText) ||
+        s.type.toLowerCase().includes(searchText)
+      );
+      console.log('🔍 After text filter:', filtered.length, 'sets');
     }
     
-    // Filter by type
-    if (typeFilter !== 'ALL') {
-      filtered = filtered.filter(s => s.type === typeFilter);
+    // Filter by unit types (set types)
+    if (filters.unitTypes && filters.unitTypes.length > 0) {
+      filtered = filtered.filter(s => filters.unitTypes!.includes(s.type));
+      console.log('🔍 After unit types filter:', filtered.length, 'sets');
     }
     
+    console.log('🔍 Final filtered sets:', filtered.length);
     return filtered;
-  }, [getCollectedSets, statusFilter, typeFilter]);
+  }, [getCollectedSets, filters]);
+
+  // Generate facets from sets data
+  const facets = useMemo(() => {
+    const setTypes = [...new Set(allSets.map(s => s.type).filter(Boolean))];
+    const setNames = allSets.map(s => s.name).filter(Boolean);
+    
+    return {
+      unitTypes: setTypes, // Using setTypes as unitTypes for consistency
+      factions: [], // Sets don't have factions
+      eras: [], // Sets don't have eras
+      tags: setNames // Using set names as tags for search
+    };
+  }, [allSets]);
 
   const handleAddToCollection = async (setId: string, status: 'OWNED' | 'WISHLIST') => {
-    if (!me) {
+    if (!user) {
       alert('Please log in to add sets to your collection');
       return;
     }
 
     try {
+      // Convert status to boolean fields
+      const statusData = {
+        isOwned: status === 'OWNED',
+        isPainted: false,
+        isWishlist: status === 'WISHLIST',
+        isSold: false,
+        isFavorite: false,
+      };
+
       // Add set to collection
       const response = await fetch(api('/api/shatterpoint/sets'), {
         method: 'POST',
@@ -406,7 +439,7 @@ const SetsPage: React.FC = () => {
         credentials: 'include',
         body: JSON.stringify({
           setId,
-          status
+          ...statusData
         }),
       });
 
@@ -465,14 +498,14 @@ const SetsPage: React.FC = () => {
   };
 
   // Auto-add set to collection if user has all characters
-  const autoAddSetIfComplete = async (set: Set) => {
+  const autoAddSetIfComplete = async (set: SetType) => {
     console.log(`Checking auto-add for set "${set.name}":`, {
-      hasUser: !!me,
+      hasUser: !!user,
       alreadyCollected: !!set.collection,
       hasAllCharacters: hasAllCharactersFromSet(set)
     });
     
-    if (!me || set.collection || !hasAllCharactersFromSet(set)) {
+    if (!user || set.collection || !hasAllCharactersFromSet(set)) {
       console.log(`Skipping auto-add for set "${set.name}"`);
       return;
     }
@@ -488,7 +521,11 @@ const SetsPage: React.FC = () => {
         credentials: 'include',
         body: JSON.stringify({
           setId: set.id,
-          status: 'OWNED'
+          isOwned: true,
+          isPainted: false,
+          isWishlist: false,
+          isSold: false,
+          isFavorite: false
         })
       });
 
@@ -512,21 +549,27 @@ const SetsPage: React.FC = () => {
   };
 
   const handleUpdateStatus = async (setId: string, newStatus: 'OWNED' | 'PAINTED' | 'WISHLIST' | 'SOLD') => {
-    if (!me) {
+    if (!user) {
       alert('Please log in to update set status');
       return;
     }
 
     try {
+      // Convert status to boolean fields
+      const statusData = {
+        isOwned: newStatus === 'OWNED' || newStatus === 'PAINTED',
+        isPainted: newStatus === 'PAINTED',
+        isWishlist: newStatus === 'WISHLIST',
+        isSold: newStatus === 'SOLD',
+      };
+
       const response = await fetch(api(`/api/shatterpoint/sets/${setId}`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({
-          status: newStatus
-        }),
+        body: JSON.stringify(statusData),
       });
 
       if (response.ok) {
@@ -535,7 +578,7 @@ const SetsPage: React.FC = () => {
             return [];
           }
           
-          return prev.map(c => c.setId === setId ? { ...c, status: newStatus } : c);
+          return prev.map(c => c.setId === setId ? { ...c, ...statusData } : c);
         });
       } else {
         console.error('Failed to update set status');
@@ -546,7 +589,7 @@ const SetsPage: React.FC = () => {
   };
 
   const handleRemoveFromCollection = async (setId: string) => {
-    if (!me) {
+    if (!user) {
       alert('Please log in to remove sets from collection');
       return;
     }
@@ -595,14 +638,22 @@ const SetsPage: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'OWNED': return '#16a34a';
-      case 'PAINTED': return '#3b82f6';
-      case 'WISHLIST': return '#f59e0b';
-      case 'SOLD': return '#6b7280';
-      default: return '#6b7280';
-    }
+  const getStatusColor = (collection: any) => {
+    if (!collection) return '#6b7280';
+    if (collection.isPainted) return '#3b82f6';
+    if (collection.isOwned) return '#16a34a';
+    if (collection.isWishlist) return '#f59e0b';
+    if (collection.isSold) return '#6b7280';
+    return '#6b7280';
+  };
+
+  const getStatusText = (collection: any) => {
+    if (!collection) return '';
+    if (collection.isPainted) return 'PAINTED';
+    if (collection.isOwned) return 'OWNED';
+    if (collection.isWishlist) return 'WISHLIST';
+    if (collection.isSold) return 'SOLD';
+    return '';
   };
 
   const getTypeColor = (type: string) => {
@@ -618,7 +669,7 @@ const SetsPage: React.FC = () => {
   };
 
   // Modal handlers
-  const handleSetClick = (set: Set) => {
+  const handleSetClick = (set: SetType) => {
     setSelectedSet(set);
     setShowSetModal(true);
   };
@@ -715,7 +766,7 @@ const SetsPage: React.FC = () => {
   };
 
   // SetModal Component
-  const SetModal: React.FC<{ set: Set; onClose: () => void }> = ({ set, onClose }) => {
+  const SetModal: React.FC<{ set: SetType; onClose: () => void }> = ({ set, onClose }) => {
     const getCollection = () => {
       return (setCollections && Array.isArray(setCollections)) 
         ? setCollections.find(c => c.setId === set.id) || null
@@ -780,21 +831,7 @@ const SetsPage: React.FC = () => {
               gap: '16px',
               marginBottom: '20px'
             }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '8px',
-                border: '1px solid #374151',
-                background: '#374151',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#9ca3af',
-                fontSize: '12px',
-                fontWeight: '600'
-              }}>
-                {set.code}
-              </div>
+              <SetImageWithFallback set={set} size={120} />
               <div>
                 <h2 style={{
                   margin: 0,
@@ -825,10 +862,10 @@ const SetsPage: React.FC = () => {
                       borderRadius: '4px',
                       fontSize: '12px',
                       fontWeight: '600',
-                      backgroundColor: getStatusColor(collection.status),
+                      backgroundColor: getStatusColor(collection),
                       color: 'white'
                     }}>
-                      {collection.status}
+                      {getStatusText(collection)}
                     </span>
                   )}
                 </div>
@@ -933,7 +970,7 @@ const SetsPage: React.FC = () => {
             )}
 
             {/* Action Buttons */}
-            {me && (
+            {user ? (
               <div 
                 style={{
                   display: 'flex',
@@ -997,7 +1034,7 @@ const SetsPage: React.FC = () => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         border: 'none',
-                        background: collection?.status === 'OWNED' ? '#16a34a' : '#374151',
+                        background: collection?.isOwned ? '#16a34a' : '#374151',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -1013,7 +1050,7 @@ const SetsPage: React.FC = () => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         border: 'none',
-                        background: collection?.status === 'PAINTED' ? '#3b82f6' : '#374151',
+                        background: collection?.isPainted ? '#3b82f6' : '#374151',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -1029,7 +1066,7 @@ const SetsPage: React.FC = () => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         border: 'none',
-                        background: collection?.status === 'WISHLIST' ? '#f59e0b' : '#374151',
+                        background: collection?.isWishlist ? '#f59e0b' : '#374151',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -1058,12 +1095,33 @@ const SetsPage: React.FC = () => {
                   </>
                 )}
               </div>
+            ) : (
+              <div style={{ 
+                textAlign: 'center',
+                padding: '10px',
+                backgroundColor: '#374151',
+                borderRadius: '6px',
+                color: '#9ca3af',
+                fontSize: '12px'
+              }}>
+                Sign in to add sets to your collection
+              </div>
             )}
           </div>
         </div>
       </div>
     );
   };
+
+  // Debug logging
+  console.log('🔍 SetsPage render state:');
+  console.log('  - loading:', loading);
+  console.log('  - auth.status:', auth.status);
+  console.log('  - user:', !!user);
+  console.log('  - allSets.length:', allSets.length);
+  console.log('  - setCollections.length:', setCollections.length);
+  console.log('  - getFilteredSets.length:', getFilteredSets.length);
+  console.log('  - filters:', filters);
 
   if (loading) {
     return (
@@ -1097,45 +1155,15 @@ const SetsPage: React.FC = () => {
         marginBottom: '20px',
         flexWrap: 'wrap'
       }}>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
-          style={{
-            padding: '8px 12px',
-            borderRadius: '6px',
-            border: '1px solid #374151',
-            background: '#1f2937',
-            color: '#f9fafb',
-            fontSize: '14px'
-          }}
-        >
-          <option value="ALL">All Status</option>
-          <option value="OWNED">Owned</option>
-          <option value="PAINTED">Painted</option>
-          <option value="WISHLIST">Wishlist</option>
-          <option value="SOLD">Sold</option>
-        </select>
-
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as any)}
-          style={{
-            padding: '8px 12px',
-            borderRadius: '6px',
-            border: '1px solid #374151',
-            background: '#1f2937',
-            color: '#f9fafb',
-            fontSize: '14px'
-          }}
-        >
-          <option value="ALL">All Types</option>
-          <option value="Core Set">Core Set</option>
-          <option value="Squad Pack">Squad Pack</option>
-          <option value="Duel Pack">Duel Pack</option>
-          <option value="Terrain Pack">Terrain Pack</option>
-          <option value="Mission Pack">Mission Pack</option>
-          <option value="Accessories">Accessories</option>
-        </select>
+        <FiltersPanel
+          facets={facets}
+          filters={filters}
+          onChange={setFilters}
+          darkMode={true}
+          hideTags={true}
+          hideFactions={true}
+          unitTypeLabel="Set Types"
+        />
       </div>
 
       {/* Sets Grid */}
@@ -1176,10 +1204,10 @@ const SetsPage: React.FC = () => {
                 borderRadius: '4px',
                 fontSize: '12px',
                 fontWeight: '600',
-                backgroundColor: getStatusColor(set.collection.status),
+                backgroundColor: getStatusColor(set.collection),
                 color: 'white'
               }}>
-                {set.collection.status}
+                {getStatusText(set.collection)}
               </div>
             )}
 
@@ -1241,7 +1269,7 @@ const SetsPage: React.FC = () => {
             )}
 
             {/* Action Buttons */}
-            {me && (
+            {user ? (
               <div 
                 style={{
                   display: 'flex',
@@ -1305,7 +1333,7 @@ const SetsPage: React.FC = () => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         border: 'none',
-                        background: set.collection?.status === 'OWNED' ? '#16a34a' : '#374151',
+                        background: set.collection?.isOwned ? '#16a34a' : '#374151',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -1321,7 +1349,7 @@ const SetsPage: React.FC = () => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         border: 'none',
-                        background: set.collection?.status === 'PAINTED' ? '#3b82f6' : '#374151',
+                        background: set.collection?.isPainted ? '#3b82f6' : '#374151',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -1337,7 +1365,7 @@ const SetsPage: React.FC = () => {
                         padding: '6px 12px',
                         borderRadius: '6px',
                         border: 'none',
-                        background: set.collection?.status === 'WISHLIST' ? '#f59e0b' : '#374151',
+                        background: set.collection?.isWishlist ? '#f59e0b' : '#374151',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '600',
@@ -1365,6 +1393,17 @@ const SetsPage: React.FC = () => {
                     </button>
                   </>
                 )}
+              </div>
+            ) : (
+              <div style={{ 
+                textAlign: 'center',
+                padding: '10px',
+                backgroundColor: '#374151',
+                borderRadius: '6px',
+                color: '#9ca3af',
+                fontSize: '12px'
+              }}>
+                Sign in to add sets to your collection
               </div>
             )}
           </div>
