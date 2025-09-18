@@ -89,7 +89,7 @@ passport.use(
     async (_accessToken: string, _refreshToken: string, profile: Profile, done) => {
       try {
         const email = profile.emails?.[0]?.value?.toLowerCase().trim() || null;
-        if (!email) return done(new Error("Email not provided by Google"));
+        if (!email) return done(null, false, { message: "Email not provided by Google" });
 
         // Check if email is in allowed list
         const allowedEmail = await prisma.allowedEmail.findUnique({
@@ -97,7 +97,7 @@ passport.use(
         });
 
         if (!allowedEmail) {
-          return done(new Error("Email not authorized. Please contact administrator."));
+          return done(null, false, { message: "Email not authorized. Please contact administrator." });
         }
 
         const name = profile.displayName || null;
@@ -168,13 +168,6 @@ function publicUser(u: any) {
   };
 }
 
-// Error handling middleware for authentication
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  if (err.message === "Email not authorized. Please contact administrator.") {
-    return res.redirect('/unauthorized');
-  }
-  next(err);
-});
 
 // ===== Health
 app.get("/health", (_req, res) => res.json({ ok: true }));
@@ -192,7 +185,7 @@ app.get(
 // callback
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login?error=oauth_failed" }),
+  passport.authenticate("google", { failureRedirect: `${CLIENT_ORIGIN}/unauthorized` }),
   (req, res) => {
     // express-session automatically handles session management with Passport
     res.redirect(`${CLIENT_ORIGIN}/characters`);
@@ -1663,6 +1656,14 @@ app.post("/api/admin/promote-to-admin", ensureAuth, async (req, res) => {
     console.error("Error promoting user:", error);
     res.status(500).json({ ok: false, error: "Failed to promote user" });
   }
+});
+
+// Error handling middleware for authentication - must be after all routes
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err.message === "Email not authorized. Please contact administrator.") {
+    return res.redirect(`${CLIENT_ORIGIN}/unauthorized`);
+  }
+  next(err);
 });
 
 // ===== start
