@@ -7,6 +7,8 @@ import ShatterpointLibraryPage from "./pages/ShatterpointLibraryPage";
 import SetsPage from "./pages/SetsPage";
 import MissionsPage from "./pages/MissionsPage";
 import AdminPage from "./pages/AdminPage";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import BannedPage from "./pages/BannedPage";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import AvatarManager from "./components/AvatarManager";
@@ -15,12 +17,22 @@ import "./components/NavBar.css";
 
 /* ===== NavBar (w tym pliku dla prostoty) ===== */
 type MeResponse =
-  | { user: { id: string; email?: string; name?: string; username?: string | null; role?: string; image?: string | null; avatarUrl?: string | null } }
+  | { user: { id: string; email?: string; name?: string; username?: string | null; role?: string; status?: string; image?: string | null; avatarUrl?: string | null; suspendedUntil?: string | null } }
   | { user?: undefined };
 
 function useAuthMe() {
   const [data, setData] = useState<MeResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const refetch = async () => {
+    try {
+      const res = await fetch("/api/me", { credentials: "include" });
+      setData(res.ok ? ((await res.json()) as MeResponse) : { user: undefined });
+    } catch {
+      setData({ user: undefined });
+    }
+  };
+  
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -34,7 +46,8 @@ function useAuthMe() {
     })();
     return () => { alive = false; };
   }, []);
-  return { data, loading };
+  
+  return { data, loading, refetch };
 }
 
 function RoleChip({ role }: { role?: string }) {
@@ -105,7 +118,7 @@ function NavBar({ onAvatarClick }: { onAvatarClick?: () => void }) {
                     {(me.avatarUrl || me.image) ? (
                       <img 
                         className="nb-btn-icon" 
-                        src={me.avatarUrl || me.image} 
+                        src={me.avatarUrl || me.image || undefined} 
                         alt="avatar" 
                         style={{
                           borderRadius: "50%", 
@@ -113,17 +126,19 @@ function NavBar({ onAvatarClick }: { onAvatarClick?: () => void }) {
                           height: "32px",
                           objectFit: "cover"
                         }}
-                        onError={(e) => {
-                          console.log("Avatar load error:", e.target.src);
-                          // Hide the broken image and show initials
-                          e.target.style.display = "none";
-                          e.target.nextElementSibling.style.display = "flex";
-                        }}
-                        onLoad={async (e) => {
-                          console.log("Avatar loaded successfully:", e.target.src);
-                          
-                          // If this is Google image and user doesn't have custom avatarUrl, save it as backup
-                          if (me.image && e.target.src === me.image && !me.avatarUrl) {
+                           onError={(e) => {
+                             const target = e.target as HTMLImageElement;
+                             console.log("Avatar load error:", target.src);
+                             // Hide the broken image and show initials
+                             target.style.display = "none";
+                             (target.nextElementSibling as HTMLElement).style.display = "flex";
+                           }}
+                           onLoad={async (e) => {
+                             const target = e.target as HTMLImageElement;
+                             console.log("Avatar loaded successfully:", target.src);
+                             
+                             // If this is Google image and user doesn't have custom avatarUrl, save it as backup
+                             if (me.image && target.src === me.image && !me.avatarUrl) {
                             try {
                               await fetch("/api/user/save-google-avatar", {
                                 method: "PATCH",
@@ -907,7 +922,7 @@ function CharactersPage() {
             name: selectedCharacter.name,
             unit_type: selectedCharacter.role as "Primary" | "Secondary" | "Support",
             squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
-            portrait: selectedCharacter.portrait
+            portrait: selectedCharacter.portrait || undefined
           }}
         />
       )}
@@ -918,6 +933,29 @@ function CharactersPage() {
 /* ====== Routes ====== */
 export default function AppRoutes() {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const { data: me } = useAuthMe();
+
+  // Check user status and redirect if needed
+  useEffect(() => {
+    if (me?.user) {
+      const user = me.user;
+      
+      // Check if user is suspended
+      if (user.status === 'SUSPENDED' && window.location.pathname !== '/banned' && window.location.pathname !== '/library') {
+        window.location.href = '/banned';
+        return;
+      }
+      
+      // Check if user is not authorized (no role or invalid role)
+      if (!user.role || user.role === 'GUEST') {
+        // Allow access to library and unauthorized page
+        if (!['/library', '/unauthorized'].includes(window.location.pathname)) {
+          window.location.href = '/unauthorized';
+          return;
+        }
+      }
+    }
+  }, [me]);
 
   return (
     <>
@@ -936,6 +974,8 @@ export default function AppRoutes() {
         <Route path="/my-strike-teams" element={<MyStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
+        <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
+        <Route path="/banned" element={<BannedPage/>}/>
         <Route path="/builder" element={
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
             <h1>Builder</h1><p>Work in progress…</p>

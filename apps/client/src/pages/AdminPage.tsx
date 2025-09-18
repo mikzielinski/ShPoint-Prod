@@ -436,7 +436,7 @@ export default function AdminPage() {
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value as Role)}
-                  className="input"
+                  className="select"
                   style={{ width: "100%" }}
                 >
                   <option value="USER">User</option>
