@@ -13,6 +13,7 @@ import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import AvatarManager from "./components/AvatarManager";
 import Modal from "./components/Modal";
+import UserInvitationModal from "./components/UserInvitationModal";
 import "./components/NavBar.css";
 
 /* ===== NavBar (w tym pliku dla prostoty) ===== */
@@ -58,7 +59,7 @@ function RoleChip({ role }: { role?: string }) {
   return <span className={cls}>{role ?? "USER"}</span>;
 }
 
-function NavBar({ onAvatarClick }: { onAvatarClick?: () => void }) {
+function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; onInviteClick?: () => void }) {
   const { data, loading, refetch } = useAuthMe();
   const me = data?.user;
 
@@ -183,6 +184,21 @@ function NavBar({ onAvatarClick }: { onAvatarClick?: () => void }) {
                     <span className="nb-user">{me.username ?? me.name ?? me.email ?? "User"}</span>
                     <RoleChip role={me.role} />
                   </div>
+                  {/* Show invitation button only for non-suspended users */}
+                  {me.status !== 'SUSPENDED' && (
+                    <button 
+                      className="nb-btn" 
+                      onClick={onInviteClick}
+                      style={{
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        color: 'white',
+                        border: 'none',
+                        marginRight: '8px'
+                      }}
+                    >
+                      📧 Invite
+                    </button>
+                  )}
                   <button className="nb-btn" onClick={doLogout}>Sign out</button>
                 </>
           ) : (
@@ -941,6 +957,7 @@ function CharactersPage() {
 /* ====== Routes ====== */
 export default function AppRoutes() {
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
   const { data: me, refetch } = useAuthMe();
 
   // Check user status and redirect if needed
@@ -983,7 +1000,10 @@ export default function AppRoutes() {
 
   return (
     <>
-      <NavBar onAvatarClick={() => setShowAvatarModal(true)} />
+      <NavBar 
+        onAvatarClick={() => setShowAvatarModal(true)} 
+        onInviteClick={() => setShowInvitationModal(true)} 
+      />
       <Routes>
         <Route path="/" element={
           <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
@@ -1016,6 +1036,12 @@ export default function AppRoutes() {
           />
         </Modal>
       )}
+      
+      {/* User Invitation Modal */}
+      <UserInvitationModal 
+        isOpen={showInvitationModal} 
+        onClose={() => setShowInvitationModal(false)} 
+      />
     </>
   );
 }
