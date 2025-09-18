@@ -27,6 +27,9 @@ model User {
   suspendedBy          String?
   suspendedReason      String?
   suspendedUntil       DateTime?
+  invitationsSent      Int                   @default(0)
+  invitationsLimit     Int                   @default(0)
+  lastInvitationSentAt DateTime?
   cards                Card[]
   characterCollections CharacterCollection[]
   collections          Collection[]
@@ -42,6 +45,8 @@ model User {
   @@index([suspendedUntil])
   @@index([suspendedBy])
   @@index([invitedBy])
+  @@index([invitationsSent])
+  @@index([invitationsLimit])
 }
 
 model Card {

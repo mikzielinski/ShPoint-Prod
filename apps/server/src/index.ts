@@ -119,6 +119,7 @@ passport.use(
             invitedBy: allowedEmail.invitedBy,
             invitedAt: allowedEmail.createdAt,
             lastLoginAt: new Date(),
+            invitationsLimit: setInvitationLimits({ role: allowedEmail.role }),
           },
         });
 
@@ -165,7 +166,20 @@ function publicUser(u: any) {
     image: u.image ?? null,
     avatarUrl: u.avatarUrl ?? null,
     suspendedUntil: u.suspendedUntil ?? null,
+    invitationsSent: u.invitationsSent ?? 0,
+    invitationsLimit: u.invitationsLimit ?? 0,
   };
+}
+
+// Function to set invitation limits based on user role
+function setInvitationLimits(user: any) {
+  const limits = {
+    ADMIN: 100,    // Admins can send unlimited invitations
+    EDITOR: 10,    // Editors can send 10 invitations
+    USER: 3,       // Regular users can send 3 invitations
+  };
+  
+  return limits[user.role as keyof typeof limits] || 0;
 }
 
 
@@ -1306,6 +1320,86 @@ app.delete("/api/admin/allowed-emails/:id", ensureAuth, ensureAdmin, async (req,
   } catch (error) {
     console.error("Error removing allowed email:", error);
     res.status(500).json({ ok: false, error: "Failed to remove allowed email" });
+  }
+});
+
+// ===== USER INVITATION ENDPOINTS =====
+
+// Get user invitation limits and stats
+app.get("/api/user/invitations", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    
+    // Get current invitation count
+    const invitationsSent = await prisma.allowedEmail.count({
+      where: { invitedBy: user.id }
+    });
+    
+    // Get remaining invitations
+    const remainingInvitations = Math.max(0, user.invitationsLimit - invitationsSent);
+    
+    res.json({ 
+      ok: true, 
+      invitationsSent,
+      invitationsLimit: user.invitationsLimit,
+      remainingInvitations
+    });
+  } catch (error) {
+    console.error("Error fetching user invitations:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch invitation data" });
+  }
+});
+
+// Send invitation (regular users)
+app.post("/api/user/invitations", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    const { email, role = 'USER' } = req.body;
+    
+    // Check if user is suspended
+    if (user.status === 'SUSPENDED') {
+      return res.status(403).json({ ok: false, error: "Suspended users cannot send invitations" });
+    }
+    
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ ok: false, error: 'Valid email required' });
+    }
+    
+    // Check if user has remaining invitations
+    const invitationsSent = await prisma.allowedEmail.count({
+      where: { invitedBy: user.id }
+    });
+    
+    if (invitationsSent >= user.invitationsLimit) {
+      return res.status(403).json({ ok: false, error: 'Invitation limit reached' });
+    }
+    
+    // Check if email already exists
+    const existingEmail = await prisma.allowedEmail.findUnique({
+      where: { email }
+    });
+    
+    if (existingEmail) {
+      return res.status(400).json({ ok: false, error: 'Email already invited' });
+    }
+    
+    // Create invitation
+    const allowedEmail = await prisma.allowedEmail.create({
+      data: {
+        email: email.toLowerCase(),
+        role,
+        invitedBy: user.id,
+        isActive: true,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      }
+    });
+    
+    res.json({ ok: true, invitation: allowedEmail });
+  } catch (error) {
+    console.error("Error sending invitation:", error);
+    res.status(500).json({ ok: false, error: "Failed to send invitation" });
   }
 });
 
