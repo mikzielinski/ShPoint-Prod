@@ -10,6 +10,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
+import { sendInvitationEmail, testEmailConfiguration } from "./email";
 
 const prisma = new PrismaClient();
 
@@ -1544,10 +1545,39 @@ app.post("/api/user/invitations", ensureAuth, async (req, res) => {
       }
     });
     
-    res.json({ ok: true, invitation: allowedEmail });
+    // Send invitation email
+    const emailResult = await sendInvitationEmail(
+      email.toLowerCase(),
+      user.username || user.name || user.email,
+      user.email,
+      role
+    );
+    
+    if (!emailResult.success) {
+      console.warn('⚠️  Failed to send invitation email:', emailResult.error);
+      // Don't fail the request if email fails, just log it
+    }
+    
+    res.json({ 
+      ok: true, 
+      invitation: allowedEmail,
+      emailSent: emailResult.success,
+      emailError: emailResult.error
+    });
   } catch (error) {
     console.error("Error sending invitation:", error);
     res.status(500).json({ ok: false, error: "Failed to send invitation" });
+  }
+});
+
+// Test email configuration (admin only)
+app.get("/api/admin/test-email", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const result = await testEmailConfiguration();
+    res.json({ ok: result.success, error: result.error });
+  } catch (error) {
+    console.error("Error testing email configuration:", error);
+    res.status(500).json({ ok: false, error: "Failed to test email configuration" });
   }
 });
 
