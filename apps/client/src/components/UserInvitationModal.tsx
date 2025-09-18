@@ -13,7 +13,7 @@ type UserInvitationModalProps = {
 
 export default function UserInvitationModal({ isOpen, onClose }: UserInvitationModalProps) {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<'USER' | 'EDITOR'>('USER');
+  const role = 'USER'; // Users can only invite as USER role
   const [stats, setStats] = useState<InvitationStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
@@ -220,37 +220,6 @@ export default function UserInvitationModal({ isOpen, onClose }: UserInvitationM
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#e2e8f0',
-              marginBottom: '8px'
-            }}>
-              Role
-            </label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as 'USER' | 'EDITOR')}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: '1px solid #475569',
-                backgroundColor: '#0f172a',
-                color: '#f8fafc',
-                fontSize: '14px',
-                outline: 'none',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-              onBlur={(e) => e.target.style.borderColor = '#475569'}
-            >
-              <option value="USER">User (3 invitations)</option>
-              <option value="EDITOR">Editor (10 invitations)</option>
-            </select>
-          </div>
         </div>
 
         {/* Messages */}
