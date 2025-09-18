@@ -338,9 +338,36 @@ export default function AdminPage() {
       setDropdownPosition(null);
     } else {
       const rect = buttonElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const dropdownHeight = 250; // Max height from CSS
+      const dropdownWidth = 140; // Min width from CSS
+      
+      // Check if there's enough space below the button
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      
+      let top: number;
+      if (spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove) {
+        // Show below the button
+        top = rect.bottom + window.scrollY + 4;
+      } else {
+        // Show above the button
+        top = rect.top + window.scrollY - dropdownHeight - 4;
+      }
+      
+      // Check horizontal positioning to prevent overflow
+      let left = rect.left + window.scrollX;
+      if (left + dropdownWidth > viewportWidth) {
+        left = viewportWidth - dropdownWidth - 10; // 10px margin from edge
+      }
+      if (left < 10) {
+        left = 10; // 10px margin from left edge
+      }
+      
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX
+        top: Math.max(10, top), // Ensure dropdown doesn't go above viewport
+        left
       });
       setOpenDropdown(userId);
     }
