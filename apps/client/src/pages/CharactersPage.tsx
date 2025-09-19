@@ -5,6 +5,9 @@ type Character = { id: string; name: string; image?: string | null };
 type ApiList = { items: Character[]; total: number };
 
 export default function CharactersPage() {
+  console.log('=== CHARACTERS PAGE RENDER ===');
+  console.log('You are on the WRONG page! Go to /content-management instead!');
+  
   const [data, setData] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
 

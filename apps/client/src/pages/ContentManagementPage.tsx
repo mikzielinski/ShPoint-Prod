@@ -83,25 +83,14 @@ const ContentManagementPage: React.FC = () => {
   };
 
   const handleDeleteCharacter = (characterId: string) => {
-    try {
-      console.log('Usuwanie postaci:', characterId);
-      console.log('Setting characterToDelete to:', characterId);
-      console.log('Setting showDeleteConfirm to true');
-      setCharacterToDelete(characterId);
-      setShowDeleteConfirm(true);
-      console.log('State updated, showDeleteConfirm should be true now');
-    } catch (error) {
-      console.error('Error in handleDeleteCharacter:', error);
-    }
+    setCharacterToDelete(characterId);
+    setShowDeleteConfirm(true);
   };
 
   const confirmDelete = async () => {
     if (!characterToDelete) return;
     
     try {
-      console.log('Starting delete process for character:', characterToDelete);
-      console.log('Making DELETE request to:', `/api/characters/${characterToDelete}`);
-      
       const response = await fetch(`/api/characters/${characterToDelete}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -110,25 +99,18 @@ const ContentManagementPage: React.FC = () => {
         }
       });
       
-      console.log('Delete response status:', response.status);
-      console.log('Delete response ok:', response.ok);
-      
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Delete response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
       
       const data = await response.json();
-      console.log('Delete response data:', data);
       
       if (data.ok) {
-        // Remove from local state
         setCharacters(prev => prev.filter(c => c.id !== characterToDelete));
         setShowEditor(false);
         setEditingCharacter(null);
-        alert('Postać została usunięta pomyślnie');
-        console.log('Character deleted successfully from local state');
+        alert('Character has been successfully deleted');
         setShowDeleteConfirm(false);
         setCharacterToDelete(null);
       } else {
@@ -136,7 +118,7 @@ const ContentManagementPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Błąd usuwania postaci:', error);
-      alert('Błąd podczas usuwania postaci: ' + error.message);
+      alert('Error deleting character: ' + error.message);
     } finally {
       setShowDeleteConfirm(false);
       setCharacterToDelete(null);
@@ -163,63 +145,6 @@ const ContentManagementPage: React.FC = () => {
     setEditingCharacter(null);
   };
 
-  const renderModeSelector = () => (
-    <div className="bg-gray-800 p-4 rounded-lg mb-6">
-      <h2 className="text-lg font-semibold mb-4">Content Management</h2>
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setActiveMode('characters')}
-          className={`px-4 py-2 rounded ${
-            activeMode === 'characters'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Characters
-        </button>
-        <button
-          onClick={() => setActiveMode('stances')}
-          className={`px-4 py-2 rounded ${
-            activeMode === 'stances'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Stance
-        </button>
-        <button
-          onClick={() => setActiveMode('missions')}
-          className={`px-4 py-2 rounded ${
-            activeMode === 'missions'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Missions
-        </button>
-        <button
-          onClick={() => setActiveMode('mission-sets')}
-          className={`px-4 py-2 rounded ${
-            activeMode === 'mission-sets'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Mission Sets
-        </button>
-        <button
-          onClick={() => setActiveMode('sets')}
-          className={`px-4 py-2 rounded ${
-            activeMode === 'sets'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          }`}
-        >
-          Sets/Boxes
-        </button>
-      </div>
-    </div>
-  );
 
   const renderCharactersList = () => (
     <div>
@@ -253,31 +178,70 @@ const ContentManagementPage: React.FC = () => {
             <div className="title">{character.name}</div>
             <div className="meta">{character.unit_type}</div>
             
-            {/* Action buttons stacked vertically */}
-            <div className="px-3 pb-2 pt-1">
-              <div className="flex flex-col gap-4">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditCharacter(character);
-                  }}
-                  className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium border border-blue-500"
-                  title="Edit character"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('Delete button clicked for character:', character.id, character.name);
-                    handleDeleteCharacter(character.id);
-                  }}
-                  className="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium border border-red-500"
-                  title="Delete character"
-                >
-                  Delete
-                </button>
-              </div>
+            {/* Action buttons */}
+            <div style={{
+              marginTop: "12px",
+              display: "flex",
+              gap: "6px",
+              flexWrap: "wrap",
+              padding: "0 12px 12px 12px"
+            }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditCharacter(character);
+                }}
+                style={{
+                  background: "#3b82f6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                  flex: "1",
+                  minWidth: "80px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#2563eb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#3b82f6";
+                }}
+                title="Edit character"
+              >
+                Edit
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteCharacter(character.id);
+                }}
+                style={{
+                  background: "#dc2626",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                  flex: "1",
+                  minWidth: "80px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#b91c1c";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#dc2626";
+                }}
+                title="Delete character"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
@@ -318,26 +282,74 @@ const ContentManagementPage: React.FC = () => {
     }
   };
 
-  console.log('ContentManagementPage render - showDeleteConfirm:', showDeleteConfirm, 'characterToDelete:', characterToDelete);
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* SIMPLE TEST - should always be visible */}
+      {/* Header with navigation tabs aligned to NavBar */}
       <div style={{
-        position: 'fixed',
-        top: '10px',
-        left: '10px',
-        background: 'red',
-        color: 'white',
-        padding: '10px',
-        zIndex: 99999,
-        borderRadius: '4px'
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '10px 16px 0 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
       }}>
-        TEST - ZAWSZE WIDOCZNY
-      </div>
-      <div className="max-w-7xl mx-auto p-6">
-        {renderModeSelector()}
+        <h1 style={{
+          fontSize: '18px',
+          fontWeight: '700',
+          color: '#e5e7eb',
+          margin: 0,
+          letterSpacing: '0.3px'
+        }}>
+          Content Management
+        </h1>
         
+        {/* Tabs aligned with NavBar links */}
+        <div style={{
+          display: 'flex',
+          gap: '4px',
+          marginLeft: '20px'
+        }}>
+          {[
+            { id: 'characters', label: 'Characters', count: characters.length },
+            { id: 'stances', label: 'Stance', count: 0 },
+            { id: 'missions', label: 'Missions', count: 0 },
+            { id: 'mission-sets', label: 'Mission Sets', count: 0 },
+            { id: 'sets', label: 'Sets/Boxes', count: 0 }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveMode(tab.id as EditorMode)}
+              style={{
+                color: activeMode === tab.id ? '#fff' : '#cbd5e1',
+                padding: '8px 10px',
+                borderRadius: '10px',
+                border: 'none',
+                background: activeMode === tab.id ? 'rgba(99,102,241,0.22)' : 'transparent',
+                boxShadow: activeMode === tab.id ? 'inset 0 0 0 1px rgba(99,102,241,0.35)' : 'none',
+                textDecoration: 'none',
+                transition: 'background .15s ease',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => {
+                if (activeMode !== tab.id) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeMode !== tab.id) {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-6">
         {showEditor ? (
           <CharacterEditor
             character={editingCharacter}
@@ -351,27 +363,6 @@ const ContentManagementPage: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {console.log('Rendering modal, showDeleteConfirm:', showDeleteConfirm, 'characterToDelete:', characterToDelete)}
-      
-      {/* Simple test - always show modal */}
-      <div style={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        background: 'red',
-        color: 'white',
-        padding: '20px',
-        zIndex: 99999,
-        borderRadius: '8px'
-      }}>
-        TEST MODAL - ZAWSZE WIDOCZNY
-        <br />
-        showDeleteConfirm: {showDeleteConfirm.toString()}
-        <br />
-        characterToDelete: {characterToDelete || 'null'}
-      </div>
-      
       {showDeleteConfirm && (
         <div style={{
           position: 'fixed',
@@ -394,10 +385,10 @@ const ContentManagementPage: React.FC = () => {
             width: '100%'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: 'black' }}>
-              Potwierdzenie usunięcia
+              Confirm Deletion
             </h3>
             <p style={{ marginBottom: '24px', color: 'black' }}>
-              Czy na pewno chcesz usunąć tę postać? Ta operacja jest nieodwracalna.
+              Are you sure you want to delete this character? This action cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
@@ -411,7 +402,7 @@ const ContentManagementPage: React.FC = () => {
                   cursor: 'pointer'
                 }}
               >
-                Anuluj
+                Cancel
               </button>
               <button
                 onClick={confirmDelete}
@@ -424,7 +415,7 @@ const ContentManagementPage: React.FC = () => {
                   cursor: 'pointer'
                 }}
               >
-                Usuń
+                Delete
               </button>
             </div>
           </div>

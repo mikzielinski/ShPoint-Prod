@@ -571,22 +571,6 @@
     "portrait": "/characters/hondo-honest-businessman/portrait.png"
   },
   {
-    "id": "i-expect-results-not-perfection",
-    "name": "I Expect Results, Not Perfection",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/i-expect-results-not-perfection/portrait.png"
-  },
-  {
-    "id": "i-have-a-bad-feeling-about-this",
-    "name": "I have a bad feeling about this",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/i-have-a-bad-feeling-about-this/portrait.png"
-  },
-  {
     "id": "ig-11-assassin-droid",
     "name": "IG-11, Assassin Droid",
     "unit_type": "Support",
@@ -1003,14 +987,6 @@
     "portrait": "/characters/snowtroopers/portrait.png"
   },
   {
-    "id": "sometimes-brutality-serves-a-purpose",
-    "name": "Sometimes Brutality Serves a Purpose",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/sometimes-brutality-serves-a-purpose/portrait.png"
-  },
-  {
     "id": "stormtrooper-sergeant",
     "name": "Stormtrooper Sergeant",
     "unit_type": "Secondary",
@@ -1049,14 +1025,6 @@
     "squad_points": 4,
     "factions": [],
     "portrait": "/characters/third-sister/portrait.png"
-  },
-  {
-    "id": "turn-their-strength-against-them",
-    "name": "Turn Their Strength Against Them",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/turn-their-strength-against-them/portrait.png"
   },
   {
     "id": "weequay-pirates",

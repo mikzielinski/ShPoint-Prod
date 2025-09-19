@@ -201,6 +201,8 @@ model StrikeTeam {
   name        String
   type        StrikeTeamType        @default(MY_TEAMS)
   description String?
+  squad1Name  String                @default("Squad 1")
+  squad2Name  String                @default("Squad 2")
   wins        Int                   @default(0)
   losses      Int                   @default(0)
   draws       Int                   @default(0)
@@ -216,17 +218,20 @@ model StrikeTeam {
 }
 
 model StrikeTeamCharacter {
-  id           String        @id @default(cuid())
-  strikeTeamId String
-  characterId  String
-  role         CharacterRole
-  order        Int
-  createdAt    DateTime      @default(now())
-  strikeTeam   StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
+  id            String        @id @default(cuid())
+  strikeTeamId  String
+  characterId   String
+  characterName String?       // Nazwa postaci (dla wykrywania duplikatów)
+  unitCount     Int           @default(1) // Ilość jednostek w karcie
+  role          CharacterRole
+  order         Int
+  createdAt     DateTime      @default(now())
+  strikeTeam    StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
 
   @@unique([strikeTeamId, characterId])
   @@index([strikeTeamId])
   @@index([characterId])
+  @@index([characterName])
 }
 
 enum Role {

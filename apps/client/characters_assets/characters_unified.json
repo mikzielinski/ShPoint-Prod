@@ -4,33 +4,58 @@
     "name": "104th Wolfpack Troopers",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Galactic Republic"],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/104th-wolfpack-troopers/portrait.png",
     "set_code": "SWP11",
-    "period": ["Clone Wars"],
-    "tags": ["Clone Trooper", "Galactic Republic", "Trooper", "Wolfpack"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper",
+      "Wolfpack"
+    ]
   },
   {
     "id": "212th-clone-troopers",
     "name": "212th Clone Troopers",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Clone Trooper"],
+    "factions": [
+      "Clone Trooper"
+    ],
     "portrait": "/characters/212th-clone-troopers/portrait.png",
     "set_code": "SWP06",
-    "period": ["Clone Wars"],
-    "tags": ["212th", "Clone Trooper", "Galactic Republic", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "212th",
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper"
+    ]
   },
   {
     "id": "501st-clone-troopers",
     "name": "501st Clone Troopers",
     "unit_type": "Support",
     "squad_points": 3,
-    "factions": ["Galactic Republic"],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/501st-clone-troopers/portrait.png",
     "set_code": "SWP01",
     "period": "Clone Wars",
-    "tags": ["Clone Trooper", "Trooper","501st","Galactic Republic"]
+    "tags": [
+      "Clone Trooper",
+      "Trooper",
+      "501st",
+      "Galactic Republic"
+    ]
   },
   {
     "id": "agent-kallus-inside-man",
@@ -52,19 +77,33 @@
     ],
     "portrait": "/characters/ahsoka-tano-fulcrum/portrait.png",
     "set_code": null,
-    "period": ["Galactic Civil War"],
-    "tags": ["Force User", "Rebel Alliance", "Primary", "Galactic Civil War"]
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Rebel Alliance",
+      "Primary",
+      "Galactic Civil War"
+    ]
   },
   {
     "id": "ahsoka-tano-jedi-no-more",
     "name": "Ahsoka Tano, Jedi no more",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Jedi"],
+    "factions": [
+      "Jedi"
+    ],
     "portrait": "/characters/ahsoka-tano-jedi-no-more/portrait.png",
     "set_code": "SWP1",
-    "period": ["Clone Wars"],
-    "tags": ["Force User", "Galactic Republic"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic"
+    ]
   },
   {
     "id": "aqua-droids",
@@ -80,66 +119,120 @@
     "name": "ARF Clone Troopers",
     "unit_type": "Support",
     "squad_points": 3,
-    "factions": ["Galactic Republic"],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/arf-clone-troopers/portrait.png",
     "set_code": "SWP08",
-    "period": ["Galactic Republic"],
-    "tags": ["ARF", "Clone Trooper", "Galactic Republic", "Trooper"]
+    "period": [
+      "Galactic Republic"
+    ],
+    "tags": [
+      "ARF",
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper"
+    ]
   },
   {
     "id": "asajj-ventress-sith-assassin",
     "name": "Asajj Ventress, Sith Assassin",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/asajj-ventress-sith-assassin/portrait.png",
     "set_code": "SWP01",
     "period": "Clone Wars",
-    "tags" :["Dathomirian", "Force User", "Nightsister", "Separatist Alliance"]
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Nightsister",
+      "Separatist Alliance"
+    ]
   },
   {
     "id": "aurra-sing",
     "name": "Aurra Sing",
     "unit_type": "Secondary",
     "squad_points": 5,
-    "factions": ["Bounty Hunter"],
+    "factions": [
+      "Bounty Hunter"
+    ],
     "portrait": "/characters/aurra-sing/portrait.png",
     "set_code": "SWP09",
-    "period": ["Clone Wars"],
-    "tags": ["Bounty Hunter", "Mercenary", "Scoundrel"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel"
+    ]
   },
   {
     "id": "b1-battle-droids",
     "name": "B1 Battle Droids",
     "unit_type": "Support",
     "squad_points": 3,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/b1-battle-droids/portrait.png",
     "set_code": "SWP01",
-    "period": ["Clone Wars"],
-    "tags": ["B1", "Battle Droid", "Droid", "Separatist Alliance", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "B1",
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance",
+      "Trooper"
+    ]
   },
   {
     "id": "b2-battle-droids",
     "name": "B2 Battle Droids",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/b2-battle-droids/portrait.png",
     "set_code": "SWP05",
-    "period": ["Clone Wars"],
-    "tags": ["B2", "Battle Droid", "Droid", "Separatist Alliance", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "B2",
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance",
+      "Trooper"
+    ]
   },
   {
     "id": "barriss-offee-jedi-padawan",
     "name": "Barriss Offee, Jedi Padawan",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Galactic Republic","Jedi"],
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
     "portrait": "/characters/barriss-offee-jedi-padawan/portrait.png",
     "set_code": "SWP04",
-    "period": ["Clone Wars"],
-    "tags": ["Force User", "Galactic Republic", "Jedi", "Padawan"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi",
+      "Padawan"
+    ]
   },
   {
     "id": "baze-malbus-and-chirrut-imwe",
@@ -155,11 +248,20 @@
     "name": "Bo-Katan Kryze",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "period": ["Clone Wars"],
-    "factions": ["Mandalorian"],
+    "period": [
+      "Clone Wars"
+    ],
+    "factions": [
+      "Mandalorian"
+    ],
     "portrait": "/characters/bo-katan-kryze/portrait.png",
     "set_code": "SWP01",
-    "tags": ["Clan Kryze", "Death Watch", "Mandalorian", "Nite Owls"]
+    "tags": [
+      "Clan Kryze",
+      "Death Watch",
+      "Mandalorian",
+      "Nite Owls"
+    ]
   },
   {
     "id": "boba-fett-on-contract",
@@ -193,11 +295,23 @@
     "name": "Bounty Hunters",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Bounty Hunter"],
+    "factions": [
+      "Bounty Hunter"
+    ],
     "portrait": "/characters/bounty-hunters/portrait.png",
     "set_code": "SWP09",
-    "period": ["Clone Wars", "Galactic Civil War", "Reign of the Empire", "The New Republic"],
-    "tags": ["Bounty Hunter", "Mercenary", "Scoundrel", "Trooper"]
+    "period": [
+      "Clone Wars",
+      "Galactic Civil War",
+      "Reign of the Empire",
+      "The New Republic"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel",
+      "Trooper"
+    ]
   },
   {
     "id": "boushh-leia-organa",
@@ -222,11 +336,22 @@
     "name": "Cad Bane, Notorious Hunter",
     "unit_type": "Primary",
     "squad_points": 9,
-    "factions": ["Bounty Hunter"],
+    "factions": [
+      "Bounty Hunter"
+    ],
     "portrait": "/characters/cad-bane-notorious-hunter/portrait.png",
     "set_code": "SWP09",
-    "period": ["Clone Wars", "Galactic Civil War", "Reign of the Empire", "The New Republic"],
-    "tags": ["Bounty Hunter", "Mercenary", "Scoundrel"]
+    "period": [
+      "Clone Wars",
+      "Galactic Civil War",
+      "Reign of the Empire",
+      "The New Republic"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel"
+    ]
   },
   {
     "id": "captain-cassian-andor",
@@ -242,22 +367,39 @@
     "name": "CC-2224 Clone Commander Cody",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Galactic Republic"],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/cc-2224-clone-commander-cody/portrait.png",
     "set_code": "SWP06",
-    "period": ["Clone Wars"],
-    "tags": ["212th", "Clone Commando", "Clone Trooper", "Galactic Republic"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "212th",
+      "Clone Commando",
+      "Clone Trooper",
+      "Galactic Republic"
+    ]
   },
   {
     "id": "cc-3636-commander-wolffe",
     "name": "CC-3636 Commander Wolffe",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Galactic Republic"],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/cc-3636-commander-wolffe/portrait.png",
     "set_code": "SWP11",
-    "period": ["Clone Wars"],
-    "tags": ["Clone Trooper", "Galactic Republic", "Wolfpack"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Trooper",
+      "Galactic Republic",
+      "Wolfpack"
+    ]
   },
   {
     "id": "cc-3714-clone-commander-fil",
@@ -273,11 +415,19 @@
     "name": "CC-7567 Captain Rex",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "period": ["Clone Wars"],
-    "factions": ["Galactic Republic"],
+    "period": [
+      "Clone Wars"
+    ],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/cc-7567-captain-rex/portrait.png",
     "set_code": "SWP01",
-    "tags": ["501st", "Clone Trooper", "Galactic Republic"]
+    "tags": [
+      "501st",
+      "Clone Trooper",
+      "Galactic Republic"
+    ]
   },
   {
     "id": "chewie",
@@ -311,11 +461,20 @@
     "name": "Clan Kryze Mandalorians",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Mandalorian"],
+    "factions": [
+      "Mandalorian"
+    ],
     "portrait": "/characters/clan-kryze-mandalorians/portrait.png",
     "set_code": "SWP01",
-    "tags":["Mandalorian", "Death Watch", "Clan Kryze", "Trooper"],
-    "period":["Clone Wars"]
+    "tags": [
+      "Mandalorian",
+      "Death Watch",
+      "Clan Kryze",
+      "Trooper"
+    ],
+    "period": [
+      "Clone Wars"
+    ]
   },
   {
     "id": "clone-sergeant-hunter",
@@ -340,11 +499,19 @@
     "name": "Count Dooku, Separatist Leader",
     "unit_type": "Primary",
     "squad_points": 7,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/count-dooku-separatist-leader/portrait.png",
     "set_code": "SWP03",
-    "period": ["Clone Wars"],
-    "tags": ["Force User", "Separatist Alliance", "Sith"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Separatist Alliance",
+      "Sith"
+    ]
   },
   {
     "id": "covert-mandalorians",
@@ -369,11 +536,19 @@
     "name": "CT-411 Commander Ponds",
     "unit_type": "Secondary",
     "squad_points": 3,
-    "factions": ["Galactic Empire"],
+    "factions": [
+      "Galactic Empire"
+    ],
     "portrait": "/characters/ct-411-commander-ponds/portrait.png",
     "set_code": "SWP08",
-    "period": ["Clone Wars"],
-    "tags": ["Clone Commando", "Clone Trooper", "Galactic Republic"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Commando",
+      "Clone Trooper",
+      "Galactic Republic"
+    ]
   },
   {
     "id": "ct-9904-elite-squad-leader",
@@ -407,11 +582,22 @@
     "name": "Darth Vader, Jedi Hunter",
     "unit_type": "Primary",
     "squad_points": 7,
-    "factions": ["Galactic Empire", "Sith"],
+    "factions": [
+      "Galactic Empire",
+      "Sith"
+    ],
     "portrait": "/characters/darth-vader-jedi-hunter/portrait.png",
     "set_code": "SWP30",
-    "period": ["Galactic Civil War"],
-    "tags": ["Force User", "Galactic Empire", "Galactic Republic", "Inquisitorius", "Sith"]
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Galactic Republic",
+      "Inquisitorius",
+      "Sith"
+    ]
   },
   {
     "id": "darth-vader-the-emperors-servant",
@@ -535,11 +721,19 @@
     "name": "Fifth Brother",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Galactic Empire"],
+    "factions": [
+      "Galactic Empire"
+    ],
     "portrait": "/characters/fifth-brother/portrait.png",
     "set_code": "SWP12",
-    "period": ["Galatic Civil War"],
-    "tags": ["Force User", "Galactic Empire", "Inquisitorius"]
+    "period": [
+      "Galatic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
   },
   {
     "id": "fils-clones",
@@ -555,55 +749,96 @@
     "name": "Fourth Sister",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Galactic Empire"],
+    "factions": [
+      "Galactic Empire"
+    ],
     "portrait": "/characters/fourth-sister/portrait.png",
     "set_code": "SWP12",
-    "period": ["Galactic Civil War"],
-    "tags": ["Force User", "Galactic Empire", "Inquisitorius"]
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
   },
   {
     "id": "gar-saxon-merciless-commander",
     "name": "Gar Saxon, Merciless Commander",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Shadow Collective"],
+    "factions": [
+      "Shadow Collective"
+    ],
     "portrait": "/characters/gar-saxon-merciless-commander/portrait.png",
     "set_code": "SWP01",
-    "tags": ["Mandalorian", "Shadow Collective", "Super Commando"],
-    "period": ["Clone Wars"]
+    "tags": [
+      "Mandalorian",
+      "Shadow Collective",
+      "Super Commando"
+    ],
+    "period": [
+      "Clone Wars"
+    ]
   },
   {
     "id": "general-anakin-skywalker",
     "name": "General Anakin Skywalker",
     "unit_type": "Primary",
     "squad_points": 7,
-    "factions": ["Jedi"],
+    "factions": [
+      "Jedi"
+    ],
     "portrait": "/characters/general-anakin-skywalker/portrait.png",
-    "period": ["Clone Wars"],
+    "period": [
+      "Clone Wars"
+    ],
     "set_code": "SWP01",
-    "tags": ["501st", "Force User", "Galactic Republic", "Jedi"]
+    "tags": [
+      "501st",
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
   },
   {
     "id": "general-grievous",
     "name": "General Grievous",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/general-grievous/portrait.png",
     "set_code": "SWP05",
-    "period": ["Clone Wars"],
-    "tags": ["Droid Separatist", "Alliance"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Droid Separatist",
+      "Alliance"
+    ]
   },
   {
     "id": "general-obi-wan-kenobi",
     "name": "General Obi-Wan Kenobi",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Jedi"],
+    "factions": [
+      "Jedi"
+    ],
     "portrait": "/characters/general-obi-wan-kenobi/portrait.png",
     "set_code": "SWP06",
-    "period": ["Clone Wars"],
-    "tags": ["212th", "Force User", "Galactic Republic", "Jedi"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "212th",
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
   },
   {
     "id": "general-solo",
@@ -646,11 +881,17 @@
     "name": "Grand Inquisitor, Fallen Jedi",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Galactic Empire"],
+    "factions": [
+      "Galactic Empire"
+    ],
     "portrait": "/characters/grand-inquisitor-fallen-jedi/portrait.png",
     "set_code": "SWP12",
     "period": "Clone Wars",
-    "tags": ["Force User", "Galactic Empire", "Inquisitorius"]
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
   },
   {
     "id": "greef-karga",
@@ -698,24 +939,6 @@
     "set_code": null
   },
   {
-    "id": "i-expect-results-not-perfection",
-    "name": "I Expect Results, Not Perfection",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/i-expect-results-not-perfection/portrait.png",
-    "set_code": null
-  },
-  {
-    "id": "i-have-a-bad-feeling-about-this",
-    "name": "I have a bad feeling about this",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/i-have-a-bad-feeling-about-this/portrait.png",
-    "set_code": null
-  },
-  {
     "id": "ig-11-assassin-droid",
     "name": "IG-11, Assassin Droid",
     "unit_type": "Support",
@@ -756,11 +979,21 @@
     "name": "Jango Fett, Bounty Hunter",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Bounty Hunter","Separatist Alliance"],
+    "factions": [
+      "Bounty Hunter",
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/jango-fett-bounty-hunter/portrait.png",
     "set_code": "SWP03",
-    "period": ["Clone Wars"],
-    "tags": ["Bounty Hunter", "Mercenary", "Scoundrel", "Separatist Alliance"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel",
+      "Separatist Alliance"
+    ]
   },
   {
     "id": "jedi-knight-luke-skywalker",
@@ -794,33 +1027,60 @@
     "name": "Jedi Master Luminara Unduli",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Galactic Republic", "Jedi"],
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
     "portrait": "/characters/jedi-master-luminara-unduli/portrait.png",
     "set_code": "SWP04",
-    "perdiod": ["Clone Wars"],
-    "tags": ["Force User", "Galactic Republic", "Jedi"]
+    "perdiod": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
   },
   {
     "id": "jedi-master-mace-windu",
     "name": "Jedi Master Mace Windu",
     "unit_type": "Primary",
     "squad_points": 7,
-    "factions": ["Galactic Republic", "Jedi"],
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
     "portrait": "/characters/jedi-master-mace-windu/portrait.png",
     "set_code": "SWP08",
-    "period": ["Clone Wars"],
-    "tags": ["Force User", "Galactic Republic", "Jedi"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
   },
   {
     "id": "jedi-master-plo-koon",
     "name": "Jedi Master Plo Koon",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Galactic Republic", "Jedi"],
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
     "portrait": "/characters/jedi-master-plo-koon/portrait.png",
     "set_code": "SWP11",
-    "period": ["Clone Wars"],
-    "tags": ["Force User", "Galactic Republic", "Jedi"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
   },
   {
     "id": "jedi-master-shaak-ti",
@@ -854,11 +1114,19 @@
     "name": "Kalani, Super Tactical Droid",
     "unit_type": "Secondary",
     "squad_points": 5,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/kalani-super-tactical-droid/portrait.png",
     "set_code": "SWP01",
-    "period": ["Clone Wars"],
-    "tags": ["Battle Droid", "Droid", "Separatist Alliance"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance"
+    ]
   },
   {
     "id": "kanan-jarrus-spectre-1",
@@ -874,11 +1142,19 @@
     "name": "Kraken, Super Tactical Droid",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/kraken-super-tactical-droid/portrait.png",
     "set_code": "SWP05",
-    "period": ["Clone Wars"],
-    "tags": ["Battle Droid", "Droid", "Separatist Alliance"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance"
+    ]
   },
   {
     "id": "lando-and-r2-d2-inside-job",
@@ -930,11 +1206,20 @@
     "name": "Lord Maul",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Shadow Collective"],
+    "factions": [
+      "Shadow Collective"
+    ],
     "portrait": "/characters/lord-maul/portrait.png",
     "set_code": "SWP01",
-    "period": ["Clone Wars"],
-    "tags": ["Dathomirian", "Force User", "Scoundrel", "Shadow Collective"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Scoundrel",
+      "Shadow Collective"
+    ]
   },
   {
     "id": "luke-skywalker-daring-hero",
@@ -950,22 +1235,40 @@
     "name": "MagnaGuard",
     "unit_type": "Support",
     "squad_points": 3,
-    "factions": ["Separatist Alliance"],
+    "factions": [
+      "Separatist Alliance"
+    ],
     "portrait": "/characters/magnaguard/portrait.png",
     "set_code": "SWP03",
-    "period": ["Clone Wars"],
-    "tags": ["Battle Droid", "Droid", "Separatist Alliance", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance",
+      "Trooper"
+    ]
   },
   {
     "id": "mandalorian-super-commandos",
     "name": "Mandalorian Super Commandos",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Shadow Collective"],
+    "factions": [
+      "Shadow Collective"
+    ],
     "portrait": "/characters/mandalorian-super-commandos/portrait.png",
     "set_code": "SWP01",
-    "period": ["Clone Wars"],
-    "tags": ["Mandalorian", "Shadow Collective", "Super Commando", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Mandalorian",
+      "Shadow Collective",
+      "Super Commando",
+      "Trooper"
+    ]
   },
   {
     "id": "moff-gideon",
@@ -981,11 +1284,19 @@
     "name": "Mother Talzin",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": ["Dathomirian"],
+    "factions": [
+      "Dathomirian"
+    ],
     "portrait": "/characters/mother-talzin/portrait.png",
     "set_code": "SWP07",
-    "period": ["Clone Wars"],
-    "tags": ["Dathomirian", "Force User", "Nightsister"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Nightsister"
+    ]
   },
   {
     "id": "naboo-royal-handmaidens",
@@ -1010,11 +1321,19 @@
     "name": "Nightsister Acolytes",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Dathomirian"],
+    "factions": [
+      "Dathomirian"
+    ],
     "portrait": "/characters/nightsister-acolytes/portrait.png",
     "set_code": "SWP07",
-    "period": ["Clone Wars"],
-    "tags": ["Dathomirian", "Nightsister", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Nightsister",
+      "Trooper"
+    ]
   },
   {
     "id": "nossor-ri",
@@ -1030,22 +1349,40 @@
     "name": "Obi-Wan Kenobi, Out of Hiding",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Force User", "Jedi"],
+    "factions": [
+      "Force User",
+      "Jedi"
+    ],
     "portrait": "/characters/obi-wan-kenobi-out-of-hiding/portrait.png",
     "set_code": "SWP30",
-    "period": ["Galactic Civil War"],
-    "tags": ["Force User", "Jedi"]
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Jedi"
+    ]
   },
   {
     "id": "padawan-ahsoka-tano",
     "name": "Padawan Ahsoka Tano",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Galactic Republic", "Jedi"],
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
     "portrait": "/characters/padawan-ahsoka-tano/portrait.png",
     "set_code": "SWP11",
-    "period": ["Clone Wars"],
-    "tags": ["Force User", "Galactic Republic", "Jedi", "Padawan"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi",
+      "Padawan"
+    ]
   },
   {
     "id": "padawan-learners",
@@ -1088,7 +1425,9 @@
     "name": "Queen Padmé Amidala",
     "unit_type": "Primary",
     "squad_points": 8,
-    "factions": [""],
+    "factions": [
+      ""
+    ],
     "portrait": "/characters/queen-padme-amidala/portrait.png",
     "set_code": "SWP15"
   },
@@ -1133,11 +1472,20 @@
     "name": "Republic Clone Commandos",
     "unit_type": "Support",
     "squad_points": 4,
-    "factions": ["Galactic Republic"],
+    "factions": [
+      "Galactic Republic"
+    ],
     "portrait": "/characters/republic-clone-commandos/portrait.png",
     "set_code": "SWP04",
-    "period": ["Clone Wars"],
-    "tags": ["Clone Commando", "Clone Trooper", "Galactic Republic", "Trooper"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Commando",
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper"
+    ]
   },
   {
     "id": "riff-tamson",
@@ -1171,11 +1519,21 @@
     "name": "Savage Opress",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Separatist Alliance", "Dathomirian"],
+    "factions": [
+      "Separatist Alliance",
+      "Dathomirian"
+    ],
     "portrait": "/characters/savage-opress/portrait.png",
     "set_code": "SWP07",
-    "period": ["Clone Wars"],
-    "tags": ["Dathomirian", "Force User", "Separatist Alliance", "Sith"]
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Separatist Alliance",
+      "Sith"
+    ]
   },
   {
     "id": "sev-and-scorch",
@@ -1211,15 +1569,6 @@
     "squad_points": 3,
     "factions": [],
     "portrait": "/characters/snowtroopers/portrait.png",
-    "set_code": null
-  },
-  {
-    "id": "sometimes-brutality-serves-a-purpose",
-    "name": "Sometimes Brutality Serves a Purpose",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/sometimes-brutality-serves-a-purpose/portrait.png",
     "set_code": null
   },
   {
@@ -1263,20 +1612,19 @@
     "name": "Third Sister",
     "unit_type": "Secondary",
     "squad_points": 4,
-    "factions": ["Galactic Empire"],
+    "factions": [
+      "Galactic Empire"
+    ],
     "portrait": "/characters/third-sister/portrait.png",
     "set_code": "SWP12",
-    "period": ["Galactic Civil War"],
-    "tags": ["Force User", "Galactic Empire", "Inquisitorius"]
-  },
-  {
-    "id": "turn-their-strength-against-them",
-    "name": "Turn Their Strength Against Them",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/turn-their-strength-against-them/portrait.png",
-    "set_code": null
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
   },
   {
     "id": "weequay-pirates",

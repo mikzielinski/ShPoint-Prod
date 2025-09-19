@@ -803,24 +803,37 @@ app.get("/api/characters", async (req, res) => {
     const fs = await import('fs');
     const path = await import('path');
     
-            const charactersPath = path.join(process.cwd(), '../client/characters_assets/index.json');
-    const charactersIndex = JSON.parse(fs.readFileSync(charactersPath, 'utf8'));
+    // Use unified character data source with period/era information
+    const charactersPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    const charactersData = JSON.parse(fs.readFileSync(charactersPath, 'utf8'));
     
-    // Read individual character data files for complete information
-    const charactersData = charactersIndex.map((char: any) => {
+    // Merge with additional data from individual files if available
+    const enrichedCharacters = charactersData.map((char: any) => {
       try {
         const dataPath = path.join(process.cwd(), `../client/characters_assets/${char.id}/data.json`);
-        const fullData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-        return { ...char, ...fullData }; // Merge index data with full data
+        if (fs.existsSync(dataPath)) {
+          const fullData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          return { ...char, ...fullData }; // Merge unified data with detailed data
+        }
+        return char; // Use unified data only if no detailed data
       } catch (error) {
-        console.warn(`Could not load data for character ${char.id}:`, error);
-        return char; // Fallback to index data only
+        console.warn(`Could not load detailed data for character ${char.id}:`, error);
+        return char; // Fallback to unified data only
       }
     });
     
-    // Helper function to determine era from character name (matching official ShatterpointDB)
-    const getCharacterEras = (name: string): string[] => {
-      const nameLower = name.toLowerCase();
+    // Add period/era information to characters if missing
+    const finalCharacters = enrichedCharacters.map((char: any) => {
+      // Use period from data if available, otherwise fallback to name-based detection
+      if (char.period) {
+        return {
+          ...char,
+          period: Array.isArray(char.period) ? char.period : [char.period]
+        };
+      }
+      
+      // Fallback: determine era from character name (matching official ShatterpointDB)
+      const nameLower = char.name.toLowerCase();
       const eras: string[] = [];
       
       // Clone Wars Era
@@ -885,14 +898,107 @@ app.get("/api/characters", async (req, res) => {
         eras.push("Galactic Civil War"); // Ewoks are part of the Galactic Civil War era
       }
       
-      // Return eras array, or ["Unknown Era"] if none found
-      return eras.length > 0 ? eras : ["Unknown Era"];
+      // Return character with period information
+      return {
+        ...char,
+        period: eras.length > 0 ? eras : ["Unknown Era"]
+      };
+    });
+    
+    // Simple ability parser for server-side use
+    const parseLegacyAbilities = (abilities: any[]): any[] => {
+      if (!Array.isArray(abilities)) return [];
+      
+      const result: any[] = [];
+      let index = 0;
+      
+      for (const ability of abilities) {
+        if (ability.text && typeof ability.text === 'string') {
+          // Split long text into individual abilities
+          const abilityTexts = ability.text.split(/(?=[A-Z][a-z]+ [A-Z])/).filter(t => t.trim().length > 10);
+          
+          for (const text of abilityTexts) {
+            const cleanText = text.trim();
+            if (!cleanText) continue;
+            
+            // Extract name (first few words)
+            const nameMatch = cleanText.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/);
+            const name = nameMatch ? nameMatch[1] : `Ability ${index + 1}`;
+            
+            // Detect ability type
+            let type = 'Innate';
+            let symbol = 'l'; // l - Innate
+            let forceCost = 0;
+            
+            if (cleanText.toLowerCase().includes('after') || cleanText.toLowerCase().includes('when')) {
+              type = 'Reactive';
+              symbol = 'i'; // i - Reactive
+              forceCost = 1;
+            } else if (cleanText.toLowerCase().includes('may use this ability') || cleanText.toLowerCase().includes('action:')) {
+              type = 'Active';
+              symbol = 'j'; // j - Active
+              forceCost = 1;
+            } else if (cleanText.toLowerCase().includes('tactic') || cleanText.toLowerCase().includes('allied')) {
+              type = 'Tactic';
+              symbol = 'k'; // k - Tactic
+              forceCost = 0;
+            } else if (cleanText.toLowerCase().includes('identity') || cleanText.toLowerCase().includes('unique to primary')) {
+              type = 'Identity';
+              symbol = 'm'; // m - Identity
+              forceCost = 0;
+            }
+            
+            result.push({
+              id: `${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${index}`,
+              type,
+              symbol,
+              name,
+              description: cleanText,
+              forceCost,
+              trigger: type === 'Reactive' ? 'after_attack_targeting_unit' : type === 'Active' ? 'on_activation' : 'always',
+              isAction: false,
+              tags: cleanText.toLowerCase().includes('force') ? ['Force'] : []
+            });
+            
+            index++;
+          }
+        }
+      }
+      
+      return result;
     };
-
+    
+    const parseAbilityText = (text: string): any[] => {
+      if (!text || typeof text !== 'string') return [];
+      return parseLegacyAbilities([{ text }]);
+    };
+    
     // Transform the data to match the expected format
-    const transformedCharacters = charactersData.map((char: any) => {
+    const transformedCharacters = finalCharacters.map((char: any) => {
       // Determine if this is a Primary character (uses SP) or other (uses PC)
       const isPrimary = char.unit_type === 'Primary';
+      
+      // Use structured abilities if available, otherwise parse legacy abilities
+      let structuredAbilities = [];
+      
+      if (char.structuredAbilities && Array.isArray(char.structuredAbilities)) {
+        // Use pre-structured abilities from data.json
+        structuredAbilities = char.structuredAbilities;
+      } else if (char.abilities && Array.isArray(char.abilities)) {
+        // Parse legacy abilities array
+        try {
+          structuredAbilities = parseLegacyAbilities(char.abilities);
+        } catch (error) {
+          console.warn(`Failed to parse abilities for character ${char.id}:`, error);
+        }
+      } else if (char.abilities && typeof char.abilities === 'string') {
+        // Parse legacy ability text
+        try {
+          structuredAbilities = parseAbilityText(char.abilities);
+        } catch (error) {
+          console.warn(`Failed to parse ability text for character ${char.id}:`, error);
+        }
+      }
       
       return {
         id: char.id,
@@ -906,7 +1012,9 @@ app.get("/api/characters", async (req, res) => {
         force: char.force || 0,
         stamina: char.stamina || 0,
         durability: char.durability || 0,
-        era: getCharacterEras(char.name)
+        era: char.period || ["Unknown Era"],
+        abilities: structuredAbilities, // New structured abilities
+        legacyAbilities: char.abilities // Keep legacy for backward compatibility
       };
     });
 
@@ -918,6 +1026,66 @@ app.get("/api/characters", async (req, res) => {
   } catch (error) {
     console.error("Error fetching characters:", error);
     res.status(500).json({ ok: false, error: "Failed to fetch characters" });
+  }
+});
+
+// DELETE /api/characters/:id — delete character from JSON files (Admin/Editor only)
+app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
+  try {
+    console.log('DELETE /api/characters/:id called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (user.role !== 'ADMIN' && user.role !== 'EDITOR') {
+      console.log('Insufficient permissions for user:', user?.email);
+      return res.status(403).json({ ok: false, error: 'Insufficient permissions' });
+    }
+    
+    const characterId = req.params.id;
+    console.log('Deleting character:', characterId);
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Remove from characters_unified.json
+    const charactersUnifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    if (fs.existsSync(charactersUnifiedPath)) {
+      const charactersData = JSON.parse(fs.readFileSync(charactersUnifiedPath, 'utf8'));
+      const filteredCharacters = charactersData.filter((char: any) => char.id !== characterId);
+      fs.writeFileSync(charactersUnifiedPath, JSON.stringify(filteredCharacters, null, 2));
+    }
+    
+    // Remove from src/data/characters.json
+    const charactersDataPath = path.join(process.cwd(), '../client/src/data/characters.json');
+    if (fs.existsSync(charactersDataPath)) {
+      const charactersData = JSON.parse(fs.readFileSync(charactersDataPath, 'utf8'));
+      const filteredCharacters = charactersData.filter((char: any) => char.id !== characterId);
+      fs.writeFileSync(charactersDataPath, JSON.stringify(filteredCharacters, null, 2));
+    }
+    
+    // Remove from characters_assets/index.json
+    const indexPath = path.join(process.cwd(), '../client/characters_assets/index.json');
+    if (fs.existsSync(indexPath)) {
+      const indexData = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+      const filteredIndex = indexData.filter((char: any) => char.id !== characterId);
+      fs.writeFileSync(indexPath, JSON.stringify(filteredIndex, null, 2));
+    }
+    
+    // Remove character directory and files
+    const characterDir = path.join(process.cwd(), `../client/characters_assets/${characterId}`);
+    if (fs.existsSync(characterDir)) {
+      fs.rmSync(characterDir, { recursive: true, force: true });
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: 'Character deleted successfully',
+      characterId: characterId
+    });
+  } catch (error) {
+    console.error('Error deleting character:', error);
+    res.status(500).json({ ok: false, error: 'Failed to delete character' });
   }
 });
 
@@ -982,7 +1150,7 @@ app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
   try {
     // @ts-ignore
     const userId = req.user.id;
-    const { name, type, description, characters } = req.body;
+    const { name, type, description, squad1Name, squad2Name, characters } = req.body;
     
     if (!name) {
       return res.status(400).json({ ok: false, error: "Team name is required" });
@@ -1035,6 +1203,12 @@ app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
       throw new Error("Strike team cannot have duplicate characters across squads");
     }
     
+    // Load character data for characterName and unitCount
+    const fs = await import('fs');
+    const path = await import('path');
+    const charactersDataPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    const charactersData = JSON.parse(fs.readFileSync(charactersDataPath, 'utf8'));
+    
     // Create strike team with characters in a transaction
     const result = await prisma.$transaction(async (tx) => {
       const strikeTeam = await tx.strikeTeam.create({
@@ -1042,22 +1216,29 @@ app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
           userId,
           name,
           type,
-          description: description || null
+          description: description || null,
+          squad1Name: squad1Name || "Squad 1",
+          squad2Name: squad2Name || "Squad 2"
         }
       });
       
       // Add characters to the team
       const teamCharacters = await Promise.all(
-        characters.map((char: any, index: number) =>
-          tx.strikeTeamCharacter.create({
+        characters.map((char: any, index: number) => {
+          // Find character data to get characterName and unitCount
+          const characterData = charactersData.find((c: any) => c.id === char.characterId);
+          
+          return tx.strikeTeamCharacter.create({
             data: {
               strikeTeamId: strikeTeam.id,
               characterId: char.characterId,
+              characterName: characterData?.characterName || characterData?.name || char.characterId,
+              unitCount: characterData?.unitCount || (char.role === 'SUPPORT' ? 2 : 1),
               role: char.role,
               order: index
             }
-          })
-        )
+          });
+        })
       );
       
       return { strikeTeam, characters: teamCharacters };
