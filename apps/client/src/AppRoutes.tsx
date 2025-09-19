@@ -8,6 +8,7 @@ import ShatterpointLibraryPage from "./pages/ShatterpointLibraryPage";
 import SetsPage from "./pages/SetsPage";
 import MissionsPage from "./pages/MissionsPage";
 import AdminPage from "./pages/AdminPage";
+import ContentManagementPage from "./pages/ContentManagementPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import BannedPage from "./pages/BannedPage";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
@@ -93,14 +94,13 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
                   <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
                 </>
               )}
+              {(me.role === "ADMIN" || me.role === "EDITOR") && me.status !== 'SUSPENDED' && (
+                <NavLink to="/content-management" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Content</NavLink>
+              )}
               {me.role === "ADMIN" && me.status !== 'SUSPENDED' && (
                 <NavLink to="/admin" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Admin</NavLink>
               )}
             </>
-          )}
-          {/* Builder is also restricted for suspended users */}
-          {(!me || me.status !== 'SUSPENDED') && (
-            <NavLink to="/builder" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Builder</NavLink>
           )}
         </div>
         <div className="nb-actions">
@@ -1015,13 +1015,9 @@ export default function AppRoutes() {
         <Route path="/strike-teams" element={<PublicStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
+        <Route path="/content-management" element={<ContentManagementPage/>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
         <Route path="/banned" element={<BannedPage/>}/>
-        <Route path="/builder" element={
-          <div style={{maxWidth:1100,margin:"12px auto",padding:"0 16px"}}>
-            <h1>Builder</h1><p>Work in progress…</p>
-          </div>
-        }        />
       </Routes>
       
       {/* Avatar Manager Modal */}

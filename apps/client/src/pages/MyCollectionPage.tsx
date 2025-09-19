@@ -2631,11 +2631,37 @@ export default function MyCollectionPage() {
             </h2>
             <SquadBuilder 
               characterCollections={characterCollections}
-              onSave={(teamData) => {
-                console.log('Saving team:', teamData);
-                // TODO: Implement save to database
-                alert('Strike Team saved! (TODO: implement database save)');
-                setShowSquadBuilder(false);
+              onSave={async (teamData) => {
+                try {
+                  console.log('Saving team:', teamData);
+                  
+                  const response = await fetch('/api/shatterpoint/strike-teams', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(teamData),
+                  });
+                  
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to save strike team');
+                  }
+                  
+                  const result = await response.json();
+                  console.log('Team saved successfully:', result);
+                  
+                  alert('Strike Team saved successfully!');
+                  setShowSquadBuilder(false);
+                  
+                  // Reload strike teams to show the new one
+                  await loadCollections();
+                  
+                } catch (error) {
+                  console.error('Error saving strike team:', error);
+                  alert(`Error saving strike team: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                }
               }}
             />
           </div>

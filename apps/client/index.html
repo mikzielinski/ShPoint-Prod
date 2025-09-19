@@ -4,6 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shatterpoint Online — Client</title>
+    <style>
+      @font-face {
+        font-family: 'ShatterpointIcons';
+        src: url('/fonts/ShatterpointIcons.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+      }
+      .sp-icon {
+        font-family: 'ShatterpointIcons', monospace;
+        display: inline-block;
+        font-size: 2em;
+        margin: 0 6px;
+        line-height: 1;
+        font-weight: normal;
+      }
+      .sp-active { color: white; }
+      .sp-reactive { color: white; }
+      .sp-innate { color: white; }
+      .sp-tactic { color: white; }
+      .sp-identity { color: white; }
+      
+      /* Test fallback - jeśli czcionka nie działa */
+      .sp-icon-fallback {
+        font-family: monospace;
+        font-size: 2em;
+        margin: 0 6px;
+        line-height: 1;
+        font-weight: bold;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

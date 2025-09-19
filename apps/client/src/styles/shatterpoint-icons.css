@@ -1,0 +1,216 @@
+/* Star Wars: Shatterpoint Icons CSS */
+
+/* Base icon styles */
+.sp-icon {
+  font-family: 'ShatterpointIcons', monospace;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-align: center;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Ability Type Icons */
+.sp-active { /* j - Active */
+  content: "\006A";
+  color: #3b82f6; /* Blue */
+}
+
+.sp-reactive { /* i - Reactive */
+  content: "\0069";
+  color: #ef4444; /* Red */
+}
+
+.sp-innate { /* l - Innate */
+  content: "\006C";
+  color: #10b981; /* Green */
+}
+
+.sp-tactic { /* k - Tactic */
+  content: "\006B";
+  color: #f59e0b; /* Orange */
+}
+
+.sp-identity { /* m - Identity */
+  content: "\006D";
+  color: #8b5cf6; /* Purple */
+}
+
+/* Game Effect Icons */
+.sp-damage { /* q - Damage */
+  content: "\0071";
+  color: #dc2626; /* Dark red */
+}
+
+.sp-heal { /* r - Heal */
+  content: "\0072";
+  color: #059669; /* Dark green */
+}
+
+.sp-shove { /* p - Shove */
+  content: "\0070";
+  color: #7c3aed; /* Purple */
+}
+
+.sp-force { /* v - Force */
+  content: "\0076";
+  color: #0ea5e9; /* Sky blue */
+}
+
+.sp-critical { /* b - Critical */
+  content: "\0062";
+  color: #fbbf24; /* Amber */
+}
+
+.sp-block { /* e - Block */
+  content: "\0065";
+  color: #6b7280; /* Gray */
+}
+
+.sp-strike { /* a - Strike */
+  content: "\0061";
+  color: #ef4444; /* Red */
+}
+
+.sp-failure { /* d - Failure */
+  content: "\0064";
+  color: #9ca3af; /* Light gray */
+}
+
+/* Attack/Defense Expertise */
+.sp-attack-expertise { /* c - Attack expertise */
+  content: "\0063";
+  color: #dc2626; /* Dark red */
+}
+
+.sp-defense-expertise { /* f - Defense expertise */
+  content: "\0066";
+  color: #2563eb; /* Blue */
+}
+
+/* Movement Icons */
+.sp-dash { /* h - Dash */
+  content: "\0068";
+  color: #059669; /* Green */
+}
+
+.sp-jump { /* t - Jump */
+  content: "\0074";
+  color: #0ea5e9; /* Sky blue */
+}
+
+.sp-climb { /* u - Climb */
+  content: "\0075";
+  color: #7c3aed; /* Purple */
+}
+
+.sp-reposition { /* s - Reposition */
+  content: "\0073";
+  color: #f59e0b; /* Orange */
+}
+
+/* Attack Types */
+.sp-melee { /* o - Melee */
+  content: "\006F";
+  color: #dc2626; /* Red */
+}
+
+.sp-ranged { /* n - Ranged */
+  content: "\006E";
+  color: #059669; /* Green */
+}
+
+/* Unit Stats */
+.sp-unit { /* 8 - Unit */
+  content: "\0038";
+  color: #6b7280; /* Gray */
+}
+
+.sp-durability { /* w - Durability */
+  content: "\0077";
+  color: #7c3aed; /* Purple */
+}
+
+/* Condition Icons */
+.sp-pinned { /* 1 - Pinned */
+  content: "\0031";
+  color: #9ca3af; /* Light gray */
+}
+
+.sp-hunker { /* 3 - Hunker */
+  content: "\0033";
+  color: #059669; /* Green */
+}
+
+.sp-exposed { /* 4 - Exposed */
+  content: "\0034";
+  color: #fbbf24; /* Amber */
+}
+
+.sp-strained { /* 5 - Strained */
+  content: "\0035";
+  color: #ef4444; /* Red */
+}
+
+.sp-disarm { /* 9 - Disarm */
+  content: "\0039";
+  color: #dc2626; /* Dark red */
+}
+
+/* Utility classes for different sizes */
+.sp-icon-sm {
+  font-size: 0.875rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.sp-icon-md {
+  font-size: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.sp-icon-lg {
+  font-size: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sp-icon-xl {
+  font-size: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sp-active { color: #60a5fa; }
+  .sp-reactive { color: #f87171; }
+  .sp-innate { color: #34d399; }
+  .sp-tactic { color: #fbbf24; }
+  .sp-identity { color: #a78bfa; }
+  .sp-damage { color: #fca5a5; }
+  .sp-heal { color: #6ee7b7; }
+  .sp-shove { color: #c4b5fd; }
+  .sp-force { color: #7dd3fc; }
+  .sp-critical { color: #fde047; }
+  .sp-block { color: #9ca3af; }
+  .sp-strike { color: #f87171; }
+  .sp-failure { color: #d1d5db; }
+  .sp-attack-expertise { color: #fca5a5; }
+  .sp-defense-expertise { color: #93c5fd; }
+  .sp-dash { color: #6ee7b7; }
+  .sp-jump { color: #7dd3fc; }
+  .sp-climb { color: #c4b5fd; }
+  .sp-reposition { color: #fbbf24; }
+  .sp-melee { color: #fca5a5; }
+  .sp-ranged { color: #6ee7b7; }
+  .sp-unit { color: #9ca3af; }
+  .sp-durability { color: #c4b5fd; }
+  .sp-pinned { color: #d1d5db; }
+  .sp-hunker { color: #6ee7b7; }
+  .sp-exposed { color: #fde047; }
+  .sp-strained { color: #f87171; }
+  .sp-disarm { color: #fca5a5; }
+}

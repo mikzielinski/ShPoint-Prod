@@ -1,6 +1,8 @@
 import * as React from "react";
+import { Ability as StructuredAbility } from "../lib/shpoint/abilities/types";
+import { AbilityCard } from "./AbilityCard";
 
-type Ability = { title?: string; text?: string };
+type LegacyAbility = { title?: string; text?: string };
 type CharacterData = {
   id: string;
   name: string;
@@ -11,7 +13,8 @@ type CharacterData = {
   durability?: number;
   force?: number | null;
   factions?: string[] | null;
-  abilities?: Ability[] | null;
+  abilities?: LegacyAbility[] | null; // Legacy abilities
+  structuredAbilities?: StructuredAbility[] | null; // New structured abilities
 };
 
 type Props = {
@@ -19,14 +22,14 @@ type Props = {
   data?: CharacterData | null;
 };
 
-// mapuj [[token]] -> znak z Twojej czcionki
+// mapuj [[token]] -> znak z Twojej czcionki ShatterpointIcons
 const GLYPH_MAP: Record<string, string> = {
-  force: "\uE000",
-  dash: "\uE001",
-  jump: "\uE002",
-  crit: "\uE003",
-  hit: "\uE004",
-  block: "\uE005",
+  force: "\u0076",  // v - sp-force
+  dash: "\u0068",   // h - sp-dash
+  jump: "\u0074",   // t - sp-jump
+  crit: "\u0062",   // b - sp-critical
+  hit: "\u0061",    // a - sp-strike
+  block: "\u0065",  // e - sp-block
 };
 
 function renderWithGlyphs(text?: string) {
@@ -90,7 +93,8 @@ export default function UnitDataCard({ character, data }: Props) {
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
   // Use local portrait.png instead of external image
   const portrait = c.id ? `/characters/${c.id}/portrait.png` : null;
-  const abilities: Ability[] = Array.isArray(c.abilities) ? c.abilities! : [];
+  const legacyAbilities: LegacyAbility[] = Array.isArray(c.abilities) ? c.abilities! : [];
+  const structuredAbilities: StructuredAbility[] = Array.isArray(c.structuredAbilities) ? c.structuredAbilities! : [];
   const factions = Array.isArray(c.factions) ? c.factions : null;
 
   return (
@@ -195,28 +199,31 @@ export default function UnitDataCard({ character, data }: Props) {
               overflow: "auto"
             }}
           >
-            <div
-              style={{
-                fontWeight: 700,
-                color: "#f8fafc", // Bardzo jasne litery
-                marginBottom: "12px",
-                fontSize: "16px"
-              }}
-            >
-              Skills
-            </div>
+            {/* Abilities section - no title needed */}
             <div
               style={{
                 fontSize: 14,
                 color: "#f8fafc" // Bardzo jasne litery
               }}
             >
-              {abilities.length === 0 ? (
-                <div style={{ color: "#cbd5e1" }}>Brak umiejętności.</div>
-              ) : (
+              {structuredAbilities.length > 0 ? (
+                /* Use new structured abilities with icons */
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {structuredAbilities.map((ability, i) => (
+                    <AbilityCard 
+                      key={`structured-${i}`}
+                      ability={ability} 
+                      size="sm"
+                      showForceCost={true}
+                      showTrigger={false}
+                    />
+                  ))}
+                </div>
+              ) : legacyAbilities.length > 0 ? (
+                /* Fallback to legacy abilities */
                 <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  {abilities.map((ab, i) => (
-                    <li key={i} style={{ marginBottom: 10 }}>
+                  {legacyAbilities.map((ab, i) => (
+                    <li key={`legacy-${i}`} style={{ marginBottom: 10 }}>
                       {ab.title && (
                         <div style={{ fontWeight: 700, marginBottom: 4 }}>
                           {renderWithGlyphs(ab.title)}
@@ -230,6 +237,8 @@ export default function UnitDataCard({ character, data }: Props) {
                     </li>
                   ))}
                 </ul>
+              ) : (
+                <div style={{ color: "#cbd5e1" }}>Brak umiejętności.</div>
               )}
             </div>
           </div>

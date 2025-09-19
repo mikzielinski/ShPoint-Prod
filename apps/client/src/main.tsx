@@ -1,7 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import "./index.css";
 import "./styles/global.css";
+import "./styles/shatterpoint-icons.css";
 import "./lib/icons.css";
 import AppRoutes from "./AppRoutes";
 import { AuthProvider } from "./auth/AuthContext";

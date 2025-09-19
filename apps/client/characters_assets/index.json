@@ -427,14 +427,6 @@
     "portrait": "/characters/ewok-trappers/portrait.png"
   },
   {
-    "id": "ewok-traps",
-    "name": "Ewok Traps",
-    "unit_type": null,
-    "squad_points": null,
-    "factions": [],
-    "portrait": "/characters/ewok-traps/portrait.png"
-  },
-  {
     "id": "ezra-bridger-spectre-6",
     "name": "Ezra Bridger, Spectre-6",
     "unit_type": "Secondary",

@@ -1,12 +1,32 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { AbilityIcon } from '../components/AbilityIcon';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { me } = useAuth();
 
   const updates = [
+    {
+      id: 'ability-icons',
+      date: '2025-09-19',
+      title: '🎨 Ability Type Icons',
+      description: 'All abilities now display with proper Shatterpoint icons!',
+      features: [
+        'Unicode-based ability type icons',
+        'Active (j), Reactive (i), Innate (l), Tactic (k), Identity (m)',
+        'Test: ',
+        <span key="test-icons" style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+          <AbilityIcon type="Active" size="sm" />
+          <AbilityIcon type="Reactive" size="sm" />
+          <AbilityIcon type="Innate" size="sm" />
+          <AbilityIcon type="Tactic" size="sm" />
+          <AbilityIcon type="Identity" size="sm" />
+          <span className="sp-icon-fallback" style={{ color: '#ff0000' }}>TEST</span>
+        </span>
+      ],
+    },
     {
       id: 'invitation-system',
       date: '2025-09-18',
@@ -377,7 +397,7 @@ const HomePage: React.FC = () => {
                     color: getStatusColor(update.status)
                   }}>
                     {getStatusIcon(update.status)}
-                    {update.status.toUpperCase()}
+                    {update.status?.toUpperCase() || 'UNKNOWN'}
                   </div>
                 </div>
                 

@@ -1,3 +1,6 @@
+/* Import Shatterpoint icons */
+@import './styles/shatterpoint-icons.css';
+
 :root {
   --bg: #111;
   --panel: #0f1a2b;

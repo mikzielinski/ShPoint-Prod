@@ -12,6 +12,18 @@ export interface CharacterRaw {
   set_code?: string | null;
   period?: string | string[];
   tags?: string[];
+  
+  // Legacy abilities (will be parsed into structured abilities)
+  abilities?: Array<{
+    title?: string;
+    text?: string;
+    name?: string;
+    description?: string;
+  }>;
+  
+  // New structured abilities
+  structuredAbilities?: import('../abilities/types').Ability[];
+  
   [k: string]: any;
 }
 

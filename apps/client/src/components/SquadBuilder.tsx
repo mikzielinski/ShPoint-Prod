@@ -13,7 +13,12 @@ type Card = {
   pc: number;
   sp: number;
   force: number;
+  era: string[]; // Era/Period - dla walidacji squadów
+  unitCount: number; // Ilość jednostek w karcie (Support zazwyczaj 2)
+  characterName: string; // Nazwa postaci vs nazwa karty (dla duplikatów)
   portrait: string; // URL do obrazka
+  abilities?: import('../lib/shpoint/abilities/types').Ability[]; // Structured abilities
+  legacyAbilities?: any; // Legacy abilities for backward compatibility
 };
 
 /** Spróbuj dopasować różne nazwy pól z index.json do naszego modelu */
@@ -38,9 +43,31 @@ function normalizeCard(raw: any): Card | null {
     raw.type ??
     (typeof raw.kind === "string" ? raw.kind : "Primary");
 
-  const pc: number = Number(raw.pc ?? 0);
-  const sp: number = Number(raw.sp ?? 0);
+  const pc: number = Number(raw.pc ?? raw.squad_points ?? 0);
+  const sp: number = Number(raw.sp ?? raw.squad_points ?? 0);
   const force: number = Number(raw.force ?? 0);
+
+  // Era/Period - dla walidacji squadów
+  const era: string[] = (() => {
+    if (raw.period) {
+      return Array.isArray(raw.period) ? raw.period : [raw.period];
+    }
+    if (raw.era) {
+      return Array.isArray(raw.era) ? raw.era : [raw.era];
+    }
+    return []; // Brak informacji o erze
+  })();
+
+  // Ilość jednostek w karcie - Support zazwyczaj ma 2 jednostki
+  const unitCount: number = (() => {
+    if (raw.unitCount !== undefined) return Number(raw.unitCount);
+    if (raw.unit_count !== undefined) return Number(raw.unit_count);
+    if (raw.unit_type === "Support") return 2; // Domyślnie Support ma 2 jednostki
+    return 1; // Primary i Secondary mają 1 jednostkę
+  })();
+
+  // Nazwa postaci vs nazwa karty - dla wykrywania duplikatów
+  const characterName: string = raw.characterName || raw.character_name || name;
 
   // spróbuj znaleźć obrazek
   const portrait: string =
@@ -56,7 +83,20 @@ function normalizeCard(raw: any): Card | null {
       ? portrait
       : `/characters/${id}/portrait.png`;
 
-  return { id, name, unitType, pc, sp, force, portrait: portraitUrl };
+  return { 
+    id, 
+    name, 
+    unitType, 
+    pc, 
+    sp, 
+    force, 
+    era, 
+    unitCount, 
+    characterName, 
+    portrait: portraitUrl,
+    abilities: raw.abilities || [], // Structured abilities
+    legacyAbilities: raw.legacyAbilities || raw.abilities || [] // Legacy for backward compatibility
+  };
 }
 
 /** Pobranie danych z naszego API */
@@ -451,18 +491,19 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
     const character = cards.find(c => c.id === characterId);
     if (!character) return false;
     
-    const baseName = getBaseCharacterName(character.name);
+    // Użyj characterName zamiast getBaseCharacterName
+    const characterName = character.characterName;
     
     // Sprawdź Squad 1
     const squad1HasSameBase = squad1.some(id => {
       const squadChar = cards.find(c => c.id === id);
-      return squadChar && getBaseCharacterName(squadChar.name) === baseName;
+      return squadChar && squadChar.characterName === characterName;
     });
     
     // Sprawdź Squad 2
     const squad2HasSameBase = squad2.some(id => {
       const squadChar = cards.find(c => c.id === id);
-      return squadChar && getBaseCharacterName(squadChar.name) === baseName;
+      return squadChar && squadChar.characterName === characterName;
     });
     
     const isUsed = squad1HasSameBase || squad2HasSameBase;
@@ -470,7 +511,7 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
     // DEBUG: Log dla sprawdzania duplikatów
     if (isUsed) {
       console.log(`🚫 Character ${character.name} already used:`, {
-        baseName: baseName,
+        characterName: characterName,
         squad1HasSameBase: squad1HasSameBase,
         squad2HasSameBase: squad2HasSameBase,
         squad1: squad1,
@@ -925,20 +966,24 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
               return;
             }
             
+            // Combine squads into single characters array (6 characters total)
+            const squad1CharactersForSave = squad1.map(id => {
+              const c = cards.find(x => x.id === id);
+              return c ? { characterId: id, role: c.unitType } : null;
+            }).filter(Boolean);
+            
+            const squad2CharactersForSave = squad2.map(id => {
+              const c = cards.find(x => x.id === id);
+              return c ? { characterId: id, role: c.unitType } : null;
+            }).filter(Boolean);
+            
             const teamData = {
               name: teamName,
               description: teamDescription,
               type: teamStatus === 'REAL' ? 'MY_TEAMS' : 'DREAM_TEAMS',
               squad1Name,
               squad2Name,
-              squad1: squad1.map(id => {
-                const c = cards.find(x => x.id === id);
-                return c ? { characterId: id, role: c.unitType } : null;
-              }).filter(Boolean),
-              squad2: squad2.map(id => {
-                const c = cards.find(x => x.id === id);
-                return c ? { characterId: id, role: c.unitType } : null;
-              }).filter(Boolean),
+              characters: [...squad1CharactersForSave, ...squad2CharactersForSave], // Combine both squads
             };
             
             onSave?.(teamData);
