@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
           characters: charactersCount,
           sets: setsCount,
           users: usersCount,
-          features: 17
+          features: 18
         });
       } catch (error) {
         console.error('Error loading stats:', error);
@@ -67,6 +67,22 @@ const HomePage: React.FC = () => {
   }, [me?.role]);
 
   const updates = [
+    {
+      id: 'stance-editor-release',
+      date: '2025-01-15',
+      title: '🎨 Stance Editor & Advanced Glyph System',
+      description: 'Revolutionary stance editing system with visual glyph selection and combo glyph support.',
+      features: [
+        'Complete Stance Editor for editing character stance data',
+        'Visual glyph selection panel with all game symbols',
+        'Combo glyphs with arrow notation (Crit→Strike, Strike→Fail, etc.)',
+        'Interactive glyph input fields with click-to-add functionality',
+        'Organized sections: Attack & Defense, Expertises, Attack Tree',
+        'Real-time glyph rendering with proper font display',
+        'Seamless integration with Character Editor'
+      ],
+      status: 'completed'
+    },
     {
       id: 'strike-teams-ui-update',
       date: '2025-09-20',
