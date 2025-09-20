@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 
 interface Ability {
@@ -81,6 +81,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
   const [newFaction, setNewFaction] = useState('');
   const [newPeriod, setNewPeriod] = useState('');
   const [showGameSymbols, setShowGameSymbols] = useState(false);
+  const [editingAbility, setEditingAbility] = useState<Ability | null>(null);
+  const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const availableFactions = [
     'Galactic Republic',
@@ -186,10 +188,19 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     if (character) {
       setFormData({
         ...character,
+        // Ensure new fields have default values if missing
+        characterNames: character.characterNames || character.name || '',
+        boxSetCode: character.boxSetCode || character.set_code || '',
+        point_cost: character.point_cost || (character.unit_type !== 'Primary' ? character.squad_points : 0),
+        force: character.force || 0,
+        stamina: character.stamina || 0,
+        durability: character.durability || 0,
+        number_of_characters: character.number_of_characters || 1,
+        // Ensure arrays are always arrays
         factions: character.factions || [],
         period: character.period || [],
         abilities: character.abilities || [],
-        structuredAbilities: character.structuredAbilities || []
+        structuredAbilities: character.structuredAbilities || character.abilities || []
       });
     }
   }, [character]);
@@ -208,12 +219,81 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     }));
   };
 
+  // Function to render symbols in ability descriptions
+  const renderAbilityDescription = (description: string) => {
+    if (!description) return '';
+    
+    // Map symbol tags to Unicode characters (same as AbilityCard)
+    const symbolMap: Record<string, string> = {
+      'force': "\u0076",  // v - sp-force
+      'dash': "\u0068",   // h - sp-dash
+      'jump': "\ue90f",   // sp-jump
+      'crit': "\u0062",   // b - sp-critical
+      'hit': "\u0061",    // a - sp-strike
+      'block': "\u0065",  // e - sp-block
+      'identify': "\u006D", // m - sp-identify
+      'strike': "\u0061", // a - sp-strike
+      'hunker': "\u0033", // 3 - sp-hunker
+      'ranged': "\u006E", // n - sp-ranged
+      'attack-expertise': "\u0063", // c - sp-attack-expertise
+      'defense-expertise': "\u0066", // f - sp-defense-expertise
+      'reposition': "\u0073", // s - sp-reposition
+      'heal': "\u0072", // r - sp-heal
+      'durability': "\u0077", // w - sp-durability
+      'critical': "\u0062", // b - sp-critical
+      'failure': "\u0064", // d - sp-failure
+      'melee': "\u006F", // o - sp-melee
+      'shove': "\u0070", // p - sp-shove
+      'damage': "\u0071", // q - sp-damage
+      'pinned': "\u0031", // 1 - sp-pinned
+      'exposed': "\u0034", // 4 - sp-exposed
+      'strained': "\u0035", // 5 - sp-strained
+      'disarm': "\u0039", // 9 - sp-disarm
+      'climb': "\u0075", // u - sp-climb
+      'tactic': "\u006B", // k - sp-tactic
+      'innate': "\u006C", // l - sp-innate
+      'reactive': "\u0069", // i - sp-reactive
+      'active': "\u006A", // j - sp-active
+    };
+
+    // Replace [[symbol]] tags with actual symbols
+    return description.replace(/\[\[([^\]]+)\]\]/g, (match, symbolName) => {
+      const unicode = symbolMap[symbolName.toLowerCase()];
+      if (unicode) {
+        return `<span style="font-family: 'ShatterpointIcons', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #fbbf24; font-size: 16px;">${unicode}</span>`;
+      }
+      return match; // Return original if symbol not found
+    });
+  };
+
   const insertGameSymbol = (symbol: string, name: string, unicode: string) => {
     const symbolText = `[[${name.toLowerCase().replace(/\s+/g, '-')}]]`;
-    setNewAbility(prev => ({
-      ...prev,
-      description: prev.description + symbolText
-    }));
+    
+    // Use ref to get the textarea element and its cursor position
+    const textarea = descriptionTextareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentDescription = newAbility.description;
+      const newDescription = currentDescription.substring(0, start) + symbolText + currentDescription.substring(end);
+      
+      setNewAbility(prev => ({
+        ...prev,
+        description: newDescription
+      }));
+      
+      // Restore cursor position after the inserted text
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + symbolText.length, start + symbolText.length);
+      }, 0);
+    } else {
+      // Fallback: append to end if textarea not found
+      setNewAbility(prev => ({
+        ...prev,
+        description: prev.description + symbolText
+      }));
+    }
   };
 
   const addAbility = () => {
@@ -247,6 +327,41 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       ...prev,
       structuredAbilities: (prev.structuredAbilities || []).filter(a => a.id !== abilityId)
     }));
+  };
+
+  const editAbility = (ability: Ability) => {
+    setEditingAbility(ability);
+    setNewAbility({
+      ...ability
+    });
+  };
+
+  const cancelEditAbility = () => {
+    setEditingAbility(null);
+    setNewAbility({
+      id: '',
+      type: 'Active',
+      symbol: 'j',
+      name: '',
+      description: '',
+      forceCost: 0,
+      trigger: 'on_activation',
+      isAction: false,
+      tags: []
+    });
+  };
+
+  const updateAbility = () => {
+    if (!editingAbility) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      structuredAbilities: (prev.structuredAbilities || []).map(a => 
+        a.id === editingAbility.id ? newAbility : a
+      )
+    }));
+    
+    cancelEditAbility();
   };
 
   const addFaction = () => {
@@ -1092,6 +1207,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
               color: '#d1d5db'
             }}>Description</label>
             <textarea
+              ref={descriptionTextareaRef}
               value={newAbility.description}
               onChange={(e) => handleAbilityChange('description', e.target.value)}
               style={{
@@ -1108,27 +1224,54 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
             />
           </div>
 
-          <button
-            onClick={addAbility}
-            style={{
-              marginTop: '16px',
-              padding: '8px 16px',
-              background: '#7c3aed',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              transition: 'background 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#6d28d9';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#7c3aed';
-            }}
-          >
-            Add Ability
-          </button>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <button
+              onClick={editingAbility ? updateAbility : addAbility}
+              style={{
+                padding: '8px 16px',
+                background: '#7c3aed',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'background 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#6d28d9';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#7c3aed';
+              }}
+            >
+              {editingAbility ? 'Update Ability' : 'Add Ability'}
+            </button>
+            {editingAbility && (
+              <button
+                onClick={cancelEditAbility}
+                style={{
+                  padding: '8px 16px',
+                  background: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'background 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#4b5563';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#6b7280';
+                }}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Abilities List */}
@@ -1155,34 +1298,61 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
                     <span style={{ color: '#fbbf24' }}>Force: {ability.forceCost}</span>
                   )}
                 </div>
-                <p style={{
-                  color: '#d1d5db',
-                  fontSize: '14px',
-                  margin: 0
-                }}>{ability.description}</p>
+                <p 
+                  style={{
+                    color: '#d1d5db',
+                    fontSize: '14px',
+                    margin: 0
+                  }}
+                  dangerouslySetInnerHTML={{ __html: renderAbilityDescription(ability.description) }}
+                />
               </div>
-              <button
-                onClick={() => removeAbility(ability.id)}
-                style={{
-                  color: '#f87171',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  transition: 'color 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#fca5a5';
-                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#f87171';
-                  e.currentTarget.style.background = 'none';
-                }}
-              >
-                Remove
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => editAbility(ability)}
+                  style={{
+                    color: '#60a5fa',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    transition: 'color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#93c5fd';
+                    e.currentTarget.style.background = 'rgba(96, 165, 250, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#60a5fa';
+                    e.currentTarget.style.background = 'none';
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => removeAbility(ability.id)}
+                  style={{
+                    color: '#f87171',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    transition: 'color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#fca5a5';
+                    e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#f87171';
+                    e.currentTarget.style.background = 'none';
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>

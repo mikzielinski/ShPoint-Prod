@@ -4,7 +4,7 @@ import { AbilityCard } from "./AbilityCard";
 const GLYPH_MAP = {
     force: "\u0076", // v - sp-force
     dash: "\u0068", // h - sp-dash
-    jump: "\u0074", // t - sp-jump
+    jump: "\ue90f", // sp-jump
     crit: "\u0062", // b - sp-critical
     hit: "\u0061", // a - sp-strike
     block: "\u0065", // e - sp-block

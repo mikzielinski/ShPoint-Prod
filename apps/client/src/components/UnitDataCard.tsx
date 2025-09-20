@@ -23,6 +23,7 @@ type Props = {
 };
 
 // mapuj [[token]] -> znak z Twojej czcionki ShatterpointIcons
+// Using ASCII characters as defined in icons.css and shatterpoint-icons.css
 const GLYPH_MAP: Record<string, string> = {
   force: "\u0076",  // v - sp-force
   dash: "\u0068",   // h - sp-dash

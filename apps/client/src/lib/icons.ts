@@ -27,7 +27,7 @@ export const GLYPHS = {
   damage: "\u0071",            // q
   heal: "\u0072",              // r
   reposition: "\u0073",        // s
-  jump: "\u0074",              // t
+  jump: "\u0074",              // t - sp-jump
   climb: "\u0075",             // u
   force: "\u0076",             // v
   durability: "\u0077",        // w
