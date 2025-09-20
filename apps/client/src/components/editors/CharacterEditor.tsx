@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import StanceEditor from './StanceEditor';
 
 interface Ability {
   id: string;
@@ -83,6 +84,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
   const [newPeriod, setNewPeriod] = useState('');
   const [showGameSymbols, setShowGameSymbols] = useState(false);
   const [editingAbility, setEditingAbility] = useState<Ability | null>(null);
+  const [showStanceEditor, setShowStanceEditor] = useState(false);
+  const [stanceData, setStanceData] = useState<any>(null);
   const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const availableFactions = [
@@ -187,6 +190,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
 
   useEffect(() => {
     if (character) {
+      console.log('🔍 Loading character data:', character.id, character.name);
+      
       setFormData({
         ...character,
         // Ensure new fields have default values if missing
@@ -203,6 +208,12 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         abilities: character.abilities || [],
         structuredAbilities: character.structuredAbilities || character.abilities || []
       });
+      
+      // Load stance data with character ID directly
+      if (character.id) {
+        console.log('🔍 Loading stance data for character ID:', character.id);
+        loadStanceDataForCharacter(character.id);
+      }
     }
   }, [character]);
 
@@ -405,6 +416,58 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       return;
     }
     onSave(formData);
+  };
+
+  const handleStanceSave = (stance: any) => {
+    setStanceData(stance);
+    setShowStanceEditor(false);
+  };
+
+  const handleStanceCancel = () => {
+    setShowStanceEditor(false);
+  };
+
+  const loadStanceData = async () => {
+    if (!formData.id) {
+      console.log('🔍 No character ID for stance loading');
+      return;
+    }
+    
+    console.log('🔍 Loading stance data for character:', formData.id);
+    
+    try {
+      const response = await fetch(`/characters/${formData.id}/stance.json`);
+      console.log('🔍 Stance response status:', response.status);
+      
+      if (response.ok) {
+        const stance = await response.json();
+        console.log('🔍 Stance data loaded:', stance);
+        setStanceData(stance);
+      } else {
+        console.log('🔍 No stance file found for character:', formData.id);
+      }
+    } catch (error) {
+      console.log('🔍 Error loading stance data:', error);
+    }
+  };
+
+  const loadStanceDataForCharacter = async (characterId: string) => {
+    console.log('🔍 Loading stance data for character ID:', characterId);
+    
+    try {
+      const response = await fetch(`http://localhost:3001/characters/${characterId}/stance.json`);
+      console.log('🔍 Stance response status:', response.status);
+      
+      if (response.ok) {
+        const stance = await response.json();
+        console.log('🔍 Stance data loaded:', stance);
+        setStanceData(stance);
+      } else {
+        console.log('🔍 No stance file found for character:', characterId);
+      }
+    } catch (error) {
+      console.log('🔍 Error loading stance data:', error);
+    }
   };
 
   const handleDelete = () => {
@@ -1359,6 +1422,58 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         </div>
       </div>
 
+      {/* Stance Editor Button */}
+      <div style={{
+        marginTop: '24px',
+        padding: '16px',
+        backgroundColor: '#1f2937',
+        borderRadius: '8px',
+        border: '1px solid #374151'
+      }}>
+        <h4 style={{
+          fontSize: '16px',
+          fontWeight: '600',
+          color: '#d1d5db',
+          marginBottom: '12px'
+        }}>
+          Stance Data
+        </h4>
+        <p style={{
+          fontSize: '14px',
+          color: '#9ca3af',
+          marginBottom: '12px'
+        }}>
+          Edit stance data including attack stats, defense, and tree layout.
+        </p>
+        <button
+          onClick={() => setShowStanceEditor(true)}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          {stanceData ? 'Edit Stance' : 'Create Stance'}
+        </button>
+        {stanceData && (
+          <div style={{
+            marginTop: '12px',
+            padding: '8px',
+            backgroundColor: '#111827',
+            borderRadius: '4px',
+            fontSize: '12px',
+            color: '#9ca3af'
+          }}>
+            Stance data loaded: {stanceData.sides?.length || 0} sides
+          </div>
+        )}
+      </div>
+
       {/* Action Buttons */}
       <div style={{
         marginTop: '32px',
@@ -1436,6 +1551,15 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
           </button>
         )}
       </div>
+
+      {/* Stance Editor Modal */}
+      {showStanceEditor && (
+        <StanceEditor
+          stance={stanceData}
+          onSave={handleStanceSave}
+          onCancel={handleStanceCancel}
+        />
+      )}
     </div>
   );
 };

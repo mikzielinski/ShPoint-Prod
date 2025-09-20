@@ -83,7 +83,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
           <span className="nb-brand-name">ShPoint</span>
         </NavLink>
         <div className="nb-nav">
-          <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Home</NavLink>
+          <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>News</NavLink>
           <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
           <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
           {me && (

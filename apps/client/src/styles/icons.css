@@ -2,10 +2,10 @@
 @font-face {
   font-family: "ShatterpointIcons";
   src:
+    local("ShatterpointIconsRegular"),
+    local("ShatterpointIcons Regular"),
     local("ShatterpointIcons"),
     local("Shatterpoint Icons"),
-    local("ShatterpointIcons Regular"),
-    local("ShatterpointIconsRegular"),
     url("/fonts/ShatterpointIcons.woff") format("woff"),
     url("/fonts/ShatterpointIconsRegular.ttf") format("truetype");
   font-weight: normal;

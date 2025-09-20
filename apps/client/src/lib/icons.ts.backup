@@ -1,5 +1,5 @@
+// apps/client/src/lib/icons.ts
 // Jednolity dostęp do glyfów + prosty komponent <Icon />
-import * as React from 'react';
 
 export const GLYPHS = {
   pinned: "\u0031",            // 1
@@ -31,13 +31,6 @@ export const GLYPHS = {
   climb: "\u0075",             // u
   force: "\u0076",             // v
   durability: "\u0077",        // w
-  
-  // Combo Glyphs (kombinacje glifów)
-  crit_to_strike: "\u0062\u2192\u0061",        // b → a (Crit -> Strike)
-  strike_to_fail: "\u0061\u2192\u0064",        // a → d (Strike -> Fail)
-  strike_to_crit: "\u0061\u2192\u0062",        // a → b (Strike -> Crit)
-  fail_to_strike: "\u0064\u2192\u0061",        // d → a (Fail -> Strike)
-  fail_to_crit: "\u0064\u2192\u0062",          // d → b (Fail -> Crit)
 } as const;
 
 export type IconName = keyof typeof GLYPHS;
@@ -78,56 +71,8 @@ export function iconFromCode(code: string): IconName | undefined {
     u: "climb",
     v: "force",
     w: "durability",
-    // Combo Glyphs
-    "b→a": "crit_to_strike",
-    "a→d": "strike_to_fail",
-    "a→b": "strike_to_crit",
-    "d→a": "fail_to_strike",
-    "d→b": "fail_to_crit",
   };
   return map[k];
-}
-
-/** Przyjmuje nazwę ikony i zwraca kod (np. "strike" -> "a") */
-export function iconToCode(name: IconName): string {
-  const map: Record<IconName, string> = {
-    pinned: "1",
-    hunker: "3",
-    exposed: "4",
-    strained: "5",
-    unit: "8",
-    disarm: "9",
-    strike: "a",
-    critical: "b",
-    attack_expertise: "c",
-    failure: "d",
-    block: "e",
-    defense_expertise: "f",
-    dash: "h",
-    reactive: "i",
-    active: "j",
-    tactic: "k",
-    innate: "l",
-    inmate: "l", // alias
-    identify: "m",
-    ranged: "n",
-    melee: "o",
-    shove: "p",
-    damage: "q",
-    heal: "r",
-    reposition: "s",
-    jump: "t",
-    climb: "u",
-    force: "v",
-    durability: "w",
-    // Combo Glyphs
-    crit_to_strike: "b→a",
-    strike_to_fail: "a→d",
-    strike_to_crit: "a→b",
-    fail_to_strike: "d→a",
-    fail_to_crit: "d→b",
-  };
-  return map[name] || name;
 }
 
 /** Renderuje ikonę z nazwą */
@@ -144,23 +89,20 @@ export function Icon({
   title?: string;
   style?: React.CSSProperties;
 }) {
-  return React.createElement(
-    "span",
-    {
-      className: `sp-icon ${className}`,
-      style: {
+  return (
+    <span
+      className={`sp-icon ${className}`}
+      style={{
         fontSize: size,
         lineHeight: 1,
         display: "inline-block",
         fontFamily: '"ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif',
-        fontVariantLigatures: 'none',
-        WebkitFontSmoothing: 'antialiased',
-        MozOsxFontSmoothing: 'grayscale',
         ...style,
-      },
-      title: title ?? name,
-      "aria-hidden": "true",
-    },
-    GLYPHS[name] ?? "?"
+      }}
+      title={title ?? name}
+      aria-hidden="true"
+    >
+      {GLYPHS[name] ?? "?"}
+    </span>
   );
 }

@@ -1,13 +1,143 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { AbilityIcon } from '../components/AbilityIcon';
+import { api } from '../lib/env';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { me } = useAuth();
+  const [stats, setStats] = useState({
+    characters: 0,
+    sets: 0,
+    users: 0,
+    features: 17
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Load dynamic stats
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        // Load characters
+        const charactersResponse = await fetch(api('/api/characters'));
+        const charactersData = await charactersResponse.json();
+        const charactersCount = charactersData.items?.length || 0;
+
+        // Load sets (from local data)
+        const { setsData } = await import('../data/sets');
+        const setsCount = setsData.length;
+
+        // Load users (if admin, otherwise show current user)
+        let usersCount = 0;
+        if (me?.role === 'ADMIN') {
+          try {
+            const usersResponse = await fetch(api('/api/admin/users'));
+            const usersData = await usersResponse.json();
+            usersCount = usersData.length || 0;
+          } catch (error) {
+            console.log('Could not load users count:', error);
+            usersCount = 1; // Fallback to 1 if admin but can't load
+          }
+        } else if (me) {
+          usersCount = 1; // Show 1 for logged in non-admin users
+        }
+
+        setStats({
+          characters: charactersCount,
+          sets: setsCount,
+          users: usersCount,
+          features: 17
+        });
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        // Fallback to default values
+        setStats({
+          characters: 0,
+          sets: 0,
+          users: 0,
+          features: 17
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, [me?.role]);
 
   const updates = [
+    {
+      id: 'strike-teams-ui-update',
+      date: '2025-09-20',
+      title: '🎯 Enhanced Strike Teams UI',
+      description: 'Completely redesigned strike teams interface with improved character display and interaction.',
+      features: [
+        'Larger character portraits (80x100px) with hover effects',
+        'Clickable character portraits opening detailed CharacterModal',
+        'Improved squad layout with Squad 1/Squad 2 separation',
+        'Character sorting by squad order and role (Primary, Secondary, Support)',
+        'Unified design between My Collection and Public Strike Teams pages',
+        'Removed redundant modals for direct character access'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'character-editor-fixes',
+      date: '2025-09-20',
+      title: '🔧 Character Editor Improvements',
+      description: 'Fixed all linter errors and improved character editor functionality.',
+      features: [
+        'Fixed 5 TypeScript linter errors',
+        'Improved React import handling',
+        'Enhanced parameter type definitions',
+        'Cleaned up property access issues',
+        'Better error handling and validation'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'duplicate-character-prevention',
+      date: '2025-09-20',
+      title: '🚫 Duplicate Character Prevention',
+      description: 'Enhanced squad builder to prevent using the same character in multiple squads.',
+      features: [
+        'Character uniqueness validation across squads',
+        'Base character name checking (e.g., "Ahsoka Tano" variants)',
+        'Real-time duplicate detection in squad builder',
+        'Improved character data structure with characterNames field',
+        'Automatic base name extraction for better validation'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'public-strike-teams',
+      date: '2025-09-20',
+      title: '🌐 Public Strike Teams Page',
+      description: 'New public page for viewing and sharing strike teams without login requirement.',
+      features: [
+        'Public access to published strike teams',
+        'Character modal integration for detailed card viewing',
+        'Expandable/collapsible team cards',
+        'User avatar and team statistics display',
+        'Responsive design with hover effects'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'code-cleanup',
+      date: '2025-09-20',
+      title: '🧹 Code Cleanup & Optimization',
+      description: 'Major code cleanup removing compiled files and improving project structure.',
+      features: [
+        'Removed 50+ compiled .js files',
+        'Kept only source .tsx files for better maintainability',
+        'Fixed Vite dev server caching issues',
+        'Improved build performance',
+        'Cleaner project structure'
+      ],
+      status: 'completed'
+    },
     {
       id: 'ability-icons',
       date: '2025-09-19',
@@ -26,6 +156,7 @@ const HomePage: React.FC = () => {
           <span className="sp-icon-fallback" style={{ color: '#ff0000' }}>TEST</span>
         </span>
       ],
+      status: 'completed'
     },
     {
       id: 'invitation-system',
@@ -88,9 +219,11 @@ const HomePage: React.FC = () => {
         'Team composition builder',
         'Character synergy analysis',
         'Save and share teams',
-        'Team statistics'
+        'Team statistics',
+        'Publish/unpublish functionality',
+        'Public strike teams page'
       ],
-      status: 'in-progress'
+      status: 'completed'
     },
     {
       id: 'character-collections',
@@ -130,6 +263,13 @@ const HomePage: React.FC = () => {
       action: () => navigate('/my-strike-teams')
     },
     {
+      title: 'Public Teams',
+      description: 'Browse shared strike teams',
+      icon: '🌐',
+      color: '#059669',
+      action: () => navigate('/strike-teams')
+    },
+    {
       title: 'Admin Panel',
       description: 'Manage users and system settings',
       icon: '⚙️',
@@ -139,11 +279,11 @@ const HomePage: React.FC = () => {
     }
   ];
 
-  const stats = [
-    { label: 'Characters Available', value: '200+', color: '#3b82f6' },
-    { label: 'Expansion Sets', value: '50+', color: '#16a34a' },
-    { label: 'Active Users', value: '1', color: '#dc2626' },
-    { label: 'Features Completed', value: '12', color: '#8b5cf6' }
+  const statsData = [
+    { label: 'Characters Available', value: loading ? '...' : stats.characters.toString(), color: '#3b82f6' },
+    { label: 'Expansion Sets', value: loading ? '...' : stats.sets.toString(), color: '#16a34a' },
+    { label: 'Active Users', value: loading ? '...' : stats.users.toString(), color: '#dc2626' },
+    { label: 'Features Completed', value: stats.features.toString(), color: '#8b5cf6' }
   ];
 
   const getStatusColor = (status: string) => {
@@ -189,7 +329,7 @@ const HomePage: React.FC = () => {
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text'
           }}>
-            ShPoint Dashboard
+            ShPoint News
           </h1>
           <p style={{
             fontSize: '20px',
@@ -198,7 +338,7 @@ const HomePage: React.FC = () => {
             margin: '0 auto',
             lineHeight: '1.6'
           }}>
-            Your central command for Star Wars: Shatterpoint collections and team management
+            Latest updates and features for Star Wars: Shatterpoint collection manager
           </p>
           {me && (
             <div style={{
@@ -218,7 +358,7 @@ const HomePage: React.FC = () => {
           gap: '20px',
           marginBottom: '40px'
         }}>
-          {stats.map((stat, index) => (
+          {statsData.map((stat, index) => (
             <div
               key={index}
               style={{
@@ -248,19 +388,20 @@ const HomePage: React.FC = () => {
           ))}
         </div>
 
-        {/* Quick Actions */}
-        <div style={{
-          marginBottom: '40px'
-        }}>
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: '700',
-            color: '#f9fafb',
-            marginBottom: '20px',
-            textAlign: 'center'
+        {/* Quick Actions - Only for logged in users */}
+        {me && (
+          <div style={{
+            marginBottom: '40px'
           }}>
-            Quick Actions
-          </h2>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#f9fafb',
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
+              Quick Actions
+            </h2>
           
           <div style={{
             display: 'grid',
@@ -323,7 +464,8 @@ const HomePage: React.FC = () => {
               );
             })}
           </div>
-        </div>
+          </div>
+        )}
 
         {/* Recent Updates */}
         <div style={{
@@ -339,7 +481,7 @@ const HomePage: React.FC = () => {
             marginBottom: '24px',
             textAlign: 'center'
           }}>
-            Recent Updates & Features
+            Latest News & Updates
           </h2>
           
           <div style={{
@@ -445,7 +587,7 @@ const HomePage: React.FC = () => {
           fontSize: '14px'
         }}>
           <p>
-            ShPoint - Star Wars: Shatterpoint Collection Manager
+            ShPoint News - Star Wars: Shatterpoint Updates
           </p>
           <p style={{ marginTop: '8px', fontSize: '12px' }}>
             Built with ❤️ for the Shatterpoint community
