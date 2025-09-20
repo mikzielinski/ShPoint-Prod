@@ -62,10 +62,27 @@ const ContentManagementPage: React.FC = () => {
 
   const handleSaveCharacter = async (character: Character) => {
     try {
-      // TODO: Implement API call to save character
       console.log('Zapisywanie postaci:', character);
       
-      // Tymczasowo dodaj do lokalnej listy
+      // Call API to save character
+      const response = await fetch(`/api/characters/${character.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(character)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save character');
+      }
+      
+      const result = await response.json();
+      console.log('Character saved successfully:', result);
+      
+      // Update local list
       if (editingCharacter) {
         setCharacters(prev => 
           prev.map(c => c.id === character.id ? character : c)
@@ -78,7 +95,7 @@ const ContentManagementPage: React.FC = () => {
       setEditingCharacter(null);
     } catch (error) {
       console.error('Błąd zapisywania postaci:', error);
-      alert('Błąd podczas zapisywania postaci');
+      alert('Błąd podczas zapisywania postaci: ' + error.message);
     }
   };
 

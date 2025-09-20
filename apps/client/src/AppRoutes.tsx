@@ -85,13 +85,13 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
         <div className="nb-nav">
           <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Home</NavLink>
           <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
+          <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
           {me && (
             <>
               {/* Only show these links if user is not suspended */}
               {me.status !== 'SUSPENDED' && (
                 <>
                   <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
-                  <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
                 </>
               )}
               {(me.role === "ADMIN" || me.role === "EDITOR") && me.status !== 'SUSPENDED' && (

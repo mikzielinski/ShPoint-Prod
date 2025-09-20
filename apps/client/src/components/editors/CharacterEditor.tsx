@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import * as React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 
 interface Ability {
@@ -44,7 +45,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
   onSave,
   onCancel,
   onDelete
-}) => {
+}: CharacterEditorProps) => {
   const { auth } = useAuth();
   const me = auth.status === 'authenticated' ? auth.user : null;
   const [formData, setFormData] = useState<Character>({
@@ -190,7 +191,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         ...character,
         // Ensure new fields have default values if missing
         characterNames: character.characterNames || character.name || '',
-        boxSetCode: character.boxSetCode || character.set_code || '',
+        boxSetCode: character.boxSetCode || '',
         point_cost: character.point_cost || (character.unit_type !== 'Primary' ? character.squad_points : 0),
         force: character.force || 0,
         stamina: character.stamina || 0,
@@ -227,7 +228,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     const symbolMap: Record<string, string> = {
       'force': "\u0076",  // v - sp-force
       'dash': "\u0068",   // h - sp-dash
-      'jump': "\ue90f",   // sp-jump
+      'jump': "\u0074",   // t - sp-jump
       'crit': "\u0062",   // b - sp-critical
       'hit': "\u0061",    // a - sp-strike
       'block': "\u0065",  // e - sp-block

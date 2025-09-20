@@ -24,12 +24,25 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export type Character = {
   id: string;
   name: string;
+  characterNames?: string;
+  boxSetCode?: string;
+  unit_type?: 'Primary' | 'Secondary' | 'Support';
+  squad_points?: number;
+  point_cost?: number;
+  force?: number;
+  stamina?: number;
+  durability?: number;
+  number_of_characters?: number;
   role?: string;
   faction?: string;
+  factions?: string[];
+  period?: string[];
   portrait?: string;
   tags?: string[];
   sp?: number;
   pc?: number;
+  set_code?: string;
+  searchable?: string;
 };
 
 export async function getCharacters(): Promise<Character[]> {

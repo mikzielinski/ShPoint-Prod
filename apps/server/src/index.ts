@@ -822,18 +822,32 @@ app.get("/api/characters", async (req, res) => {
       }
     });
     
-    // Add period/era information to characters if missing
+    // Add period/era information to characters if missing and normalize new fields
     const finalCharacters = enrichedCharacters.map((char: any) => {
       // Use period from data if available, otherwise fallback to name-based detection
-      if (char.period) {
-        return {
-          ...char,
-          period: Array.isArray(char.period) ? char.period : [char.period]
-        };
+      const normalizedChar = {
+        ...char,
+        // Ensure default values for new fields
+        characterNames: char.characterNames || char.name,
+        boxSetCode: char.boxSetCode || char.set_code || null,
+        point_cost: char.point_cost || char.pc || 0,
+        force: char.force || 0,
+        stamina: char.stamina || 0,
+        durability: char.durability || 0,
+        number_of_characters: char.number_of_characters || 1,
+        // Map legacy fields to new structure
+        squad_points: char.squad_points || char.sp || 0,
+        unit_type: char.unit_type || char.role || 'Primary',
+        // Ensure period is array
+        period: char.period ? (Array.isArray(char.period) ? char.period : [char.period]) : []
+      };
+      
+      if (normalizedChar.period.length > 0) {
+        return normalizedChar;
       }
       
       // Fallback: determine era from character name (matching official ShatterpointDB)
-      const nameLower = char.name.toLowerCase();
+      const nameLower = normalizedChar.name.toLowerCase();
       const eras: string[] = [];
       
       // Clone Wars Era
@@ -898,9 +912,9 @@ app.get("/api/characters", async (req, res) => {
         eras.push("Galactic Civil War"); // Ewoks are part of the Galactic Civil War era
       }
       
-      // Return character with period information
+      // Return character with period information and normalized fields
       return {
-        ...char,
+        ...normalizedChar,
         period: eras.length > 0 ? eras : ["Unknown Era"]
       };
     });
@@ -985,11 +999,18 @@ app.get("/api/characters", async (req, res) => {
         // Use pre-structured abilities from data.json
         structuredAbilities = char.structuredAbilities;
       } else if (char.abilities && Array.isArray(char.abilities)) {
-        // Parse legacy abilities array
-        try {
-          structuredAbilities = parseLegacyAbilities(char.abilities);
-        } catch (error) {
-          console.warn(`Failed to parse abilities for character ${char.id}:`, error);
+        // Check if abilities already have structured format
+        const firstAbility = char.abilities[0];
+        if (firstAbility && typeof firstAbility === 'object' && firstAbility.id && firstAbility.type && firstAbility.name) {
+          // Abilities already have structured format
+          structuredAbilities = char.abilities;
+        } else {
+          // Parse legacy abilities array
+          try {
+            structuredAbilities = parseLegacyAbilities(char.abilities);
+          } catch (error) {
+            console.warn(`Failed to parse abilities for character ${char.id}:`, error);
+          }
         }
       } else if (char.abilities && typeof char.abilities === 'string') {
         // Parse legacy ability text
@@ -1003,17 +1024,26 @@ app.get("/api/characters", async (req, res) => {
       return {
         id: char.id,
         name: char.name,
-        role: char.unit_type,
+        characterNames: char.characterNames || char.name,
+        boxSetCode: char.boxSetCode || char.set_code || null,
+        role: char.unit_type || char.role,
         faction: char.factions && char.factions.length > 0 ? char.factions.join(', ') : 'Unknown',
         portrait: `/characters/${char.id}/portrait.png`,
         tags: char.factions || [],
-        sp: isPrimary ? char.squad_points : null,
-        pc: !isPrimary ? char.squad_points : null,
+        sp: isPrimary ? (char.squad_points || char.sp) : null,
+        pc: !isPrimary ? (char.squad_points || char.pc) : null,
+        squad_points: char.squad_points || char.sp || 0,
+        unit_type: char.unit_type || char.role || 'Primary',
+        point_cost: char.point_cost || char.pc || 0,
         force: char.force || 0,
         stamina: char.stamina || 0,
         durability: char.durability || 0,
+        number_of_characters: char.number_of_characters || 1,
         era: char.period || ["Unknown Era"],
+        period: char.period || ["Unknown Era"],
+        factions: char.factions || [],
         abilities: structuredAbilities, // New structured abilities
+        structuredAbilities: structuredAbilities, // Same as abilities for compatibility
         legacyAbilities: char.abilities // Keep legacy for backward compatibility
       };
     });
@@ -1086,6 +1116,87 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error('Error deleting character:', error);
     res.status(500).json({ ok: false, error: 'Failed to delete character' });
+  }
+});
+
+// PUT /api/characters/:id — update character data in JSON files (Admin/Editor only)
+app.put("/api/characters/:id", ensureAuth, async (req, res) => {
+  try {
+    console.log('PUT /api/characters/:id called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      console.log('Access denied: User does not have permission');
+      return res.status(403).json({ ok: false, error: 'Access denied. Admin or Editor role required.' });
+    }
+    
+    const characterId = req.params.id;
+    const characterData = req.body;
+    
+    console.log('Updating character:', characterId);
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Update characters_unified.json
+    const charactersUnifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    if (fs.existsSync(charactersUnifiedPath)) {
+      const charactersData = JSON.parse(fs.readFileSync(charactersUnifiedPath, 'utf8'));
+      const characterIndex = charactersData.findIndex((char: any) => char.id === characterId);
+      
+      if (characterIndex !== -1) {
+        // Update existing character
+        charactersData[characterIndex] = { ...charactersData[characterIndex], ...characterData };
+        fs.writeFileSync(charactersUnifiedPath, JSON.stringify(charactersData, null, 2));
+        console.log('Updated character in characters_unified.json');
+      } else {
+        // Add new character
+        charactersData.push(characterData);
+        fs.writeFileSync(charactersUnifiedPath, JSON.stringify(charactersData, null, 2));
+        console.log('Added new character to characters_unified.json');
+      }
+    }
+    
+    // Update src/data/characters.json
+    const charactersDataPath = path.join(process.cwd(), '../client/src/data/characters.json');
+    if (fs.existsSync(charactersDataPath)) {
+      const charactersData = JSON.parse(fs.readFileSync(charactersDataPath, 'utf8'));
+      const characterIndex = charactersData.findIndex((char: any) => char.id === characterId);
+      
+      if (characterIndex !== -1) {
+        charactersData[characterIndex] = { ...charactersData[characterIndex], ...characterData };
+        fs.writeFileSync(charactersDataPath, JSON.stringify(charactersData, null, 2));
+        console.log('Updated character in src/data/characters.json');
+      } else {
+        charactersData.push(characterData);
+        fs.writeFileSync(charactersDataPath, JSON.stringify(charactersData, null, 2));
+        console.log('Added new character to src/data/characters.json');
+      }
+    }
+    
+    // Update individual character data file if it exists
+    const individualDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
+    const individualDir = path.dirname(individualDataPath);
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(individualDir)) {
+      fs.mkdirSync(individualDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(individualDataPath, JSON.stringify(characterData, null, 2));
+    console.log('Updated individual character data file');
+    
+    res.json({ 
+      ok: true, 
+      message: 'Character updated successfully',
+      characterId: characterId
+    });
+  } catch (error) {
+    console.error('Error updating character:', error);
+    res.status(500).json({ ok: false, error: 'Failed to update character' });
   }
 });
 

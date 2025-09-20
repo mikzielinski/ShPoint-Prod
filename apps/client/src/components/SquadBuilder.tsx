@@ -21,6 +21,26 @@ type Card = {
   legacyAbilities?: any; // Legacy abilities for backward compatibility
 };
 
+/** Wyciągnij bazową nazwę postaci z nazwy karty */
+function extractBaseCharacterName(cardName: string): string {
+  // Usuń typowe sufiksy i prefiksy z nazw kart
+  let baseName = cardName;
+  
+  // Usuń prefiksy jak "General", "Captain", "Commander", "Jedi Master", "Jedi Knight", "Lord", "Queen", "Princess"
+  baseName = baseName.replace(/^(General|Captain|Commander|Jedi Master|Jedi Knight|Lord|Queen|Princess|Moff|Grand Admiral|Grand Inquisitor|Director|Mother|The)\s+/i, '');
+  
+  // Usuń sufiksy po przecinku (np. "Ahsoka Tano, Jedi no more" -> "Ahsoka Tano")
+  baseName = baseName.split(',')[0].trim();
+  
+  // Usuń dodatkowe opisy w nawiasach (np. "Ahsoka Tano (Fulcrum)" -> "Ahsoka Tano")
+  baseName = baseName.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  
+  // Usuń numery i kody na końcu (np. "CT-9904, Elite Squad Leader" -> "CT-9904")
+  baseName = baseName.replace(/\s*,\s*[^,]*$/, '').trim();
+  
+  return baseName;
+}
+
 /** Spróbuj dopasować różne nazwy pól z index.json do naszego modelu */
 function normalizeCard(raw: any): Card | null {
   if (!raw) return null;
@@ -39,12 +59,32 @@ function normalizeCard(raw: any): Card | null {
 
   const unitType: UnitType =
     raw.unitType ??
+    raw.unit_type ??
     raw.role ??
     raw.type ??
     (typeof raw.kind === "string" ? raw.kind : "Primary");
 
-  const pc: number = Number(raw.pc ?? raw.squad_points ?? 0);
-  const sp: number = Number(raw.sp ?? raw.squad_points ?? 0);
+  // Logika SP/PC zgodnie z typem jednostki
+  const pc: number = (() => {
+    if (raw.point_cost !== undefined) return Number(raw.point_cost);
+    if (raw.pc !== undefined) return Number(raw.pc);
+    // Dla Secondary/Support używaj squad_points jako PC
+    if (raw.unitType === "Secondary" || raw.unitType === "Support" || raw.unit_type === "Secondary" || raw.unit_type === "Support") {
+      return Number(raw.squad_points ?? 0);
+    }
+    return 0;
+  })();
+
+  const sp: number = (() => {
+    if (raw.squad_points !== undefined) return Number(raw.squad_points);
+    if (raw.sp !== undefined) return Number(raw.sp);
+    // Dla Primary używaj squad_points jako SP
+    if (raw.unitType === "Primary" || raw.unit_type === "Primary") {
+      return Number(raw.squad_points ?? 0);
+    }
+    return 0;
+  })();
+
   const force: number = Number(raw.force ?? 0);
 
   // Era/Period - dla walidacji squadów
@@ -58,16 +98,36 @@ function normalizeCard(raw: any): Card | null {
     return []; // Brak informacji o erze
   })();
 
-  // Ilość jednostek w karcie - Support zazwyczaj ma 2 jednostki
+  // Ilość jednostek w karcie - używaj nowego pola number_of_characters
   const unitCount: number = (() => {
+    if (raw.number_of_characters !== undefined) return Number(raw.number_of_characters);
     if (raw.unitCount !== undefined) return Number(raw.unitCount);
     if (raw.unit_count !== undefined) return Number(raw.unit_count);
-    if (raw.unit_type === "Support") return 2; // Domyślnie Support ma 2 jednostki
+    if (raw.unit_type === "Support" || raw.unitType === "Support") return 2; // Domyślnie Support ma 2 jednostki
     return 1; // Primary i Secondary mają 1 jednostkę
   })();
 
-  // Nazwa postaci vs nazwa karty - dla wykrywania duplikatów
-  const characterName: string = raw.characterName || raw.character_name || name;
+  // Nazwa postaci vs nazwa karty - dla wykrywania duplikatów, używaj characterNames
+  // Jeśli characterNames nie jest ustawione, spróbuj wyciągnąć bazową nazwę postaci z nazwy karty
+  const characterName: string = (() => {
+    if (raw.characterNames && raw.characterNames !== raw.name) {
+      console.log(`🎯 Using characterNames for ${name}: "${raw.characterNames}"`);
+      return raw.characterNames;
+    }
+    if (raw.characterName && raw.characterName !== raw.name) {
+      console.log(`🎯 Using characterName for ${name}: "${raw.characterName}"`);
+      return raw.characterName;
+    }
+    if (raw.character_name && raw.character_name !== raw.name) {
+      console.log(`🎯 Using character_name for ${name}: "${raw.character_name}"`);
+      return raw.character_name;
+    }
+    
+    // Automatycznie wyciągnij bazową nazwę postaci z nazwy karty
+    const extracted = extractBaseCharacterName(name);
+    console.log(`🎯 Extracted base name for ${name}: "${extracted}"`);
+    return extracted;
+  })();
 
   // spróbuj znaleźć obrazek
   const portrait: string =
@@ -101,6 +161,7 @@ function normalizeCard(raw: any): Card | null {
 
 /** Pobranie danych z naszego API */
 async function loadCards(): Promise<Card[]> {
+  console.log(`🚀 NEW VERSION LOADED! loadCards called - fetching from /api/characters`);
   const res = await fetch("/api/characters", { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch cards: ${res.status}`);
 
@@ -408,25 +469,43 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
     const character = cards.find(c => c.id === characterId);
     if (!character) return { canAdd: false, reason: "Character not found" };
 
+    // DEBUG: Log dla Ahsoka
+    if (character.name.includes('Ahsoka')) {
+      console.log(`🎯 canAddToSquad called for ${character.name} to Squad ${squadNumber}`);
+    }
+
     const targetSquad = squadNumber === 1 ? squad1 : squad2;
     const otherSquad = squadNumber === 1 ? squad2 : squad1;
+
+    // Sprawdź duplikaty między squadami (Unique Unit Names) - NAJPIERW!
+    if (isCharacterAlreadyUsedV2(characterId, squadNumber)) {
+      console.log(`🚫 Character ${character.name} already used:`, {
+        characterName: character.characterName,
+        squad1HasSameBase: squad1.some(id => {
+          const c = cards.find(x => x.id === id);
+          return c && c.characterName === character.characterName;
+        }),
+        squad2HasSameBase: squad2.some(id => {
+          const c = cards.find(x => x.id === id);
+          return c && c.characterName === character.characterName;
+        }),
+        squad1: squad1,
+        squad2: squad2
+      });
+      return { canAdd: false, reason: "Character already used in another squad" };
+    }
 
     // DEBUG: Log dla Primary characters
     if (character.unitType === "Primary") {
       const baseName = getBaseCharacterName(character.name);
       console.log(`🔍 Checking Primary character: ${character.name}`, {
         targetSquadLength: targetSquad.length,
-        isAlreadyUsed: isCharacterAlreadyUsed(characterId),
+        isAlreadyUsed: isCharacterAlreadyUsedV2(characterId, squadNumber),
         characterRole: character.unitType,
         baseName: baseName,
         squad1: squad1,
         squad2: squad2
       });
-    }
-
-    // Sprawdź duplikaty między squadami (Unique Unit Names)
-    if (isCharacterAlreadyUsed(characterId)) {
-      return { canAdd: false, reason: "Character already used in another squad" };
     }
 
     // WYMUŚ dodawanie Primary jako pierwszego charakteru
@@ -486,40 +565,42 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
     return { canAdd: true };
   };
 
-  // Sprawdź czy postać już istnieje w obu squadach
-  const isCharacterAlreadyUsed = (characterId: string): boolean => {
+  // Sprawdź czy postać już istnieje w innym squadzie (nie w tym, do którego dodajemy)
+  // CACHE BUST: 2024-12-19 15:35 - FORCE RELOAD
+  const isCharacterAlreadyUsedV2 = (characterId: string, targetSquadNumber: 1 | 2): boolean => {
+    console.log(`🚀 NEW VERSION LOADED! isCharacterAlreadyUsedV2 called for ${characterId} -> Squad ${targetSquadNumber}`);
     const character = cards.find(c => c.id === characterId);
-    if (!character) return false;
-    
-    // Użyj characterName zamiast getBaseCharacterName
-    const characterName = character.characterName;
-    
-    // Sprawdź Squad 1
-    const squad1HasSameBase = squad1.some(id => {
-      const squadChar = cards.find(c => c.id === id);
-      return squadChar && squadChar.characterName === characterName;
-    });
-    
-    // Sprawdź Squad 2
-    const squad2HasSameBase = squad2.some(id => {
-      const squadChar = cards.find(c => c.id === id);
-      return squadChar && squadChar.characterName === characterName;
-    });
-    
-    const isUsed = squad1HasSameBase || squad2HasSameBase;
-    
-    // DEBUG: Log dla sprawdzania duplikatów
-    if (isUsed) {
-      console.log(`🚫 Character ${character.name} already used:`, {
-        characterName: characterName,
-        squad1HasSameBase: squad1HasSameBase,
-        squad2HasSameBase: squad2HasSameBase,
-        squad1: squad1,
-        squad2: squad2
-      });
+    if (!character) {
+      console.log(`🔍 isCharacterAlreadyUsed: Character not found for ID: ${characterId}`);
+      return false;
     }
     
-    return isUsed;
+    // Użyj characterName do sprawdzania duplikatów - blokuj różne warianty tej samej postaci
+    const characterName = character.characterName;
+    
+    // Sprawdź tylko w squadzie, do którego NIE dodajemy
+    const otherSquad = targetSquadNumber === 1 ? squad2 : squad1;
+    
+    console.log(`🔍 isCharacterAlreadyUsed: ${character.name} (${characterId}) -> Squad ${targetSquadNumber}`);
+    console.log(`🔍 characterName: "${characterName}"`);
+    console.log(`🔍 otherSquad:`, otherSquad);
+    console.log(`🔍 Full character object:`, character);
+    
+    const isUsedInOtherSquad = otherSquad.some(id => {
+      const squadChar = cards.find(c => c.id === id);
+      if (squadChar) {
+        const isMatch = squadChar.characterName === characterName;
+        console.log(`🔍 Checking squad char: ${squadChar.name} (${id})`);
+        console.log(`🔍   - squadChar.characterName: "${squadChar.characterName}"`);
+        console.log(`🔍   - target characterName: "${characterName}"`);
+        console.log(`🔍   - match: ${isMatch}`);
+        return isMatch;
+      }
+      return false;
+    });
+    
+    console.log(`🔍 isCharacterAlreadyUsed result: ${isUsedInOtherSquad}`);
+    return isUsedInOtherSquad;
   };
 
   // Oblicz punkty dla pojedynczego squada
@@ -969,12 +1050,12 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
             // Combine squads into single characters array (6 characters total)
             const squad1CharactersForSave = squad1.map(id => {
               const c = cards.find(x => x.id === id);
-              return c ? { characterId: id, role: c.unitType } : null;
+              return c ? { characterId: id, role: c.unitType.toUpperCase() } : null;
             }).filter(Boolean);
             
             const squad2CharactersForSave = squad2.map(id => {
               const c = cards.find(x => x.id === id);
-              return c ? { characterId: id, role: c.unitType } : null;
+              return c ? { characterId: id, role: c.unitType.toUpperCase() } : null;
             }).filter(Boolean);
             
             const teamData = {

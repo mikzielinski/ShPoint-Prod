@@ -2695,8 +2695,48 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
   allCharacters,
   characterCollections 
 }) => {
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  
   const getCharacterById = (id: string): Character | undefined => {
     return allCharacters.find(c => c.id === id);
+  };
+
+  // Handle character click
+  const handleCharacterClick = (character: Character) => {
+    setSelectedCharacter(character);
+  };
+
+  // Sort characters by squad order first, then by role: Primary, Secondary, Support
+  const sortedCharacters = [...team.characters].sort((a, b) => {
+    // First sort by order (squad)
+    if (a.order !== b.order) {
+      return a.order - b.order;
+    }
+    // Then sort by role within the same squad
+    const roleOrder = { 'PRIMARY': 0, 'SECONDARY': 1, 'SUPPORT': 2 };
+    return roleOrder[a.role] - roleOrder[b.role];
+  });
+
+  const handlePublishToggle = async () => {
+    try {
+      const response = await fetch(`/api/shatterpoint/strike-teams/${team.id}/publish`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isPublished: !team.isPublished }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update publication status');
+      }
+
+      // Reload the page to refresh the strike teams list
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating publication status:', error);
+      alert(`Error updating publication status: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   return (
@@ -2745,48 +2785,78 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
           display: 'flex',
           gap: '8px',
           alignItems: 'center',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          justifyContent: 'space-between'
         }}>
-          <span style={{
-            padding: '4px 8px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontWeight: '600',
-            background: team.type === 'MY_TEAMS' ? '#16a34a' : '#f59e0b',
-            color: 'white'
-          }}>
-            {team.type === 'MY_TEAMS' ? 'My Team' : 'Dream Team'}
-          </span>
-          {team.isPublished && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <span style={{
               padding: '4px 8px',
               borderRadius: '4px',
               fontSize: '12px',
               fontWeight: '600',
-              background: '#3b82f6',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
+              background: team.type === 'MY_TEAMS' ? '#16a34a' : '#f59e0b',
+              color: 'white'
             }}>
-              🌐 Published
+              {team.type === 'MY_TEAMS' ? 'My Team' : 'Dream Team'}
             </span>
-          )}
-          {showTeamType && teamType && (
-            <span style={{
-              padding: '4px 8px',
-              borderRadius: '4px',
+            {team.isPublished && (
+              <span style={{
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '600',
+                background: '#3b82f6',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                🌐 Published
+              </span>
+            )}
+            {showTeamType && teamType && (
+              <span style={{
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '600',
+                background: teamType === 'Real' ? '#10b981' : '#f59e0b',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}>
+                {teamType === 'Real' ? '🎯 Real Team' : '💭 Dream Team'}
+              </span>
+            )}
+          </div>
+          
+          {/* Publish/Unpublish Button */}
+          <button
+            onClick={handlePublishToggle}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '6px',
               fontSize: '12px',
               fontWeight: '600',
-              background: teamType === 'Real' ? '#10b981' : '#f59e0b',
+              border: 'none',
+              cursor: 'pointer',
+              background: team.isPublished ? '#ef4444' : '#10b981',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px'
-            }}>
-              {teamType === 'Real' ? '🎯 Real Team' : '💭 Dream Team'}
-            </span>
-          )}
+              gap: '4px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '0.8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '1';
+            }}
+          >
+            {team.isPublished ? '🔒 Unpublish' : '🌐 Publish'}
+          </button>
         </div>
       </div>
 
@@ -2836,60 +2906,225 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
         }}>
           Squad Composition
         </h4>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '8px'
-        }}>
-          {team.characters.slice(0, 6).map((teamChar) => {
-            const character = getCharacterById(teamChar.characterId);
-            const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
-            
-            return (
-              <div
-                key={teamChar.id}
-                style={{
-                  background: '#111827',
-                  padding: '8px',
-                  borderRadius: '6px',
-                  border: '1px solid #374151',
-                  textAlign: 'center',
-                  position: 'relative'
-                }}
-              >
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
-                         teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
-                  marginBottom: '4px'
-                }}>
-                  {teamChar.role}
-                </div>
-                <div style={{
-                  fontSize: '11px',
-                  color: '#9ca3af',
-                  lineHeight: '1.2'
-                }}>
-                  {character?.name || 'Unknown'}
-                </div>
-                {/* Collection status indicator */}
-                {collection && (
+        {/* Squad 1 - First Line */}
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#d1d5db',
+            marginBottom: '6px',
+            textAlign: 'center'
+          }}>
+            Squad 1
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '8px'
+          }}>
+            {sortedCharacters.slice(0, 3).map((teamChar) => {
+              const character = getCharacterById(teamChar.characterId);
+              const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
+              
+              return (
+                <div
+                  key={teamChar.id}
+                  style={{
+                    background: '#111827',
+                    padding: '8px',
+                    borderRadius: '6px',
+                    border: '1px solid #374151',
+                    textAlign: 'center',
+                    position: 'relative',
+                    minHeight: teamChar.role === 'PRIMARY' ? '140px' : '120px'
+                  }}
+                >
+                  {/* Character portrait */}
+                  {character?.portrait && (
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (character) {
+                          handleCharacterClick(character);
+                        }
+                      }}
+                      style={{
+                        width: '80px',
+                        height: '100px',
+                        margin: '0 auto 10px auto',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        border: '2px solid #3b82f6',
+                        background: '#1f2937',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#60a5fa';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#3b82f6';
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
+                    >
+                      <img
+                        src={character.portrait}
+                        alt={character.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain'
+                        }}
+                      />
+                    </div>
+                  )}
+                  
                   <div style={{
-                    position: 'absolute',
-                    top: '4px',
-                    right: '4px',
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: collection.isOwned ? '#10b981' : 
-                               collection.isWishlist ? '#f59e0b' : '#ef4444'
-                  }} />
-                )}
-              </div>
-            );
-          })}
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
+                           teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
+                    marginBottom: '4px'
+                  }}>
+                    {teamChar.role}
+                  </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: '#9ca3af',
+                    lineHeight: '1.2'
+                  }}>
+                    {character?.name || 'Unknown'}
+                  </div>
+                  {/* Collection status indicator */}
+                  {collection && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: collection.isOwned ? '#10b981' : 
+                                 collection.isWishlist ? '#f59e0b' : '#ef4444'
+                    }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Squad 2 - Second Line */}
+        {sortedCharacters.length > 3 && (
+          <div>
+            <div style={{
+              fontSize: '12px',
+              fontWeight: '600',
+              color: '#d1d5db',
+              marginBottom: '6px',
+              textAlign: 'center'
+            }}>
+              Squad 2
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '8px'
+            }}>
+              {sortedCharacters.slice(3, 6).map((teamChar) => {
+                const character = getCharacterById(teamChar.characterId);
+                const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
+                
+                return (
+                  <div
+                    key={teamChar.id}
+                    style={{
+                      background: '#111827',
+                      padding: '8px',
+                      borderRadius: '6px',
+                      border: '1px solid #374151',
+                      textAlign: 'center',
+                      position: 'relative',
+                      minHeight: teamChar.role === 'PRIMARY' ? '120px' : '80px'
+                    }}
+                  >
+                    {/* Character portrait */}
+                    {character?.portrait && (
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (character) {
+                            handleCharacterClick(character);
+                          }
+                        }}
+                        style={{
+                          width: '80px',
+                          height: '100px',
+                          margin: '0 auto 10px auto',
+                          borderRadius: '10px',
+                          overflow: 'hidden',
+                          border: '2px solid #3b82f6',
+                          background: '#1f2937',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = '#60a5fa';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = '#3b82f6';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <img
+                          src={character.portrait}
+                          alt={character.name}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
+                             teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
+                      marginBottom: '4px'
+                    }}>
+                      {teamChar.role}
+                    </div>
+                    <div style={{
+                      fontSize: '11px',
+                      color: '#9ca3af',
+                      lineHeight: '1.2'
+                    }}>
+                      {character?.name || 'Unknown'}
+                    </div>
+                    {/* Collection status indicator */}
+                    {collection && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        width: '6px',
+                        height: '6px',
+                        borderRadius: '50%',
+                        background: collection.isOwned ? '#10b981' : 
+                                   collection.isWishlist ? '#f59e0b' : '#ef4444'
+                      }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Created Date */}
@@ -2903,6 +3138,22 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
       }}>
         Created {new Date(team.createdAt).toLocaleDateString()}
       </div>
+
+      {/* Character Modal */}
+      {selectedCharacter && (
+        <CharacterModal
+          open={!!selectedCharacter}
+          onClose={() => setSelectedCharacter(null)}
+          id={selectedCharacter.id}
+          character={{
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            unit_type: (selectedCharacter.role as "Primary" | "Secondary" | "Support") || "Primary",
+            squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
+            portrait: selectedCharacter.portrait
+          }}
+        />
+      )}
     </div>
   );
 };

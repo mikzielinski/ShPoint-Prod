@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../auth/AuthContext';
+import CharacterModal from '../components/CharacterModal';
 
 // Types
 interface StrikeTeam {
@@ -28,28 +28,52 @@ interface StrikeTeamCharacter {
   characterId: string;
   role: 'PRIMARY' | 'SECONDARY' | 'SUPPORT';
   order: number;
-  character: {
-    id: string;
-    name: string;
-    role?: string;
-    faction?: string;
-    portrait?: string;
-    tags?: string[];
-    sp?: number;
-    pc?: number;
-    era?: string;
-  };
+  characterName?: string;
+}
+
+interface Character {
+  id: string;
+  name: string;
+  role?: string;
+  faction?: string;
+  portrait?: string;
+  tags?: string[];
+  sp?: number;
+  pc?: number;
+  era?: string;
 }
 
 const api = (path: string) => `http://localhost:3001${path}`;
 
 export default function PublicStrikeTeamsPage() {
-  const { auth } = useAuth();
-  
   // State
   const [strikeTeams, setStrikeTeams] = useState<StrikeTeam[]>([]);
+  const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+
+  // Load characters
+  const loadCharacters = async () => {
+    try {
+      const response = await fetch(api('/api/characters'));
+      const data = await response.json();
+      
+      // The /api/characters endpoint returns { ok: true, items: [...], total: 133 }
+      if (data.ok && Array.isArray(data.items)) {
+        setCharacters(data.items);
+      } else if (Array.isArray(data)) {
+        setCharacters(data);
+      } else if (data.ok && Array.isArray(data.characters)) {
+        setCharacters(data.characters);
+      } else {
+        console.error('Unexpected characters data structure:', data);
+      }
+    } catch (err) {
+      console.error('Error loading characters:', err);
+    }
+  };
 
   // Load published strike teams
   const loadPublishedTeams = async () => {
@@ -73,7 +97,13 @@ export default function PublicStrikeTeamsPage() {
   };
 
   useEffect(() => {
-    loadPublishedTeams();
+    const loadData = async () => {
+      await Promise.all([
+        loadCharacters(),
+        loadPublishedTeams()
+      ]);
+    };
+    loadData();
   }, []);
 
   // Helper function to get user display name
@@ -94,7 +124,34 @@ export default function PublicStrikeTeamsPage() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  if (loading) {
+  // Helper function to get character by ID
+  const getCharacterById = (id: string): Character | undefined => {
+    if (!characters || !Array.isArray(characters)) {
+      return undefined;
+    }
+    return characters.find(c => c.id === id);
+  };
+
+  // Toggle team expansion
+  const toggleTeamExpansion = (teamId: string) => {
+    setExpandedTeams(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(teamId)) {
+        newSet.delete(teamId);
+      } else {
+        newSet.add(teamId);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle character click
+  const handleCharacterClick = (character: Character) => {
+    setSelectedCharacter(character);
+  };
+
+
+  if (loading || !characters || characters.length === 0) {
     return (
       <div style={{
         minHeight: '100vh',
@@ -198,62 +255,100 @@ export default function PublicStrikeTeamsPage() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
             gap: '24px'
           }}>
-            {strikeTeams.map((team) => (
-              <div
-                key={team.id}
-                style={{
-                  background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  border: '1px solid #4b5563',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-                }}
-              >
-                {/* Team Header */}
-                <div style={{ marginBottom: '20px' }}>
-                  <h3 style={{
-                    fontSize: '1.5rem',
-                    fontWeight: 'bold',
-                    marginBottom: '8px',
-                    color: '#f9fafb'
-                  }}>
-                    {team.name}
-                  </h3>
-                  
-                  {team.description && (
-                    <p style={{
-                      color: '#9ca3af',
-                      fontSize: '14px',
-                      marginBottom: '12px',
-                      lineHeight: '1.4'
-                    }}>
-                      {team.description}
-                    </p>
-                  )}
+            {strikeTeams.map((team) => {
+              // Sort characters by squad (order) first, then by role within each squad
+              const sortedCharacters = [...team.characters].sort((a, b) => {
+                // First sort by order (squad)
+                if (a.order !== b.order) {
+                  return a.order - b.order;
+                }
+                // Then sort by role within the same squad
+                const roleOrder = { 'PRIMARY': 0, 'SECONDARY': 1, 'SUPPORT': 2 };
+                return roleOrder[a.role] - roleOrder[b.role];
+              });
 
-                  {/* Author Info */}
+              return (
+                <div
+                  key={team.id}
+                  style={{
+                    background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    border: '1px solid #4b5563',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+                  }}
+                >
+                {/* Team Header */}
+                <div style={{ 
+                  marginBottom: '16px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '4px'
+                  }}>
+                    <h3 style={{
+                      fontSize: '1.2rem',
+                      fontWeight: 'bold',
+                      color: '#f9fafb',
+                      lineHeight: '1.2',
+                      margin: 0
+                    }}>
+                      {team.name}
+                    </h3>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTeamExpansion(team.id);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#9ca3af',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#374151';
+                        e.currentTarget.style.color = '#f9fafb';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'none';
+                        e.currentTarget.style.color = '#9ca3af';
+                      }}
+                    >
+                      {expandedTeams.has(team.id) ? '▼' : '▶'}
+                    </button>
+                  </div>
+                  
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    marginBottom: '12px'
+                    marginBottom: '4px'
                   }}>
                     {getUserAvatar(team.user) ? (
                       <img
                         src={getUserAvatar(team.user)}
                         alt="Author avatar"
                         style={{
-                          width: '24px',
-                          height: '24px',
+                          width: '16px',
+                          height: '16px',
                           borderRadius: '50%',
                           border: '1px solid #4b5563'
                         }}
@@ -265,14 +360,14 @@ export default function PublicStrikeTeamsPage() {
                     ) : null}
                     <div
                       style={{
-                        width: '24px',
-                        height: '24px',
+                        width: '16px',
+                        height: '16px',
                         borderRadius: '50%',
                         background: '#3b82f6',
                         display: getUserAvatar(team.user) ? 'none' : 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '10px',
+                        fontSize: '8px',
                         fontWeight: '600',
                         color: 'white'
                       }}
@@ -280,127 +375,324 @@ export default function PublicStrikeTeamsPage() {
                       {getUserInitials(team.user)}
                     </div>
                     <span style={{
-                      fontSize: '14px',
-                      color: '#d1d5db',
+                      fontSize: '12px',
+                      color: '#9ca3af',
                       fontWeight: '500'
                     }}>
                       by {getUserDisplayName(team.user)}
                     </span>
                   </div>
 
-                  {/* Team Type Badge */}
-                  <span style={{
-                    padding: '4px 8px',
+                  {/* Team Type Badge - Hidden */}
+                  {/* <span style={{
+                    padding: '2px 6px',
                     borderRadius: '4px',
-                    fontSize: '12px',
+                    fontSize: '10px',
                     fontWeight: '600',
                     background: team.type === 'MY_TEAMS' ? '#16a34a' : '#f59e0b',
                     color: 'white',
                     display: 'inline-block'
                   }}>
                     {team.type === 'MY_TEAMS' ? 'My Team' : 'Dream Team'}
-                  </span>
+                  </span> */}
                 </div>
 
-                {/* Team Statistics */}
+                {/* Team Details - Conditionally visible */}
+                {expandedTeams.has(team.id) && (
+                  <>
+                    {/* Team Description - Always visible if exists */}
+                    {team.description && (
+                  <div style={{
+                    marginBottom: '12px',
+                    padding: '8px 12px',
+                    background: '#111827',
+                    borderRadius: '6px',
+                    border: '1px solid #374151'
+                  }}>
+                    <p style={{
+                      color: '#9ca3af',
+                      fontSize: '13px',
+                      lineHeight: '1.4',
+                      margin: 0
+                    }}>
+                      {team.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Team Statistics - Always visible */}
                 <div style={{
                   display: 'flex',
-                  gap: '16px',
-                  marginBottom: '20px',
-                  padding: '12px',
+                  gap: '12px',
+                  marginBottom: '16px',
+                  padding: '10px',
                   background: '#111827',
-                  borderRadius: '8px',
-                  fontSize: '14px'
+                  borderRadius: '6px',
+                  fontSize: '12px'
                 }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '16px' }}>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '14px' }}>
                       {team.wins}
                     </div>
-                    <div style={{ color: '#9ca3af' }}>Wins</div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '16px' }}>
-                      {team.losses}
-                    </div>
-                    <div style={{ color: '#9ca3af' }}>Losses</div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '16px' }}>
-                      {team.draws}
-                    </div>
-                    <div style={{ color: '#9ca3af' }}>Draws</div>
+                    <div style={{ color: '#9ca3af', fontSize: '10px' }}>Wins</div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
-                    <div style={{ color: '#d1d5db', fontWeight: 'bold', fontSize: '16px' }}>
+                    <div style={{ color: '#ef4444', fontWeight: 'bold', fontSize: '14px' }}>
+                      {team.losses}
+                    </div>
+                    <div style={{ color: '#9ca3af', fontSize: '10px' }}>Losses</div>
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ color: '#f59e0b', fontWeight: 'bold', fontSize: '14px' }}>
+                      {team.draws}
+                    </div>
+                    <div style={{ color: '#9ca3af', fontSize: '10px' }}>Draws</div>
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ color: '#d1d5db', fontWeight: 'bold', fontSize: '14px' }}>
                       {team.characters.length}
                     </div>
-                    <div style={{ color: '#9ca3af' }}>Units</div>
+                    <div style={{ color: '#9ca3af', fontSize: '10px' }}>Units</div>
                   </div>
                 </div>
 
-                {/* Characters Preview */}
+                {/* Characters - Always visible */}
                 <div>
                   <h4 style={{
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     color: '#d1d5db',
                     marginBottom: '8px'
                   }}>
                     Squad Composition
                   </h4>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '8px'
-                  }}>
-                    {team.characters.slice(0, 6).map((teamChar) => (
-                      <div
-                        key={teamChar.id}
-                        style={{
-                          background: '#111827',
-                          padding: '8px',
-                          borderRadius: '6px',
-                          border: '1px solid #374151',
-                          textAlign: 'center'
-                        }}
-                      >
-                        <div style={{
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
-                                 teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
-                          marginBottom: '4px'
-                        }}>
-                          {teamChar.role}
-                        </div>
-                        <div style={{
-                          fontSize: '11px',
-                          color: '#9ca3af',
-                          lineHeight: '1.2'
-                        }}>
-                          {teamChar.character.name}
-                        </div>
+                  {/* Squad 1 - First Line */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: '#d1d5db',
+                      marginBottom: '6px',
+                      textAlign: 'center'
+                    }}>
+                      Squad 1
+                    </div>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '8px'
+                    }}>
+                      {sortedCharacters.slice(0, 3).map((teamChar) => {
+                        const character = getCharacterById(teamChar.characterId);
+                        return (
+                          <div
+                            key={teamChar.id}
+                            style={{
+                              background: '#111827',
+                              padding: '8px',
+                              borderRadius: '6px',
+                              border: '1px solid #374151',
+                              textAlign: 'center',
+                              position: 'relative',
+                              minHeight: teamChar.role === 'PRIMARY' ? '140px' : '120px'
+                            }}
+                          >
+                            {/* Character portrait */}
+                            {character?.portrait && (
+                              <div 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (character) {
+                                    handleCharacterClick(character);
+                                  }
+                                }}
+                                style={{
+                                  width: '80px',
+                                  height: '100px',
+                                  margin: '0 auto 10px auto',
+                                  borderRadius: '10px',
+                                  overflow: 'hidden',
+                                  border: '2px solid #3b82f6',
+                                  background: '#1f2937',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.borderColor = '#60a5fa';
+                                  e.currentTarget.style.transform = 'scale(1.05)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.borderColor = '#3b82f6';
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                }}
+                              >
+                                <img
+                                  src={character.portrait}
+                                  alt={character.name}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                  }}
+                                />
+                              </div>
+                            )}
+                            
+                            <div style={{
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
+                                     teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
+                              marginBottom: '4px'
+                            }}>
+                              {teamChar.role}
+                            </div>
+                            <div style={{
+                              fontSize: '11px',
+                              color: '#9ca3af',
+                              lineHeight: '1.2'
+                            }}>
+                              {character?.name || teamChar.characterName || 'Unknown Character'}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Squad 2 - Second Line */}
+                  {sortedCharacters.length > 3 && (
+                    <div>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#d1d5db',
+                        marginBottom: '6px',
+                        textAlign: 'center'
+                      }}>
+                        Squad 2
                       </div>
-                    ))}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '8px'
+                      }}>
+                        {sortedCharacters.slice(3, 6).map((teamChar) => {
+                          const character = getCharacterById(teamChar.characterId);
+                          return (
+                            <div
+                              key={teamChar.id}
+                              style={{
+                                background: '#111827',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                border: '1px solid #374151',
+                                textAlign: 'center',
+                                position: 'relative',
+                                minHeight: teamChar.role === 'PRIMARY' ? '140px' : '120px'
+                              }}
+                            >
+                              {/* Character portrait */}
+                              {character?.portrait && (
+                                <div 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (character) {
+                                      handleCharacterClick(character);
+                                    }
+                                  }}
+                                  style={{
+                                    width: '80px',
+                                    height: '100px',
+                                    margin: '0 auto 10px auto',
+                                    borderRadius: '10px',
+                                    overflow: 'hidden',
+                                    border: '2px solid #3b82f6',
+                                    background: '#1f2937',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.borderColor = '#60a5fa';
+                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.borderColor = '#3b82f6';
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                  }}
+                                >
+                                  <img
+                                    src={character.portrait}
+                                    alt={character.name}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'contain'
+                                    }}
+                                  />
+                                </div>
+                              )}
+                              
+                              <div style={{
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                color: teamChar.role === 'PRIMARY' ? '#3b82f6' : 
+                                       teamChar.role === 'SECONDARY' ? '#8b5cf6' : '#10b981',
+                                marginBottom: '4px'
+                              }}>
+                                {teamChar.role}
+                              </div>
+                              <div style={{
+                                fontSize: '11px',
+                                color: '#9ca3af',
+                                lineHeight: '1.2'
+                              }}>
+                                {character?.name || teamChar.characterName || 'Unknown Character'}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Published Date */}
+                  <div style={{
+                    marginTop: '12px',
+                    paddingTop: '8px',
+                    borderTop: '1px solid #374151',
+                    fontSize: '11px',
+                    color: '#6b7280',
+                    textAlign: 'center'
+                  }}>
+                    Published {new Date(team.updatedAt).toLocaleDateString()}
                   </div>
                 </div>
-
-                {/* Published Date */}
-                <div style={{
-                  marginTop: '16px',
-                  paddingTop: '12px',
-                  borderTop: '1px solid #374151',
-                  fontSize: '12px',
-                  color: '#6b7280',
-                  textAlign: 'center'
-                }}>
-                  Published {new Date(team.updatedAt).toLocaleDateString()}
+                  </>
+                )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
+
+
+      {/* Character Modal */}
+      {selectedCharacter && (
+        <CharacterModal
+          open={!!selectedCharacter}
+          onClose={() => setSelectedCharacter(null)}
+          id={selectedCharacter.id}
+          character={{
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            unit_type: (selectedCharacter.role as "Primary" | "Secondary" | "Support") || "Primary",
+            squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
+            portrait: selectedCharacter.portrait
+          }}
+        />
+      )}
     </div>
   );
 }

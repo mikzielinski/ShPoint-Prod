@@ -34,6 +34,7 @@
   {
     "id": "ahsoka-tano-fulcrum",
     "name": "Ahsoka Tano Fulcrum",
+    "characterNames": "Ahsoka Tano",
     "unit_type": "Primary",
     "squad_points": 8,
     "factions": [
@@ -45,6 +46,7 @@
   {
     "id": "ahsoka-tano-jedi-no-more",
     "name": "Ahsoka Tano, Jedi no more",
+    "characterNames": "Ahsoka Tano",
     "unit_type": "Primary",
     "squad_points": 8,
     "factions": [],

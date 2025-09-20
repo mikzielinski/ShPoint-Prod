@@ -5,8 +5,15 @@ export type UnitType = "Primary" | "Secondary" | "Support" | null;
 export interface CharacterRaw {
   id: string;
   name: string;
+  characterNames?: string;
+  boxSetCode?: string;
   unit_type: UnitType;
   squad_points: number | null;
+  point_cost?: number | null;
+  force?: number;
+  stamina?: number;
+  durability?: number;
+  number_of_characters?: number;
   factions?: string[];
   portrait?: string | null;
   set_code?: string | null;
@@ -106,12 +113,15 @@ export function normalizeCharacters(data: CharacterRaw[]): Character[] {
 
     const searchable = [
       c.name,
+      c.characterNames ?? "",
       ...(tags ?? []),
       ...factions,
       ...fixedPeriod,
       c.unit_type ?? "",
       setCode ?? "",
+      c.boxSetCode ?? "",
     ]
+      .filter(Boolean)
       .join(" ")
       .toLowerCase();
 
