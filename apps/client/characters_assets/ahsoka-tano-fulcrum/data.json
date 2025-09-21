@@ -155,7 +155,7 @@
       "type": "Active",
       "symbol": "j",
       "name": "She is fearless",
-      "description": "Each character in this Unit may . This Unit may use this ability two times during its activation instead of the normal one.",
+      "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
       "forceCost": 1,
       "trigger": "on_activation",
       "isAction": false,

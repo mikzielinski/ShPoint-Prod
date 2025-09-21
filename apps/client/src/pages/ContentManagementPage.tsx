@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import CharacterEditor from '../components/editors/CharacterEditor';
+import SetEditor from '../components/editors/SetEditor';
 import Modal from '../components/Modal';
+import CharacterModal from '../components/CharacterModal';
+import SetPreview from '../components/SetPreview';
+import SetImageWithFallback from '../components/SetImageWithFallback';
+import { Set, setsData } from '../data/sets';
+import { missionsData } from '../data/missions';
+import MissionCardsEditor from '../components/editors/MissionCardsEditor';
+import MissionCardsPreview from '../components/MissionCardsPreview';
 
 interface Character {
   id: string;
@@ -18,7 +26,7 @@ interface Character {
   structuredAbilities: any[];
 }
 
-type EditorMode = 'characters' | 'stances' | 'missions' | 'mission-sets' | 'sets';
+type EditorMode = 'characters' | 'mission-cards' | 'sets';
 
 const ContentManagementPage: React.FC = () => {
   const { auth } = useAuth();
@@ -30,6 +38,18 @@ const ContentManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [characterToDelete, setCharacterToDelete] = useState<string | null>(null);
+  const [showCharacterModal, setShowCharacterModal] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  const [sets, setSets] = useState<Set[]>([]);
+  const [showSetEditor, setShowSetEditor] = useState(false);
+  const [editingSet, setEditingSet] = useState<Set | null>(null);
+  const [showSetPreview, setShowSetPreview] = useState(false);
+  const [previewSet, setPreviewSet] = useState<Set | null>(null);
+  const [showMissionCardsEditor, setShowMissionCardsEditor] = useState(false);
+  const [showMissionCardsPreview, setShowMissionCardsPreview] = useState(false);
+  const [previewMissionCard, setPreviewMissionCard] = useState<any>(null);
+  const [editingMissionCard, setEditingMissionCard] = useState<any>(null);
+  const [missionCards, setMissionCards] = useState<any[]>([]);
 
   const loadCharacters = async () => {
     try {
@@ -44,8 +64,24 @@ const ContentManagementPage: React.FC = () => {
     }
   };
 
+  const loadSets = async () => {
+    try {
+      // Use real sets data from setsData
+      setSets(setsData);
+    } catch (error) {
+      console.error('Błąd ładowania zestawów:', error);
+    }
+  };
+
+
+  const loadMissionCards = () => {
+    setMissionCards(missionsData);
+  };
+
   useEffect(() => {
     loadCharacters();
+    loadSets();
+    loadMissionCards();
   }, []);
 
   // Kontrola dostępu
@@ -162,6 +198,376 @@ const ContentManagementPage: React.FC = () => {
     setEditingCharacter(null);
   };
 
+  const handleCharacterClick = (character: Character) => {
+    setSelectedCharacter(character);
+    setShowCharacterModal(true);
+  };
+
+  const handleCloseCharacterModal = () => {
+    setShowCharacterModal(false);
+    setSelectedCharacter(null);
+  };
+
+  const handleSaveSet = async (set: Set) => {
+    try {
+      console.log('Zapisywanie zestawu:', set);
+      
+      // For now, just update local state. Later this can be connected to an API
+      if (editingSet) {
+        setSets(prev => prev.map(s => s.id === set.id ? set : s));
+      } else {
+        setSets(prev => [...prev, set]);
+      }
+      
+      setShowSetEditor(false);
+      setEditingSet(null);
+    } catch (error) {
+      console.error('Błąd zapisywania zestawu:', error);
+      alert('Błąd podczas zapisywania zestawu: ' + error.message);
+    }
+  };
+
+  const handleEditSet = (set: Set) => {
+    setEditingSet(set);
+    setShowSetEditor(true);
+  };
+
+  const handleNewSet = () => {
+    setEditingSet(null);
+    setShowSetEditor(true);
+  };
+
+  const handleCancelSetEditor = () => {
+    setShowSetEditor(false);
+    setEditingSet(null);
+  };
+
+  const handlePreviewSet = (set: Set) => {
+    setPreviewSet(set);
+    setShowSetPreview(true);
+  };
+
+  const handleCloseSetPreview = () => {
+    setShowSetPreview(false);
+    setPreviewSet(null);
+  };
+
+
+  // Mission Cards handlers
+  const handleNewMissionCard = () => {
+    setEditingMissionCard(null);
+    setShowMissionCardsEditor(true);
+  };
+
+  const handleEditMissionCard = (missionCard: any) => {
+    setEditingMissionCard(missionCard);
+    setShowMissionCardsEditor(true);
+  };
+
+  const handleSaveMissionCard = (missionCard: any) => {
+    console.log('Saving mission card:', missionCard);
+    setShowMissionCardsEditor(false);
+    setEditingMissionCard(null);
+  };
+
+  const handleCancelMissionCardsEditor = () => {
+    setShowMissionCardsEditor(false);
+    setEditingMissionCard(null);
+  };
+
+  const handlePreviewMissionCard = (missionCard: any) => {
+    setPreviewMissionCard(missionCard);
+    setShowMissionCardsPreview(true);
+  };
+
+  const handleCloseMissionCardsPreview = () => {
+    setShowMissionCardsPreview(false);
+    setPreviewMissionCard(null);
+  };
+
+
+  const renderSetsList = () => (
+    <div>
+      <div style={{maxWidth: 1100, margin: "18px auto 0", padding: "0 16px"}}>
+        <div className="flex justify-between items-center mb-4">
+          <h1>Sets/Boxes ({sets.length})</h1>
+          <button
+            onClick={handleNewSet}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium"
+          >
+            Add New Set
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <p style={{maxWidth: 1100, margin: "0 auto", padding: "0 16px"}}>Loading sets...</p>
+      ) : null}
+      {!loading && sets.length === 0 ? (
+        <p style={{maxWidth: 1100, margin: "0 auto", padding: "0 16px"}}>No sets found.</p>
+      ) : null}
+
+      <div className="grid">
+        {sets.map((set) => (
+          <div key={set.id} className="card relative group" role="article">
+            <SetImageWithFallback set={set} size={200} />
+            <div className="title">{set.name}</div>
+            <div className="meta">{set.code} • {set.type}</div>
+            {set.description && (
+              <div style={{fontSize: '12px', color: '#9ca3af', marginTop: '4px', padding: '0 12px'}}>
+                {set.description.length > 100 ? set.description.substring(0, 100) + '...' : set.description}
+              </div>
+            )}
+            
+            {/* Action buttons */}
+            <div style={{
+              marginTop: "12px",
+              display: "flex",
+              gap: "6px",
+              flexWrap: "wrap",
+              padding: "0 12px 12px 12px"
+            }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEditSet(set);
+                }}
+                style={{
+                  background: "#3b82f6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                  flex: "1",
+                  minWidth: "60px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#2563eb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#3b82f6";
+                }}
+                title="Edit set"
+              >
+                Edit
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePreviewSet(set);
+                }}
+                style={{
+                  background: "#8b5cf6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                  flex: "1",
+                  minWidth: "60px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#7c3aed";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#8b5cf6";
+                }}
+                title="Preview set"
+              >
+                Preview
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (set.product_url) {
+                    window.open(set.product_url, '_blank');
+                  }
+                }}
+                style={{
+                  background: "#10b981",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  padding: "4px 8px",
+                  fontSize: "10px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  transition: "background 0.2s ease",
+                  flex: "1",
+                  minWidth: "60px"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "#059669";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "#10b981";
+                }}
+                title="View product page"
+              >
+                View
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderMissionCardsList = () => (
+    <div>
+      <div style={{maxWidth: 1100, margin: "18px auto 0", padding: "0 16px"}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+          <h2 style={{fontSize: '24px', fontWeight: '600', color: '#e0e7ff'}}>Mission Cards</h2>
+          <button
+            onClick={handleNewMissionCard}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#3b82f6',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Create Mission Card
+          </button>
+        </div>
+
+        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px'}}>
+          {missionCards.map((missionCard) => (
+            <div key={missionCard.id} style={{
+              background: '#374151',
+              borderRadius: '12px',
+              padding: '20px',
+              border: '1px solid #4b5563'
+            }}>
+              <div style={{display: 'flex', gap: '16px', alignItems: 'start'}}>
+                <div style={{
+                  aspectRatio: '3/4',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  background: '#374151',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 120,
+                  height: 'auto'
+                }}>
+                  {missionCard.thumbnail ? (
+                    <img
+                      src={missionCard.thumbnail}
+                      alt={missionCard.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      height: '100%',
+                      color: '#6b7280',
+                      textAlign: 'center',
+                      padding: '10px'
+                    }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style={{marginBottom: '4px'}}>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                      <div style={{fontSize: '10px', fontWeight: '500'}}>
+                        {missionCard.id}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: '6px'}}>
+                  <h3 style={{fontSize: '16px', fontWeight: '600', color: '#f3f4f6', margin: 0}}>
+                    {missionCard.name}
+                  </h3>
+                  <p style={{fontSize: '11px', color: '#9ca3af', margin: 0}}>
+                    {missionCard.id} • {missionCard.source}
+                  </p>
+                  {missionCard.description && (
+                    <p style={{fontSize: '10px', color: '#d1d5db', margin: 0, lineHeight: '1.4'}}>
+                      {missionCard.description.length > 80 
+                        ? `${missionCard.description.substring(0, 80)}...` 
+                        : missionCard.description}
+                    </p>
+                  )}
+                  {missionCard.objectives && (
+                    <p style={{fontSize: '10px', color: '#9ca3af', margin: 0}}>
+                      Objectives: {missionCard.objectives.length} • Struggles: {missionCard.struggles?.length || 0}
+                    </p>
+                  )}
+                  {missionCard.tags && (
+                    <div style={{display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px'}}>
+                      {missionCard.tags.slice(0, 3).map((tag: string, index: number) => (
+                        <span key={index} style={{
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          background: '#4b5563',
+                          color: '#e0e7ff',
+                          fontSize: '9px'
+                        }}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{display: 'flex', gap: '6px', marginTop: '12px'}}>
+                <button
+                  onClick={() => handleEditMissionCard(missionCard)}
+                  style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    border: 'none',
+                    background: '#6b7280',
+                    color: 'white',
+                    fontSize: '10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handlePreviewMissionCard(missionCard)}
+                  style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    border: 'none',
+                    background: '#10b981',
+                    color: 'white',
+                    fontSize: '10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Preview
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
 
   const renderCharactersList = () => (
     <div>
@@ -190,7 +596,9 @@ const ContentManagementPage: React.FC = () => {
             <img 
               src={character.portrait ?? "https://picsum.photos/seed/placeholder/400/520"} 
               alt={character.name} 
-              style={{objectFit: 'contain'}}
+              style={{objectFit: 'contain', cursor: 'pointer'}}
+              onClick={() => handleCharacterClick(character)}
+              title="Click to view character details"
             />
             <div className="title">{character.name}</div>
             <div className="meta">{character.unit_type}</div>
@@ -270,30 +678,10 @@ const ContentManagementPage: React.FC = () => {
     switch (activeMode) {
       case 'characters':
         return renderCharactersList();
-      case 'stances':
-        return (
-          <div className="text-center py-8">
-            <p className="text-gray-400">Stance Editor - Coming Soon</p>
-          </div>
-        );
-      case 'missions':
-        return (
-          <div className="text-center py-8">
-            <p className="text-gray-400">Mission Editor - Coming Soon</p>
-          </div>
-        );
-      case 'mission-sets':
-        return (
-          <div className="text-center py-8">
-            <p className="text-gray-400">Mission Sets Editor - Coming Soon</p>
-          </div>
-        );
+      case 'mission-cards':
+        return renderMissionCardsList();
       case 'sets':
-        return (
-          <div className="text-center py-8">
-            <p className="text-gray-400">Sets/Boxes Editor - Coming Soon</p>
-          </div>
-        );
+        return renderSetsList();
       default:
         return null;
     }
@@ -328,10 +716,8 @@ const ContentManagementPage: React.FC = () => {
         }}>
           {[
             { id: 'characters', label: 'Characters', count: characters.length },
-            { id: 'stances', label: 'Stance', count: 0 },
-            { id: 'missions', label: 'Missions', count: 0 },
-            { id: 'mission-sets', label: 'Mission Sets', count: 0 },
-            { id: 'sets', label: 'Sets/Boxes', count: 0 }
+            { id: 'mission-cards', label: 'Mission Cards', count: missionCards.length },
+            { id: 'sets', label: 'Sets/Boxes', count: sets.length }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -437,6 +823,77 @@ const ContentManagementPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Character Modal */}
+      {showCharacterModal && selectedCharacter && (
+        <CharacterModal
+          open={showCharacterModal}
+          onClose={handleCloseCharacterModal}
+          id={selectedCharacter.id}
+          character={{
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            unit_type: selectedCharacter.unit_type,
+            squad_points: selectedCharacter.squad_points,
+            portrait: selectedCharacter.portrait
+          }}
+        />
+      )}
+
+      {/* Set Editor Modal */}
+      {showSetEditor && (
+        <Modal
+          open={showSetEditor}
+          onClose={handleCancelSetEditor}
+          maxWidth={800}
+        >
+          <SetEditor
+            set={editingSet}
+            onSave={handleSaveSet}
+            onCancel={handleCancelSetEditor}
+            onPreview={handlePreviewSet}
+          />
+        </Modal>
+      )}
+
+      {/* Set Preview Modal */}
+      {showSetPreview && previewSet && (
+        <Modal
+          open={showSetPreview}
+          onClose={handleCloseSetPreview}
+          maxWidth={1000}
+        >
+          <SetPreview set={previewSet} />
+        </Modal>
+      )}
+
+
+      {/* Mission Cards Editor Modal */}
+      {showMissionCardsEditor && (
+        <Modal
+          open={showMissionCardsEditor}
+          onClose={handleCancelMissionCardsEditor}
+          maxWidth={1200}
+        >
+          <MissionCardsEditor
+            mission={editingMissionCard}
+            onSave={handleSaveMissionCard}
+            onCancel={handleCancelMissionCardsEditor}
+            onPreview={handlePreviewMissionCard}
+          />
+        </Modal>
+      )}
+
+      {/* Mission Cards Preview Modal */}
+      {showMissionCardsPreview && previewMissionCard && (
+        <Modal
+          open={showMissionCardsPreview}
+          onClose={handleCloseMissionCardsPreview}
+          maxWidth={1000}
+        >
+          <MissionCardsPreview mission={previewMissionCard} />
+        </Modal>
       )}
     </div>
   );

@@ -48,7 +48,7 @@ export const setsData: Set[] = [
     characters: [
       { role: 'Primary', name: 'Count Dooku, Separatist Leader' },
       { role: 'Secondary', name: 'Jango Fett, Bounty Hunter' },
-      { role: 'Supporting', name: 'IG-100 MagnaGuards' }
+      { role: 'Supporting', name: 'MagnaGuard' }
     ]
   },
   {

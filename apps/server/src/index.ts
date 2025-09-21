@@ -1,6 +1,23 @@
 // apps/server/src/index.ts
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
+import { User } from "@prisma/client";
+
+// Extend Express Request interface
+declare global {
+  namespace Express {
+    interface User {
+      id: string;
+      email: string;
+      name: string | null;
+      role: string;
+      status: string;
+      suspendedUntil: Date | null;
+      username: string | null;
+      invitationsLimit: number;
+    }
+  }
+}
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -611,10 +628,7 @@ app.patch("/api/shatterpoint/characters/:collectionId/stats", ensureAuth, async 
         id: collectionId,
         userId: userId // Ensure user owns this collection item
       },
-      data: updateData,
-      include: {
-        character: true
-      }
+      data: updateData
     });
     
     res.json({ ok: true, collection: updatedCollection });
@@ -771,9 +785,9 @@ app.get("/api/shatterpoint/stats", ensureAuth, async (req, res) => {
       stats: {
         characters: {
           total: characterCollections.length,
-          owned: characterCollections.filter(c => c.status === 'OWNED').length,
-          painted: characterCollections.filter(c => c.status === 'PAINTED').length,
-          wishlist: characterCollections.filter(c => c.status === 'WISHLIST').length,
+          owned: characterCollections.filter(c => c.isOwned).length,
+          painted: characterCollections.filter(c => c.isPainted).length,
+          wishlist: characterCollections.filter(c => c.isWishlist).length,
         },
         sets: {
           total: setCollections.length,
@@ -929,7 +943,7 @@ app.get("/api/characters", async (req, res) => {
       for (const ability of abilities) {
         if (ability.text && typeof ability.text === 'string') {
           // Split long text into individual abilities
-          const abilityTexts = ability.text.split(/(?=[A-Z][a-z]+ [A-Z])/).filter(t => t.trim().length > 10);
+          const abilityTexts = ability.text.split(/(?=[A-Z][a-z]+ [A-Z])/).filter((t: string) => t.trim().length > 10);
           
           for (const text of abilityTexts) {
             const cleanText = text.trim();
@@ -1067,6 +1081,11 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
     const user = req.user;
     console.log('User:', user?.email, 'Role:', user?.role);
     
+    // Check if user exists
+    if (!user) {
+      return res.status(401).json({ ok: false, error: 'User not authenticated' });
+    }
+    
     // Check if user has permission (Admin or Editor)
     if (user.role !== 'ADMIN' && user.role !== 'EDITOR') {
       console.log('Insufficient permissions for user:', user?.email);
@@ -1200,6 +1219,51 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
   }
 });
 
+// PUT /api/characters/:id/stance — update character stance data (Admin/Editor only)
+app.put("/api/characters/:id/stance", ensureAuth, async (req, res) => {
+  try {
+    console.log('PUT /api/characters/:id/stance called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      console.log('Access denied: User does not have permission');
+      return res.status(403).json({ ok: false, error: 'Access denied. Admin or Editor role required.' });
+    }
+    
+    const characterId = req.params.id;
+    const stanceData = req.body;
+    
+    console.log('Updating stance for character:', characterId);
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Update individual character stance file
+    const stancePath = path.join(process.cwd(), `../client/characters_assets/${characterId}/stance.json`);
+    const stanceDir = path.dirname(stancePath);
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(stanceDir)) {
+      fs.mkdirSync(stanceDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(stancePath, JSON.stringify(stanceData, null, 2));
+    console.log('Updated stance file for character:', characterId);
+    
+    res.json({ 
+      ok: true, 
+      message: 'Stance updated successfully',
+      characterId: characterId
+    });
+  } catch (error) {
+    console.error('Error updating stance:', error);
+    res.status(500).json({ ok: false, error: 'Failed to update stance' });
+  }
+});
+
 // GET /api/characters/:id — get individual character details
 app.get("/api/characters/:id", async (req, res) => {
   try {
@@ -1308,7 +1372,7 @@ app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
                 validateSquad(squad2, 'Squad 2');
     
     // Check for duplicate characters across the entire strike team
-    const allCharacterIds = characters.map(c => c.characterId);
+    const allCharacterIds = characters.map((c: any) => c.characterId);
     const uniqueTeamIds = new Set(allCharacterIds);
     if (uniqueTeamIds.size !== allCharacterIds.length) {
       throw new Error("Strike team cannot have duplicate characters across squads");
@@ -1767,7 +1831,7 @@ app.post("/api/admin/allowed-emails", ensureAuth, ensureAdmin, async (req, res) 
     });
     
     res.json({ ok: true, allowedEmail });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error adding allowed email:", error);
     if (error.code === 'P2002') {
       res.status(400).json({ ok: false, error: 'Email already exists' });
@@ -1924,6 +1988,10 @@ app.get("/api/user/invitations", ensureAuth, async (req, res) => {
     // @ts-ignore
     const user = req.user;
     
+    if (!user) {
+      return res.status(401).json({ ok: false, error: 'User not authenticated' });
+    }
+    
     // Get current invitation count
     const invitationsSent = await prisma.allowedEmail.count({
       where: { invitedBy: user.id }
@@ -1950,6 +2018,10 @@ app.post("/api/user/invitations", ensureAuth, async (req, res) => {
     // @ts-ignore
     const user = req.user;
     const { email, role = 'USER' } = req.body;
+    
+    if (!user) {
+      return res.status(401).json({ ok: false, error: 'User not authenticated' });
+    }
     
     // Check if user is suspended
     if (user.status === 'SUSPENDED') {
@@ -2105,6 +2177,10 @@ app.patch("/api/admin/users/:id/suspend", ensureAuth, ensureAdmin, async (req, r
     }
     
     // @ts-ignore
+    if (!req.user) {
+      return res.status(401).json({ ok: false, error: 'User not authenticated' });
+    }
+    
     if (req.user.id === id) {
       return res.status(400).json({ ok: false, error: "Cannot suspend yourself" });
     }

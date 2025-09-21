@@ -418,9 +418,38 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     onSave(formData);
   };
 
-  const handleStanceSave = (stance: any) => {
-    setStanceData(stance);
-    setShowStanceEditor(false);
+  const handleStanceSave = async (stance: any) => {
+    try {
+      console.log('🔍 Saving stance for character:', formData.id);
+      
+      // Call API to save stance
+      const response = await fetch(`/api/characters/${formData.id}/stance`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(stance)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save stance');
+      }
+      
+      const result = await response.json();
+      console.log('Stance saved successfully:', result);
+      
+      // Update local state
+      setStanceData(stance);
+      setShowStanceEditor(false);
+      
+      // Show success message
+      alert('Stance saved successfully!');
+    } catch (error) {
+      console.error('Error saving stance:', error);
+      alert(`Failed to save stance: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   const handleStanceCancel = () => {
@@ -461,6 +490,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       if (response.ok) {
         const stance = await response.json();
         console.log('🔍 Stance data loaded:', stance);
+        console.log('🔍 Stance sides:', stance.sides);
+        console.log('🔍 First side tree:', stance.sides?.[0]?.tree);
         setStanceData(stance);
       } else {
         console.log('🔍 No stance file found for character:', characterId);
@@ -1446,7 +1477,13 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
           Edit stance data including attack stats, defense, and tree layout.
         </p>
         <button
-          onClick={() => setShowStanceEditor(true)}
+          onClick={() => {
+            console.log('🔍 Edit Stance button clicked');
+            console.log('🔍 Current stanceData:', stanceData);
+            console.log('🔍 Loading stance data...');
+            loadStanceData();
+            setShowStanceEditor(true);
+          }}
           style={{
             padding: '8px 16px',
             backgroundColor: '#3b82f6',
@@ -1559,6 +1596,26 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
           onSave={handleStanceSave}
           onCancel={handleStanceCancel}
         />
+      )}
+      
+      {/* Debug info */}
+      {showStanceEditor && (
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          zIndex: 9999
+        }}>
+          <div>showStanceEditor: {showStanceEditor ? 'true' : 'false'}</div>
+          <div>stanceData: {stanceData ? 'loaded' : 'null'}</div>
+          <div>stanceData.sides: {stanceData?.sides?.length || 0}</div>
+          <div>stanceData.sides[0].tree: {stanceData?.sides?.[0]?.tree ? 'exists' : 'missing'}</div>
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GLYPHS, IconName, Icon, iconToCode, iconFromCode } from '../../lib/icons';
+import { AttackTreeBuilder } from './AttackTreeBuilder';
 
 // Komponent do wyświetlania glifów jako symboli w polu input
 const GlyphInput: React.FC<{
@@ -76,7 +77,11 @@ const GlyphInput: React.FC<{
         effects.map((effect, index) => {
           const iconName = iconFromCode(effect);
           return iconName ? (
-            <Icon key={index} name={iconName} size={16} />
+            <Icon 
+              key={index} 
+              name={iconName} 
+              size={iconName.includes('_to_') ? 18 : 16} // Zwiększ rozmiar dla combo glifów
+            />
           ) : (
             <span key={index} style={{ color: '#ef4444' }}>{effect}</span>
           );
@@ -147,6 +152,12 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
   onSave,
   onCancel
 }: StanceEditorProps) => {
+  // Nowy AttackTreeBuilder używa tego samego formatu co StanceCard
+  // Nie potrzebujemy konwersji - przekazujemy tree bezpośrednio
+  
+  // Memoize stance to prevent infinite loops - use JSON.stringify for deep comparison
+  const memoizedStance = useMemo(() => stance, [JSON.stringify(stance)]);
+
   const [formData, setFormData] = useState<StanceData>({
     sides: [
       {
@@ -157,7 +168,15 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
           ranged: { dice: 0, range: 0, defense: 0, expertise: [] }
         },
         defense: { expertise: [] },
-        tree: { layout: { rows: 3, cols: 6 }, nodes: {}, edges: [] }
+        tree: { 
+          layout: { rows: 3, cols: 6 }, 
+          nodes: {
+            N1: { row: 1, col: 1, effects: [] },
+            N2: { row: 1, col: 2, effects: [] },
+            N3: { row: 1, col: 3, effects: [] }
+          }, 
+          edges: [] 
+        }
       },
       {
         id: "B",
@@ -167,10 +186,30 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
           ranged: { dice: 0, range: 0, defense: 0, expertise: [] }
         },
         defense: { expertise: [] },
-        tree: { layout: { rows: 3, cols: 6 }, nodes: {}, edges: [] }
+        tree: { 
+          layout: { rows: 3, cols: 6 }, 
+          nodes: {
+            N1: { row: 1, col: 1, effects: [] },
+            N2: { row: 1, col: 2, effects: [] },
+            N3: { row: 1, col: 3, effects: [] }
+          }, 
+          edges: [] 
+        }
       }
     ]
   });
+
+  // Log formData changes
+  useEffect(() => {
+    console.log('🔍 StanceEditor: formData changed', formData);
+    console.log('🔍 StanceEditor: formData.sides[0].tree:', formData.sides?.[0]?.tree);
+    if (formData.sides?.[0]?.tree?.nodes) {
+      console.log('🔍 StanceEditor: nodes in tree:', Object.keys(formData.sides[0].tree.nodes));
+      Object.entries(formData.sides[0].tree.nodes).forEach(([id, node]) => {
+        console.log(`🔍 Node ${id}:`, node);
+      });
+    }
+  }, [formData]);
 
   const [showGlyphPanel, setShowGlyphPanel] = useState(false);
   const [activeInputRef, setActiveInputRef] = useState<HTMLInputElement | null>(null);
@@ -179,10 +218,20 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
 
   // Load stance data when component mounts or stance prop changes
   useEffect(() => {
-    if (stance) {
-      setFormData(stance);
+    if (memoizedStance) {
+      console.log('🔍 StanceEditor: Loading stance data', memoizedStance);
+      console.log('🔍 StanceEditor: stance.sides[0].tree:', memoizedStance.sides?.[0]?.tree);
+      setFormData(memoizedStance);
+    } else {
+      console.log('🔍 StanceEditor: No stance data provided');
     }
-  }, [stance]);
+  }, [memoizedStance]);
+
+  // Track formData changes
+  useEffect(() => {
+    console.log('🔍 StanceEditor: formData changed:', formData);
+    console.log('🔍 StanceEditor: formData.sides[0].tree:', formData.sides?.[0]?.tree);
+  }, [formData]);
 
   const handleSave = () => {
     onSave(formData);
@@ -224,7 +273,7 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
 
   const handleInputFocus = (inputRef: HTMLInputElement, onChange: (value: string) => void, currentValue: string) => {
     setActiveInputRef(inputRef);
-    setActiveOnChange(() => onChange);
+    setActiveOnChange(onChange);
     setActiveCurrentValue(currentValue);
     setShowGlyphPanel(true);
   };
@@ -301,76 +350,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
     }
   };
 
-  const addTreeNode = (sideId: "A" | "B", nodeId: string, node: TreeNode) => {
-    setFormData(prev => ({
-      ...prev,
-      sides: prev.sides?.map(side => 
-        side.id === sideId 
-          ? {
-              ...side,
-              tree: {
-                ...side.tree,
-                nodes: { ...side.tree?.nodes, [nodeId]: node }
-              }
-            }
-          : side
-      )
-    }));
-  };
-
-  const removeTreeNode = (sideId: "A" | "B", nodeId: string) => {
-    setFormData(prev => ({
-      ...prev,
-      sides: prev.sides?.map(side => 
-        side.id === sideId 
-          ? {
-              ...side,
-              tree: {
-                ...side.tree,
-                nodes: Object.fromEntries(
-                  Object.entries(side.tree?.nodes || {}).filter(([id]) => id !== nodeId)
-                ),
-                edges: side.tree?.edges?.filter(([from, to]) => from !== nodeId && to !== nodeId) || []
-              }
-            }
-          : side
-      )
-    }));
-  };
-
-  const addTreeEdge = (sideId: "A" | "B", from: string, to: string) => {
-    setFormData(prev => ({
-      ...prev,
-      sides: prev.sides?.map(side => 
-        side.id === sideId 
-          ? {
-              ...side,
-              tree: {
-                ...side.tree,
-                edges: [...(side.tree?.edges || []), [from, to]]
-              }
-            }
-          : side
-      )
-    }));
-  };
-
-  const removeTreeEdge = (sideId: "A" | "B", index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      sides: prev.sides?.map(side => 
-        side.id === sideId 
-          ? {
-              ...side,
-              tree: {
-                ...side.tree,
-                edges: side.tree?.edges?.filter((_, i) => i !== index) || []
-              }
-            }
-          : side
-      )
-    }));
-  };
 
   return (
     <div style={{
@@ -449,7 +428,9 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
 
         {/* Stance Sides */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {formData.sides?.map((side, sideIndex) => (
+          {formData.sides?.map((side, sideIndex) => {
+            console.log('🔍 StanceEditor: Rendering side', side.id, 'with tree:', side.tree);
+            return (
             <div key={side.id} style={{
               backgroundColor: '#111827',
               borderRadius: '8px',
@@ -983,259 +964,30 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                 }}>
                   🌳 Attack Tree
                 </h4>
-                <div style={{
-                  backgroundColor: '#1f2937',
-                  borderRadius: '6px',
-                  padding: '16px'
-                }}>
-                  {/* Tree Layout */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <h5 style={{
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: '#9ca3af',
-                      marginBottom: '8px'
-                    }}>
-                      Layout
-                    </h5>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
-                          Rows
-                        </label>
-                        <input
-                          type="number"
-                          value={side.tree?.layout?.rows || 3}
-                          onChange={(e) => {
-                            const newLayout = { ...side.tree?.layout, rows: parseInt(e.target.value) || 3 };
-                            setFormData(prev => ({
-                              ...prev,
-                              sides: prev.sides?.map(s => 
-                                s.id === side.id 
-                                  ? { ...s, tree: { ...s.tree, layout: newLayout } }
-                                  : s
-                              )
-                            }));
-                          }}
-                          style={{
-                            width: '60px',
-                            padding: '4px 8px',
-                            backgroundColor: '#374151',
-                            border: '1px solid #4b5563',
-                            borderRadius: '4px',
-                            color: '#f9fafb',
-                            fontSize: '12px'
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
-                          Cols
-                        </label>
-                        <input
-                          type="number"
-                          value={side.tree?.layout?.cols || 6}
-                          onChange={(e) => {
-                            const newLayout = { ...side.tree?.layout, cols: parseInt(e.target.value) || 6 };
-                            setFormData(prev => ({
-                              ...prev,
-                              sides: prev.sides?.map(s => 
-                                s.id === side.id 
-                                  ? { ...s, tree: { ...s.tree, layout: newLayout } }
-                                  : s
-                              )
-                            }));
-                          }}
-                          style={{
-                            width: '60px',
-                            padding: '4px 8px',
-                            backgroundColor: '#374151',
-                            border: '1px solid #4b5563',
-                            borderRadius: '4px',
-                            color: '#f9fafb',
-                            fontSize: '12px'
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Tree Nodes */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <h5 style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#9ca3af',
-                        margin: 0
-                      }}>
-                        Nodes
-                      </h5>
-                      <button
-                        onClick={() => {
-                          const nodeId = `N${Object.keys(side.tree?.nodes || {}).length + 1}`;
-                          addTreeNode(side.id, nodeId, { row: 1, col: 1, effects: [] });
-                        }}
-                        style={{
-                          padding: '4px 8px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Add Node
-                      </button>
-                    </div>
-                    {Object.entries(side.tree?.nodes || {}).map(([nodeId, node]) => (
-                      <div key={nodeId} style={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        marginBottom: '8px',
-                        padding: '8px',
-                        backgroundColor: '#374151',
-                        borderRadius: '4px'
-                      }}>
-                        <span style={{ fontSize: '12px', color: '#9ca3af', minWidth: '40px' }}>
-                          {nodeId}
-                        </span>
-                        <input
-                          type="number"
-                          value={node.row}
-                          onChange={(e) => {
-                            const newNode = { ...node, row: parseInt(e.target.value) || 1 };
-                            addTreeNode(side.id, nodeId, newNode);
-                          }}
-                          placeholder="Row"
-                          style={{
-                            width: '50px',
-                            padding: '4px 8px',
-                            backgroundColor: '#1f2937',
-                            border: '1px solid #4b5563',
-                            borderRadius: '4px',
-                            color: '#f9fafb',
-                            fontSize: '12px'
-                          }}
-                        />
-                        <input
-                          type="number"
-                          value={node.col}
-                          onChange={(e) => {
-                            const newNode = { ...node, col: parseInt(e.target.value) || 1 };
-                            addTreeNode(side.id, nodeId, newNode);
-                          }}
-                          placeholder="Col"
-                          style={{
-                            width: '50px',
-                            padding: '4px 8px',
-                            backgroundColor: '#1f2937',
-                            border: '1px solid #4b5563',
-                            borderRadius: '4px',
-                            color: '#f9fafb',
-                            fontSize: '12px'
-                          }}
-                        />
-                        <GlyphInput
-                          value={node.effects.join(', ')}
-                          onChange={(value) => {
-                            const newNode = { ...node, effects: value.split(',').map(s => s.trim()).filter(s => s) };
-                            addTreeNode(side.id, nodeId, newNode);
-                          }}
-                          onFocus={(inputRef, onChange, currentValue) => handleInputFocus(inputRef, onChange, currentValue)}
-                          onBlur={handleInputBlur}
-                          placeholder="Effects (e.g., q, q) - Click to select glyphs"
-                          style={{
-                            flex: 1,
-                            backgroundColor: '#1f2937'
-                          }}
-                        />
-                        <button
-                          onClick={() => removeTreeNode(side.id, nodeId)}
-                          style={{
-                            padding: '4px 8px',
-                            backgroundColor: '#ef4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px'
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Tree Edges */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <h5 style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: '#9ca3af',
-                        margin: 0
-                      }}>
-                        Edges
-                      </h5>
-                      <button
-                        onClick={() => {
-                          const from = prompt('From node ID:');
-                          const to = prompt('To node ID:');
-                          if (from && to) {
-                            addTreeEdge(side.id, from, to);
-                          }
-                        }}
-                        style={{
-                          padding: '4px 8px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Add Edge
-                      </button>
-                    </div>
-                    {side.tree?.edges?.map((edge, edgeIndex) => (
-                      <div key={edgeIndex} style={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        marginBottom: '8px',
-                        padding: '8px',
-                        backgroundColor: '#374151',
-                        borderRadius: '4px'
-                      }}>
-                        <span style={{ fontSize: '12px', color: '#9ca3af' }}>
-                          {edge[0]} → {edge[1]}
-                        </span>
-                        <button
-                          onClick={() => removeTreeEdge(side.id, edgeIndex)}
-                          style={{
-                            padding: '4px 8px',
-                            backgroundColor: '#ef4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px'
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <AttackTreeBuilder
+                  tree={side.tree || { layout: { rows: 3, cols: 6 }, nodes: {}, edges: [] }}
+                  onChange={(newTree) => {
+                    console.log('🔧 StanceEditor onChange called:', { sideId: side.id, newTree });
+                    console.log('🔧 side.tree before update:', side.tree);
+                    console.log('🔧 Current formData:', formData);
+                    setFormData(prev => {
+                      const newFormData = {
+                        ...prev,
+                        sides: prev.sides?.map(s => 
+                          s.id === side.id 
+                            ? { ...s, tree: newTree }
+                            : s
+                        )
+                      };
+                      console.log('🔧 New formData:', newFormData);
+                      return newFormData;
+                    });
+                  }}
+                />
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
 
@@ -1318,7 +1070,7 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
               >
                 <Icon
                   name={name as IconName}
-                  size={24}
+                  size={name.includes('_to_') ? 28 : 24} // Zwiększ rozmiar dla combo glifów
                   style={{
                     color: '#f9fafb',
                     marginBottom: '4px'

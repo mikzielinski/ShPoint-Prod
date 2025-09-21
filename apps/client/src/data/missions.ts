@@ -39,6 +39,7 @@ export interface Mission {
   id: string;
   name: string;
   source: string;
+  setCode?: string;
   tags: string[];
   map: MissionMap;
   rendering: MissionRendering;
@@ -49,11 +50,15 @@ export interface Mission {
   thumbnail?: string;
 }
 
+
+// Mission Packs removed - using Mission Cards instead
+
 export const missionsData: Mission[] = [
   {
     "id": "sabotage-showdown",
     "name": "Sabotage Showdown",
     "source": "official",
+    "setCode": "SWP002",
     "tags": ["mission", "objectives", "polish"],
     "description": "A sabotage mission where players must control key strategic points and achieve their objectives before the opponent.",
     "thumbnail": "/missions/sabotage-showdown/thumbnail.png",
@@ -100,6 +105,7 @@ export const missionsData: Mission[] = [
     "id": "dont-tell-me-odds",
     "name": "Don't Tell me odds",
     "source": "official",
+    "setCode": "SWP001",
     "tags": ["mission", "objectives", "polish"],
     "description": "A high-stakes mission where players must control strategic positions and make critical decisions under pressure.",
     "thumbnail": "/missions/dont-tell-me-odds/thumbnail.png",
@@ -148,6 +154,7 @@ export const missionsData: Mission[] = [
     "id": "first-contact",
     "name": "First Contact",
     "source": "official",
+    "setCode": "SWP003",
     "tags": ["mission", "objectives"],
     "description": "A critical first contact mission where players must establish control over key communication and strategic points.",
     "thumbnail": "/missions/first-contact/thumbnail.png",
@@ -200,6 +207,7 @@ export const missionsData: Mission[] = [
     "id": "shifting-priorities",
     "name": "Shifting Priorities",
     "source": "official",
+    "setCode": "SWP000",
     "tags": ["mission", "objectives", "polish"],
     "description": "A dynamic mission where players must adapt to changing battlefield conditions and shifting strategic priorities.",
     "thumbnail": "/missions/shifting-priorities/thumbnail.png",

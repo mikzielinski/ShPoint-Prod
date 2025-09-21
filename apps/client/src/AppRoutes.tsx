@@ -95,7 +95,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
                 </>
               )}
               {(me.role === "ADMIN" || me.role === "EDITOR") && me.status !== 'SUSPENDED' && (
-                <NavLink to="/content-management" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Content</NavLink>
+                <NavLink to="/content-management" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Manage Content</NavLink>
               )}
               {me.role === "ADMIN" && me.status !== 'SUSPENDED' && (
                 <NavLink to="/admin" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Admin</NavLink>
@@ -416,7 +416,7 @@ function CharactersPage() {
       });
       
       console.log(`🔍 Checking sets for character ${addedCharacterId}:`, relevantSets.map(s => s.name));
-      console.log(`📊 Current character collections:`, characterCollections.map(c => ({ characterId: c.characterId, isOwned: c.isOwned, isPainted: c.isPainted })));
+      console.log(`📊 Current character collections:`, characterCollections.map((c: any) => ({ characterId: c.characterId, isOwned: c.isOwned, isPainted: c.isPainted })));
       
       // Check only relevant sets for auto-add
       for (const set of relevantSets) {
@@ -424,7 +424,7 @@ function CharactersPage() {
         // Check if user has all characters from this set
         const hasAllCharacters = set.characters.every(character => {
           const characterId = getCharacterId(character.name);
-          const hasCharacter = characterCollections.some(collection => 
+          const hasCharacter = characterCollections.some((collection: any) => 
             collection.characterId === characterId && 
             (collection.isOwned || collection.isPainted)
           );
@@ -487,7 +487,7 @@ function CharactersPage() {
       return result;
     } catch (error) {
       console.error('Error adding SWP24 set:', error);
-      alert('❌ Error adding SWP24 set: ' + error.message);
+      alert('❌ Error adding SWP24 set: ' + (error as Error).message);
     }
   };
 
@@ -599,7 +599,7 @@ function CharactersPage() {
 
   // Generate facets from data
   const facets = useMemo(() => {
-    const unitTypes = [...new Set(data.map(c => c.role).filter(Boolean))];
+    const unitTypes = [...new Set(data.map(c => c.role).filter(Boolean))] as string[];
     
     // Fix factions - handle string format from API
     const allFactions = data.map(c => {
@@ -609,7 +609,7 @@ function CharactersPage() {
       return null;
     }).filter(Boolean);
     
-    const factions = [...new Set(allFactions)];
+    const factions = [...new Set(allFactions)] as string[];
     
     // Fix eras - handle both array and string formats, remove duplicates
     const allEras = data.flatMap(c => {

@@ -62,3 +62,17 @@
 .sp-u::before, .sp-climb::before                     { content: "\0075"; } /* u climb  */
 .sp-v::before, .sp-force::before                     { content: "\0076"; } /* v force  */
 .sp-w::before, .sp-durability::before                { content: "\0077"; } /* w durab. */
+
+/* ========= COMBO GLYPHS ========= */
+.sp-combo {
+  font-family: "ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important;
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1;
+  speak: none;
+  display: inline-block;
+  /* Zwiększ rozmiar dla combo glifów */
+  font-size: 1.1em !important;
+  letter-spacing: -0.05em;
+}

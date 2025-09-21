@@ -9,9 +9,28 @@
           "range": 2,
           "defense": 5,
           "expertise": [
-            { "value": "1-2", "effects": ["b", "a"] },
-            { "value": "3-4", "effects": ["b", "b"] },
-            { "value": "5+",  "effects": ["b", "b", "b"] }
+            {
+              "value": "1-2",
+              "effects": [
+                "b",
+                "a"
+              ]
+            },
+            {
+              "value": "3-4",
+              "effects": [
+                "b",
+                "b"
+              ]
+            },
+            {
+              "value": "5+",
+              "effects": [
+                "b",
+                "b",
+                "b"
+              ]
+            }
           ]
         },
         "ranged": {
@@ -23,33 +42,153 @@
       },
       "defense": {
         "expertise": [
-          { "value": "1-2", "effects": ["e"] },
-          { "value": "3-4", "effects": ["e", "e"] },
-          { "value": "5+",  "effects": ["e", "f"] }
+          {
+            "value": "1-2",
+            "effects": [
+              "e"
+            ]
+          },
+          {
+            "value": "3-4",
+            "effects": [
+              "e",
+              "e"
+            ]
+          },
+          {
+            "value": "5+",
+            "effects": [
+              "e",
+              "f",
+              "a→d"
+            ]
+          }
         ]
       },
       "tree": {
-        "layout": { "rows": 3, "cols": 6 },
+        "layout": {
+          "rows": 3,
+          "cols": 6
+        },
         "nodes": {
-          "N1": { "row": 1, "col": 1, "effects": ["q", "q"] },
-          "N2": { "row": 1, "col": 2, "effects": ["q", "q"] },
-          "N3": { "row": 1, "col": 3, "effects": ["q", "q"] },
-          "N4": { "row": 2, "col": 4, "effects": ["p"] },
-          "N5": { "row": 2, "col": 5, "effects": ["q", "q"] },
-          "N6": { "row": 2, "col": 6, "effects": ["s"] },
-          "N7": { "row": 3, "col": 1, "effects": ["a", "[9]"] },
-          "N8": { "row": 3, "col": 2, "effects": ["[4]", "q"] },
-          "N9": { "row": 3, "col": 3, "effects": ["[5]", "q"] }
+          "N1": {
+            "row": 1,
+            "col": 1,
+            "effects": [
+              "q",
+              "q"
+            ]
+          },
+          "N2": {
+            "row": 1,
+            "col": 2,
+            "effects": [
+              "q",
+              "q"
+            ]
+          },
+          "N3": {
+            "row": 1,
+            "col": 3,
+            "effects": [
+              "q",
+              "q"
+            ]
+          },
+          "N4": {
+            "row": 2,
+            "col": 4,
+            "effects": [
+              "p"
+            ]
+          },
+          "N5": {
+            "row": 2,
+            "col": 5,
+            "effects": [
+              "q",
+              "q"
+            ]
+          },
+          "N6": {
+            "row": 2,
+            "col": 6,
+            "effects": [
+              "s"
+            ]
+          },
+          "N7": {
+            "row": 3,
+            "col": 1,
+            "effects": [
+              "a",
+              "[9]"
+            ]
+          },
+          "N8": {
+            "row": 3,
+            "col": 2,
+            "effects": [
+              "[4]",
+              "q"
+            ]
+          },
+          "N9": {
+            "row": 3,
+            "col": 3,
+            "effects": [
+              "[5]",
+              "q"
+            ]
+          },
+          "N10": {
+            "row": 3,
+            "col": 4,
+            "effects": [
+              "3",
+              "1",
+              "4",
+              "a→b"
+            ]
+          }
         },
         "edges": [
-          ["N1", "N2"],
-          ["N2", "N3"],
-          ["N3", "N4"],
-          ["N4", "N5"],
-          ["N5", "N6"],
-          ["N7", "N8"],
-          ["N8", "N9"],
-          ["N9", "N4"]
+          [
+            "N1",
+            "N2"
+          ],
+          [
+            "N2",
+            "N3"
+          ],
+          [
+            "N3",
+            "N4"
+          ],
+          [
+            "N4",
+            "N5"
+          ],
+          [
+            "N5",
+            "N6"
+          ],
+          [
+            "N7",
+            "N8"
+          ],
+          [
+            "N8",
+            "N9"
+          ],
+          [
+            "N9",
+            "N4"
+          ],
+          [
+            "N10",
+            "N9"
+          ]
         ]
       }
     },
@@ -62,9 +201,30 @@
           "range": 2,
           "defense": 6,
           "expertise": [
-            { "value": "1",   "effects": ["a", "a"] },
-            { "value": "2-3", "effects": ["a", "a", "a"] },
-            { "value": "4+",  "effects": ["b", "a", "a", "a"] }
+            {
+              "value": "1",
+              "effects": [
+                "a",
+                "a"
+              ]
+            },
+            {
+              "value": "2-3",
+              "effects": [
+                "a",
+                "a",
+                "a"
+              ]
+            },
+            {
+              "value": "4+",
+              "effects": [
+                "b",
+                "a",
+                "a",
+                "a"
+              ]
+            }
           ]
         },
         "ranged": {
@@ -76,33 +236,144 @@
       },
       "defense": {
         "expertise": [
-          { "value": "1",   "effects": ["e"] },
-          { "value": "2-3", "effects": ["e", "f"] },
-          { "value": "4+",  "effects": ["e", "e", "f"] }
+          {
+            "value": "1",
+            "effects": [
+              "e"
+            ]
+          },
+          {
+            "value": "2-3",
+            "effects": [
+              "e",
+              "f"
+            ]
+          },
+          {
+            "value": "4+",
+            "effects": [
+              "e",
+              "e",
+              "f"
+            ]
+          }
         ]
       },
       "tree": {
-        "layout": { "rows": 3, "cols": 6 },
+        "layout": {
+          "rows": 3,
+          "cols": 6
+        },
         "nodes": {
-          "N1": { "row": 2, "col": 1, "effects": ["p", "q"] },
-          "N2": { "row": 1, "col": 2, "effects": ["r", "q"] },
-          "N3": { "row": 1, "col": 3, "effects": ["s", "q", "q"] },
-          "N4": { "row": 1, "col": 4, "effects": ["r", "r"] },
-          "N5": { "row": 1, "col": 5, "effects": ["t", "q", "q"] },
-          "N6": { "row": 3, "col": 2, "effects": ["p", "q", "q"] },
-          "N7": { "row": 3, "col": 3, "effects": ["r", "q"] },
-          "N8": { "row": 3, "col": 4, "effects": ["q", "q"] },
-          "N9": { "row": 3, "col": 5, "effects": ["[9]", "q"] }
+          "N1": {
+            "row": 2,
+            "col": 1,
+            "effects": [
+              "p",
+              "q"
+            ]
+          },
+          "N2": {
+            "row": 1,
+            "col": 2,
+            "effects": [
+              "r",
+              "q"
+            ]
+          },
+          "N3": {
+            "row": 1,
+            "col": 3,
+            "effects": [
+              "s",
+              "q",
+              "q"
+            ]
+          },
+          "N4": {
+            "row": 1,
+            "col": 4,
+            "effects": [
+              "r",
+              "r"
+            ]
+          },
+          "N5": {
+            "row": 1,
+            "col": 5,
+            "effects": [
+              "t",
+              "q",
+              "q"
+            ]
+          },
+          "N6": {
+            "row": 3,
+            "col": 2,
+            "effects": [
+              "p",
+              "q",
+              "q"
+            ]
+          },
+          "N7": {
+            "row": 3,
+            "col": 3,
+            "effects": [
+              "r",
+              "q"
+            ]
+          },
+          "N8": {
+            "row": 3,
+            "col": 4,
+            "effects": [
+              "q",
+              "q"
+            ]
+          },
+          "N9": {
+            "row": 3,
+            "col": 5,
+            "effects": [
+              "[9]",
+              "q"
+            ]
+          }
         },
         "edges": [
-          ["N1", "N2"],
-          ["N2", "N3"],
-          ["N3", "N4"],
-          ["N4", "N5"],
-          ["N1", "N6"],
-          ["N6", "N7"],
-          ["N7", "N8"],
-          ["N8", "N9"]
+          [
+            "N1",
+            "N2"
+          ],
+          [
+            "N2",
+            "N3"
+          ],
+          [
+            "N3",
+            "N4"
+          ],
+          [
+            "N4",
+            "N5"
+          ],
+          [
+            "N1",
+            "N6"
+          ],
+          [
+            "N6",
+            "N7"
+          ],
+          [
+            "N7",
+            "N8"
+          ],
+          [
+            "N8",
+            "N9"
+          ]
         ]
       }
     }

@@ -58,6 +58,12 @@ export default function NavBar() {
         {/* desktop links */}
         <nav className="nb-nav">
           <NavLink
+            to="/"
+            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+          >
+            News
+          </NavLink>
+          <NavLink
             to="/builder"
             className={({ isActive }) => cx("nb-link", isActive && "is-active")}
           >
@@ -142,6 +148,9 @@ export default function NavBar() {
 
       {/* mobile drawer */}
       <div className={cx("nb-drawer", open && "is-open")}>
+        <NavLink to="/" className="nb-drawer-link">
+          News
+        </NavLink>
         <NavLink to="/builder" className="nb-drawer-link">
           Builder
         </NavLink>

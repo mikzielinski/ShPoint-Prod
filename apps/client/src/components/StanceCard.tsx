@@ -1,4 +1,5 @@
 import * as React from "react";
+import { GLYPHS, iconFromCode } from '../lib/icons';
 
 /** ====== Ikony (PUA) ====== */
 const ICON: Record<string, string> = {
@@ -33,7 +34,16 @@ const ICON: Record<string, string> = {
   v: "\u0076", // force
   w: "\u0077", // durability
 };
-const iconChar = (t: string) => ICON[t] ?? (t.match(/^\[(\d+)\]$/)?.[1] ?? t);
+const iconChar = (t: string) => {
+  // Najpierw spróbuj nowego systemu z icons.ts
+  const iconName = iconFromCode(t);
+  if (iconName && GLYPHS[iconName]) {
+    return GLYPHS[iconName];
+  }
+  
+  // Fallback do starego systemu
+  return ICON[t] ?? (t.match(/^\[(\d+)\]$/)?.[1] ?? t);
+};
 
 /** Mapowanie token -> klasa CSS .sp-... (zgodnie z index.css) */
 function tokenToSpClass(token: string): string {
@@ -101,6 +111,11 @@ function tokenToSpClass(token: string): string {
 
   // Specjalny przypadek: litera 'g' → Twoje CSS nie ma .sp-g, więc użyjemy sp-ranged
   if (lower === "g") return "sp-ranged";
+
+  // Combo glify (np. "b→a", "a→d")
+  if (raw.includes('→')) {
+    return "sp-combo"; // Dodaj specjalną klasę dla combo glifów
+  }
 
   // Litery a–w oraz cyfry
   if (/^[a-w]$/.test(lower)) return `sp-${lower}`;
@@ -275,6 +290,9 @@ function renderGlyphToken(token: string, key?: React.Key, variant: 'default' | '
     }
   }
   
+  // Sprawdź czy to combo glif
+  const isComboGlyph = cls === 'sp-combo';
+  
   return (
     <span
       key={key}
@@ -291,7 +309,7 @@ function renderGlyphToken(token: string, key?: React.Key, variant: 'default' | '
         color: textColor,
         background: backgroundColor,
         fontWeight: 700,
-        fontSize: 12,
+        fontSize: isComboGlyph ? 14 : 12, // Zwiększ rozmiar dla combo glifów
         lineHeight: 1,
         fontFamily: '"ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       }}
@@ -304,36 +322,46 @@ function renderGlyphToken(token: string, key?: React.Key, variant: 'default' | '
 
 function renderGlyphLine(tokens: string[] | undefined, variant: 'default' | 'expertise' = 'default') {
   if (!tokens || tokens.length === 0) return "—";
+  console.log('🔧 StanceCard renderGlyphLine:', tokens.length, 'tokens:', tokens);
   return (
     <span style={{ display: "inline-flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
       {tokens.map((t, i) => {
+        const shouldBreakLine = i > 0 && i % 3 === 0;
+        console.log(`🔧 StanceCard glyph ${i}: "${t}", shouldBreakLine: ${shouldBreakLine}`);
+        
         // Sprawdź czy to przejście (np. "b->a")
         if (t.includes("->")) {
           const [from, to] = t.split("->");
           return (
-            <span key={i} style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
-              {renderGlyphToken(from.trim(), `${i}-from`, variant)}
-              <span style={{ color: C.treeNodeFg, fontSize: 12, fontWeight: 700 }}>→</span>
-              {renderGlyphToken(to.trim(), `${i}-to`, variant)}
-            </span>
+            <React.Fragment key={i}>
+              {shouldBreakLine && <br />}
+              <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
+                {renderGlyphToken(from.trim(), `${i}-from`, variant)}
+                <span style={{ color: C.treeNodeFg, fontSize: 12, fontWeight: 700 }}>→</span>
+                {renderGlyphToken(to.trim(), `${i}-to`, variant)}
+              </span>
+            </React.Fragment>
           );
         }
         return (
-          <span key={i} style={{ display: "inline-flex", alignItems: "center" }}>
-            {renderGlyphToken(t, i, variant)}
-            {/* Dodaj przecinek po każdym glifie (oprócz ostatniego) */}
-            {i < tokens.length - 1 && (
-              <span style={{ 
-                color: '#ffffff', 
-                fontSize: 16, 
-                fontWeight: 700, 
-                marginLeft: 6,
-                marginRight: 2
-              }}>
-                ,
-              </span>
-            )}
-          </span>
+          <React.Fragment key={i}>
+            {shouldBreakLine && <br />}
+            <span style={{ display: "inline-flex", alignItems: "center" }}>
+              {renderGlyphToken(t, i, variant)}
+              {/* Dodaj przecinek po każdym glifie (oprócz ostatniego) */}
+              {i < tokens.length - 1 && (
+                <span style={{ 
+                  color: '#ffffff', 
+                  fontSize: 16, 
+                  fontWeight: 700, 
+                  marginLeft: 6,
+                  marginRight: 2
+                }}>
+                  ,
+                </span>
+              )}
+            </span>
+          </React.Fragment>
         );
       })}
     </span>
@@ -426,12 +454,50 @@ function CombatTree({
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const nodeRefs = React.useRef<(HTMLDivElement | null)[][]>([]);
   const [lines, setLines] = React.useState<Array<{ x1: number; y1: number; x2: number; y2: number }>>([]);
+  const [zoom, setZoom] = React.useState(1);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 });
 
   if (!tree || tree.length === 0) return <div style={{ color: C.sub }}>Brak danych.</div>;
   const cols = Math.max(...tree.map((row) => row.length));
 
   // Utrzymaj macierz refów spójną z układem drzewa
   nodeRefs.current = tree.map((row, r) => row.map((_, c) => nodeRefs.current[r]?.[c] ?? null));
+
+  // Funkcje obsługi zoom i pan
+  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 3));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.3));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 0) { // lewy przycisk myszy
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setPan({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    setZoom(prev => Math.max(0.3, Math.min(3, prev * delta)));
+  };
 
   React.useLayoutEffect(() => {
     const cont = containerRef.current;
@@ -553,18 +619,98 @@ function CombatTree({
         background: C.cardBg,
       }}
     >
-      <div style={{ fontWeight: 700, marginBottom: 10 }}>Combat tree</div>
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: 10 
+      }}>
+        <div style={{ fontWeight: 700 }}>Combat tree</div>
+        
+        {/* Kontrolki zoom */}
+        <div style={{ 
+          display: "flex", 
+          gap: 8, 
+          alignItems: "center",
+          fontSize: 12
+        }}>
+          <button
+            onClick={handleZoomOut}
+            style={{
+              padding: "4px 8px",
+              border: `1px solid ${C.border}`,
+              borderRadius: 4,
+              background: C.cardBg,
+              color: C.text,
+              cursor: "pointer"
+            }}
+          >
+            −
+          </button>
+          <span style={{ minWidth: 40, textAlign: "center" }}>
+            {Math.round(zoom * 100)}%
+          </span>
+          <button
+            onClick={handleZoomIn}
+            style={{
+              padding: "4px 8px",
+              border: `1px solid ${C.border}`,
+              borderRadius: 4,
+              background: C.cardBg,
+              color: C.text,
+              cursor: "pointer"
+            }}
+          >
+            +
+          </button>
+          <button
+            onClick={handleResetZoom}
+            style={{
+              padding: "4px 8px",
+              border: `1px solid ${C.border}`,
+              borderRadius: 4,
+              background: C.cardBg,
+              color: C.text,
+              cursor: "pointer",
+              fontSize: 10
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      </div>
 
+      {/* Kontener z zoom i pan */}
       <div
-        ref={containerRef}
         style={{
-          position: "relative",
-          display: "grid",
-          gridTemplateColumns: `repeat(${cols}, minmax(42px, 1fr))`,
-          gap: 12,
-          padding: 4,
+          overflow: "hidden",
+          border: `1px solid ${C.border}`,
+          borderRadius: 8,
+          height: Math.max(120, Math.min(250, tree.length * 35 + cols * 10 + 40)),
+          width: "100%",
+          maxWidth: "800px",
+          cursor: isDragging ? "grabbing" : "grab"
         }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
       >
+        <div
+          ref={containerRef}
+          style={{
+            position: "relative",
+            display: "grid",
+            gridTemplateColumns: `repeat(${cols}, minmax(60px, 1fr))`,
+            gap: 12,
+            padding: 4,
+            transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+            transformOrigin: "0 0",
+            width: "fit-content",
+            minWidth: "100%"
+          }}
+        >
         {/* Overlay z liniami */}
         <svg
           style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
@@ -602,7 +748,11 @@ function CombatTree({
                 style={{
                   gridColumn: cIdx + 1,
                   gridRow: rIdx + 1,
-                  minHeight: 40,
+                  height: (() => {
+                    const calculatedHeight = tokens.length > 3 ? 40 * Math.ceil(tokens.length / 3) : 40;
+                    console.log(`🔧 CombatTree node [${rIdx}][${cIdx}] height calculation: ${tokens.length} tokens -> ${calculatedHeight}px`);
+                    return calculatedHeight;
+                  })(),
                   borderRadius: 10,
                   border: `2px solid ${C.treeNodeBorder}`,
                   background: isFirstCol ? C.treeFirstBg : C.treeNodeBg,
@@ -611,17 +761,36 @@ function CombatTree({
                   alignItems: "center",
                   justifyContent: "center",
                   padding: "6px 8px",
-                  gap: 6,
+                  gap: 0,
+                  flexWrap: "wrap",
                   fontWeight: 800,
                   position: "relative",
                   zIndex: 1, // nad liniami
                 }}
               >
-                {tokens.map((t, i) => renderGlyphToken(t, i))}
+                {(() => {
+                  // Podziel glify na grupy po 3
+                  const groups = [];
+                  for (let i = 0; i < tokens.length; i += 3) {
+                    groups.push(tokens.slice(i, i + 3));
+                  }
+                  console.log(`🔧 CombatTree node [${rIdx}][${cIdx}] tokens:`, tokens, 'groups:', groups);
+                  
+                  return groups.map((group, groupIndex) => (
+                    <div key={groupIndex} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      {group.map((token, tokenIndex) => {
+                        const globalIndex = groupIndex * 3 + tokenIndex;
+                        console.log(`🔧 CombatTree node [${rIdx}][${cIdx}] group ${groupIndex}, token ${tokenIndex} (global ${globalIndex}): "${token}"`);
+                        return renderGlyphToken(token, globalIndex);
+                      })}
+                    </div>
+                  ));
+                })()}
               </div>
             );
           })
         )}
+        </div>
       </div>
     </div>
   );
