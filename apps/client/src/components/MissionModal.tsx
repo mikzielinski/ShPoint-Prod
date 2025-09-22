@@ -1,6 +1,100 @@
 import React, { useState, useMemo } from 'react';
 import { Mission, MissionObjective, StruggleCard } from '../data/missions';
 
+// Miniature map component for showing active objectives
+interface MiniatureMapProps {
+  mission: Mission;
+  activeObjectives: string[];
+  size: number;
+}
+
+const MiniatureMap: React.FC<MiniatureMapProps> = ({ mission, activeObjectives, size }) => {
+  // Calculate scaling for miniature map
+  const mapRange = mission.map.sizeInch;
+  const scaleToPixels = size / mapRange;
+  const centerX = size / 2;
+  const centerY = size / 2;
+
+  const getObjectiveColor = (objectiveKey: string) => {
+    if (activeObjectives.includes(objectiveKey)) {
+      return mission.rendering.point.colorActive;
+    }
+    return mission.rendering.point.colorInactive;
+  };
+
+  return (
+    <div style={{
+      position: 'relative',
+      width: size,
+      height: size,
+      backgroundColor: '#1a1a2e',
+      border: '1px solid #444',
+      borderRadius: '4px',
+      overflow: 'hidden'
+    }}>
+      {/* Grid lines for miniature map */}
+      <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0 }}>
+        {/* Vertical lines every 4 inches for miniature */}
+        {Array.from({ length: Math.floor(mapRange/4) + 1 }, (_, i) => {
+          const x = centerX + ((i - mapRange/8) * 4 * scaleToPixels);
+          return (
+            <line
+              key={`v-${i}`}
+              x1={x}
+              y1={0}
+              x2={x}
+              y2={size}
+              stroke="#333"
+              strokeWidth="0.5"
+            />
+          );
+        })}
+        {/* Horizontal lines every 4 inches for miniature */}
+        {Array.from({ length: Math.floor(mapRange/4) + 1 }, (_, i) => {
+          const y = centerY - ((i - mapRange/8) * 4 * scaleToPixels);
+          return (
+            <line
+              key={`h-${i}`}
+              x1={0}
+              y1={y}
+              x2={size}
+              y2={y}
+              stroke="#333"
+              strokeWidth="0.5"
+            />
+          );
+        })}
+      </svg>
+
+      {/* Objectives */}
+      <svg width={size} height={size} style={{ position: 'absolute', top: 0, left: 0, zIndex: 10 }}>
+        {mission.objectives.map((objective) => {
+          // Convert from coordinate range to pixel coordinates
+          const x = centerX + (objective.x * scaleToPixels);
+          const y = centerY - (objective.y * scaleToPixels); // Flip Y axis
+          const radius = Math.max(2, objective.radius * scaleToPixels); // Minimum radius of 2px
+          const color = getObjectiveColor(objective.key);
+
+          return (
+            <circle
+              key={objective.key}
+              cx={x}
+              cy={y}
+              r={radius}
+              fill={color}
+              stroke="#fff"
+              strokeWidth="0.5"
+              style={{
+                filter: color === '#ffd700' ? 'drop-shadow(0 0 2px rgba(255, 215, 0, 0.5))' : 'none'
+              }}
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
 interface MissionModalProps {
   mission: Mission;
   onClose: () => void;
@@ -354,30 +448,41 @@ export const MissionModal: React.FC<MissionModalProps> = ({ mission, onClose }) 
                       </div>
                       
                       {card.options && (
-                        <div style={{ marginTop: '8px' }}>
+                        <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
                           {card.options.map((option, optionIndex) => {
                             // Show the saved option for this card, or 0 if none saved
                             const currentOption = selectedOptions[card.name] || 0;
                             return (
-                              <button
+                              <div
                                 key={optionIndex}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleOptionClick(card, optionIndex);
                                 }}
                                 style={{
-                                  backgroundColor: currentOption === optionIndex ? '#ffd700' : '#555',
-                                  color: currentOption === optionIndex ? '#000' : '#fff',
-                                  border: 'none',
+                                  border: currentOption === optionIndex ? '2px solid #ffd700' : '1px solid #555',
                                   borderRadius: '4px',
-                                  padding: '4px 8px',
-                                  margin: '2px',
+                                  padding: '4px',
                                   cursor: 'pointer',
-                                  fontSize: '12px'
+                                  backgroundColor: currentOption === optionIndex ? 'rgba(255, 215, 0, 0.1)' : '#222',
+                                  transition: 'all 0.2s ease'
                                 }}
                               >
-                                {option.name}
-                              </button>
+                                <MiniatureMap 
+                                  mission={mission}
+                                  activeObjectives={option.active}
+                                  size={80}
+                                />
+                                <div style={{
+                                  textAlign: 'center',
+                                  fontSize: '10px',
+                                  color: currentOption === optionIndex ? '#ffd700' : '#ccc',
+                                  marginTop: '2px',
+                                  fontWeight: currentOption === optionIndex ? 'bold' : 'normal'
+                                }}>
+                                  {option.name}
+                                </div>
+                              </div>
                             );
                           })}
                         </div>

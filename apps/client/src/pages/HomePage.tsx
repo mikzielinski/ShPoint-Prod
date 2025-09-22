@@ -22,6 +22,62 @@ const HomePage: React.FC = () => {
   // Define updates data
   const updates = [
     {
+      id: 'stance-editor-remove-last-glyph',
+      date: '2025-09-22',
+      title: '❌ Remove Last Glyph Functionality',
+      description: 'Added "Remove Last Glyph" buttons next to each expertise field in Stance Editor for easier glyph management.',
+      features: [
+        'Remove Last Glyph button next to each Add Glyph button',
+        'Smart button state: red when active, gray when disabled',
+        'Removes the last glyph from expertise effects array',
+        'Works for all expertise fields (melee, ranged, defense)',
+        'Consistent styling with existing Add Glyph buttons'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'stance-editor-collapsible-connections',
+      date: '2025-09-22',
+      title: '🔗 Collapsible Connections Section',
+      description: 'Added collapsible functionality to Connections section in Stance Editor for cleaner interface.',
+      features: [
+        'Connections section now collapses by default to reduce visual clutter',
+        'Toggle button with arrow indicators (▶/▼) for expand/collapse',
+        'Smooth hover effects and tooltips for better UX',
+        'Preserves all connection management functionality when expanded',
+        'Cleaner Stance Editor interface with space-efficient design'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'mission-modal-miniature-maps',
+      date: '2025-09-22',
+      title: '🗺️ Mission Modal Miniature Maps',
+      description: 'Replaced Option 1/Option 2 buttons with interactive miniature maps showing active objectives in mission modals.',
+      features: [
+        'MiniatureMap component with 80x80 pixel mission previews',
+        'Active objectives highlighted in gold, inactive in mission colors',
+        'Clickable miniature maps perform same actions as Option buttons',
+        'Visual grid lines and proper scaling for mission layouts',
+        'Enhanced UX with immediate visual feedback for objective selection'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'squad-character-order-fix',
+      date: '2025-09-22',
+      title: '🎯 Squad Character Order Fix',
+      description: 'Fixed character ordering in strike team squads to display in correct Primary, Secondary, Support sequence.',
+      features: [
+        'Fixed squad character filtering logic (order 0,1,2 for Squad 1; order 3,4,5 for Squad 2)',
+        'Proper role-based sorting within each squad',
+        'All 6 characters now display correctly in both squads',
+        'Consistent Primary → Secondary → Support order',
+        'Improved squad composition display in My Collection'
+      ],
+      status: 'completed'
+    },
+    {
       id: 'news-management-system',
       date: '2025-09-22',
       title: '📰 News Management System',

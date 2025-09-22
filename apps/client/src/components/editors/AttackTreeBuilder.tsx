@@ -310,6 +310,7 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
   const [activeInputRef, setActiveInputRef] = useState<HTMLInputElement | null>(null);
   const [activeOnChange, setActiveOnChange] = useState<((value: string) => void) | null>(null);
   const [activeCurrentValue, setActiveCurrentValue] = useState<string>('');
+  const [connectionsCollapsed, setConnectionsCollapsed] = useState<boolean>(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[][]>([]);
   const [lines, setLines] = useState<Array<{ x1: number; y1: number; x2: number; y2: number }>>([]);
@@ -989,36 +990,47 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
       {/* Connections */}
       {tree.edges && tree.edges.length > 0 && (
         <div className="bg-gray-800 rounded-lg p-4">
-          <h4 className="text-white font-medium mb-2">Connections ({tree.edges.length})</h4>
-          <div className="space-y-1">
-            {tree.edges.map((edge, index) => {
-              const [fromId, toId] = edge;
-              const fromNode = tree.nodes?.[fromId];
-              const toNode = tree.nodes?.[toId];
-              const fromEffects = fromNode?.effects?.join(', ') || 'Empty';
-              const toEffects = toNode?.effects?.join(', ') || 'Empty';
-              
-              return (
-                <div key={index} className="flex items-center justify-between text-sm bg-gray-700 rounded p-2">
-                  <div className="flex-1">
-                    <div className="text-white font-medium">
-                      {fromId} → {toId}
-                    </div>
-                    <div className="text-gray-400 text-xs">
-                      {fromId}: {fromEffects} → {toId}: {toEffects}
-                    </div>
-                  </div>
-                  <button
-                    className="text-red-400 hover:text-red-300 px-2 py-1 rounded"
-                    onClick={() => removeConnection(fromId, toId)}
-                    title="Remove connection"
-                  >
-                    ×
-                  </button>
-                </div>
-              );
-            })}
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-white font-medium">Connections ({tree.edges.length})</h4>
+            <button
+              onClick={() => setConnectionsCollapsed(!connectionsCollapsed)}
+              className="text-gray-400 hover:text-white transition-colors"
+              title={connectionsCollapsed ? "Expand connections" : "Collapse connections"}
+            >
+              {connectionsCollapsed ? "▶" : "▼"}
+            </button>
           </div>
+          {!connectionsCollapsed && (
+            <div className="space-y-1">
+              {tree.edges.map((edge, index) => {
+                const [fromId, toId] = edge;
+                const fromNode = tree.nodes?.[fromId];
+                const toNode = tree.nodes?.[toId];
+                const fromEffects = fromNode?.effects?.join(', ') || 'Empty';
+                const toEffects = toNode?.effects?.join(', ') || 'Empty';
+                
+                return (
+                  <div key={index} className="flex items-center justify-between text-sm bg-gray-700 rounded p-2">
+                    <div className="flex-1">
+                      <div className="text-white font-medium">
+                        {fromId} → {toId}
+                      </div>
+                      <div className="text-gray-400 text-xs">
+                        {fromId}: {fromEffects} → {toId}: {toEffects}
+                      </div>
+                    </div>
+                    <button
+                      className="text-red-400 hover:text-red-300 px-2 py-1 rounded"
+                      onClick={() => removeConnection(fromId, toId)}
+                      title="Remove connection"
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
       

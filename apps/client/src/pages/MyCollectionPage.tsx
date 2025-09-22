@@ -1090,7 +1090,7 @@ export default function MyCollectionPage() {
                       style={{
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        objectFit: "contain",
                         objectPosition: "center"
                       }}
                       onError={(e) => {
@@ -2067,8 +2067,8 @@ export default function MyCollectionPage() {
                             style={{
                               width: '100%',
                               height: '100%',
-                              objectFit: 'cover',
-                              objectPosition: 'top'
+                              objectFit: 'contain',
+                              objectPosition: 'center'
                             }}
                           />
                         ) : (
@@ -2236,6 +2236,7 @@ export default function MyCollectionPage() {
                       team={team} 
                       allCharacters={allCharacters}
                       characterCollections={characterCollections}
+                      onCharacterClick={setSelectedCharacter}
                     />
                   ))}
                 </div>
@@ -2282,6 +2283,7 @@ export default function MyCollectionPage() {
                       team={team} 
                       allCharacters={allCharacters}
                       characterCollections={characterCollections}
+                      onCharacterClick={setSelectedCharacter}
                     />
                   ))}
                 </div>
@@ -2675,6 +2677,22 @@ export default function MyCollectionPage() {
           onClose={() => setSelectedMission(null)}
         />
       )}
+
+      {/* Character Modal - rendered at root level to avoid container constraints */}
+      {selectedCharacter && (
+        <CharacterModal
+          open={!!selectedCharacter}
+          onClose={() => setSelectedCharacter(null)}
+          id={selectedCharacter.id}
+          character={{
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            unit_type: (selectedCharacter.role as "Primary" | "Secondary" | "Support") || "Primary",
+            squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
+            portrait: selectedCharacter.portrait
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -2686,6 +2704,7 @@ interface StrikeTeamCardProps {
   teamType?: 'Real' | 'Dream';
   allCharacters: Character[];
   characterCollections: CharacterCollection[];
+  onCharacterClick: (character: Character) => void;
 }
 
 const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({ 
@@ -2693,9 +2712,9 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
   showTeamType = false, 
   teamType,
   allCharacters,
-  characterCollections 
+  characterCollections,
+  onCharacterClick
 }) => {
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   
   const getCharacterById = (id: string): Character | undefined => {
     return allCharacters.find(c => c.id === id);
@@ -2703,19 +2722,27 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
 
   // Handle character click
   const handleCharacterClick = (character: Character) => {
-    setSelectedCharacter(character);
+    onCharacterClick(character);
   };
 
-  // Sort characters by squad order first, then by role: Primary, Secondary, Support
-  const sortedCharacters = [...team.characters].sort((a, b) => {
-    // First sort by order (squad)
-    if (a.order !== b.order) {
-      return a.order - b.order;
-    }
-    // Then sort by role within the same squad
-    const roleOrder = { 'PRIMARY': 0, 'SECONDARY': 1, 'SUPPORT': 2 };
-    return roleOrder[a.role] - roleOrder[b.role];
-  });
+  
+  // Group characters by squad and sort by role within each squad
+  // Squad 1: order 0, 1, 2
+  const squad1Characters = team.characters
+    .filter(char => char.order === 0 || char.order === 1 || char.order === 2)
+    .sort((a, b) => {
+      const roleOrder = { 'PRIMARY': 0, 'SECONDARY': 1, 'SUPPORT': 2 };
+      return roleOrder[a.role] - roleOrder[b.role];
+    });
+  
+  // Squad 2: order 3, 4, 5
+  const squad2Characters = team.characters
+    .filter(char => char.order === 3 || char.order === 4 || char.order === 5)
+    .sort((a, b) => {
+      const roleOrder = { 'PRIMARY': 0, 'SECONDARY': 1, 'SUPPORT': 2 };
+      return roleOrder[a.role] - roleOrder[b.role];
+    });
+    
 
   const handlePublishToggle = async () => {
     try {
@@ -2922,9 +2949,10 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '8px'
           }}>
-            {sortedCharacters.slice(0, 3).map((teamChar) => {
+            {squad1Characters.map((teamChar) => {
               const character = getCharacterById(teamChar.characterId);
               const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
+              
               
               return (
                 <div
@@ -3016,7 +3044,7 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
         </div>
 
         {/* Squad 2 - Second Line */}
-        {sortedCharacters.length > 3 && (
+        {squad2Characters.length > 0 && (
           <div>
             <div style={{
               fontSize: '12px',
@@ -3032,7 +3060,7 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
               gridTemplateColumns: 'repeat(3, 1fr)',
               gap: '8px'
             }}>
-              {sortedCharacters.slice(3, 6).map((teamChar) => {
+              {squad2Characters.map((teamChar) => {
                 const character = getCharacterById(teamChar.characterId);
                 const collection = characterCollections.find(c => c.characterId === teamChar.characterId);
                 
@@ -3139,21 +3167,6 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
         Created {new Date(team.createdAt).toLocaleDateString()}
       </div>
 
-      {/* Character Modal */}
-      {selectedCharacter && (
-        <CharacterModal
-          open={!!selectedCharacter}
-          onClose={() => setSelectedCharacter(null)}
-          id={selectedCharacter.id}
-          character={{
-            id: selectedCharacter.id,
-            name: selectedCharacter.name,
-            unit_type: (selectedCharacter.role as "Primary" | "Secondary" | "Support") || "Primary",
-            squad_points: selectedCharacter.sp || selectedCharacter.pc || 0,
-            portrait: selectedCharacter.portrait
-          }}
-        />
-      )}
     </div>
   );
 };

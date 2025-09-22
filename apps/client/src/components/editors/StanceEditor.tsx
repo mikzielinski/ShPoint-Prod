@@ -1,69 +1,23 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { GLYPHS, IconName, Icon, iconToCode, iconFromCode } from '../../lib/icons';
 import { AttackTreeBuilder } from './AttackTreeBuilder';
 
-// Komponent do wyświetlania glifów jako symboli w polu input
-const GlyphInput: React.FC<{
+// Prosty komponent do wyświetlania glifów jako symboli
+const GlyphDisplay: React.FC<{
   value: string;
-  onChange: (value: string) => void;
-  onFocus: (inputRef: HTMLInputElement, onChange: (value: string) => void, currentValue: string) => void;
-  onBlur: () => void;
   placeholder: string;
-  style: React.CSSProperties;
-}> = ({ value, onChange, onFocus, onBlur, placeholder, style }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
-
-  useEffect(() => {
-    setEditValue(value);
-  }, [value]);
-
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    setIsEditing(true);
-    onFocus(e.target, onChange, value);
-  };
-
-  const handleBlur = () => {
-    setIsEditing(false);
-    onChange(editValue);
-    onBlur();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleBlur();
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <input
-        type="text"
-        value={editValue}
-        onChange={(e) => setEditValue(e.target.value)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        style={style}
-        autoFocus
-      />
-    );
-  }
-
-  // Wyświetl glify jako symbole
-  const effects = value.split(',').map(s => s.trim()).filter(s => s);
+  style?: React.CSSProperties;
+}> = ({ value, placeholder, style }) => {
+  const effects = (value || '').split(',').map(s => s.trim()).filter(s => s);
   
   return (
     <div
-      onClick={() => setIsEditing(true)}
       style={{
         ...style,
         display: 'flex',
         alignItems: 'center',
         gap: '4px',
-        cursor: 'text',
         minHeight: '32px',
         padding: '4px 8px',
         backgroundColor: '#374151',
@@ -213,8 +167,9 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
 
   const [showGlyphPanel, setShowGlyphPanel] = useState(false);
   const [activeInputRef, setActiveInputRef] = useState<HTMLInputElement | null>(null);
-  const [activeOnChange, setActiveOnChange] = useState<((value: string) => void) | null>(null);
+  const activeOnChangeRef = useRef<((value: string) => void) | null>(null);
   const [activeCurrentValue, setActiveCurrentValue] = useState<string>('');
+  const glyphPanelTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load stance data when component mounts or stance prop changes
   useEffect(() => {
@@ -239,23 +194,52 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
 
   const handleGlyphClick = (glyphName: string) => {
     console.log('🔍 handleGlyphClick called with:', glyphName);
-    if (activeOnChange && activeCurrentValue !== undefined) {
+    console.log('🔍 activeOnChangeRef.current type:', typeof activeOnChangeRef.current);
+    console.log('🔍 activeOnChangeRef.current value:', activeOnChangeRef.current);
+    console.log('🔍 activeCurrentValue:', activeCurrentValue);
+    
+    // Clear any pending timeout
+    if (glyphPanelTimeoutRef.current) {
+      clearTimeout(glyphPanelTimeoutRef.current);
+      glyphPanelTimeoutRef.current = null;
+    }
+    
+    if (activeOnChangeRef.current) {
       console.log('🔍 Current input value:', activeCurrentValue);
+      console.log('🔍 activeOnChangeRef.current exists:', !!activeOnChangeRef.current);
       // Konwertuj nazwę glifu na kod (np. "strike" -> "a", "crit_to_strike" -> "b→a")
       const glyphCode = iconToCode(glyphName as IconName);
       console.log('🔍 Converted glyph code:', glyphCode);
+      console.log('🔍 glyphName:', glyphName);
+      
+      if (!glyphCode) {
+        console.log('❌ No glyph code found for:', glyphName);
+        // Fallback: użyj nazwy glifu jako kodu
+        const fallbackCode = glyphName;
+        console.log('🔍 Using fallback code:', fallbackCode);
+        const currentValue = activeCurrentValue || '';
+        const newValue = currentValue ? `${currentValue}, ${fallbackCode}` : fallbackCode;
+        console.log('🔍 New value with fallback:', newValue);
+        activeOnChangeRef.current(newValue);
+        setShowGlyphPanel(false);
+        setActiveInputRef(null);
+        activeOnChangeRef.current = null;
+        setActiveCurrentValue('');
+        return;
+      }
       // Automatycznie rozdzielaj przecinkami
-      const newValue = activeCurrentValue ? `${activeCurrentValue}, ${glyphCode}` : glyphCode;
+      const currentValue = activeCurrentValue || '';
+      const newValue = currentValue ? `${currentValue}, ${glyphCode}` : glyphCode;
       console.log('🔍 New value:', newValue);
       
       // Wywołaj callback onChange
-      activeOnChange(newValue);
+      activeOnChangeRef.current(newValue);
     } else {
       console.log('❌ No active onChange callback');
     }
     setShowGlyphPanel(false);
     setActiveInputRef(null);
-    setActiveOnChange(null);
+    activeOnChangeRef.current = null;
     setActiveCurrentValue('');
   };
 
@@ -271,22 +255,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
     return nameMap[name] || name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const handleInputFocus = (inputRef: HTMLInputElement, onChange: (value: string) => void, currentValue: string) => {
-    setActiveInputRef(inputRef);
-    setActiveOnChange(onChange);
-    setActiveCurrentValue(currentValue);
-    setShowGlyphPanel(true);
-  };
-
-  const handleInputBlur = () => {
-    // Delay hiding to allow clicking on glyphs
-    setTimeout(() => {
-      setShowGlyphPanel(false);
-      setActiveInputRef(null);
-      setActiveOnChange(null);
-      setActiveCurrentValue('');
-    }, 200);
-  };
 
   const updateSide = (sideId: "A" | "B", updates: Partial<StanceSide>) => {
     setFormData(prev => ({
@@ -350,6 +318,78 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
     }
   };
 
+  // Create stable callback functions that don't depend on formData
+  const createMeleeExpertiseCallback = useCallback((sideId: "A" | "B", expIndex: number) => {
+    return (value: string) => {
+      setFormData(prev => {
+        const side = prev.sides?.find(s => s.id === sideId);
+        if (side?.attack?.melee?.expertise) {
+          const newExpertise = [...side.attack.melee.expertise];
+          newExpertise[expIndex] = { 
+            ...newExpertise[expIndex], 
+            effects: (value || '').split(',').map(s => s.trim()).filter(s => s) 
+          };
+          return {
+            ...prev,
+            sides: prev.sides?.map(s => 
+              s.id === sideId 
+                ? { ...s, attack: { ...s.attack, melee: { ...s.attack?.melee, expertise: newExpertise } } }
+                : s
+            )
+          };
+        }
+        return prev;
+      });
+    };
+  }, []);
+
+  const createRangedExpertiseCallback = useCallback((sideId: "A" | "B", expIndex: number) => {
+    return (value: string) => {
+      setFormData(prev => {
+        const side = prev.sides?.find(s => s.id === sideId);
+        if (side?.attack?.ranged?.expertise) {
+          const newExpertise = [...side.attack.ranged.expertise];
+          newExpertise[expIndex] = { 
+            ...newExpertise[expIndex], 
+            effects: (value || '').split(',').map(s => s.trim()).filter(s => s) 
+          };
+          return {
+            ...prev,
+            sides: prev.sides?.map(s => 
+              s.id === sideId 
+                ? { ...s, attack: { ...s.attack, ranged: { ...s.attack?.ranged, expertise: newExpertise } } }
+                : s
+            )
+          };
+        }
+        return prev;
+      });
+    };
+  }, []);
+
+  const createDefenseExpertiseCallback = useCallback((sideId: "A" | "B", expIndex: number) => {
+    return (value: string) => {
+      setFormData(prev => {
+        const side = prev.sides?.find(s => s.id === sideId);
+        if (side?.defense?.expertise) {
+          const newExpertise = [...side.defense.expertise];
+          newExpertise[expIndex] = { 
+            ...newExpertise[expIndex], 
+            effects: (value || '').split(',').map(s => s.trim()).filter(s => s) 
+          };
+          return {
+            ...prev,
+            sides: prev.sides?.map(s => 
+              s.id === sideId 
+                ? { ...s, defense: { ...s.defense, expertise: newExpertise } }
+                : s
+            )
+          };
+        }
+        return prev;
+      });
+    };
+  }, []);
 
   return (
     <div style={{
@@ -736,20 +776,66 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                           fontSize: '12px'
                         }}
                       />
-                        <GlyphInput
-                          value={exp.effects.join(', ')}
-                          onChange={(value) => {
-                            const newExpertise = [...(side.attack?.melee?.expertise || [])];
-                            newExpertise[expIndex] = { ...exp, effects: value.split(',').map(s => s.trim()).filter(s => s) };
-                            updateAttack(side.id, 'melee', { expertise: newExpertise });
-                          }}
-                          onFocus={(inputRef, onChange, currentValue) => handleInputFocus(inputRef, onChange, currentValue)}
-                          onBlur={handleInputBlur}
-                          placeholder="Effects (e.g., b, a) - Click to select glyphs"
-                          style={{
-                            flex: 1
-                          }}
-                        />
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
+                          <GlyphDisplay
+                            value={(exp.effects || []).join(', ')}
+                            placeholder="Effects (e.g., b, a)"
+                            style={{
+                              flex: 1
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Otwórz panel glifów dla tego konkretnego pola
+                              console.log('🔍 Add Glyph button clicked for melee expertise', expIndex);
+                              const callback = createMeleeExpertiseCallback(side.id, expIndex);
+                              console.log('🔍 Created callback:', typeof callback, callback);
+                              setShowGlyphPanel(true);
+                              setActiveInputRef(null);
+                              activeOnChangeRef.current = callback;
+                              const currentEffects = (exp.effects || []).join(', ');
+                              console.log('🔍 Setting activeCurrentValue to:', currentEffects);
+                              setActiveCurrentValue(currentEffects);
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: '#059669',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Add Glyph
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Usuń ostatni glif z tego pola
+                              const currentEffects = (exp.effects || []);
+                              if (currentEffects.length > 0) {
+                                const newEffects = currentEffects.slice(0, -1);
+                                const callback = createMeleeExpertiseCallback(side.id, expIndex);
+                                callback(newEffects.join(', '));
+                              }
+                            }}
+                            disabled={!exp.effects || exp.effects.length === 0}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: exp.effects && exp.effects.length > 0 ? '#dc2626' : '#9ca3af',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: exp.effects && exp.effects.length > 0 ? 'pointer' : 'not-allowed',
+                              fontSize: '12px',
+                              marginLeft: '4px'
+                            }}
+                          >
+                            Remove Last
+                          </button>
+                        </div>
                       <button
                         onClick={() => removeExpertise(side.id, 'melee', expIndex)}
                         style={{
@@ -828,20 +914,66 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                           fontSize: '12px'
                         }}
                       />
-                        <GlyphInput
-                          value={exp.effects.join(', ')}
-                          onChange={(value) => {
-                            const newExpertise = [...(side.attack?.ranged?.expertise || [])];
-                            newExpertise[expIndex] = { ...exp, effects: value.split(',').map(s => s.trim()).filter(s => s) };
-                            updateAttack(side.id, 'ranged', { expertise: newExpertise });
-                          }}
-                          onFocus={(inputRef, onChange, currentValue) => handleInputFocus(inputRef, onChange, currentValue)}
-                          onBlur={handleInputBlur}
-                          placeholder="Effects (e.g., b, a) - Click to select glyphs"
-                          style={{
-                            flex: 1
-                          }}
-                        />
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
+                          <GlyphDisplay
+                            value={(exp.effects || []).join(', ')}
+                            placeholder="Effects (e.g., b, a)"
+                            style={{
+                              flex: 1
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Otwórz panel glifów dla tego konkretnego pola
+                              console.log('🔍 Add Glyph button clicked for ranged expertise', expIndex);
+                              const callback = createRangedExpertiseCallback(side.id, expIndex);
+                              console.log('🔍 Created callback:', typeof callback, callback);
+                              setShowGlyphPanel(true);
+                              setActiveInputRef(null);
+                              activeOnChangeRef.current = callback;
+                              const currentEffects = (exp.effects || []).join(', ');
+                              console.log('🔍 Setting activeCurrentValue to:', currentEffects);
+                              setActiveCurrentValue(currentEffects);
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: '#059669',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Add Glyph
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Usuń ostatni glif z tego pola
+                              const currentEffects = (exp.effects || []);
+                              if (currentEffects.length > 0) {
+                                const newEffects = currentEffects.slice(0, -1);
+                                const callback = createRangedExpertiseCallback(side.id, expIndex);
+                                callback(newEffects.join(', '));
+                              }
+                            }}
+                            disabled={!exp.effects || exp.effects.length === 0}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: exp.effects && exp.effects.length > 0 ? '#dc2626' : '#9ca3af',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: exp.effects && exp.effects.length > 0 ? 'pointer' : 'not-allowed',
+                              fontSize: '12px',
+                              marginLeft: '4px'
+                            }}
+                          >
+                            Remove Last
+                          </button>
+                        </div>
                       <button
                         onClick={() => removeExpertise(side.id, 'ranged', expIndex)}
                         style={{
@@ -919,20 +1051,66 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                           fontSize: '12px'
                         }}
                       />
-                        <GlyphInput
-                          value={exp.effects.join(', ')}
-                          onChange={(value) => {
-                            const newExpertise = [...(side.defense?.expertise || [])];
-                            newExpertise[expIndex] = { ...exp, effects: value.split(',').map(s => s.trim()).filter(s => s) };
-                            updateDefense(side.id, { expertise: newExpertise });
-                          }}
-                          onFocus={(inputRef, onChange, currentValue) => handleInputFocus(inputRef, onChange, currentValue)}
-                          onBlur={handleInputBlur}
-                          placeholder="Effects (e.g., e, f) - Click to select glyphs"
-                          style={{
-                            flex: 1
-                          }}
-                        />
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
+                          <GlyphDisplay
+                            value={(exp.effects || []).join(', ')}
+                            placeholder="Effects (e.g., e, f)"
+                            style={{
+                              flex: 1
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Otwórz panel glifów dla tego konkretnego pola
+                              console.log('🔍 Add Glyph button clicked for defense expertise', expIndex);
+                              const callback = createDefenseExpertiseCallback(side.id, expIndex);
+                              console.log('🔍 Created callback:', typeof callback, callback);
+                              setShowGlyphPanel(true);
+                              setActiveInputRef(null);
+                              activeOnChangeRef.current = callback;
+                              const currentEffects = (exp.effects || []).join(', ');
+                              console.log('🔍 Setting activeCurrentValue to:', currentEffects);
+                              setActiveCurrentValue(currentEffects);
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: '#059669',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Add Glyph
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Usuń ostatni glif z tego pola
+                              const currentEffects = (exp.effects || []);
+                              if (currentEffects.length > 0) {
+                                const newEffects = currentEffects.slice(0, -1);
+                                const callback = createDefenseExpertiseCallback(side.id, expIndex);
+                                callback(newEffects.join(', '));
+                              }
+                            }}
+                            disabled={!exp.effects || exp.effects.length === 0}
+                            style={{
+                              padding: '4px 8px',
+                              backgroundColor: exp.effects && exp.effects.length > 0 ? '#dc2626' : '#9ca3af',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: exp.effects && exp.effects.length > 0 ? 'pointer' : 'not-allowed',
+                              fontSize: '12px',
+                              marginLeft: '4px'
+                            }}
+                          >
+                            Remove Last
+                          </button>
+                        </div>
                       <button
                         onClick={() => removeExpertise(side.id, 'defense', expIndex)}
                         style={{
@@ -1023,7 +1201,18 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
               🎯 Select Glyph
             </h3>
             <button
-              onClick={() => setShowGlyphPanel(false)}
+              onClick={() => {
+                // Clear any pending timeout
+                if (glyphPanelTimeoutRef.current) {
+                  clearTimeout(glyphPanelTimeoutRef.current);
+                  glyphPanelTimeoutRef.current = null;
+                }
+                
+                setShowGlyphPanel(false);
+                setActiveInputRef(null);
+                activeOnChangeRef.current = null;
+                setActiveCurrentValue('');
+              }}
               style={{
                 padding: '4px 8px',
                 backgroundColor: '#6b7280',
