@@ -11,6 +11,12 @@ import AdminPage from "./pages/AdminPage";
 import ContentManagementPage from "./pages/ContentManagementPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import BannedPage from "./pages/BannedPage";
+import TableAssistantPage from "./pages/TableAssistantPage";
+import PlayPage from "./pages/PlayPage";
+import HeroVsHeroPage from "./pages/HeroVsHeroPage";
+import StrikeTeamVsStrikeTeamPage from "./pages/StrikeTeamVsStrikeTeamPage";
+import BattlePage from "./pages/BattlePage";
+import SquadBuilder from "./components/SquadBuilder";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import AvatarManager from "./components/AvatarManager";
@@ -84,6 +90,8 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
         </NavLink>
         <div className="nb-nav">
           <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>News</NavLink>
+          <NavLink to="/play" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Play</NavLink>
+          <NavLink to="/characters" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Characters</NavLink>
           <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
           <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
           {me && (
@@ -1007,10 +1015,20 @@ export default function AppRoutes() {
       />
       <Routes>
         <Route path="/" element={<HomePage/>}/>
+        <Route path="/builder" element={
+          <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+            <SquadBuilder />
+          </div>
+        }/>
         <Route path="/library" element={<ShatterpointLibraryPage/>}/>
         <Route path="/characters" element={<CharactersPage/>}/>
         <Route path="/sets" element={<SetsPage/>}/>
         <Route path="/missions" element={<MissionsPage/>}/>
+        <Route path="/play" element={<PlayPage/>}/>
+        <Route path="/play/hero-vs-hero" element={<HeroVsHeroPage/>}/>
+        <Route path="/play/strike-team-vs-strike-team" element={<StrikeTeamVsStrikeTeamPage/>}/>
+        <Route path="/play/battle" element={<BattlePage/>}/>
+        <Route path="/play/table-assistant" element={<TableAssistantPage/>}/>
         <Route path="/my-collection" element={<MyCollectionPage/>}/>
         <Route path="/strike-teams" element={<PublicStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>

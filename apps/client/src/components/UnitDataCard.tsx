@@ -93,7 +93,7 @@ export default function UnitDataCard({ character, data }: Props) {
   const durability = c.durability ?? "—";
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
   // Use local portrait.png instead of external image
-  const portrait = c.id ? `/characters/${c.id}/portrait.png` : null;
+  const portrait = c.id ? `/characters_assets/${c.id}/portrait.png` : null;
   const legacyAbilities: LegacyAbility[] = Array.isArray(c.abilities) ? c.abilities! : [];
   const structuredAbilities: StructuredAbility[] = Array.isArray(c.structuredAbilities) ? c.structuredAbilities! : [];
   const factions = Array.isArray(c.factions) ? c.factions : null;

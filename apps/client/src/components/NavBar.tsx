@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import "./NavBar.css";
@@ -8,6 +8,7 @@ type Role = "USER" | "EDITOR" | "ADMIN";
 function cx(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
+
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">(
@@ -68,6 +69,12 @@ export default function NavBar() {
             className={({ isActive }) => cx("nb-link", isActive && "is-active")}
           >
             Builder
+          </NavLink>
+          <NavLink
+            to="/play"
+            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+          >
+            Play
           </NavLink>
           <NavLink
             to="/characters"
@@ -153,6 +160,9 @@ export default function NavBar() {
         </NavLink>
         <NavLink to="/builder" className="nb-drawer-link">
           Builder
+        </NavLink>
+        <NavLink to="/play" className="nb-drawer-link">
+          Play
         </NavLink>
         <NavLink to="/characters" className="nb-drawer-link">
           Characters

@@ -1271,7 +1271,7 @@ app.get("/api/characters/:id", async (req, res) => {
     const path = await import('path');
     
     const characterId = req.params.id;
-    const characterDataPath = path.join(process.cwd(), `../client/public/characters/${characterId}/data.json`);
+    const characterDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
     
     if (!fs.existsSync(characterDataPath)) {
       return res.status(404).json({ ok: false, error: "Character not found" });

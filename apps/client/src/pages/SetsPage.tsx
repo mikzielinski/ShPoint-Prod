@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
-import { Set as SetType } from '../types';
+import { Set as SetData } from '../data/sets';
 import { setsData } from '../data/sets';
 import FiltersPanel from '../components/FiltersPanel';
-import { Facets, Filters } from '../lib/shpoint/characters/types';
 import CharacterModal from '../components/CharacterModal';
 
+// Define types for filters
+interface Filters {
+  [key: string]: any;
+}
+
+interface Facets {
+  [key: string]: any;
+}
+
 // SetImageWithFallback component for displaying set images
-const SetImageWithFallback: React.FC<{ set: SetType; size?: number }> = ({ set, size = 60 }) => {
+const SetImageWithFallback: React.FC<{ set: SetData; size?: number }> = ({ set, size = 60 }) => {
   const [imageError, setImageError] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -90,7 +98,7 @@ const SetImageWithFallback: React.FC<{ set: SetType; size?: number }> = ({ set, 
     }
   };
 
-  const getSetIcon = (set: SetType): string => {
+  const getSetIcon = (set: SetData): string => {
     switch (set.type) {
       case 'Core Set': return '🎯';
       case 'Squad Pack': return '👥';
@@ -148,19 +156,19 @@ const SetImageWithFallback: React.FC<{ set: SetType; size?: number }> = ({ set, 
 const SetsPage: React.FC = () => {
   const { auth } = useAuth();
   const user = auth.status === 'authenticated' ? auth.user : null;
-  const [allSets, setAllSets] = useState<SetType[]>([]);
+  const [allSets, setAllSets] = useState<SetData[]>([]);
   const [setCollections, setSetCollections] = useState<any[]>([]);
   const [characterCollections, setCharacterCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({});
-  const [selectedSet, setSelectedSet] = useState<SetType | null>(null);
+  const [selectedSet, setSelectedSet] = useState<SetData | null>(null);
   const [showSetModal, setShowSetModal] = useState(false);
   const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
   const [showCharacterModal, setShowCharacterModal] = useState(false);
   
 
   // Use shared sets data
-  const mockSets: SetType[] = setsData;
+  const mockSets: SetData[] = setsData;
   useEffect(() => {
     console.log('📦 Loading sets data:', mockSets.length, 'sets');
     console.log('📦 First few sets:', mockSets.slice(0, 3).map(s => ({ id: s.id, name: s.name, type: s.type })));
@@ -325,7 +333,7 @@ const SetsPage: React.FC = () => {
   };
 
   // Check if user has all characters from a set
-  const hasAllCharactersFromSet = (set: SetType): boolean => {
+  const hasAllCharactersFromSet = (set: SetData): boolean => {
     if (!set.characters || set.characters.length === 0) return false;
     if (!characterCollections || characterCollections.length === 0) return false;
     
@@ -498,7 +506,7 @@ const SetsPage: React.FC = () => {
   };
 
   // Auto-add set to collection if user has all characters
-  const autoAddSetIfComplete = async (set: SetType) => {
+  const autoAddSetIfComplete = async (set: SetData) => {
     console.log(`Checking auto-add for set "${set.name}":`, {
       hasUser: !!user,
       alreadyCollected: !!set.collection,
@@ -669,7 +677,7 @@ const SetsPage: React.FC = () => {
   };
 
   // Modal handlers
-  const handleSetClick = (set: SetType) => {
+  const handleSetClick = (set: SetData) => {
     setSelectedSet(set);
     setShowSetModal(true);
   };
@@ -723,7 +731,7 @@ const SetsPage: React.FC = () => {
     const characterId = getCharacterId(character.name);
     
     // Use character.portrait if available, otherwise construct URL
-    const imageSrc = character.portrait || `/characters/${characterId}/portrait.png`;
+    const imageSrc = character.portrait || `/characters_assets/${characterId}/portrait.png`;
 
     return (
       <div style={{
@@ -766,7 +774,7 @@ const SetsPage: React.FC = () => {
   };
 
   // SetModal Component
-  const SetModal: React.FC<{ set: SetType; onClose: () => void }> = ({ set, onClose }) => {
+  const SetModal: React.FC<{ set: SetData; onClose: () => void }> = ({ set, onClose }) => {
     const getCollection = () => {
       return (setCollections && Array.isArray(setCollections)) 
         ? setCollections.find(c => c.setId === set.id) || null
@@ -1419,6 +1427,7 @@ const SetsPage: React.FC = () => {
         <CharacterModal
           open={showCharacterModal}
           onClose={handleCloseCharacterModal}
+          id={selectedCharacter.id}
           character={selectedCharacter}
         />
       )}

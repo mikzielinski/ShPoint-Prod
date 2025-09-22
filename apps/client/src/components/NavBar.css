@@ -10,13 +10,13 @@
 
 /* wewnętrzna belka */
 .nb-inner {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 10px 16px;
+  padding: 10px 20px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* brand */
@@ -45,17 +45,24 @@
 /* links (desktop) */
 .nb-nav {
   display: none;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 @media (min-width: 900px) {
   .nb-nav { display: inline-flex; }
 }
+@media (min-width: 1200px) {
+  .nb-nav { gap: 12px; }
+}
 .nb-link {
   color: #cbd5e1;
-  padding: 8px 10px;
-  border-radius: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
   text-decoration: none;
   transition: background .15s ease;
+  font-size: 14px;
+  white-space: nowrap;
 }
 .nb-link:hover { background: rgba(255,255,255,0.06); }
 .nb-link.is-active {
@@ -68,7 +75,8 @@
 .nb-actions {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 .nb-btn {
   background: #0f172a;

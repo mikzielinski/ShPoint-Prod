@@ -15,12 +15,75 @@ const HomePage: React.FC = () => {
     characters: 0,
     sets: 0,
     users: 0,
-    features: 17
+    features: 21
   });
   const [loading, setLoading] = useState(true);
 
   // Define updates data
   const updates = [
+    {
+      id: 'battle-arena-interactive-combat',
+      date: '2025-09-23',
+      title: '⚔️ Interactive Battle Arena System',
+      description: 'Revolutionary battle interface with interactive attack selection, dynamic expertise display, and visual status chips.',
+      features: [
+        'Interactive MELEE ATTACK and RANGED ATTACK sections with click-to-activate',
+        'Dynamic EXPERTISE display that switches based on selected action (Melee/Ranged/Defense)',
+        'Visual status chips under character portraits: ATTACKER/DEFENDER with attack type',
+        'Automatic role assignment: clicking attack makes one character ATTACKER, other DEFENDER',
+        'Real-time expertise switching with proper glyph rendering',
+        'Enhanced Attack Tree with zoom controls and proper node connections',
+        'Full stance card display with melee/ranged stats and attack trees'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'attack-tree-visual-improvements',
+      date: '2025-09-23',
+      title: '🌳 Attack Tree Visual Enhancements',
+      description: 'Major improvements to Attack Tree display with proper node rendering, connections, and zoom functionality.',
+      features: [
+        'Fixed node positioning with proper 1-based to 0-based index conversion',
+        'All nodes now display correctly in 3x6 grid layout',
+        'Proper SVG arrow connections between nodes with accurate positioning',
+        'Zoom controls (+/-/Reset) with optimal auto-scaling',
+        'Empty nodes hidden while preserving grid structure',
+        'Dynamic column calculation to hide unused columns',
+        'Centered tree display with proper container fitting'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'character-portrait-fixes',
+      date: '2025-09-23',
+      title: '🖼️ Character Portrait Display Fixes',
+      description: 'Fixed character portrait display issues across multiple pages for consistent full-portrait viewing.',
+      features: [
+        'Fixed cropped portraits in My Collection Sets section',
+        'Changed objectFit from cover to contain for full character display',
+        'Proper objectPosition centering for optimal portrait viewing',
+        'Consistent portrait sizing across Hero vs Hero and Strike Team pages',
+        '220% size increase for selected character images in battle selection',
+        'Fixed 404 errors for character resource loading'
+      ],
+      status: 'completed'
+    },
+    {
+      id: 'play-page-battle-system',
+      date: '2025-09-23',
+      title: '🎮 Play Page & Battle System',
+      description: 'Complete battle system implementation with Hero vs Hero and Strike Team vs Strike Team modes.',
+      features: [
+        'New Play page with game mode selection',
+        'Hero vs Hero mode with character selection from library',
+        'Strike Team vs Strike Team mode with user/public team selection',
+        'Battle Arena with 1/3-1/3-1/3 layout for combat display',
+        'Character stance data integration with proper JSON loading',
+        'Interactive stance side selection (A/B) with visual tabs',
+        'Full character details display in battle interface'
+      ],
+      status: 'completed'
+    },
     {
       id: 'stance-editor-remove-last-glyph',
       date: '2025-09-22',

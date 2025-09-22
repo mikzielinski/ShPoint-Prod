@@ -2,7 +2,7 @@ export interface Set {
   id: string;
   name: string;
   code: string; // SWPXX
-  type: 'Core Set' | 'Squad Pack' | 'Terrain Pack' | 'Duel Pack' | 'Mission Pack';
+  type: 'Core Set' | 'Squad Pack' | 'Terrain Pack' | 'Duel Pack' | 'Mission Pack' | 'Accessories';
   image?: string;
   characters?: Array<{
     role: 'Primary' | 'Secondary' | 'Supporting';
@@ -10,6 +10,7 @@ export interface Set {
   }>;
   description?: string;
   product_url?: string;
+  collection?: any; // For user collection data
 }
 
 // Real data from Atomic Mass Games

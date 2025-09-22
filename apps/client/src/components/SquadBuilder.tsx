@@ -141,7 +141,7 @@ function normalizeCard(raw: any): Card | null {
   const portraitUrl =
     typeof portrait === "string" && portrait.trim()
       ? portrait
-      : `/characters/${id}/portrait.png`;
+      : `/characters_assets/${id}/portrait.png`;
 
   return { 
     id, 

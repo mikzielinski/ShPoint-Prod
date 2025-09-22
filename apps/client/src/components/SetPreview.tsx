@@ -46,7 +46,7 @@ const CharacterPortrait: React.FC<{ characterName: string; size: number }> = ({ 
   };
 
   const characterId = getCharacterId(characterName);
-  const portraitUrl = `/characters/${characterId}/portrait.png`;
+  const portraitUrl = `/characters_assets/${characterId}/portrait.png`;
 
   return (
     <div style={{
@@ -133,7 +133,7 @@ const SetPreview: React.FC<SetPreviewProps> = ({ set }) => {
         name,
         unit_type,
         squad_points,
-        portrait: `/characters/${id}/portrait.png`
+        portrait: `/characters_assets/${id}/portrait.png`
       };
     };
 
