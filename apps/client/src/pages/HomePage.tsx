@@ -15,12 +15,30 @@ const HomePage: React.FC = () => {
     characters: 0,
     sets: 0,
     users: 0,
-    features: 21
+    features: 22
   });
   const [loading, setLoading] = useState(true);
 
   // Define updates data
   const updates = [
+    {
+      id: 'dice-simulator-combat-system',
+      date: '2025-01-27',
+      title: '🎲 Advanced Dice Simulator & Combat System',
+      description: 'Complete dice rolling and combat resolution system with D8/D6 dice, expertise effects, and attack tree integration.',
+      features: [
+        'D8 attack dice and D6 defense dice with proper Shatterpoint probabilities',
+        'Manual dice input with click-to-modify interface for custom results',
+        'Expertise effects processing: conversions (Strike→Fail), additions (Crit, Block), and additional effects',
+        'Cross-player expertise effects that modify opponent results in real-time',
+        'Attack tree node activation based on Final Attack values with path selection',
+        'Combat Summary showing symbol counts from selected attack paths',
+        'Dice rolling animation with 3D rotating D8/D6 dice and changing symbols',
+        'VS animation for character battles with sliding heroes and golden VS text',
+        'Responsive layout optimization for better attack tree visibility'
+      ],
+      status: 'completed'
+    },
     {
       id: 'battle-arena-interactive-combat',
       date: '2025-09-23',
@@ -416,7 +434,7 @@ const HomePage: React.FC = () => {
           characters: charactersCount,
           sets: setsCount,
           users: usersCount,
-          features: 20
+          features: 22
         });
       } catch (error) {
         console.error('Error loading stats:', error);
@@ -425,7 +443,7 @@ const HomePage: React.FC = () => {
           characters: 0,
           sets: 0,
           users: 0,
-          features: 17
+          features: 22
         });
       } finally {
         setLoading(false);

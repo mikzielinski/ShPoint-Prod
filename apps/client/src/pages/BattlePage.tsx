@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import CharacterDetails from '../components/CharacterDetails';
 import { GLYPHS, iconFromCode } from '../lib/icons';
+import DiceSimulator from '../components/DiceSimulator';
 
 /** ====== Ikony (PUA) ====== */
 const ICON: Record<string, string> = {
@@ -142,7 +143,7 @@ function renderGlyphToken(token: string, key?: React.Key) {
         color: "#f9fafb",
         background: "#374151",
         fontWeight: 700,
-        fontSize: 12,
+        fontSize: 18,
         lineHeight: 1,
         fontFamily: '"ShatterpointIcons", system-ui, -apple-system, Segoe UI, Roboto, sans-serif'
       }}
@@ -200,6 +201,18 @@ const BattlePage: React.FC = () => {
   const [hero1ActiveSide, setHero1ActiveSide] = useState<'A' | 'B'>('A');
   const [hero2ActiveSide, setHero2ActiveSide] = useState<'A' | 'B'>('A');
   const [hero1TreeZoom, setHero1TreeZoom] = useState(1);
+  const [expertiseResults, setExpertiseResults] = useState({
+    hero1AttackExpertise: 0,
+    hero1DefenseExpertise: 0,
+    hero2AttackExpertise: 0,
+    hero2DefenseExpertise: 0
+  });
+  
+  // Stan dla aktywacji nodów w drzewie ataku
+  const [hero1ActiveNodes, setHero1ActiveNodes] = useState<Set<string>>(new Set());
+  const [hero2ActiveNodes, setHero2ActiveNodes] = useState<Set<string>>(new Set());
+  const [hero1SelectedBranch, setHero1SelectedBranch] = useState<string | null>(null);
+  const [hero2SelectedBranch, setHero2SelectedBranch] = useState<string | null>(null);
   const [hero2TreeZoom, setHero2TreeZoom] = useState(1);
   const [hero1Lines, setHero1Lines] = useState<Array<{ x1: number; y1: number; x2: number; y2: number }>>([]);
   const [hero2Lines, setHero2Lines] = useState<Array<{ x1: number; y1: number; x2: number; y2: number }>>([]);
@@ -241,6 +254,111 @@ const BattlePage: React.FC = () => {
   const handleHero2RangedClick = () => {
     setHero2Action('ranged');
     setHero1Action('defense');
+  };
+
+  // Function to find all possible paths in attack tree
+  const findAttackPaths = (stance: any, activeSide: string) => {
+    const activeSideData = stance?.sides?.find((s: any) => s.id === activeSide);
+    if (!activeSideData?.tree?.nodes || !activeSideData?.tree?.edges) return [];
+    
+    const nodes = activeSideData.tree.nodes;
+    const edges = activeSideData.tree.edges;
+    
+    // Find starting nodes (nodes with no incoming edges)
+    const incomingEdges = new Set<string>();
+    edges.forEach(([from, to]) => incomingEdges.add(to));
+    
+    const startNodes = Object.keys(nodes).filter(nodeId => !incomingEdges.has(nodeId));
+    
+    // DFS to find all paths
+    const paths: string[][] = [];
+    
+    const dfs = (currentPath: string[], currentNode: string) => {
+      const newPath = [...currentPath, currentNode];
+      
+      // Find outgoing edges from current node
+      const outgoingEdges = edges.filter(([from]) => from === currentNode);
+      
+      if (outgoingEdges.length === 0) {
+        // End of path
+        paths.push(newPath);
+      } else {
+        // Continue to next nodes
+        outgoingEdges.forEach(([_, to]) => {
+          dfs(newPath, to);
+        });
+      }
+    };
+    
+    startNodes.forEach(startNode => {
+      dfs([], startNode);
+    });
+    
+    return paths;
+  };
+
+  // Function to activate nodes based on Final Attack result
+  const activateNodesForAttack = (hero: 'hero1' | 'hero2', finalAttack: number, selectedPath: string[]) => {
+    const maxNodes = Math.min(finalAttack, selectedPath.length);
+    const activeNodes = new Set(selectedPath.slice(0, maxNodes));
+    
+    if (hero === 'hero1') {
+      setHero1ActiveNodes(activeNodes);
+      (window as any).hero1ActiveNodes = activeNodes;
+    } else {
+      setHero2ActiveNodes(activeNodes);
+      (window as any).hero2ActiveNodes = activeNodes;
+    }
+  };
+
+  // Function to count symbols from active path
+  const countSymbolsFromPath = (hero: 'hero1' | 'hero2') => {
+    const stance = hero === 'hero1' ? hero1Stance : hero2Stance;
+    const activeSide = hero === 'hero1' ? hero1ActiveSide : hero2ActiveSide;
+    const selectedBranch = hero === 'hero1' ? hero1SelectedBranch : hero2SelectedBranch;
+    const activeNodes = hero === 'hero1' ? hero1ActiveNodes : hero2ActiveNodes;
+    
+    if (!stance || !selectedBranch) return {};
+    
+    const activeSideData = stance.sides.find((s: any) => s.id === activeSide);
+    if (!activeSideData?.tree?.nodes) return {};
+    
+    const nodes = activeSideData.tree.nodes;
+    const symbolCounts: Record<string, number> = {};
+    
+    // Count symbols from all active nodes
+    activeNodes.forEach(nodeId => {
+      const node = nodes[nodeId];
+      if (node?.effects) {
+        node.effects.forEach((effect: string) => {
+          symbolCounts[effect] = (symbolCounts[effect] || 0) + 1;
+        });
+      }
+    });
+    
+    return symbolCounts;
+  };
+
+  // Function to handle branch selection
+  const handleBranchSelection = (hero: 'hero1' | 'hero2', pathIndex: number) => {
+    const stance = hero === 'hero1' ? hero1Stance : hero2Stance;
+    const activeSide = hero === 'hero1' ? hero1ActiveSide : hero2ActiveSide;
+    
+    const paths = findAttackPaths(stance, activeSide);
+    if (pathIndex >= 0 && pathIndex < paths.length) {
+      const selectedPath = paths[pathIndex];
+      const pathKey = selectedPath.join('-');
+      
+      if (hero === 'hero1') {
+        setHero1SelectedBranch(pathKey);
+      } else {
+        setHero2SelectedBranch(pathKey);
+      }
+      
+      // Get Final Attack from DiceSimulator
+      const finalAttack = (window as any)[`${hero}FinalAttack`] || 0;
+      activateNodesForAttack(hero, finalAttack, selectedPath);
+    }
   };
 
   // Function to calculate lines between nodes (from AttackTreeBuilder)
@@ -390,6 +508,55 @@ const BattlePage: React.FC = () => {
     }
   }, [hero2Stance, hero2ActiveSide, hero2TreeZoom]);
 
+  // Track expertise results from DiceSimulator
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newResults = {
+        hero1AttackExpertise: (window as any).hero1AttackExpertise || 0,
+        hero1DefenseExpertise: (window as any).hero1DefenseExpertise || 0,
+        hero2AttackExpertise: (window as any).hero2AttackExpertise || 0,
+        hero2DefenseExpertise: (window as any).hero2DefenseExpertise || 0
+      };
+      
+      setExpertiseResults(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(newResults)) {
+          return newResults;
+        }
+        return prev;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Track Final Attack results and update node activation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const hero1FinalAttack = (window as any).hero1FinalAttack || 0;
+      const hero2FinalAttack = (window as any).hero2FinalAttack || 0;
+      
+      // Update Hero 1 nodes if branch is selected
+      if (hero1SelectedBranch && hero1Stance) {
+        const paths = findAttackPaths(hero1Stance, hero1ActiveSide);
+        const selectedPath = paths.find(path => path.join('-') === hero1SelectedBranch);
+        if (selectedPath) {
+          activateNodesForAttack('hero1', hero1FinalAttack, selectedPath);
+        }
+      }
+      
+      // Update Hero 2 nodes if branch is selected
+      if (hero2SelectedBranch && hero2Stance) {
+        const paths = findAttackPaths(hero2Stance, hero2ActiveSide);
+        const selectedPath = paths.find(path => path.join('-') === hero2SelectedBranch);
+        if (selectedPath) {
+          activateNodesForAttack('hero2', hero2FinalAttack, selectedPath);
+        }
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [hero1SelectedBranch, hero2SelectedBranch, hero1Stance, hero2Stance, hero1ActiveSide, hero2ActiveSide]);
+
   useEffect(() => {
     const hero1Id = searchParams.get('hero1');
     const hero2Id = searchParams.get('hero2');
@@ -488,7 +655,7 @@ const BattlePage: React.FC = () => {
             color: '#f9fafb',
             margin: '0 0 16px 0'
           }}>
-            ⚔️ Loading Battle...
+            <span className="spicon sp-melee" style={{ fontSize: '32px', color: '#f97316' }}>{GLYPHS.melee}</span> Loading Battle...
           </h1>
           <p style={{
             fontSize: '18px',
@@ -523,7 +690,7 @@ const BattlePage: React.FC = () => {
             color: '#f9fafb',
             margin: '0 0 16px 0'
           }}>
-            ⚔️ Battle Error
+            <span className="spicon sp-melee" style={{ fontSize: '32px', color: '#ef4444' }}>{GLYPHS.melee}</span> Battle Error
           </h1>
           <p style={{
             fontSize: '18px',
@@ -554,10 +721,11 @@ const BattlePage: React.FC = () => {
 
   return (
     <div style={{
-      maxWidth: '1400px',
+      maxWidth: '100vw',
       margin: '0 auto',
-      padding: '20px',
-      color: '#f9fafb'
+      padding: '10px',
+      color: '#f9fafb',
+      overflow: 'hidden'
     }}>
       {/* Battle Header */}
       <div style={{
@@ -574,7 +742,7 @@ const BattlePage: React.FC = () => {
           color: '#f9fafb',
           margin: '0 0 8px 0'
         }}>
-          ⚔️ Battle Arena
+          <span className="spicon sp-melee" style={{ fontSize: '28px', color: '#f97316' }}>{GLYPHS.melee}</span> Battle Arena
         </h1>
         <p style={{
           fontSize: '16px',
@@ -588,9 +756,15 @@ const BattlePage: React.FC = () => {
       {/* Battle Arena */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gap: '24px',
-        marginBottom: '24px'
+        gridTemplateColumns: 'minmax(380px, 1.4fr) minmax(320px, 0.8fr) minmax(380px, 1.4fr)',
+        gap: '12px',
+        marginBottom: '24px',
+        width: '100%',
+        maxWidth: '100%',
+        '@media (max-width: 1200px)': {
+          gridTemplateColumns: '1fr',
+          gap: '16px'
+        }
       }}>
         {/* Hero 1 - Left Side */}
         <div style={{
@@ -651,10 +825,9 @@ const BattlePage: React.FC = () => {
                 borderRadius: '20px',
                 fontSize: '12px',
                 fontWeight: '600',
-                textTransform: 'uppercase',
                 letterSpacing: '0.5px'
               }}>
-                {hero1Action === 'defense' ? '🛡️ DEFENDER' : '⚔️ ATTACKER'}
+                {hero1Action === 'defense' ? <><span className="spicon sp-defense-expertise" style={{ fontSize: '12px', color: '#ffffff' }}>f</span> DEFENDER</> : <><span className="spicon sp-melee" style={{ fontSize: '12px', color: '#ffffff' }}>o</span> ATTACKER</>}
               </div>
               
               {/* Attack Type Chip */}
@@ -666,9 +839,8 @@ const BattlePage: React.FC = () => {
                   borderRadius: '16px',
                   fontSize: '11px',
                   fontWeight: '500',
-                  textTransform: 'uppercase'
                 }}>
-                  {hero1Action === 'melee' ? '🗡️ MELEE' : '🏹 RANGED'}
+                  {hero1Action === 'melee' ? <><span className="spicon sp-melee" style={{ fontSize: '11px', color: '#ffffff' }}>o</span> MELEE</> : <><span className="spicon sp-ranged" style={{ fontSize: '11px', color: '#ffffff' }}>n</span> RANGED</>}
                 </div>
               )}
             </div>
@@ -681,8 +853,9 @@ const BattlePage: React.FC = () => {
             padding: '16px',
             border: '2px solid #4b5563',
             textAlign: 'center',
-            minWidth: '380px',
-            maxWidth: '480px'
+            minWidth: '300px',
+            maxWidth: '100%',
+            width: '100%'
           }}>
             <div style={{
               fontSize: '12px',
@@ -711,7 +884,7 @@ const BattlePage: React.FC = () => {
                 color: hero1Action === 'melee' ? '#ffffff' : '#f9fafb',
                 marginBottom: '8px'
               }}>
-                MELEE ATTACK {hero1Action === 'melee' && '⚔️'}
+                <span className="spicon sp-melee" style={{ fontSize: '14px', color: hero1Action === 'melee' ? '#ffffff' : '#f9fafb' }}>{GLYPHS.melee}</span> MELEE ATTACK
               </div>
               {hero1Stance?.sides?.[0]?.attack?.melee ? (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -814,7 +987,7 @@ const BattlePage: React.FC = () => {
                 color: hero1Action === 'ranged' ? '#ffffff' : '#f9fafb',
                 marginBottom: '8px'
               }}>
-                RANGED ATTACK {hero1Action === 'ranged' && '🏹'}
+                <span className="spicon sp-ranged" style={{ fontSize: '14px', color: hero1Action === 'ranged' ? '#ffffff' : '#f9fafb' }}>{GLYPHS.ranged}</span> RANGED ATTACK
               </div>
               {hero1Stance?.sides?.[0]?.attack?.ranged ? (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -914,6 +1087,42 @@ const BattlePage: React.FC = () => {
                 ATTACK TREE
               </div>
               
+              {/* Branch Selection */}
+              {(() => {
+                const paths = findAttackPaths(hero1Stance, hero1ActiveSide);
+                const finalAttack = (window as any).hero1FinalAttack || 0;
+                
+                if (paths.length > 1 && finalAttack > 0) {
+                  return (
+                    <div style={{ marginBottom: '12px', padding: '8px', background: '#1f2937', borderRadius: '4px' }}>
+                      <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '6px' }}>
+                        Choose Attack Path (Final Attack: {finalAttack}):
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {paths.map((path, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleBranchSelection('hero1', index)}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '10px',
+                              border: hero1SelectedBranch === path.join('-') ? '2px solid #3b82f6' : '1px solid #4b5563',
+                              borderRadius: '3px',
+                              background: hero1SelectedBranch === path.join('-') ? '#3b82f620' : '#374151',
+                              color: '#f9fafb',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Path {index + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              
               {hero1Stance?.sides && hero1Stance.sides.length > 0 ? (
                 <div>
                   {/* Side Selection */}
@@ -1006,6 +1215,15 @@ const BattlePage: React.FC = () => {
                           {matrix.map((row, rIdx) =>
                             row.map((cell, cIdx) => {
                               const isFirstCol = cIdx === 0;
+                              
+                              // Find node ID for this position
+                              const nodeId = Object.keys(nodes).find(id => {
+                                const node = nodes[id];
+                                return node.row - 1 === rIdx && node.col - 1 === cIdx;
+                              });
+                              
+                              const isActive = nodeId ? hero1ActiveNodes.has(nodeId) : false;
+                              
                               return (
                                 <div
                                   key={`${rIdx}-${cIdx}`}
@@ -1015,17 +1233,18 @@ const BattlePage: React.FC = () => {
                                     }
                                   }}
                                   style={{
-                                    background: cell ? (isFirstCol ? '#f97316' : '#374151') : 'transparent',
-                                    border: cell ? '2px solid #f97316' : '1px dashed #4b5563',
+                                    background: cell ? (isFirstCol ? '#f97316' : isActive ? '#10b981' : '#374151') : 'transparent',
+                                    border: cell ? (isActive ? '3px solid #10b981' : '2px solid #f97316') : '1px dashed #4b5563',
                                     borderRadius: '6px',
                                     padding: '6px',
                                     minHeight: cell && cell.length > 2 ? '50px' : '32px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: cell ? (isFirstCol ? '#ffffff' : '#f9fafb') : '#6b7280',
+                                    color: cell ? (isFirstCol ? '#ffffff' : isActive ? '#ffffff' : '#f9fafb') : '#6b7280',
                                     flexWrap: 'wrap',
-                                    gap: '3px'
+                                    gap: '3px',
+                                    boxShadow: isActive ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none'
                                   }}
                                 >
                                   {cell ? (
@@ -1151,7 +1370,7 @@ const BattlePage: React.FC = () => {
                 color: '#f9fafb',
                 marginBottom: '4px'
               }}>
-                EXPERTISE - {hero1Action === 'melee' ? 'MELEE' : hero1Action === 'ranged' ? 'RANGED' : 'DEFENSE'}
+                EXPERTISE - {hero1Action === 'melee' ? <><span className="spicon sp-melee" style={{ fontSize: '14px', color: '#f9fafb' }}>{GLYPHS.melee}</span> MELEE</> : hero1Action === 'ranged' ? <><span className="spicon sp-ranged" style={{ fontSize: '14px', color: '#f9fafb' }}>{GLYPHS.ranged}</span> RANGED</> : <><span className="spicon sp-defense-expertise" style={{ fontSize: '14px', color: '#f9fafb' }}>{GLYPHS.defense_expertise}</span> DEFENSE</>}
               </div>
               <div style={{
                 fontSize: '12px',
@@ -1170,12 +1389,65 @@ const BattlePage: React.FC = () => {
                   }
                   
                   return expertise ? 
-                    expertise.map((exp: any, index: number) => (
-                      <div key={index} style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '10px', color: '#9ca3af', minWidth: '30px' }}>{exp.value}:</span>
-                        {renderGlyphLine(exp.effects)}
-                      </div>
-                    )) :
+                    expertise.map((exp: any, index: number) => {
+                      // Sprawdź czy ekspertyza jest aktywna na podstawie wyników z symulatora
+                      const isActive = (() => {
+                        // Pobierz liczbę ekspertyz z state
+                        const expertiseCount = hero1Action === 'defense' ? 
+                          expertiseResults.hero1DefenseExpertise : 
+                          expertiseResults.hero1AttackExpertise;
+                        
+                        if (exp.value.includes('+')) {
+                          const minValue = parseInt(exp.value.replace('+', ''));
+                          return expertiseCount >= minValue;
+                        } else if (exp.value.includes('-')) {
+                          const [min, max] = exp.value.split('-').map(Number);
+                          return expertiseCount >= min && expertiseCount <= max;
+                        } else {
+                          return expertiseCount === parseInt(exp.value);
+                        }
+                      })();
+                      
+                      return (
+                        <div 
+                          key={index} 
+                          style={{ 
+                            marginBottom: '4px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            border: isActive ? '2px solid #3b82f6' : '1px solid #4b5563',
+                            background: isActive ? '#3b82f620' : 'transparent'
+                          }}
+                        >
+                          <span style={{ fontSize: '10px', color: '#9ca3af', minWidth: '30px' }}>{exp.value}:</span>
+                          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                            {exp.effects?.map((effect: string, effectIndex: number) => (
+                              <span 
+                                key={effectIndex}
+                                className="spicon"
+                                style={{ 
+                                  fontSize: '14px', 
+                                  color: isActive ? '#3b82f6' : '#6b7280',
+                                  display: 'inline-flex',
+                                  minWidth: '20px',
+                                  height: '20px',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderRadius: '4px',
+                                  background: isActive ? '#3b82f610' : '#374151',
+                                  border: '1px solid #4b5563'
+                                }}
+                              >
+                                {effect}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }) :
                     'No expertise data';
                 })()}
               </div>
@@ -1183,42 +1455,15 @@ const BattlePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Middle Space - Battle Zone */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          borderRadius: '12px',
-          border: '2px solid #475569',
-          position: 'relative'
-        }}>
-          <div style={{
-            fontSize: '48px',
-            marginBottom: '16px',
-            opacity: 0.7
-          }}>
-            ⚔️
-          </div>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#f1f5f9',
-            margin: '0 0 8px 0',
-            textAlign: 'center'
-          }}>
-            Battle Arena
-          </h3>
-          <p style={{
-            fontSize: '14px',
-            color: '#94a3b8',
-            margin: '0',
-            textAlign: 'center'
-          }}>
-            Combat Zone
-          </p>
-        </div>
+        {/* Dice Simulator - Combat Zone */}
+        <DiceSimulator
+          hero1Action={hero1Action}
+          hero2Action={hero2Action}
+          hero1Stance={hero1Stance}
+          hero2Stance={hero2Stance}
+          hero1ActiveSide={hero1ActiveSide}
+          hero2ActiveSide={hero2ActiveSide}
+        />
 
         {/* Hero 2 - Right Side */}
         <div style={{
@@ -1279,10 +1524,9 @@ const BattlePage: React.FC = () => {
                 borderRadius: '20px',
                 fontSize: '12px',
                 fontWeight: '600',
-                textTransform: 'uppercase',
                 letterSpacing: '0.5px'
               }}>
-                {hero2Action === 'defense' ? '🛡️ DEFENDER' : '⚔️ ATTACKER'}
+                {hero2Action === 'defense' ? <><span className="spicon sp-defense-expertise" style={{ fontSize: '12px', color: '#ffffff' }}>f</span> DEFENDER</> : <><span className="spicon sp-melee" style={{ fontSize: '12px', color: '#ffffff' }}>o</span> ATTACKER</>}
               </div>
               
               {/* Attack Type Chip */}
@@ -1294,9 +1538,8 @@ const BattlePage: React.FC = () => {
                   borderRadius: '16px',
                   fontSize: '11px',
                   fontWeight: '500',
-                  textTransform: 'uppercase'
                 }}>
-                  {hero2Action === 'melee' ? '🗡️ MELEE' : '🏹 RANGED'}
+                  {hero2Action === 'melee' ? <><span className="spicon sp-melee" style={{ fontSize: '11px', color: '#ffffff' }}>o</span> MELEE</> : <><span className="spicon sp-ranged" style={{ fontSize: '11px', color: '#ffffff' }}>n</span> RANGED</>}
                 </div>
               )}
             </div>
@@ -1309,8 +1552,9 @@ const BattlePage: React.FC = () => {
             padding: '16px',
             border: '2px solid #4b5563',
             textAlign: 'center',
-            minWidth: '380px',
-            maxWidth: '480px'
+            minWidth: '300px',
+            maxWidth: '100%',
+            width: '100%'
           }}>
             <div style={{
               fontSize: '12px',
@@ -1339,7 +1583,7 @@ const BattlePage: React.FC = () => {
                 color: hero2Action === 'melee' ? '#ffffff' : '#f9fafb',
                 marginBottom: '8px'
               }}>
-                MELEE ATTACK {hero2Action === 'melee' && '⚔️'}
+                <span className="spicon sp-melee" style={{ fontSize: '14px', color: hero2Action === 'melee' ? '#ffffff' : '#f9fafb' }}>{GLYPHS.melee}</span> MELEE ATTACK
               </div>
               {hero2Stance?.sides?.[0]?.attack?.melee ? (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -1442,7 +1686,7 @@ const BattlePage: React.FC = () => {
                 color: hero2Action === 'ranged' ? '#ffffff' : '#f9fafb',
                 marginBottom: '4px'
               }}>
-                RANGED ATTACK {hero2Action === 'ranged' && '🏹'}
+                <span className="spicon sp-ranged" style={{ fontSize: '14px', color: hero2Action === 'ranged' ? '#ffffff' : '#f9fafb' }}>{GLYPHS.ranged}</span> RANGED ATTACK
               </div>
               {hero2Stance?.sides?.[0]?.attack?.ranged ? (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -1542,6 +1786,42 @@ const BattlePage: React.FC = () => {
                 ATTACK TREE
               </div>
               
+              {/* Branch Selection */}
+              {(() => {
+                const paths = findAttackPaths(hero2Stance, hero2ActiveSide);
+                const finalAttack = (window as any).hero2FinalAttack || 0;
+                
+                if (paths.length > 1 && finalAttack > 0) {
+                  return (
+                    <div style={{ marginBottom: '12px', padding: '8px', background: '#1f2937', borderRadius: '4px' }}>
+                      <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '6px' }}>
+                        Choose Attack Path (Final Attack: {finalAttack}):
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {paths.map((path, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleBranchSelection('hero2', index)}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '10px',
+                              border: hero2SelectedBranch === path.join('-') ? '2px solid #ef4444' : '1px solid #4b5563',
+                              borderRadius: '3px',
+                              background: hero2SelectedBranch === path.join('-') ? '#ef444420' : '#374151',
+                              color: '#f9fafb',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Path {index + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              
               {hero2Stance?.sides && hero2Stance.sides.length > 0 ? (
                 <div>
                   {/* Side Selection */}
@@ -1634,6 +1914,15 @@ const BattlePage: React.FC = () => {
                           {matrix.map((row, rIdx) =>
                             row.map((cell, cIdx) => {
                               const isFirstCol = cIdx === 0;
+                              
+                              // Find node ID for this position
+                              const nodeId = Object.keys(nodes).find(id => {
+                                const node = nodes[id];
+                                return node.row - 1 === rIdx && node.col - 1 === cIdx;
+                              });
+                              
+                              const isActive = nodeId ? hero2ActiveNodes.has(nodeId) : false;
+                              
                               return (
                                 <div
                                   key={`${rIdx}-${cIdx}`}
@@ -1643,17 +1932,18 @@ const BattlePage: React.FC = () => {
                                     }
                                   }}
                                   style={{
-                                    background: cell ? (isFirstCol ? '#f97316' : '#374151') : 'transparent',
-                                    border: cell ? '2px solid #f97316' : '1px dashed #4b5563',
+                                    background: cell ? (isFirstCol ? '#f97316' : isActive ? '#10b981' : '#374151') : 'transparent',
+                                    border: cell ? (isActive ? '3px solid #10b981' : '2px solid #f97316') : '1px dashed #4b5563',
                                     borderRadius: '6px',
                                     padding: '6px',
                                     minHeight: cell && cell.length > 2 ? '50px' : '32px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: cell ? (isFirstCol ? '#ffffff' : '#f9fafb') : '#6b7280',
+                                    color: cell ? (isFirstCol ? '#ffffff' : isActive ? '#ffffff' : '#f9fafb') : '#6b7280',
                                     flexWrap: 'wrap',
-                                    gap: '3px'
+                                    gap: '3px',
+                                    boxShadow: isActive ? '0 0 10px rgba(16, 185, 129, 0.5)' : 'none'
                                   }}
                                 >
                                   {cell ? (
@@ -1779,7 +2069,7 @@ const BattlePage: React.FC = () => {
                 color: '#f9fafb',
                 marginBottom: '4px'
               }}>
-                EXPERTISE - {hero2Action === 'melee' ? 'MELEE' : hero2Action === 'ranged' ? 'RANGED' : 'DEFENSE'}
+                EXPERTISE - {hero2Action === 'melee' ? <><span className="spicon sp-melee" style={{ fontSize: '14px', color: '#f9fafb' }}>{GLYPHS.melee}</span> MELEE</> : hero2Action === 'ranged' ? <><span className="spicon sp-ranged" style={{ fontSize: '14px', color: '#f9fafb' }}>{GLYPHS.ranged}</span> RANGED</> : <><span className="spicon sp-defense-expertise" style={{ fontSize: '14px', color: '#f9fafb' }}>{GLYPHS.defense_expertise}</span> DEFENSE</>}
               </div>
               <div style={{
                 fontSize: '12px',
@@ -1798,12 +2088,65 @@ const BattlePage: React.FC = () => {
                   }
                   
                   return expertise ? 
-                    expertise.map((exp: any, index: number) => (
-                      <div key={index} style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '10px', color: '#9ca3af', minWidth: '30px' }}>{exp.value}:</span>
-                        {renderGlyphLine(exp.effects)}
-                      </div>
-                    )) :
+                    expertise.map((exp: any, index: number) => {
+                      // Sprawdź czy ekspertyza jest aktywna na podstawie wyników z symulatora
+                      const isActive = (() => {
+                        // Pobierz liczbę ekspertyz z state
+                        const expertiseCount = hero2Action === 'defense' ? 
+                          expertiseResults.hero2DefenseExpertise : 
+                          expertiseResults.hero2AttackExpertise;
+                        
+                        if (exp.value.includes('+')) {
+                          const minValue = parseInt(exp.value.replace('+', ''));
+                          return expertiseCount >= minValue;
+                        } else if (exp.value.includes('-')) {
+                          const [min, max] = exp.value.split('-').map(Number);
+                          return expertiseCount >= min && expertiseCount <= max;
+                        } else {
+                          return expertiseCount === parseInt(exp.value);
+                        }
+                      })();
+                      
+                      return (
+                        <div 
+                          key={index} 
+                          style={{ 
+                            marginBottom: '4px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            border: isActive ? '2px solid #ef4444' : '1px solid #4b5563',
+                            background: isActive ? '#ef444420' : 'transparent'
+                          }}
+                        >
+                          <span style={{ fontSize: '10px', color: '#9ca3af', minWidth: '30px' }}>{exp.value}:</span>
+                          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                            {exp.effects?.map((effect: string, effectIndex: number) => (
+                              <span 
+                                key={effectIndex}
+                                className="spicon"
+                                style={{ 
+                                  fontSize: '14px', 
+                                  color: isActive ? '#ef4444' : '#6b7280',
+                                  display: 'inline-flex',
+                                  minWidth: '20px',
+                                  height: '20px',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderRadius: '4px',
+                                  background: isActive ? '#ef444410' : '#374151',
+                                  border: '1px solid #4b5563'
+                                }}
+                              >
+                                {effect}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }) :
                     'No expertise data';
                 })()}
               </div>
@@ -1874,7 +2217,7 @@ const BattlePage: React.FC = () => {
             fontWeight: '600'
           }}
         >
-          🔄 New Battle
+          <span className="spicon sp-reposition" style={{ fontSize: '16px', color: '#ffffff' }}>{GLYPHS.reposition}</span> New Battle
         </button>
       </div>
     </div>

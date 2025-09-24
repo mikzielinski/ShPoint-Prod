@@ -22,6 +22,7 @@ const HeroVsHeroPage: React.FC = () => {
   const [selectedHero2, setSelectedHero2] = useState<Character | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFaction, setSelectedFaction] = useState<string>('');
+  const [showVSAnimation, setShowVSAnimation] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,8 +56,13 @@ const HeroVsHeroPage: React.FC = () => {
 
   const handleStartBattle = () => {
     if (selectedHero1 && selectedHero2) {
-      // Navigate to battle page with selected heroes
-      navigate(`/play/battle?hero1=${selectedHero1.id}&hero2=${selectedHero2.id}`);
+      // Uruchom animację VS
+      setShowVSAnimation(true);
+      
+      // Po 3 sekundach przejdź do battle page
+      setTimeout(() => {
+        navigate(`/play/battle?hero1=${selectedHero1.id}&hero2=${selectedHero2.id}`);
+      }, 3000);
     }
   };
 
@@ -68,6 +74,176 @@ const HeroVsHeroPage: React.FC = () => {
   });
 
   const factions = [...new Set(characters.map(c => c.faction).filter(Boolean))];
+
+  // Komponent animacji VS
+  const VSAnimation = () => {
+    if (!showVSAnimation || !selectedHero1 || !selectedHero2) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        overflow: 'hidden'
+      }}>
+        {/* Hero 1 - pojawia się z lewej */}
+        <div style={{
+          position: 'absolute',
+          left: '-200px',
+          animation: 'hero1SlideIn 1.5s ease-out forwards',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px'
+        }}>
+          <img
+            src={selectedHero1.portrait || "https://picsum.photos/seed/placeholder/100/130"}
+            alt={selectedHero1.name}
+            style={{
+              width: '200px',
+              height: '260px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              borderRadius: '12px',
+              background: '#4b5563',
+              boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)'
+            }}
+          />
+          <div style={{
+            background: 'rgba(59, 130, 246, 0.9)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '18px',
+            fontWeight: '600',
+            textAlign: 'center'
+          }}>
+            {selectedHero1.name}
+          </div>
+        </div>
+
+        {/* Hero 2 - pojawia się z prawej */}
+        <div style={{
+          position: 'absolute',
+          right: '-200px',
+          animation: 'hero2SlideIn 1.5s ease-out forwards',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px'
+        }}>
+          <img
+            src={selectedHero2.portrait || "https://picsum.photos/seed/placeholder/100/130"}
+            alt={selectedHero2.name}
+            style={{
+              width: '200px',
+              height: '260px',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              borderRadius: '12px',
+              background: '#4b5563',
+              boxShadow: '0 8px 32px rgba(239, 68, 68, 0.3)'
+            }}
+          />
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.9)',
+            color: 'white',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            fontSize: '18px',
+            fontWeight: '600',
+            textAlign: 'center'
+          }}>
+            {selectedHero2.name}
+          </div>
+        </div>
+
+        {/* VS w środku */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          animation: 'vsAppear 2s ease-out forwards',
+          opacity: 0,
+          transform: 'translate(-50%, -50%) scale(0)'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+            color: '#0f172a',
+            padding: '24px 48px',
+            borderRadius: '20px',
+            fontSize: '48px',
+            fontWeight: '900',
+            textAlign: 'center',
+            boxShadow: '0 12px 48px rgba(251, 191, 36, 0.5)',
+            border: '4px solid #f59e0b',
+            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+            minWidth: '120px',
+            minHeight: '80px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            VS
+          </div>
+        </div>
+
+        {/* Efekt iskier */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          animation: 'sparks 1s ease-out 1.5s forwards',
+          opacity: 0
+        }}>
+          <div style={{
+            width: '100px',
+            height: '100px',
+            background: 'radial-gradient(circle, #fbbf24, transparent)',
+            borderRadius: '50%',
+            filter: 'blur(2px)'
+          }} />
+        </div>
+
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes hero1SlideIn {
+              0% { left: -200px; opacity: 0; }
+              50% { left: 20%; opacity: 1; }
+              100% { left: 20%; opacity: 1; }
+            }
+            
+            @keyframes hero2SlideIn {
+              0% { right: -200px; opacity: 0; }
+              50% { right: 20%; opacity: 1; }
+              100% { right: 20%; opacity: 1; }
+            }
+            
+            @keyframes vsAppear {
+              0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+              50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.2); }
+              100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+            
+            @keyframes sparks {
+              0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+              50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+              100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+            }
+          `
+        }} />
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -84,12 +260,16 @@ const HeroVsHeroPage: React.FC = () => {
   }
 
   return (
-    <div style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '20px',
-      color: '#f9fafb'
-    }}>
+    <>
+      {/* Animacja VS */}
+      <VSAnimation />
+      
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '20px',
+        color: '#f9fafb'
+      }}>
       <div style={{
         background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
         borderRadius: '16px',
@@ -103,7 +283,7 @@ const HeroVsHeroPage: React.FC = () => {
           margin: '0 0 8px 0',
           textAlign: 'center'
         }}>
-          ⚔️ Hero vs Hero
+          <span className="sp sp-melee" style={{ fontSize: '32px', color: '#f97316' }}>o</span> Hero vs Hero
         </h1>
         <p style={{
           fontSize: '18px',
@@ -303,7 +483,7 @@ const HeroVsHeroPage: React.FC = () => {
                 boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
               }}
             >
-              ⚔️ Start Battle
+              <span className="sp sp-melee" style={{ fontSize: '16px', color: '#ffffff' }}>o</span> Start Battle
             </button>
           </div>
         )}
@@ -449,6 +629,7 @@ const HeroVsHeroPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

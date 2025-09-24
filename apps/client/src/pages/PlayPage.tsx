@@ -71,7 +71,7 @@ const PlayPage: React.FC = () => {
                 fontSize: '48px',
                 marginBottom: '16px'
               }}>
-                ⚔️
+                <span className="sp sp-melee" style={{ fontSize: '48px', color: '#f97316' }}>o</span>
               </div>
               <h3 style={{
                 fontSize: '24px',

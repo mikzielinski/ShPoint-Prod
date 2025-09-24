@@ -162,7 +162,7 @@ export default function PublicStrikeTeamsPage() {
         color: '#f9fafb'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', marginBottom: '16px' }}>⚔️</div>
+          <div style={{ fontSize: '2rem', marginBottom: '16px' }}><span className="sp sp-melee" style={{ fontSize: '2rem', color: '#f97316' }}>o</span></div>
           <div>Loading published strike teams...</div>
         </div>
       </div>
@@ -245,7 +245,7 @@ export default function PublicStrikeTeamsPage() {
             padding: '60px 20px',
             color: '#9ca3af'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚔️</div>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}><span className="sp sp-melee" style={{ fontSize: '3rem', color: '#f97316' }}>o</span></div>
             <div style={{ fontSize: '1.2rem', marginBottom: '8px' }}>No Published Teams Yet</div>
             <div>Be the first to publish your strike team!</div>
           </div>
