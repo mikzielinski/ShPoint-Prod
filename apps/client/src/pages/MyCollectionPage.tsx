@@ -5,6 +5,7 @@ import CharacterModal from '../components/CharacterModal';
 import Modal from '../components/Modal';
 import { MissionModal } from '../components/MissionModal';
 import SquadBuilder from '../components/SquadBuilder';
+import CustomCardGenerator from '../components/CustomCardGenerator';
 import { setsData } from '../data/sets';
 import { missionsData, Mission } from '../data/missions';
 import FiltersPanel from '../components/FiltersPanel';
@@ -282,6 +283,10 @@ export default function MyCollectionPage() {
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [strikeTeams, setStrikeTeams] = useState<StrikeTeam[]>([]);
   const [showSquadBuilder, setShowSquadBuilder] = useState(false);
+  const [showCustomCardGenerator, setShowCustomCardGenerator] = useState(false);
+  
+  // Debug log for showCustomCardGenerator state
+  console.log('showCustomCardGenerator state:', showCustomCardGenerator);
   
   // Use shared sets data
   const mockSets: Set[] = setsData;
@@ -867,49 +872,89 @@ export default function MyCollectionPage() {
     <div style={{maxWidth: 1200, margin: "0 auto", padding: "0 16px"}}>
       <h1 style={{margin: "18px 0"}}>My Collection</h1>
       
-      {/* Tabs */}
+      {/* Tabs and Custom Card Generator */}
       <div style={{
         display: 'flex',
-        gap: '4px',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: '20px',
         borderBottom: '1px solid #374151'
       }}>
-        {[
-          { id: 'characters', label: 'Characters', count: getCollectedCharacters().length },
-          { id: 'sets', label: 'Sets/Boxes', count: getCollectedSets().length },
-          { id: 'missions', label: 'Missions', count: getCollectedMissions().length },
-          { id: 'strike-teams', label: 'Strike Teams', count: strikeTeams.length }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as 'characters' | 'sets' | 'missions' | 'strike-teams')}
-            style={{
-              padding: '12px 20px',
-              border: 'none',
-              background: activeTab === tab.id ? '#374151' : 'transparent',
-              color: activeTab === tab.id ? '#f9fafb' : '#9ca3af',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== tab.id) {
-                e.currentTarget.style.background = '#1f2937';
-                e.currentTarget.style.color = '#d1d5db';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== tab.id) {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#9ca3af';
-              }
-            }}
-          >
-            {tab.label} ({tab.count})
-          </button>
-        ))}
+        {/* Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '4px'
+        }}>
+          {[
+            { id: 'characters', label: 'Characters', count: getCollectedCharacters().length },
+            { id: 'sets', label: 'Sets/Boxes', count: getCollectedSets().length },
+            { id: 'missions', label: 'Missions', count: getCollectedMissions().length },
+            { id: 'strike-teams', label: 'Strike Teams', count: strikeTeams.length }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as 'characters' | 'sets' | 'missions' | 'strike-teams')}
+              style={{
+                padding: '12px 20px',
+                border: 'none',
+                background: activeTab === tab.id ? '#374151' : 'transparent',
+                color: activeTab === tab.id ? '#f9fafb' : '#9ca3af',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.background = '#1f2937';
+                  e.currentTarget.style.color = '#d1d5db';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#9ca3af';
+                }
+              }}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+
+        {/* Custom Card Generator Button */}
+        <button
+          onClick={() => {
+            console.log('Custom Card Generator button clicked!');
+            setShowCustomCardGenerator(true);
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            color: 'white',
+            border: 'none',
+            padding: '10px 16px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>🎨</span>
+          Custom Card Generator
+        </button>
       </div>
       
       {error && (
@@ -2693,6 +2738,32 @@ export default function MyCollectionPage() {
           }}
         />
       )}
+
+      {/* Custom Card Generator Modal */}
+      {showCustomCardGenerator && (
+        <>
+          {console.log('Rendering Custom Card Generator Modal...')}
+          <Modal
+            open={showCustomCardGenerator}
+            onClose={() => {
+              console.log('Custom Card Generator modal closing');
+              setShowCustomCardGenerator(false);
+            }}
+            maxWidth={1400}
+          >
+            <CustomCardGenerator 
+              onClose={() => {
+                console.log('Custom Card Generator onClose called');
+                setShowCustomCardGenerator(false);
+              }}
+              onSave={(card) => {
+                console.log('Custom card saved:', card);
+                // Optionally reload data or show success message
+              }}
+            />
+          </Modal>
+        </>
+      )}
     </div>
   );
 }
@@ -3166,6 +3237,7 @@ const StrikeTeamCard: React.FC<StrikeTeamCardProps> = ({
       }}>
         Created {new Date(team.createdAt).toLocaleDateString()}
       </div>
+
 
     </div>
   );

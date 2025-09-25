@@ -86,13 +86,13 @@ model AllowedEmail {
 }
 
 model SystemSettings {
-  id                    String   @id @default(cuid())
-  key                   String   @unique
-  value                 String
-  description           String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  updatedBy             String?
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
 
   @@index([key])
 }
@@ -131,8 +131,6 @@ model CharacterCollection {
   userId      String
   characterId String
   notes       String?
-  kills       Int      @default(0)
-  deaths      Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isFavorite  Boolean  @default(false)
@@ -140,6 +138,8 @@ model CharacterCollection {
   isPainted   Boolean  @default(false)
   isSold      Boolean  @default(false)
   isWishlist  Boolean  @default(false)
+  deaths      Int      @default(0)
+  kills       Int      @default(0)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, characterId])
@@ -201,14 +201,14 @@ model StrikeTeam {
   name        String
   type        StrikeTeamType        @default(MY_TEAMS)
   description String?
-  squad1Name  String                @default("Squad 1")
-  squad2Name  String                @default("Squad 2")
-  wins        Int                   @default(0)
-  losses      Int                   @default(0)
-  draws       Int                   @default(0)
-  isPublished Boolean               @default(false)
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
+  draws       Int                   @default(0)
+  losses      Int                   @default(0)
+  wins        Int                   @default(0)
+  isPublished Boolean               @default(false)
+  squad1Name  String                @default("Squad 1")
+  squad2Name  String                @default("Squad 2")
   user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   characters  StrikeTeamCharacter[]
 
@@ -221,11 +221,11 @@ model StrikeTeamCharacter {
   id            String        @id @default(cuid())
   strikeTeamId  String
   characterId   String
-  characterName String?       // Nazwa postaci (dla wykrywania duplikatów)
-  unitCount     Int           @default(1) // Ilość jednostek w karcie
   role          CharacterRole
   order         Int
   createdAt     DateTime      @default(now())
+  characterName String?
+  unitCount     Int           @default(1)
   strikeTeam    StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
 
   @@unique([strikeTeamId, characterId])

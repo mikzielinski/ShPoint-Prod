@@ -2503,6 +2503,277 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   next(err);
 });
 
+// ===== CUSTOM MADE CARDS API =====
+
+// GET /api/custom-cards — get user's custom cards
+app.get("/api/custom-cards", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    const customCards = await prisma.customMadeCard.findMany({
+      where: { authorId: userId },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json(customCards);
+  } catch (error) {
+    console.error("Error fetching custom cards:", error);
+    res.status(500).json({ error: "Failed to fetch custom cards" });
+  }
+});
+
+// POST /api/custom-cards — create new custom card
+app.post("/api/custom-cards", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const {
+      name,
+      description,
+      faction,
+      unitType,
+      squadPoints,
+      stamina,
+      durability,
+      force,
+      hanker,
+      abilities,
+      stances,
+      portrait,
+      status = 'DRAFT',
+      isPublic = false
+    } = req.body;
+
+    if (!name || !faction || !unitType) {
+      return res.status(400).json({ error: "Name, faction, and unit type are required" });
+    }
+
+    const customCard = await prisma.customMadeCard.create({
+      data: {
+        name,
+        description,
+        faction,
+        unitType,
+        squadPoints: squadPoints || 0,
+        stamina: stamina || 0,
+        durability: durability || 0,
+        force: force || 0,
+        hanker: hanker || 0,
+        abilities: abilities || [],
+        stances: stances || [],
+        portrait,
+        status,
+        isPublic,
+        authorId: userId
+      }
+    });
+
+    res.json(customCard);
+  } catch (error) {
+    console.error("Error creating custom card:", error);
+    res.status(500).json({ error: "Failed to create custom card" });
+  }
+});
+
+// PUT /api/custom-cards/:id — update custom card
+app.put("/api/custom-cards/:id", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Remove fields that shouldn't be updated directly
+    delete updateData.id;
+    delete updateData.authorId;
+    delete updateData.createdAt;
+    updateData.updatedAt = new Date();
+
+    const customCard = await prisma.customMadeCard.update({
+      where: { 
+        id,
+        authorId: userId // Ensure user can only update their own cards
+      },
+      data: updateData
+    });
+
+    res.json(customCard);
+  } catch (error) {
+    console.error("Error updating custom card:", error);
+    res.status(500).json({ error: "Failed to update custom card" });
+  }
+});
+
+// DELETE /api/custom-cards/:id — delete custom card
+app.delete("/api/custom-cards/:id", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await prisma.customMadeCard.delete({
+      where: { 
+        id,
+        authorId: userId // Ensure user can only delete their own cards
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting custom card:", error);
+    res.status(500).json({ error: "Failed to delete custom card" });
+  }
+});
+
+// POST /api/custom-cards/:id/publish — publish custom card
+app.post("/api/custom-cards/:id/publish", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const customCard = await prisma.customMadeCard.update({
+      where: { 
+        id,
+        authorId: userId // Ensure user can only publish their own cards
+      },
+      data: { 
+        status: 'PUBLISHED',
+        isPublic: true,
+        updatedAt: new Date()
+      }
+    });
+
+    res.json(customCard);
+  } catch (error) {
+    console.error("Error publishing custom card:", error);
+    res.status(500).json({ error: "Failed to publish custom card" });
+  }
+});
+
+// POST /api/custom-cards/:id/share — share custom card with another user
+app.post("/api/custom-cards/:id/share", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { sharedWithEmail } = req.body;
+
+    if (!sharedWithEmail) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    // Find the user to share with
+    const sharedWithUser = await prisma.user.findUnique({
+      where: { email: sharedWithEmail.toLowerCase() }
+    });
+
+    if (!sharedWithUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (sharedWithUser.id === userId) {
+      return res.status(400).json({ error: "Cannot share with yourself" });
+    }
+
+    // Check if card exists and belongs to user
+    const customCard = await prisma.customMadeCard.findFirst({
+      where: { 
+        id,
+        authorId: userId
+      }
+    });
+
+    if (!customCard) {
+      return res.status(404).json({ error: "Custom card not found" });
+    }
+
+    // Create share record
+    const share = await prisma.customCardShare.create({
+      data: {
+        cardId: id,
+        sharedWithId: sharedWithUser.id,
+        accepted: false
+      }
+    });
+
+    res.json({ success: true, share });
+  } catch (error) {
+    console.error("Error sharing custom card:", error);
+    res.status(500).json({ error: "Failed to share custom card" });
+  }
+});
+
+// GET /api/custom-cards/shared — get custom cards shared with user
+app.get("/api/custom-cards/shared", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    const sharedCards = await prisma.customCardShare.findMany({
+      where: { 
+        sharedWithId: userId,
+        accepted: true
+      },
+      include: {
+        card: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json(sharedCards.map(share => ({
+      ...share.card,
+      sharedBy: share.card.author
+    })));
+  } catch (error) {
+    console.error("Error fetching shared custom cards:", error);
+    res.status(500).json({ error: "Failed to fetch shared custom cards" });
+  }
+});
+
+// POST /api/custom-cards/:id/accept — accept shared custom card
+app.post("/api/custom-cards/:id/accept", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    // Update share to accepted
+    const share = await prisma.customCardShare.update({
+      where: { 
+        cardId: id,
+        sharedWithId: userId
+      },
+      data: { accepted: true }
+    });
+
+    // Add to user's collection
+    await prisma.customCardCollection.create({
+      data: {
+        userId,
+        cardId: id,
+        isOwned: true
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error accepting shared custom card:", error);
+    res.status(500).json({ error: "Failed to accept shared custom card" });
+  }
+});
+
 // ===== start
 app.listen(PORT, () => {
   console.log(`API on http://localhost:${PORT}`);
