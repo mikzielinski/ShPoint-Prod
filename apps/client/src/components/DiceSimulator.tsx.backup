@@ -51,8 +51,6 @@ interface DiceSimulatorProps {
   hero2Stance: any;
   hero1ActiveSide: 'A' | 'B';
   hero2ActiveSide: 'A' | 'B';
-  onBackToCharacterSelection?: () => void;
-  showBackButton?: boolean;
 }
 
 const DiceSimulator: React.FC<DiceSimulatorProps> = ({
@@ -61,9 +59,7 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
   hero1Stance,
   hero2Stance,
   hero1ActiveSide,
-  hero2ActiveSide,
-  onBackToCharacterSelection,
-  showBackButton = false
+  hero2ActiveSide
 }) => {
   const [hero1DiceCount, setHero1DiceCount] = useState(0);
   const [hero2DiceCount, setHero2DiceCount] = useState(0);
@@ -1253,24 +1249,6 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
           Reset
         </button>
         
-        {showBackButton && onBackToCharacterSelection && (
-          <button
-            onClick={onBackToCharacterSelection}
-            style={{
-              background: '#8b5cf6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '12px 24px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Back to Character Selection
-          </button>
-        )}
-        
       </div>
 
       {/* Results Interpretation */}
@@ -1287,15 +1265,9 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
           {(() => {
             const interpretation = interpretResults();
             return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Hero 1 Results - Left Container */}
-                <div style={{ 
-                  background: '#0f172a', 
-                  borderRadius: '8px', 
-                  padding: '12px', 
-                  border: '1px solid #334155',
-                  minWidth: '100%'
-                }}>
+              <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {/* Hero 1 Results */}
+                <div style={{ minWidth: '200px' }}>
                   <h5 style={{ color: '#3b82f6', marginBottom: '8px', textAlign: 'center', fontSize: '16px', fontWeight: 'bold' }}>
                     Attacker
                   </h5>
@@ -1368,14 +1340,8 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
                   )}
                 </div>
 
-                {/* Hero 2 Results - Right Container */}
-                <div style={{ 
-                  background: '#0f172a', 
-                  borderRadius: '8px', 
-                  padding: '12px', 
-                  border: '1px solid #334155',
-                  minWidth: '100%'
-                }}>
+                {/* Hero 2 Results */}
+                <div style={{ minWidth: '200px' }}>
                   <h5 style={{ color: '#ef4444', marginBottom: '8px', textAlign: 'center', fontSize: '16px', fontWeight: 'bold' }}>
                     Defender
                   </h5>

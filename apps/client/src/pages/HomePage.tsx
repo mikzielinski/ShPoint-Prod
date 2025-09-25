@@ -15,12 +15,30 @@ const HomePage: React.FC = () => {
     characters: 0,
     sets: 0,
     users: 0,
-    features: 22
+    features: 23
   });
   const [loading, setLoading] = useState(true);
 
   // Define updates data
   const updates = [
+    {
+      id: 'character-selection-overlay-fixes',
+      date: '2025-01-27',
+      title: '🎯 Character Selection Overlay & Battle System Fixes',
+      description: 'Major improvements to Strike Team vs Strike Team character selection with proper ordering, local images, and enhanced UI.',
+      features: [
+        'Fixed character ordering in squads: Primary → Secondary → Support sequence',
+        'Character selection overlay now uses local portrait.png images instead of external URLs',
+        'Enhanced character cards with Shatterpoint icons for stats (Stamina, Durability, Hanker)',
+        'Interactive status diamonds with proper diamond shapes and colored borders',
+        'Character deselection functionality - click selected character to deselect',
+        'Character modal integration with local image sources for detailed viewing',
+        'Improved stat display with white icons in circles and octagons',
+        'Fixed JavaScript falsy value bug in character sorting logic',
+        'Enhanced character selection UI with proper two-column layout'
+      ],
+      status: 'completed'
+    },
     {
       id: 'dice-simulator-combat-system',
       date: '2025-01-27',
@@ -434,7 +452,7 @@ const HomePage: React.FC = () => {
           characters: charactersCount,
           sets: setsCount,
           users: usersCount,
-          features: 22
+          features: 23
         });
       } catch (error) {
         console.error('Error loading stats:', error);
@@ -443,7 +461,7 @@ const HomePage: React.FC = () => {
           characters: 0,
           sets: 0,
           users: 0,
-          features: 22
+          features: 23
         });
       } finally {
         setLoading(false);

@@ -1308,6 +1308,15 @@ app.get("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
       include: {
         characters: {
           orderBy: { order: 'asc' }
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true,
+            image: true
+          }
         }
       },
       orderBy: { createdAt: 'desc' }

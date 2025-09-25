@@ -123,7 +123,7 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
         bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.65)', // Ciemniejsze tło
         backdropFilter: 'blur(8px)', // Rozmycie tła
-        zIndex: 9999,
+        zIndex: 100000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

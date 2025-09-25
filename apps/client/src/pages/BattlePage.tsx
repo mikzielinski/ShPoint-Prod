@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import CharacterDetails from '../components/CharacterDetails';
 import { GLYPHS, iconFromCode } from '../lib/icons';
 import DiceSimulator from '../components/DiceSimulator';
+import CharacterModal from '../components/CharacterModal';
 
 /** ====== Ikony (PUA) ====== */
 const ICON: Record<string, string> = {
@@ -441,6 +442,22 @@ const BattlePage: React.FC = () => {
     return out;
   };
   const [loading, setLoading] = useState(true);
+  
+  // Character selection states
+  const [showCharacterSelection, setShowCharacterSelection] = useState(false);
+  const [selectedCharacterSide, setSelectedCharacterSide] = useState<'hero1' | 'hero2' | null>(null);
+  const [availableCharacters, setAvailableCharacters] = useState<Character[]>([]);
+  const [strikeTeam1, setStrikeTeam1] = useState<any>(null);
+  const [strikeTeam2, setStrikeTeam2] = useState<any>(null);
+  
+  // Character stats and statuses states
+  const [characterStats, setCharacterStats] = useState<{[key: string]: {stamina: number, durability: number, hanker: number, statuses: string[]}}>({});
+  
+  // Character modal state
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+  
+  // Prevent multiple loads
+  const loadingRef = useRef(false);
 
   // Calculate lines for hero1
   useEffect(() => {
@@ -563,16 +580,34 @@ const BattlePage: React.FC = () => {
     const team1Id = searchParams.get('team1');
     const team2Id = searchParams.get('team2');
 
+    console.log('BattlePage useEffect:', { hero1Id, hero2Id, team1Id, team2Id, loadingRef: loadingRef.current });
+
+    // Prevent multiple loads
+    if (loadingRef.current) {
+      console.log('Already loading, skipping...');
+      return;
+    }
+
     if (hero1Id && hero2Id) {
       // Hero vs Hero battle
+      console.log('Loading heroes:', { hero1Id, hero2Id });
+      loadingRef.current = true;
       loadHeroes(hero1Id, hero2Id);
     } else if (team1Id && team2Id) {
       // Strike Team vs Strike Team battle
+      console.log('Loading teams:', { team1Id, team2Id });
+      loadingRef.current = true;
       loadTeams(team1Id, team2Id);
     } else {
+      console.log('No valid parameters, redirecting to /play');
       navigate('/play');
     }
   }, [searchParams, navigate]);
+
+  // Debug showCharacterSelection changes
+  useEffect(() => {
+    console.log('showCharacterSelection changed:', showCharacterSelection);
+  }, [showCharacterSelection]);
 
   const loadHeroes = async (hero1Id: string, hero2Id: string) => {
     try {
@@ -583,6 +618,7 @@ const BattlePage: React.FC = () => {
         fetch(`/characters/${hero2Id}/stance.json`)
       ]);
 
+      // Check if character data loaded successfully
       if (response1.ok && response2.ok) {
         const [hero1Data, hero2Data] = await Promise.all([
           response1.json(),
@@ -590,19 +626,44 @@ const BattlePage: React.FC = () => {
         ]);
         setHero1(hero1Data.character);
         setHero2(hero2Data.character);
+      } else {
+        console.error('Failed to load character data:', {
+          hero1Status: response1.status,
+          hero2Status: response2.status,
+          hero1Id,
+          hero2Id
+        });
+        alert('Nie udało się załadować danych postaci. Sprawdź czy postacie istnieją.');
+        navigate('/play');
+        return;
       }
 
       // Load stance data if available
       if (stance1Response.ok) {
-        const stance1Data = await stance1Response.json();
-        setHero1Stance(stance1Data);
+        try {
+          const stance1Data = await stance1Response.json();
+          setHero1Stance(stance1Data);
+        } catch (error) {
+          console.warn(`Failed to parse stance data for ${hero1Id}:`, error);
+        }
+      } else {
+        console.warn(`Stance data not available for ${hero1Id} (status: ${stance1Response.status})`);
       }
+      
       if (stance2Response.ok) {
-        const stance2Data = await stance2Response.json();
-        setHero2Stance(stance2Data);
+        try {
+          const stance2Data = await stance2Response.json();
+          setHero2Stance(stance2Data);
+        } catch (error) {
+          console.warn(`Failed to parse stance data for ${hero2Id}:`, error);
+        }
+      } else {
+        console.warn(`Stance data not available for ${hero2Id} (status: ${stance2Response.status})`);
       }
     } catch (error) {
       console.error('Error loading heroes:', error);
+      alert('Wystąpił błąd podczas ładowania danych postaci.');
+      navigate('/play');
     } finally {
       setLoading(false);
     }
@@ -610,28 +671,293 @@ const BattlePage: React.FC = () => {
 
   const loadTeams = async (team1Id: string, team2Id: string) => {
     try {
-      // Get all strike teams and find the ones we need
-      const response = await fetch('/api/shatterpoint/strike-teams', {
+      let allTeams: any[] = [];
+      
+      // Load user's own teams
+      const userResponse = await fetch('/api/shatterpoint/strike-teams', {
         credentials: 'include'
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        const team1 = data.strikeTeams.find((team: any) => team.id === team1Id);
-        const team2 = data.strikeTeams.find((team: any) => team.id === team2Id);
+      
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        allTeams = [...allTeams, ...(userData.strikeTeams || [])];
+      }
+      
+      // Load all public teams
+      const publicResponse = await fetch('/api/shatterpoint/strike-teams/public', {
+        credentials: 'include'
+      });
+      
+      if (publicResponse.ok) {
+        const publicData = await publicResponse.json();
+        // Only add public teams that are not already in user's teams (avoid duplicates)
+        const userTeamIds = new Set(allTeams.map(team => team.id));
+        const newPublicTeams = (publicData.strikeTeams || []).filter((team: any) => !userTeamIds.has(team.id));
+        allTeams = [...allTeams, ...newPublicTeams];
+      }
+      
+      // Find the teams we need
+      const team1 = allTeams.find((team: any) => team.id === team1Id);
+      const team2 = allTeams.find((team: any) => team.id === team2Id);
+      
+      if (team1 && team2) {
+        setStrikeTeam1(team1);
+        setStrikeTeam2(team2);
         
-        if (team1 && team2) {
-          // For now, we'll use the first character from each team
-          // Later we can implement full team battle mechanics
-          setHero1(team1.characters[0]);
-          setHero2(team2.characters[0]);
+        // Load all characters for both teams
+        const allCharacterIds = [
+          ...team1.characters.map((char: any) => char.characterId),
+          ...team2.characters.map((char: any) => char.characterId)
+        ];
+        
+        // Load character data with error handling
+        const characterPromises = allCharacterIds.map(async (id) => {
+          try {
+            const response = await fetch(`/api/characters/${id}`);
+            if (response.ok) {
+              const data = await response.json();
+              return data.character;
+            } else {
+              console.warn(`Failed to load character ${id} (status: ${response.status})`);
+              return null;
+            }
+          } catch (error) {
+            console.error(`Error loading character ${id}:`, error);
+            return null;
+          }
+        });
+        
+        const characterResponses = await Promise.all(characterPromises);
+        const characters = characterResponses.filter(Boolean); // Remove null values
+        
+        if (characters.length === 0) {
+          console.error('No characters could be loaded for the selected teams');
+          alert('Nie udało się załadować żadnych postaci z wybranych zespołów.');
+          navigate('/play');
+          return;
         }
+        
+        console.log(`Successfully loaded ${characters.length} characters out of ${allCharacterIds.length} requested`);
+        console.log('Loaded characters:', characters.map(char => ({ 
+          id: char?.id, 
+          name: char?.name, 
+          portrait: char?.portrait,
+          hasName: !!char?.name,
+          hasPortrait: !!char?.portrait
+        })));
+        setAvailableCharacters(characters);
+        
+        // Show character selection overlay - let user choose characters
+        console.log('Showing character selection overlay for user to choose characters');
+        setShowCharacterSelection(true);
+        
+        // Debug overlay state
+        setTimeout(() => {
+          console.log('After setting showCharacterSelection:', { 
+            showCharacterSelection: true,
+            availableCharactersCount: characters.length,
+            strikeTeam1: team1.name,
+            strikeTeam2: team2.name 
+          });
+        }, 100);
+      } else {
+        // Teams not found - redirect back to play
+        console.error('Teams not found:', { team1Id, team2Id, team1: !!team1, team2: !!team2 });
+        navigate('/play');
       }
     } catch (error) {
       console.error('Error loading teams:', error);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
+  };
+
+  // Helper function to find character by ID
+  const findCharacter = (characterId: string): Character | undefined => {
+    return availableCharacters.find(char => char.id === characterId);
+  };
+
+  // Helper function to get characters for a team organized by squads
+  const getTeamCharacters = (team: any) => {
+    // Debug: log the team structure
+    console.log('Team characters structure:', team.characters.map((char: any) => ({
+      characterId: char.characterId,
+      role: char.role,
+      order: char.order
+    })));
+    
+    // Sort characters by role order: Primary (0), Secondary (1), Support (2)
+    const roleOrder = { 'PRIMARY': 0, 'SECONDARY': 1, 'SUPPORT': 2 };
+    console.log('roleOrder object:', roleOrder);
+    console.log('roleOrder[PRIMARY]:', roleOrder['PRIMARY']);
+    console.log('roleOrder[SECONDARY]:', roleOrder['SECONDARY']);
+    console.log('roleOrder[SUPPORT]:', roleOrder['SUPPORT']);
+    
+    // Squad 1: characters[0-2] sorted by role
+    const squad1Chars = team.characters.slice(0, 3)
+      .map((char: any) => ({ ...char, character: findCharacter(char.characterId) }))
+      .filter((char: any) => char.character);
+    
+    console.log('Squad 1 before sort:', squad1Chars.map((char: any) => ({ role: char.role, order: roleOrder[char.role] })));
+    
+    squad1Chars.sort((a: any, b: any) => {
+      console.log(`DEBUG: a.role = "${a.role}" (type: ${typeof a.role})`);
+      console.log(`DEBUG: b.role = "${b.role}" (type: ${typeof b.role})`);
+      console.log(`DEBUG: roleOrder[a.role] = ${roleOrder[a.role]}`);
+      console.log(`DEBUG: roleOrder[b.role] = ${roleOrder[b.role]}`);
+      
+      const orderA = roleOrder[a.role] !== undefined ? roleOrder[a.role] : 999;
+      const orderB = roleOrder[b.role] !== undefined ? roleOrder[b.role] : 999;
+      const result = orderA - orderB;
+      console.log(`Sorting: ${a.role}(${orderA}) vs ${b.role}(${orderB}) = ${result}`);
+      return result;
+    });
+    const squad1 = squad1Chars.map((char: any) => char.character);
+    
+    // Squad 2: characters[3-5] sorted by role
+    const squad2Chars = team.characters.slice(3, 6)
+      .map((char: any) => ({ ...char, character: findCharacter(char.characterId) }))
+      .filter((char: any) => char.character)
+      .sort((a: any, b: any) => {
+        const orderA = roleOrder[a.role] !== undefined ? roleOrder[a.role] : 999;
+        const orderB = roleOrder[b.role] !== undefined ? roleOrder[b.role] : 999;
+        return orderA - orderB;
+      });
+    const squad2 = squad2Chars.map((char: any) => char.character);
+    
+    console.log('Squad 1 sorted roles:', squad1Chars.map((char: any) => char.role));
+    console.log('Squad 2 sorted roles:', squad2Chars.map((char: any) => char.role));
+    console.log('Squad 1 character names:', squad1.map((char: any) => char.name));
+    console.log('Squad 2 character names:', squad2.map((char: any) => char.name));
+    
+    return { squad1, squad2 };
+  };
+
+
+  // Handle status toggle
+  const toggleStatus = (characterId: string, statusName: string) => {
+    setCharacterStats(prev => {
+      const current = prev[characterId] || {stamina: 0, durability: 0, hanker: 0, statuses: []};
+      const newStatuses = current.statuses.includes(statusName) 
+        ? current.statuses.filter(s => s !== statusName)
+        : [...current.statuses, statusName];
+      
+      return {
+        ...prev,
+        [characterId]: {
+          ...current,
+          statuses: newStatuses
+        }
+      };
+    });
+  };
+
+  // Handle stat adjustment
+  const adjustStat = (characterId: string, statName: 'stamina' | 'durability' | 'hanker', delta: number) => {
+    setCharacterStats(prev => {
+      const current = prev[characterId] || {stamina: 0, durability: 0, hanker: 0, statuses: []};
+      const newValue = Math.max(0, current[statName] + delta);
+      
+      return {
+        ...prev,
+        [characterId]: {
+          ...current,
+          [statName]: newValue
+        }
+      };
+    });
+  };
+
+  // Handle character modal
+  const openCharacterModal = (character: Character) => {
+    console.log('Opening character modal for:', character);
+    setSelectedCharacter(character);
+  };
+
+  // Handle character selection
+  const handleCharacterSelect = async (character: Character, side: 'hero1' | 'hero2') => {
+    try {
+      // Check if character is already selected - if so, deselect
+      if (side === 'hero1' && hero1?.id === character.id) {
+        console.log(`Deselecting character ${character.name} (${character.id}) for ${side}`);
+        setHero1(null);
+        setHero1Stance(null);
+        return;
+      }
+      if (side === 'hero2' && hero2?.id === character.id) {
+        console.log(`Deselecting character ${character.name} (${character.id}) for ${side}`);
+        setHero2(null);
+        setHero2Stance(null);
+        return;
+      }
+      
+      console.log(`Loading character ${character.name} (${character.id}) for ${side}`);
+      
+      // Load character stance data
+      try {
+        const stanceResponse = await fetch(`/characters/${character.id}/stance.json`);
+        if (stanceResponse.ok) {
+          try {
+            const stanceData = await stanceResponse.json();
+            
+            if (side === 'hero1') {
+              setHero1(character);
+              setHero1Stance(stanceData);
+            } else {
+              setHero2(character);
+              setHero2Stance(stanceData);
+            }
+            
+            console.log(`Successfully loaded stance data for ${character.name}`);
+          } catch (parseError) {
+            console.warn(`Failed to parse stance data for ${character.name}:`, parseError);
+            // Still set the character even if stance data is missing
+            if (side === 'hero1') {
+              setHero1(character);
+              setHero1Stance(null);
+            } else {
+              setHero2(character);
+              setHero2Stance(null);
+            }
+          }
+        } else {
+          console.warn(`Stance data not available for ${character.name} (status: ${stanceResponse.status})`);
+          // Set character without stance data
+          if (side === 'hero1') {
+            setHero1(character);
+            setHero1Stance(null);
+          } else {
+            setHero2(character);
+            setHero2Stance(null);
+          }
+        }
+      } catch (fetchError) {
+        console.warn(`Failed to fetch stance data for ${character.name}:`, fetchError);
+        // Set character without stance data
+        if (side === 'hero1') {
+          setHero1(character);
+          setHero1Stance(null);
+        } else {
+          setHero2(character);
+          setHero2Stance(null);
+        }
+      }
+      
+      // Don't auto-hide character selection - let users click VS button to start battle
+    } catch (error) {
+      console.error('Error loading character stance:', error);
+      alert(`Wystąpił błąd podczas ładowania danych postaci ${character.name}.`);
+    }
+  };
+
+  // Handle back to character selection
+  const handleBackToCharacterSelection = () => {
+    setShowCharacterSelection(true);
+    setHero1(null);
+    setHero2(null);
+    setHero1Stance(null);
+    setHero2Stance(null);
   };
 
   if (loading) {
@@ -669,7 +995,20 @@ const BattlePage: React.FC = () => {
     );
   }
 
-  if (!hero1 || !hero2) {
+  // Don't show error page if we're in character selection mode
+  if ((!hero1 || !hero2) && !showCharacterSelection) {
+    console.log('Battle participants missing:', { 
+      hero1: !!hero1, 
+      hero1Name: hero1?.name,
+      hero2: !!hero2, 
+      hero2Name: hero2?.name,
+      loading, 
+      showCharacterSelection,
+      availableCharactersCount: availableCharacters.length,
+      strikeTeam1Name: strikeTeam1?.name,
+      strikeTeam2Name: strikeTeam2?.name
+    });
+    
     return (
       <div style={{
         maxWidth: '1200px',
@@ -699,6 +1038,13 @@ const BattlePage: React.FC = () => {
           }}>
             Could not load battle participants
           </p>
+          <p style={{
+            fontSize: '14px',
+            color: '#6b7280',
+            margin: '0 0 24px 0'
+          }}>
+            Hero 1: {hero1 ? hero1.name : 'Missing'} | Hero 2: {hero2 ? hero2.name : 'Missing'}
+          </p>
           <button
             onClick={() => navigate('/play')}
             style={{
@@ -719,14 +1065,1325 @@ const BattlePage: React.FC = () => {
     );
   }
 
+  // Debug render state
+  console.log('BattlePage render:', { 
+    showCharacterSelection, 
+    hero1: !!hero1, 
+    hero2: !!hero2, 
+    loading,
+    availableCharactersCount: availableCharacters.length 
+  });
+
   return (
     <div style={{
-      maxWidth: '100vw',
-      margin: '0 auto',
-      padding: '10px',
-      color: '#f9fafb',
-      overflow: 'hidden'
-    }}>
+        maxWidth: '100vw',
+        margin: '0 auto',
+        padding: '10px',
+        color: '#f9fafb',
+        overflow: 'hidden',
+        position: 'relative'
+      }}>
+      {/* Character Selection Overlay - Two Column Layout */}
+      {showCharacterSelection && availableCharacters.length > 0 && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(4px)'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid #4b5563',
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+            width: '1200px'
+          }}>
+            {/* Header with Title and Exit Button */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#f9fafb',
+                margin: '0'
+              }}>
+                Select Characters for Battle
+              </h2>
+              <button
+                onClick={() => navigate('/play')}
+                style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(220, 38, 38, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>×</span>
+                Exit
+              </button>
+            </div>
+            
+            {/* Three Column Layout with VS Button */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto 1fr',
+              gap: '32px',
+              marginBottom: '24px',
+              alignItems: 'start'
+            }}>
+              {/* Team 1 - Left Side */}
+              <div>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  color: '#3b82f6',
+                  margin: '0 0 16px 0',
+                  textAlign: 'center',
+                  borderBottom: '2px solid #3b82f6',
+                  paddingBottom: '8px'
+                }}>
+                  Team 1: {strikeTeam1?.name}
+                </h3>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  {getTeamCharacters(strikeTeam1).squad1.concat(getTeamCharacters(strikeTeam1).squad2)
+                    .map(character => (
+                      <div
+                        key={character.id}
+                        onClick={() => handleCharacterSelect(character, 'hero1')}
+                        style={{
+                          background: hero1?.id === character.id ? '#3b82f620' : '#374151',
+                          borderRadius: '12px',
+                          padding: '16px',
+                          cursor: 'pointer',
+                          border: hero1?.id === character.id ? '2px solid #3b82f6' : '2px solid #4b5563',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          gap: '16px',
+                          minHeight: '140px'
+                        }}
+                      >
+                        {/* Portrait Section */}
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openCharacterModal(character);
+                          }}
+                          style={{
+                            width: '40%',
+                            height: '100%',
+                            background: '#1f2937',
+                            borderRadius: '8px',
+                            border: '1px solid #4b5563',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <img
+                            src={`/characters_assets/${character.id}/portrait.png`}
+                            alt={character.name}
+                            style={{
+                              width: '90%',
+                              height: '90%',
+                              objectFit: 'contain',
+                              borderRadius: '6px'
+                            }}
+                          />
+                        </div>
+
+                        {/* Information Section */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {/* Card Name */}
+                          <div style={{
+                            background: (character.role || character.unitType || character.unit_type) === 'Primary' || character.role === 'PRIMARY' ? '#3b82f6' : 
+                                       (character.role || character.unitType || character.unit_type) === 'Secondary' || character.role === 'SECONDARY' ? '#10b981' : '#f59e0b',
+                            borderRadius: '6px',
+                            padding: '8px 12px',
+                            border: '1px solid #4b5563'
+                          }}>
+                            <h4 style={{
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              color: '#f9fafb',
+                              margin: '0',
+                              textAlign: 'center'
+                            }}>
+                              {character.name}
+                            </h4>
+                          </div>
+
+                          {/* Unit Type Chip */}
+                          <div style={{
+                            alignSelf: 'flex-start'
+                          }}>
+                            <div style={{
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              border: '1px solid #4b5563',
+                              background: (character.role || character.unitType || character.unit_type) === 'Primary' || character.role === 'PRIMARY' ? '#3b82f6' : 
+                                         (character.role || character.unitType || character.unit_type) === 'Secondary' || character.role === 'SECONDARY' ? '#10b981' : '#f59e0b',
+                              fontSize: '11px',
+                              color: '#f9fafb',
+                              fontWeight: '600',
+                              textAlign: 'center',
+                              minWidth: '60px'
+                            }}>
+                              {character.role || character.unitType || character.unit_type || 
+                               (character.role === 'PRIMARY' ? 'Primary' : 
+                                character.role === 'SECONDARY' ? 'Secondary' : 
+                                character.role === 'SUPPORT' ? 'Support' : 'Unit Type')}
+                            </div>
+                          </div>
+
+                          {/* Stats */}
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginTop: '8px',
+                            padding: '0 4px'
+                          }}>
+                            {/* Stamina */}
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'stamina', 1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▲
+                                </button>
+                                <div style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  border: '1px solid #f9fafb',
+                                  background: 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <span className="spicon" style={{ fontSize: '27px', color: '#f9fafb' }}>
+                                    {GLYPHS.stamina}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'stamina', -1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#f9fafb',
+                                fontWeight: '600'
+                              }}>
+                                {characterStats[character.id]?.stamina ?? character.stamina ?? 0}
+                              </span>
+                            </div>
+
+                            {/* Durability */}
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'durability', 1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▲
+                                </button>
+                                <div style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  border: '1px solid transparent',
+                                  background: 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <span className="spicon" style={{ fontSize: '30px', color: '#f9fafb' }}>
+                                    {GLYPHS.durability}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'durability', -1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#f9fafb',
+                                fontWeight: '600'
+                              }}>
+                                {characterStats[character.id]?.durability ?? character.durability ?? 0}
+                              </span>
+                            </div>
+
+                            {/* Hanker */}
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'hanker', 1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▲
+                                </button>
+                                <div style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  position: 'relative'
+                                }}>
+                                  <svg width="24" height="24" style={{ position: 'absolute' }}>
+                                    <polygon
+                                      points="12,0 22,5 22,19 12,24 2,19 2,5"
+                                      fill="none"
+                                      stroke="#f9fafb"
+                                      strokeWidth="1"
+                                    />
+                                  </svg>
+                                  <span className="spicon" style={{ fontSize: '15px', color: '#f9fafb', position: 'relative', zIndex: 1 }}>
+                                    {GLYPHS.hanker}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'hanker', -1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#f9fafb',
+                                fontWeight: '600'
+                              }}>
+                                {characterStats[character.id]?.hanker ?? character.hanker ?? 0}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Statuses */}
+                          <div style={{
+                            background: 'transparent',
+                            borderRadius: '6px',
+                            padding: '8px',
+                            border: `2px solid ${(character.role || character.unitType || character.unit_type) === 'Primary' || character.role === 'PRIMARY' ? '#3b82f6' : 
+                                       (character.role || character.unitType || character.unit_type) === 'Secondary' || character.role === 'SECONDARY' ? '#10b981' : '#f59e0b'}`,
+                            marginTop: '8px'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              gap: '8px'
+                            }}>
+                              {[
+                                { name: 'Strain', icon: GLYPHS.strained, color: '#ef4444' },
+                                { name: 'Disarm', icon: GLYPHS.disarm, color: '#10b981' },
+                                { name: 'Pinned', icon: GLYPHS.pinned, color: '#3b82f6' },
+                                { name: 'Expose', icon: GLYPHS.exposed, color: '#fbbf24' }
+                              ].map(status => (
+                                <div
+                                  key={status.name}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleStatus(character.id, status.name);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    width: '24px',
+                                    height: '24px',
+                                    transform: 'rotate(45deg)',
+                                    border: `1px solid ${characterStats[character.id]?.statuses?.includes(status.name) ? status.color : '#ffffff'}`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <span className="spicon" style={{ 
+                                    fontSize: '12px',
+                                    color: characterStats[character.id]?.statuses?.includes(status.name) ? status.color : '#ffffff',
+                                    transform: 'rotate(-45deg)'
+                                  }}>
+                                    {status.icon}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Selection Indicator */}
+                        {hero1?.id === character.id && (
+                          <div style={{
+                            color: '#3b82f6',
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            alignSelf: 'center'
+                          }}>
+                            ✓
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* VS Button - Center */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+                padding: '20px 0'
+              }}>
+                <div 
+                  onClick={() => {
+                    if (hero1 && hero2) {
+                      setShowCharacterSelection(false);
+                    } else {
+                      alert('Please select both characters before starting the battle!');
+                    }
+                  }}
+                  style={{
+                    background: hero1 && hero2 ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    borderRadius: '50%',
+                    width: '120px',
+                    height: '120px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '36px',
+                    fontWeight: '800',
+                    color: '#ffffff',
+                    boxShadow: hero1 && hero2 ? '0 12px 24px rgba(16, 185, 129, 0.4)' : '0 12px 24px rgba(245, 158, 11, 0.4)',
+                    border: hero1 && hero2 ? '4px solid #34d399' : '4px solid #fbbf24',
+                    animation: hero1 && hero2 ? 'pulse 1s infinite' : 'pulse 2s infinite',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    if (hero1 && hero2) {
+                      e.currentTarget.style.boxShadow = '0 16px 32px rgba(16, 185, 129, 0.6)';
+                    } else {
+                      e.currentTarget.style.boxShadow = '0 16px 32px rgba(245, 158, 11, 0.6)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    if (hero1 && hero2) {
+                      e.currentTarget.style.boxShadow = '0 12px 24px rgba(16, 185, 129, 0.4)';
+                    } else {
+                      e.currentTarget.style.boxShadow = '0 12px 24px rgba(245, 158, 11, 0.4)';
+                    }
+                  }}
+                >
+                  VS
+                </div>
+                <div style={{
+                  fontSize: '14px',
+                  color: hero1 && hero2 ? '#10b981' : '#9ca3af',
+                  textAlign: 'center',
+                  fontWeight: '600'
+                }}>
+                  {hero1 && hero2 ? 'Click VS to Start Battle!' : 'Select Both Characters'}
+                </div>
+              </div>
+
+              {/* Team 2 - Right Side */}
+              <div>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  color: '#ef4444',
+                  margin: '0 0 16px 0',
+                  textAlign: 'center',
+                  borderBottom: '2px solid #ef4444',
+                  paddingBottom: '8px'
+                }}>
+                  Team 2: {strikeTeam2?.name}
+                </h3>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px'
+                }}>
+                  {getTeamCharacters(strikeTeam2).squad1.concat(getTeamCharacters(strikeTeam2).squad2)
+                    .map(character => (
+                      <div
+                        key={character.id}
+                        onClick={() => handleCharacterSelect(character, 'hero2')}
+                        style={{
+                          background: hero2?.id === character.id ? '#ef444420' : '#374151',
+                          borderRadius: '12px',
+                          padding: '16px',
+                          cursor: 'pointer',
+                          border: hero2?.id === character.id ? '2px solid #ef4444' : '2px solid #4b5563',
+                          transition: 'all 0.2s ease',
+                          display: 'flex',
+                          gap: '16px',
+                          minHeight: '140px'
+                        }}
+                      >
+                        {/* Portrait Section */}
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openCharacterModal(character);
+                          }}
+                          style={{
+                            width: '40%',
+                            height: '100%',
+                            background: '#1f2937',
+                            borderRadius: '8px',
+                            border: '1px solid #4b5563',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <img
+                            src={`/characters_assets/${character.id}/portrait.png`}
+                            alt={character.name}
+                            style={{
+                              width: '90%',
+                              height: '90%',
+                              objectFit: 'contain',
+                              borderRadius: '6px'
+                            }}
+                          />
+                        </div>
+
+                        {/* Information Section */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {/* Card Name */}
+                          <div style={{
+                            background: (character.role || character.unitType || character.unit_type) === 'Primary' || character.role === 'PRIMARY' ? '#3b82f6' : 
+                                       (character.role || character.unitType || character.unit_type) === 'Secondary' || character.role === 'SECONDARY' ? '#10b981' : '#f59e0b',
+                            borderRadius: '6px',
+                            padding: '8px 12px',
+                            border: '1px solid #4b5563'
+                          }}>
+                            <h4 style={{
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              color: '#f9fafb',
+                              margin: '0',
+                              textAlign: 'center'
+                            }}>
+                              {character.name}
+                            </h4>
+                          </div>
+
+                          {/* Unit Type Chip */}
+                          <div style={{
+                            alignSelf: 'flex-start'
+                          }}>
+                            <div style={{
+                              padding: '4px 8px',
+                              borderRadius: '12px',
+                              border: '1px solid #4b5563',
+                              background: (character.role || character.unitType || character.unit_type) === 'Primary' || character.role === 'PRIMARY' ? '#3b82f6' : 
+                                         (character.role || character.unitType || character.unit_type) === 'Secondary' || character.role === 'SECONDARY' ? '#10b981' : '#f59e0b',
+                              fontSize: '11px',
+                              color: '#f9fafb',
+                              fontWeight: '600',
+                              textAlign: 'center',
+                              minWidth: '60px'
+                            }}>
+                              {character.role || character.unitType || character.unit_type || 
+                               (character.role === 'PRIMARY' ? 'Primary' : 
+                                character.role === 'SECONDARY' ? 'Secondary' : 
+                                character.role === 'SUPPORT' ? 'Support' : 'Unit Type')}
+                            </div>
+                          </div>
+
+                          {/* Stats */}
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginTop: '8px',
+                            padding: '0 4px'
+                          }}>
+                            {/* Stamina */}
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'stamina', 1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▲
+                                </button>
+                                <div style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  border: '1px solid #f9fafb',
+                                  background: 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <span className="spicon" style={{ fontSize: '27px', color: '#f9fafb' }}>
+                                    {GLYPHS.stamina}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'stamina', -1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#f9fafb',
+                                fontWeight: '600'
+                              }}>
+                                {characterStats[character.id]?.stamina ?? character.stamina ?? 0}
+                              </span>
+                            </div>
+
+                            {/* Durability */}
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'durability', 1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▲
+                                </button>
+                                <div style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  borderRadius: '50%',
+                                  border: '1px solid transparent',
+                                  background: 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  <span className="spicon" style={{ fontSize: '30px', color: '#f9fafb' }}>
+                                    {GLYPHS.durability}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'durability', -1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#f9fafb',
+                                fontWeight: '600'
+                              }}>
+                                {characterStats[character.id]?.durability ?? character.durability ?? 0}
+                              </span>
+                            </div>
+
+                            {/* Hanker */}
+                            <div style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'hanker', 1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▲
+                                </button>
+                                <div style={{
+                                  width: '24px',
+                                  height: '24px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  position: 'relative'
+                                }}>
+                                  <svg width="24" height="24" style={{ position: 'absolute' }}>
+                                    <polygon
+                                      points="12,0 22,5 22,19 12,24 2,19 2,5"
+                                      fill="none"
+                                      stroke="#f9fafb"
+                                      strokeWidth="1"
+                                    />
+                                  </svg>
+                                  <span className="spicon" style={{ fontSize: '15px', color: '#f9fafb', position: 'relative', zIndex: 1 }}>
+                                    {GLYPHS.hanker}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    adjustStat(character.id, 'hanker', -1);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f9fafb',
+                                    fontSize: '10px',
+                                    cursor: 'pointer',
+                                    padding: '1px 3px'
+                                  }}
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span style={{
+                                fontSize: '12px',
+                                color: '#f9fafb',
+                                fontWeight: '600'
+                              }}>
+                                {characterStats[character.id]?.hanker ?? character.hanker ?? 0}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Statuses */}
+                          <div style={{
+                            background: 'transparent',
+                            borderRadius: '6px',
+                            padding: '8px',
+                            border: `2px solid ${(character.role || character.unitType || character.unit_type) === 'Primary' || character.role === 'PRIMARY' ? '#3b82f6' : 
+                                       (character.role || character.unitType || character.unit_type) === 'Secondary' || character.role === 'SECONDARY' ? '#10b981' : '#f59e0b'}`,
+                            marginTop: '8px'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              gap: '8px'
+                            }}>
+                              {[
+                                { name: 'Strain', icon: GLYPHS.strained, color: '#ef4444' },
+                                { name: 'Disarm', icon: GLYPHS.disarm, color: '#10b981' },
+                                { name: 'Pinned', icon: GLYPHS.pinned, color: '#3b82f6' },
+                                { name: 'Expose', icon: GLYPHS.exposed, color: '#fbbf24' }
+                              ].map(status => (
+                                <div
+                                  key={status.name}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleStatus(character.id, status.name);
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    width: '24px',
+                                    height: '24px',
+                                    transform: 'rotate(45deg)',
+                                    border: `1px solid ${characterStats[character.id]?.statuses?.includes(status.name) ? status.color : '#ffffff'}`,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <span className="spicon" style={{ 
+                                    fontSize: '12px',
+                                    color: characterStats[character.id]?.statuses?.includes(status.name) ? status.color : '#ffffff',
+                                    transform: 'rotate(-45deg)'
+                                  }}>
+                                    {status.icon}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Selection Indicator */}
+                        {hero2?.id === character.id && (
+                          <div style={{
+                            color: '#ef4444',
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            alignSelf: 'center'
+                          }}>
+                            ✓
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Selection Status */}
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '8px',
+              padding: '16px',
+              textAlign: 'center',
+              marginBottom: '16px'
+            }}>
+              <p style={{ color: '#9ca3af', margin: '0 0 8px 0' }}>
+                Hero 1: {hero1 ? hero1.name : 'Not selected'}
+              </p>
+              <p style={{ color: '#9ca3af', margin: '0' }}>
+                Hero 2: {hero2 ? hero2.name : 'Not selected'}
+              </p>
+            </div>
+
+            {/* VS Button is now the main start battle button */}
+          </div>
+        </div>
+      )}
+      
+      {/* Original Character Selection Overlay - Removed */}
+      {false && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(4px)'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid #4b5563',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#f9fafb',
+              margin: '0 0 24px 0',
+              textAlign: 'center'
+            }}>
+              Select Characters for Battle
+            </h2>
+            
+            {/* Team 1 Selection */}
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#3b82f6',
+                margin: '0 0 12px 0',
+                textAlign: 'center'
+              }}>
+                Team 1: {strikeTeam1?.name}
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                {getTeamCharacters(strikeTeam1).squad1.concat(getTeamCharacters(strikeTeam1).squad2)
+                  .map(character => (
+                    <div
+                      key={character.id}
+                      onClick={() => handleCharacterSelect(character, 'hero1')}
+                      style={{
+                        background: hero1?.id === character.id ? '#3b82f6' : '#374151',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        cursor: 'pointer',
+                        border: hero1?.id === character.id ? '2px solid #60a5fa' : '2px solid #4b5563',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <img
+                        src={`/characters_assets/${character.id}/portrait.png`}
+                        alt={character.name}
+                        style={{
+                          width: '60px',
+                          height: '75px',
+                          objectFit: 'contain',
+                          borderRadius: '4px',
+                          margin: '0 auto 8px auto',
+                          display: 'block'
+                        }}
+                      />
+                      <p style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#f9fafb',
+                        margin: '0',
+                        textAlign: 'center'
+                      }}>
+                        {character.name}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Team 2 Selection */}
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#ef4444',
+                margin: '0 0 12px 0',
+                textAlign: 'center'
+              }}>
+                Team 2: {strikeTeam2?.name}
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                {getTeamCharacters(strikeTeam2).squad1.concat(getTeamCharacters(strikeTeam2).squad2)
+                  .map(character => (
+                    <div
+                      key={character.id}
+                      onClick={() => handleCharacterSelect(character, 'hero2')}
+                      style={{
+                        background: hero2?.id === character.id ? '#ef4444' : '#374151',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        cursor: 'pointer',
+                        border: hero2?.id === character.id ? '2px solid #f87171' : '2px solid #4b5563',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <img
+                        src={`/characters_assets/${character.id}/portrait.png`}
+                        alt={character.name}
+                        style={{
+                          width: '60px',
+                          height: '75px',
+                          objectFit: 'contain',
+                          borderRadius: '4px',
+                          margin: '0 auto 8px auto',
+                          display: 'block'
+                        }}
+                      />
+                      <p style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#f9fafb',
+                        margin: '0',
+                        textAlign: 'center'
+                      }}>
+                        {character.name}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Selection Status */}
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '8px',
+              padding: '16px',
+              textAlign: 'center',
+              marginBottom: '16px'
+            }}>
+              <p style={{ color: '#9ca3af', margin: '0 0 8px 0' }}>
+                Hero 1: {hero1 ? hero1.name : 'Not selected'}
+              </p>
+              <p style={{ color: '#9ca3af', margin: '0' }}>
+                Hero 2: {hero2 ? hero2.name : 'Not selected'}
+              </p>
+            </div>
+
+            {/* VS Button is now the main start battle button */}
+          </div>
+        </div>
+      )}
+      
+      {/* Original Character Selection Overlay - Removed */}
+      {false && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          backdropFilter: 'blur(4px)'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid #4b5563',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#f9fafb',
+              margin: '0 0 24px 0',
+              textAlign: 'center'
+            }}>
+              Select Characters for Battle
+            </h2>
+            
+            {/* Team 1 Selection */}
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#3b82f6',
+                margin: '0 0 12px 0',
+                textAlign: 'center'
+              }}>
+                Team 1: {strikeTeam1?.name}
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                {getTeamCharacters(strikeTeam1).squad1.concat(getTeamCharacters(strikeTeam1).squad2)
+                  .map(character => (
+                    <div
+                      key={character.id}
+                      onClick={() => handleCharacterSelect(character, 'hero1')}
+                      style={{
+                        background: hero1?.id === character.id ? '#3b82f6' : '#374151',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        cursor: 'pointer',
+                        border: hero1?.id === character.id ? '2px solid #60a5fa' : '2px solid #4b5563',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <img
+                        src={`/characters_assets/${character.id}/portrait.png`}
+                        alt={character.name}
+                        style={{
+                          width: '60px',
+                          height: '75px',
+                          objectFit: 'contain',
+                          borderRadius: '4px',
+                          margin: '0 auto 8px auto',
+                          display: 'block'
+                        }}
+                      />
+                      <p style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#f9fafb',
+                        margin: '0',
+                        textAlign: 'center'
+                      }}>
+                        {character.name}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Team 2 Selection */}
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#ef4444',
+                margin: '0 0 12px 0',
+                textAlign: 'center'
+              }}>
+                Team 2: {strikeTeam2?.name}
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                {getTeamCharacters(strikeTeam2).squad1.concat(getTeamCharacters(strikeTeam2).squad2)
+                  .map(character => (
+                    <div
+                      key={character.id}
+                      onClick={() => handleCharacterSelect(character, 'hero2')}
+                      style={{
+                        background: hero2?.id === character.id ? '#ef4444' : '#374151',
+                        borderRadius: '8px',
+                        padding: '12px',
+                        cursor: 'pointer',
+                        border: hero2?.id === character.id ? '2px solid #f87171' : '2px solid #4b5563',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <img
+                        src={`/characters_assets/${character.id}/portrait.png`}
+                        alt={character.name}
+                        style={{
+                          width: '60px',
+                          height: '75px',
+                          objectFit: 'contain',
+                          borderRadius: '4px',
+                          margin: '0 auto 8px auto',
+                          display: 'block'
+                        }}
+                      />
+                      <p style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#f9fafb',
+                        margin: '0',
+                        textAlign: 'center'
+                      }}>
+                        {character.name}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Selection Status */}
+            <div style={{
+              background: '#1f2937',
+              borderRadius: '8px',
+              padding: '16px',
+              textAlign: 'center',
+              marginBottom: '16px'
+            }}>
+              <p style={{ color: '#9ca3af', margin: '0 0 8px 0' }}>
+                Hero 1: {hero1 ? hero1.name : 'Not selected'}
+              </p>
+              <p style={{ color: '#9ca3af', margin: '0' }}>
+                Hero 2: {hero2 ? hero2.name : 'Not selected'}
+              </p>
+            </div>
+
+            {/* VS Button is now the main start battle button */}
+          </div>
+        </div>
+      )}
       {/* Battle Header */}
       <div style={{
         background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
@@ -749,11 +2406,12 @@ const BattlePage: React.FC = () => {
           color: '#9ca3af',
           margin: '0'
         }}>
-          {hero1.name} vs {hero2.name}
+          {hero1 && hero2 ? `${hero1.name} vs ${hero2.name}` : 'Select Characters'}
         </p>
       </div>
 
-      {/* Battle Arena */}
+      {/* Battle Arena - Only show when both heroes are selected */}
+      {hero1 && hero2 && (
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'minmax(380px, 1.4fr) minmax(320px, 0.8fr) minmax(380px, 1.4fr)',
@@ -1429,7 +3087,7 @@ const BattlePage: React.FC = () => {
                                 key={effectIndex}
                                 className="spicon"
                                 style={{ 
-                                  fontSize: '14px', 
+                                  fontSize: '12px', 
                                   color: isActive ? '#3b82f6' : '#6b7280',
                                   display: 'inline-flex',
                                   minWidth: '20px',
@@ -1463,6 +3121,8 @@ const BattlePage: React.FC = () => {
           hero2Stance={hero2Stance}
           hero1ActiveSide={hero1ActiveSide}
           hero2ActiveSide={hero2ActiveSide}
+          onBackToCharacterSelection={handleBackToCharacterSelection}
+          showBackButton={strikeTeam1 && strikeTeam2}
         />
 
         {/* Hero 2 - Right Side */}
@@ -2128,7 +3788,7 @@ const BattlePage: React.FC = () => {
                                 key={effectIndex}
                                 className="spicon"
                                 style={{ 
-                                  fontSize: '14px', 
+                                  fontSize: '12px', 
                                   color: isActive ? '#ef4444' : '#6b7280',
                                   display: 'inline-flex',
                                   minWidth: '20px',
@@ -2154,8 +3814,10 @@ const BattlePage: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Character Details Section */}
+      {/* Character Details Section - Only show when both heroes are selected */}
+      {hero1 && hero2 && (
       <div style={{
         background: '#1f2937',
         borderRadius: '12px',
@@ -2181,6 +3843,7 @@ const BattlePage: React.FC = () => {
           <CharacterDetails characterId={hero2.id} />
         </div>
       </div>
+      )}
 
       {/* Battle Controls */}
       <div style={{
@@ -2202,10 +3865,10 @@ const BattlePage: React.FC = () => {
             fontWeight: '600'
           }}
         >
-          ← Back to Play
+          ← Exit Game
         </button>
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => setShowCharacterSelection(true)}
           style={{
             padding: '12px 24px',
             background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
@@ -2217,9 +3880,25 @@ const BattlePage: React.FC = () => {
             fontWeight: '600'
           }}
         >
-          <span className="spicon sp-reposition" style={{ fontSize: '16px', color: '#ffffff' }}>{GLYPHS.reposition}</span> New Battle
+          <span className="spicon sp-reposition" style={{ fontSize: '16px', color: '#ffffff' }}>{GLYPHS.reposition}</span> Back to Character Select
         </button>
       </div>
+
+      {/* Character Modal */}
+      {selectedCharacter && (
+        <CharacterModal
+          open={!!selectedCharacter}
+          onClose={() => setSelectedCharacter(null)}
+          id={selectedCharacter.id}
+          character={{
+            id: selectedCharacter.id,
+            name: selectedCharacter.name,
+            unit_type: (selectedCharacter.role || selectedCharacter.unitType || selectedCharacter.unit_type) as "Primary" | "Secondary" | "Support",
+            squad_points: selectedCharacter.squad_points || 0,
+            portrait: selectedCharacter.portrait
+          }}
+        />
+      )}
     </div>
   );
 };

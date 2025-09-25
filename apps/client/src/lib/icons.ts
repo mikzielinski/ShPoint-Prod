@@ -31,6 +31,8 @@ export const GLYPHS = {
   climb: "\u0075",             // u
   force: "\u0076",             // v
   durability: "\u0077",        // w
+  stamina: "\u0072",           // r - stamina (same as heal)
+  hanker: "\u0033",            // 3 - hanker/agility
   
   // Combo Glyphs (kombinacje glifów)
   crit_to_strike: "\u0062\u2192\u0061",        // b → a (Crit -> Strike)
@@ -78,6 +80,10 @@ export function iconFromCode(code: string): IconName | undefined {
     u: "climb",
     v: "force",
     w: "durability",
+    r: "heal",     // existing mapping
+    x: "stamina",  // keep for backward compatibility
+    "3": "hunker",  // existing mapping
+    y: "hanker",    // keep for backward compatibility
     // Combo Glyphs
     "b→a": "crit_to_strike",
     "a→d": "strike_to_fail",
@@ -120,6 +126,8 @@ export function iconToCode(name: IconName): string {
     climb: "u",
     force: "v",
     durability: "w",
+    stamina: "r",
+    hanker: "3",
     // Combo Glyphs
     crit_to_strike: "b→a",
     strike_to_fail: "a→d",
