@@ -23,13 +23,13 @@ model User {
   invitedAt            DateTime?
   invitedBy            String?
   username             String?               @unique
+  invitationsLimit     Int                   @default(0)
+  invitationsSent      Int                   @default(0)
+  lastInvitationSentAt DateTime?
   suspendedAt          DateTime?
   suspendedBy          String?
   suspendedReason      String?
   suspendedUntil       DateTime?
-  invitationsSent      Int                   @default(0)
-  invitationsLimit     Int                   @default(0)
-  lastInvitationSentAt DateTime?
   cards                Card[]
   characterCollections CharacterCollection[]
   collections          Collection[]
@@ -204,11 +204,11 @@ model StrikeTeam {
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
   draws       Int                   @default(0)
-  losses      Int                   @default(0)
-  wins        Int                   @default(0)
   isPublished Boolean               @default(false)
+  losses      Int                   @default(0)
   squad1Name  String                @default("Squad 1")
   squad2Name  String                @default("Squad 2")
+  wins        Int                   @default(0)
   user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   characters  StrikeTeamCharacter[]
 

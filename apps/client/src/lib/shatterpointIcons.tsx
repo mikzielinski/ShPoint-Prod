@@ -4,6 +4,8 @@
 // glyphs are mapped into the Private Use Area (U+E900+). If your font build uses
 // different codepoints, adjust here in ONE place and the whole app updates.
 
+import React from 'react';
+
 export const SHATTERPOINT_FONT_FAMILY = 'ShatterpointIcons';
 
 export type ShatterIconKey =
@@ -103,7 +105,6 @@ export const shatterIcons: Record<ShatterIconKey, string> = {
 };
 
 // Lightweight React component for rendering icons safely
-import React from 'react';
 export function SPIcon({
   name,
   title,

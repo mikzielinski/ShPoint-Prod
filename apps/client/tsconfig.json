@@ -3,6 +3,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": false,
     "paths": {
       "@shpoint/shared": ["../../packages/shared/src/index.ts"]
     }

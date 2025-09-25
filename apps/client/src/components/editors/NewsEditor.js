@@ -1,0 +1,261 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { useState, useEffect } from 'react';
+import GlyphPicker from '../GlyphPicker';
+const NewsEditor = ({ newsItem, onSave, onCancel, onDelete }) => {
+    const [formData, setFormData] = useState({
+        id: '',
+        date: '',
+        title: '',
+        description: '',
+        features: [],
+        status: 'completed',
+        images: [],
+        content: ''
+    });
+    const [newFeature, setNewFeature] = useState('');
+    const [newImageUrl, setNewImageUrl] = useState('');
+    const [showGlyphPicker, setShowGlyphPicker] = useState(false);
+    useEffect(() => {
+        if (newsItem) {
+            setFormData({
+                id: newsItem.id || '',
+                date: newsItem.date || '',
+                title: newsItem.title || '',
+                description: newsItem.description || '',
+                features: newsItem.features?.map(f => typeof f === 'string' ? f : '') || [],
+                status: newsItem.status || 'completed',
+                images: newsItem.images || [],
+                content: newsItem.content || ''
+            });
+        }
+        else {
+            // New news item - set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            setFormData({
+                id: '',
+                date: today,
+                title: '',
+                description: '',
+                features: [],
+                status: 'completed',
+                images: [],
+                content: ''
+            });
+        }
+    }, [newsItem]);
+    const handleSave = () => {
+        const newsToSave = {
+            ...formData,
+            features: formData.features.map(f => f.trim()).filter(f => f.length > 0)
+        };
+        onSave(newsToSave);
+    };
+    const handleAddFeature = () => {
+        if (newFeature.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                features: [...prev.features, newFeature.trim()]
+            }));
+            setNewFeature('');
+        }
+    };
+    const handleRemoveFeature = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            features: prev.features.filter((_, i) => i !== index)
+        }));
+    };
+    const handleAddImage = () => {
+        if (newImageUrl.trim()) {
+            setFormData(prev => ({
+                ...prev,
+                images: [...prev.images, newImageUrl.trim()]
+            }));
+            setNewImageUrl('');
+        }
+    };
+    const handleRemoveImage = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
+    };
+    const handleGlyphSelect = (glyph) => {
+        setFormData(prev => ({
+            ...prev,
+            content: prev.content + `<span style="font-family: ShatterpointIcons">${glyph}</span>`
+        }));
+    };
+    return (_jsxs("div", { style: {
+            background: '#1f2937',
+            borderRadius: '8px',
+            padding: '24px',
+            maxWidth: '800px',
+            margin: '0 auto'
+        }, children: [_jsx("h2", { style: { color: '#f9fafb', marginBottom: '24px', fontSize: '24px' }, children: newsItem ? 'Edit News Item' : 'Create New News Item' }), _jsxs("div", { style: { marginBottom: '24px' }, children: [_jsx("h3", { style: { color: '#f9fafb', marginBottom: '16px', fontSize: '18px' }, children: "Basic Information" }), _jsxs("div", { style: { display: 'grid', gap: '16px' }, children: [_jsxs("div", { children: [_jsx("label", { style: { display: 'block', color: '#9ca3af', marginBottom: '4px', fontSize: '14px' }, children: "Date" }), _jsx("input", { type: "date", value: formData.date, onChange: (e) => setFormData(prev => ({ ...prev, date: e.target.value })), style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #4b5563',
+                                            background: '#374151',
+                                            color: '#f9fafb',
+                                            fontSize: '14px'
+                                        } })] }), _jsxs("div", { children: [_jsx("label", { style: { display: 'block', color: '#9ca3af', marginBottom: '4px', fontSize: '14px' }, children: "Title" }), _jsx("input", { type: "text", value: formData.title, onChange: (e) => setFormData(prev => ({ ...prev, title: e.target.value })), placeholder: "e.g., \uD83C\uDFA8 New Feature Release", style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #4b5563',
+                                            background: '#374151',
+                                            color: '#f9fafb',
+                                            fontSize: '14px'
+                                        } })] }), _jsxs("div", { children: [_jsx("label", { style: { display: 'block', color: '#9ca3af', marginBottom: '4px', fontSize: '14px' }, children: "Description" }), _jsx("textarea", { value: formData.description, onChange: (e) => setFormData(prev => ({ ...prev, description: e.target.value })), placeholder: "Brief description of the update...", rows: 3, style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #4b5563',
+                                            background: '#374151',
+                                            color: '#f9fafb',
+                                            fontSize: '14px',
+                                            resize: 'vertical'
+                                        } })] }), _jsxs("div", { children: [_jsx("label", { style: { display: 'block', color: '#9ca3af', marginBottom: '4px', fontSize: '14px' }, children: "Status" }), _jsx("div", { className: "role-select-wrap", children: _jsxs("select", { className: "role-select", value: formData.status, onChange: (e) => setFormData(prev => ({ ...prev, status: e.target.value })), style: { fontSize: '14px' }, children: [_jsx("option", { value: "completed", children: "Completed" }), _jsx("option", { value: "in-progress", children: "In Progress" }), _jsx("option", { value: "planned", children: "Planned" })] }) })] })] })] }), _jsxs("div", { style: { marginBottom: '24px' }, children: [_jsx("h3", { style: { color: '#f9fafb', marginBottom: '16px', fontSize: '18px' }, children: "Features" }), _jsx("div", { style: { marginBottom: '16px' }, children: _jsxs("div", { style: { display: 'flex', gap: '8px', marginBottom: '12px' }, children: [_jsx("input", { type: "text", value: newFeature, onChange: (e) => setNewFeature(e.target.value), placeholder: "Add a new feature...", style: {
+                                        flex: 1,
+                                        padding: '8px 12px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #4b5563',
+                                        background: '#374151',
+                                        color: '#f9fafb',
+                                        fontSize: '14px'
+                                    }, onKeyPress: (e) => e.key === 'Enter' && handleAddFeature() }), _jsx("button", { onClick: handleAddFeature, style: {
+                                        padding: '8px 16px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        background: '#10b981',
+                                        color: 'white',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                    }, children: "Add" })] }) }), _jsx("div", { style: { display: 'flex', flexDirection: 'column', gap: '8px' }, children: formData.features.map((feature, index) => (_jsxs("div", { style: {
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '8px 12px',
+                                background: '#374151',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                color: '#f9fafb'
+                            }, children: [_jsx("span", { children: feature }), _jsx("button", { onClick: () => handleRemoveFeature(index), style: {
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        border: 'none',
+                                        background: '#dc2626',
+                                        color: 'white',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                    }, children: "Remove" })] }, index))) })] }), _jsxs("div", { style: { marginBottom: '24px' }, children: [_jsx("h3", { style: { color: '#f9fafb', marginBottom: '16px', fontSize: '18px' }, children: "Images" }), _jsx("div", { style: { marginBottom: '16px' }, children: _jsxs("div", { style: { display: 'flex', gap: '8px', marginBottom: '12px' }, children: [_jsx("input", { type: "url", value: newImageUrl, onChange: (e) => setNewImageUrl(e.target.value), placeholder: "Image URL...", style: {
+                                        flex: 1,
+                                        padding: '8px 12px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #4b5563',
+                                        background: '#374151',
+                                        color: '#f9fafb',
+                                        fontSize: '14px'
+                                    } }), _jsx("button", { onClick: handleAddImage, style: {
+                                        padding: '8px 16px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        background: '#3b82f6',
+                                        color: 'white',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                    }, children: "Add" })] }) }), _jsx("div", { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }, children: formData.images.map((imageUrl, index) => (_jsxs("div", { style: {
+                                position: 'relative',
+                                background: '#374151',
+                                borderRadius: '6px',
+                                overflow: 'hidden'
+                            }, children: [_jsx("img", { src: imageUrl, alt: `News image ${index + 1}`, style: {
+                                        width: '100%',
+                                        height: '120px',
+                                        objectFit: 'cover'
+                                    }, onError: (e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        e.currentTarget.nextElementSibling?.setAttribute('style', 'display: flex');
+                                    } }), _jsx("div", { style: {
+                                        display: 'none',
+                                        width: '100%',
+                                        height: '120px',
+                                        background: '#374151',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: '#9ca3af',
+                                        fontSize: '12px'
+                                    }, children: "Failed to load" }), _jsx("button", { onClick: () => handleRemoveImage(index), style: {
+                                        position: 'absolute',
+                                        top: '4px',
+                                        right: '4px',
+                                        padding: '4px 8px',
+                                        borderRadius: '4px',
+                                        border: 'none',
+                                        background: '#dc2626',
+                                        color: 'white',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                    }, children: "\u00D7" })] }, index))) })] }), _jsxs("div", { style: { marginBottom: '24px' }, children: [_jsxs("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }, children: [_jsx("h3", { style: { color: '#f9fafb', fontSize: '18px', margin: '0' }, children: "Rich Content (Optional)" }), _jsxs("button", { type: "button", onClick: () => setShowGlyphPicker(true), style: {
+                                    padding: '8px 16px',
+                                    borderRadius: '6px',
+                                    border: '1px solid #4b5563',
+                                    background: '#374151',
+                                    color: '#f9fafb',
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    transition: 'all 0.2s ease'
+                                }, onMouseEnter: (e) => {
+                                    e.currentTarget.style.background = '#4b5563';
+                                    e.currentTarget.style.borderColor = '#3b82f6';
+                                }, onMouseLeave: (e) => {
+                                    e.currentTarget.style.background = '#374151';
+                                    e.currentTarget.style.borderColor = '#4b5563';
+                                }, children: [_jsx("span", { style: { fontFamily: 'ShatterpointIcons', fontSize: '16px' }, children: "j" }), "Add Glyph"] })] }), _jsx("textarea", { value: formData.content, onChange: (e) => setFormData(prev => ({ ...prev, content: e.target.value })), placeholder: "Additional rich content with HTML support...", rows: 8, style: {
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '6px',
+                            border: '1px solid #4b5563',
+                            background: '#374151',
+                            color: '#f9fafb',
+                            fontSize: '14px',
+                            fontFamily: 'system-ui, -apple-system, sans-serif',
+                            resize: 'vertical'
+                        } }), _jsxs("div", { style: { fontSize: '12px', color: '#9ca3af', marginTop: '8px' }, children: ["Supports HTML formatting. Use the \"Add Glyph\" button or ", _jsx("code", { style: { background: '#1f2937', padding: '2px 4px', borderRadius: '3px' }, children: "<span style=\"font-family: ShatterpointIcons\">" }), " for special game symbols."] })] }), _jsxs("div", { style: { display: 'flex', gap: '12px', justifyContent: 'flex-end' }, children: [newsItem && onDelete && (_jsx("button", { onClick: () => onDelete(newsItem.id), style: {
+                            padding: '10px 20px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: '#dc2626',
+                            color: 'white',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }, children: "Delete" })), _jsx("button", { onClick: onCancel, style: {
+                            padding: '10px 20px',
+                            borderRadius: '6px',
+                            border: '1px solid #4b5563',
+                            background: 'transparent',
+                            color: '#9ca3af',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }, children: "Cancel" }), _jsx("button", { onClick: handleSave, style: {
+                            padding: '10px 20px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: '#10b981',
+                            color: 'white',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }, children: newsItem ? 'Update' : 'Create' })] }), showGlyphPicker && (_jsx(GlyphPicker, { onSelect: handleGlyphSelect, onClose: () => setShowGlyphPicker(false) }))] }));
+};
+export default NewsEditor;
