@@ -3,6 +3,7 @@ import { missionsData, Mission } from '../data/missions';
 import { Modal } from '../components/Modal';
 import { MissionModal } from '../components/MissionModal';
 import { useAuth } from '../auth/AuthContext';
+import { api } from '../lib/env';
 
 interface MissionCollection {
   id: string;
@@ -44,7 +45,7 @@ const MissionsPage: React.FC = () => {
     try {
       setLoading(true);
       console.log('🚀 Fetching from URL: /api/shatterpoint/missions');
-      const response = await fetch('/api/shatterpoint/missions', {
+      const response = await fetch(api('/api/shatterpoint/missions'), {
         credentials: 'include',
         cache: 'no-cache',
         headers: {
@@ -82,7 +83,7 @@ const MissionsPage: React.FC = () => {
 
     try {
       // Always use POST with upsert logic
-      const response = await fetch('/api/shatterpoint/missions', {
+      const response = await fetch(api('/api/shatterpoint/missions'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

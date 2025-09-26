@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/env';
 
 interface StrikeTeam {
   id: string;
@@ -63,7 +64,7 @@ const StrikeTeamVsStrikeTeamPage: React.FC = () => {
 
   const loadCurrentUser = async () => {
     try {
-      const response = await fetch('/auth/status', {
+      const response = await fetch(api('/auth/status'), {
         credentials: 'include'
       });
       
@@ -81,7 +82,7 @@ const StrikeTeamVsStrikeTeamPage: React.FC = () => {
       let allTeams: StrikeTeam[] = [];
       
       // Load user's own teams (private + public)
-      const userResponse = await fetch('/api/shatterpoint/strike-teams', {
+      const userResponse = await fetch(api('/api/shatterpoint/strike-teams'), {
         credentials: 'include'
       });
       
@@ -91,7 +92,7 @@ const StrikeTeamVsStrikeTeamPage: React.FC = () => {
       }
       
       // Load all public teams (from all users)
-      const publicResponse = await fetch('/api/shatterpoint/strike-teams/public', {
+      const publicResponse = await fetch(api('/api/shatterpoint/strike-teams/public'), {
         credentials: 'include'
       });
       
@@ -111,7 +112,7 @@ const StrikeTeamVsStrikeTeamPage: React.FC = () => {
 
   const loadCharacters = async () => {
     try {
-      const response = await fetch('/api/characters', {
+      const response = await fetch(api('/api/characters'), {
         credentials: 'include'
       });
       

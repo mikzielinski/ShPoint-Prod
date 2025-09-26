@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { API_BASE } from '../../lib/env';
+import { api } from '../../lib/env';
 import StanceEditor from './StanceEditor';
 export const CharacterEditor = ({ character, onSave, onCancel, onDelete }) => {
     const { auth } = useAuth();
@@ -346,7 +346,7 @@ export const CharacterEditor = ({ character, onSave, onCancel, onDelete }) => {
         try {
             console.log('🔍 Saving stance for character:', formData.id);
             // Call API to save stance
-            const response = await fetch(`/api/characters/${formData.id}/stance`, {
+            const response = await fetch(api(`/api/characters/${formData.id}/stance`), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

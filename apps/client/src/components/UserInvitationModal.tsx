@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../lib/env';
 
 type InvitationStats = {
   invitationsSent: number;
@@ -30,7 +31,7 @@ export default function UserInvitationModal({ isOpen, onClose }: UserInvitationM
   const loadStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/user/invitations', {
+      const response = await fetch(api('/api/user/invitations'), {
         credentials: 'include'
       });
       
@@ -58,7 +59,7 @@ export default function UserInvitationModal({ isOpen, onClose }: UserInvitationM
       setError(null);
       setSuccess(null);
 
-      const response = await fetch('/api/user/invitations', {
+      const response = await fetch(api('/api/user/invitations'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

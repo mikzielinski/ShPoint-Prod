@@ -31,5 +31,7 @@ export const API_BASE: string = (() => {
 // Helper do budowania ścieżek: api("/auth/status") -> "http://.../auth/status"
 export function api(path = ""): string {
   const p = String(path || "");
-  return `${API_BASE}${p.startsWith("/") ? "" : "/"}${p}`;
+  const fullUrl = `${API_BASE}${p.startsWith("/") ? "" : "/"}${p}`;
+  console.log('🔍 api() called with path:', path, '-> full URL:', fullUrl);
+  return fullUrl;
 }

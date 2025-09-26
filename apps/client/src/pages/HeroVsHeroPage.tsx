@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/env';
 
 interface Character {
   id: string;
@@ -31,7 +32,7 @@ const HeroVsHeroPage: React.FC = () => {
 
   const loadCharacters = async () => {
     try {
-      const response = await fetch('/api/characters', {
+      const response = await fetch(api('/api/characters'), {
         credentials: 'include'
       });
       

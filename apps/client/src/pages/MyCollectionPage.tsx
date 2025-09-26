@@ -2682,7 +2682,7 @@ export default function MyCollectionPage() {
                 try {
                   console.log('Saving team:', teamData);
                   
-                  const response = await fetch('/api/shatterpoint/strike-teams', {
+                  const response = await fetch(api('/api/shatterpoint/strike-teams'), {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',

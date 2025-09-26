@@ -8,6 +8,7 @@ import SetPreview from '../components/SetPreview';
 import SetImageWithFallback from '../components/SetImageWithFallback';
 import { Set, setsData } from '../data/sets';
 import { missionsData } from '../data/missions';
+import { api } from '../lib/env';
 import MissionCardsEditor from '../components/editors/MissionCardsEditor';
 import MissionCardsPreview from '../components/MissionCardsPreview';
 
@@ -54,7 +55,7 @@ const ContentManagementPage: React.FC = () => {
   const loadCharacters = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/characters', { credentials: 'include' });
+      const response = await fetch(api('/api/characters'), { credentials: 'include' });
       const data = await response.json();
       setCharacters(data.items || []);
     } catch (error) {

@@ -474,7 +474,7 @@ function CharactersPage() {
   // Add a function to manually add SWP24 set
   (window as any).addSWP24Set = async () => {
     try {
-      const response = await fetch('/api/shatterpoint/sets', {
+      const response = await fetch(api('/api/shatterpoint/sets'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

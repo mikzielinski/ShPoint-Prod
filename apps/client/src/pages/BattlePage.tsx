@@ -4,6 +4,7 @@ import CharacterDetails from '../components/CharacterDetails';
 import { GLYPHS, iconFromCode } from '../lib/icons';
 import DiceSimulator from '../components/DiceSimulator';
 import CharacterModal from '../components/CharacterModal';
+import { api } from '../lib/env';
 
 /** ====== Ikony (PUA) ====== */
 const ICON: Record<string, string> = {
@@ -674,7 +675,7 @@ const BattlePage: React.FC = () => {
       let allTeams: any[] = [];
       
       // Load user's own teams
-      const userResponse = await fetch('/api/shatterpoint/strike-teams', {
+      const userResponse = await fetch(api('/api/shatterpoint/strike-teams'), {
         credentials: 'include'
       });
       
@@ -684,7 +685,7 @@ const BattlePage: React.FC = () => {
       }
       
       // Load all public teams
-      const publicResponse = await fetch('/api/shatterpoint/strike-teams/public', {
+      const publicResponse = await fetch(api('/api/shatterpoint/strike-teams/public'), {
         credentials: 'include'
       });
       

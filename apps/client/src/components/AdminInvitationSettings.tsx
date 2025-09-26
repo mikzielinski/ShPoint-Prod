@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../lib/env';
 
 type InvitationLimits = {
   admin: number;
@@ -25,7 +26,7 @@ export default function AdminInvitationSettings() {
   const loadLimits = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/invitation-limits', {
+      const response = await fetch(api('/api/admin/invitation-limits'), {
         credentials: 'include'
       });
       
@@ -55,7 +56,7 @@ export default function AdminInvitationSettings() {
       setError(null);
       setSuccess(null);
 
-      const response = await fetch('/api/admin/invitation-limits', {
+      const response = await fetch(api('/api/admin/invitation-limits'), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export default function AdminInvitationSettings() {
 
   const applyToUsers = async () => {
     try {
-      const response = await fetch('/api/admin/update-user-limits', {
+      const response = await fetch(api('/api/admin/update-user-limits'), {
         method: 'POST',
         credentials: 'include'
       });
@@ -117,7 +118,7 @@ export default function AdminInvitationSettings() {
       setError(null);
       setSuccess(null);
       
-      const response = await fetch('/api/admin/test-email', {
+      const response = await fetch(api('/api/admin/test-email'), {
         credentials: 'include'
       });
       

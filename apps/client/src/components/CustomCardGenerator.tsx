@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { CharacterEditor } from './editors/CharacterEditor';
+import { api } from '../lib/env';
 
 interface CustomMadeCard {
   id: string;
@@ -50,7 +51,7 @@ export default function CustomCardGenerator({ onClose, onSave }: CustomCardGener
     
     setLoading(true);
     try {
-      const response = await fetch('/api/custom-cards', {
+      const response = await fetch(api('/api/custom-cards'), {
         credentials: 'include'
       });
       
@@ -100,7 +101,7 @@ export default function CustomCardGenerator({ onClose, onSave }: CustomCardGener
         updatedAt: new Date().toISOString()
       };
 
-      const response = await fetch('/api/custom-cards', {
+      const response = await fetch(api('/api/custom-cards'), {
         method: editingCard ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
