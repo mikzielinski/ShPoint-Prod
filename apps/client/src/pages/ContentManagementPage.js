@@ -8,6 +8,7 @@ import CharacterModal from '../components/CharacterModal';
 import SetPreview from '../components/SetPreview';
 import SetImageWithFallback from '../components/SetImageWithFallback';
 import { setsData } from '../data/sets';
+import { api } from '../lib/env';
 import { missionsData } from '../data/missions';
 import MissionCardsEditor from '../components/editors/MissionCardsEditor';
 import MissionCardsPreview from '../components/MissionCardsPreview';
@@ -36,7 +37,7 @@ const ContentManagementPage = () => {
     const loadCharacters = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/characters', { credentials: 'include' });
+            const response = await fetch(api('/api/characters'), { credentials: 'include' });
             const data = await response.json();
             setCharacters(data.items || []);
         }

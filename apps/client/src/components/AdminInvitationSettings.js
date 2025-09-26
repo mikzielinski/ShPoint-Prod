@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
+import { api } from '../lib/env';
 export default function AdminInvitationSettings() {
     const [limits, setLimits] = useState({
         admin: 100,
@@ -17,7 +18,7 @@ export default function AdminInvitationSettings() {
     const loadLimits = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/admin/invitation-limits', {
+            const response = await fetch(api('/api/admin/invitation-limits'), {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -49,7 +50,7 @@ export default function AdminInvitationSettings() {
             setSaving(true);
             setError(null);
             setSuccess(null);
-            const response = await fetch('/api/admin/invitation-limits', {
+            const response = await fetch(api('/api/admin/invitation-limits'), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -84,7 +85,7 @@ export default function AdminInvitationSettings() {
     };
     const applyToUsers = async () => {
         try {
-            const response = await fetch('/api/admin/update-user-limits', {
+            const response = await fetch(api('/api/admin/update-user-limits'), {
                 method: 'POST',
                 credentials: 'include'
             });
@@ -111,7 +112,7 @@ export default function AdminInvitationSettings() {
             setTestingEmail(true);
             setError(null);
             setSuccess(null);
-            const response = await fetch('/api/admin/test-email', {
+            const response = await fetch(api('/api/admin/test-email'), {
                 credentials: 'include'
             });
             const data = await response.json();

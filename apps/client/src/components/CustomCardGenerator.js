@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { CharacterEditor } from './editors/CharacterEditor';
+import { api } from '../lib/env';
 export default function CustomCardGenerator({ onClose, onSave }) {
     console.log('CustomCardGenerator component rendering...');
     const { auth } = useAuth();
@@ -21,7 +22,7 @@ export default function CustomCardGenerator({ onClose, onSave }) {
             return;
         setLoading(true);
         try {
-            const response = await fetch('/api/custom-cards', {
+            const response = await fetch(api('/api/custom-cards'), {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -68,7 +69,7 @@ export default function CustomCardGenerator({ onClose, onSave }) {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-            const response = await fetch('/api/custom-cards', {
+            const response = await fetch(api('/api/custom-cards'), {
                 method: editingCard ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
