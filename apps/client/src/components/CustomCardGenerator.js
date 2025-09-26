@@ -108,7 +108,7 @@ export default function CustomCardGenerator({ onClose, onSave }) {
             return;
         }
         try {
-            const response = await fetch(`/api/custom-cards/${cardId}`, {
+            const response = await fetch(api(`/api/custom-cards/${cardId}`), {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -127,7 +127,7 @@ export default function CustomCardGenerator({ onClose, onSave }) {
     };
     const handlePublishCard = async (card) => {
         try {
-            const response = await fetch(`/api/custom-cards/${card.id}/publish`, {
+            const response = await fetch(api(`/api/custom-cards/${card.id}/publish`), {
                 method: 'POST',
                 credentials: 'include'
             });

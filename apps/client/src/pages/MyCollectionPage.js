@@ -1743,7 +1743,7 @@ const StrikeTeamCard = ({ team, showTeamType = false, teamType, allCharacters, c
     });
     const handlePublishToggle = async () => {
         try {
-            const response = await fetch(`/api/shatterpoint/strike-teams/${team.id}/publish`, {
+            const response = await fetch(api(`/api/shatterpoint/strike-teams/${team.id}/publish`), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

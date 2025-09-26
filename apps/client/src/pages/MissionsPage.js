@@ -200,7 +200,7 @@ const MissionsPage = () => {
                                         transition: 'background-color 0.2s'
                                     }, children: "\u2B50" }), missionCollections.find(c => c && c.missionId === mission.id) && (_jsx("button", { onClick: (e) => {
                                         e.stopPropagation();
-                                        fetch(`/api/shatterpoint/missions/${mission.id}`, {
+                                        fetch(api(`/api/shatterpoint/missions/${mission.id}`), {
                                             method: 'DELETE',
                                             credentials: 'include'
                                         }).then(() => {
