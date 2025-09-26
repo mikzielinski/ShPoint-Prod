@@ -867,7 +867,13 @@ app.get("/api/characters", async (req, res) => {
         }
         if (fs.existsSync(dataPath)) {
           const fullData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          console.log(`✅ Loaded data for ${char.id}:`, { image: fullData.image, portrait: fullData.portrait });
           return { ...char, ...fullData }; // Merge unified data with detailed data
+        } else {
+          console.log(`❌ No data.json found for ${char.id} at paths:`, [
+            path.join(process.cwd(), `characters_assets/${char.id}/data.json`),
+            path.join(process.cwd(), `../client/characters_assets/${char.id}/data.json`)
+          ]);
         }
         return char; // Use unified data only if no detailed data
       } catch (error) {
