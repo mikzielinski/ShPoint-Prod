@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ability } from "../lib/shpoint/abilities/types";
 import { AbilityCard } from "./AbilityCard";
+import { api } from "../lib/env";
 
 type Props = {
   characterId: string;
@@ -25,7 +26,7 @@ export default function CharacterDetails({ characterId }: Props) {
   useEffect(() => {
     const loadCharacter = async () => {
       try {
-        const response = await fetch(`/api/characters/${characterId}`);
+        const response = await fetch(api(`/api/characters/${characterId}`));
         if (response.ok) {
           const data = await response.json();
           setCharacter(data.character);

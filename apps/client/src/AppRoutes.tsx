@@ -1,5 +1,6 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { api } from "./lib/env";
 import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
@@ -249,7 +250,7 @@ function CharactersPage() {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/characters", { credentials: "include" });
+        const res = await fetch(api("/api/characters"), { credentials: "include" });
         const json = (await res.json()) as ApiList;
         if (alive) setData(json.items ?? []);
       } catch { if (alive) setData([]); }

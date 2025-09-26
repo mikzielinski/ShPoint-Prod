@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { api } from "../lib/env";
 
 /**
  * Minimalny model karty – robimy mapowanie defensywne,
@@ -162,7 +163,7 @@ function normalizeCard(raw: any): Card | null {
 /** Pobranie danych z naszego API */
 async function loadCards(): Promise<Card[]> {
   console.log(`🚀 NEW VERSION LOADED! loadCards called - fetching from /api/characters`);
-  const res = await fetch("/api/characters", { cache: "no-store" });
+  const res = await fetch(api("/api/characters"), { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch cards: ${res.status}`);
 
   const json = await res.json();

@@ -1,13 +1,11 @@
 // apps/client/src/pages/CharactersPage.tsx
 import { useEffect, useState } from "react";
+import { api } from "../lib/env";
 
 type Character = { id: string; name: string; image?: string | null };
 type ApiList = { items: Character[]; total: number };
 
 export default function CharactersPage() {
-  console.log('=== CHARACTERS PAGE RENDER ===');
-  console.log('You are on the WRONG page! Go to /content-management instead!');
-  
   const [data, setData] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +13,7 @@ export default function CharactersPage() {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/characters", { credentials: "include" });
+        const res = await fetch(api("/api/characters"), { credentials: "include" });
         const json = (await res.json()) as ApiList;
         if (alive) setData(json.items ?? []);
       } catch {
