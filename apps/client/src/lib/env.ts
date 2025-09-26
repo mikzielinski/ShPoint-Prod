@@ -2,11 +2,19 @@
 // Jedno źródło prawdy dla adresu API w kliencie (Vite)
 
 export const API_BASE: string = (() => {
-  const raw =
-    (import.meta as any)?.env?.VITE_API_BASE ??
-    (import.meta as any)?.env?.VITE_SERVER_URL ??
-    (typeof window !== "undefined" ? (window as any).__API_BASE__ : undefined) ??
-    "http://localhost:3001"; // domyślnie backend dev
+  const viteApiBase = (import.meta as any)?.env?.VITE_API_BASE;
+  const viteServerUrl = (import.meta as any)?.env?.VITE_SERVER_URL;
+  const windowApiBase = (typeof window !== "undefined" ? (window as any).__API_BASE__ : undefined);
+  
+  // Debug logs
+  console.log('🔍 Environment variables in env.ts:');
+  console.log('VITE_API_BASE:', viteApiBase);
+  console.log('VITE_SERVER_URL:', viteServerUrl);
+  console.log('window.__API_BASE__:', windowApiBase);
+  
+  const raw = viteApiBase ?? viteServerUrl ?? windowApiBase ?? "http://localhost:3001"; // domyślnie backend dev
+  
+  console.log('🔍 Selected API_BASE:', raw);
 
   // Normalizacja: trim + bez końcowego "/"
   let url = String(raw).trim().replace(/\/+$/, "");
@@ -16,6 +24,7 @@ export const API_BASE: string = (() => {
     url = `${window.location.origin}${url}`;
   }
 
+  console.log('🔍 Final API_BASE:', url);
   return url;
 })();
 
