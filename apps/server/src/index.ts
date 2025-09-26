@@ -1,7 +1,7 @@
 // apps/server/src/index.ts
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
-import { User as PrismaUser } from "@prisma/client";
+import { User } from "@prisma/client";
 
 // Extend Express Request interface
 declare global {
@@ -2752,8 +2752,10 @@ app.post("/api/custom-cards/:id/accept", ensureAuth, async (req, res) => {
     // Update share to accepted
     const share = await prisma.customCardShare.update({
       where: { 
-        cardId: id,
-        sharedWithId: userId
+        cardId_sharedWithId: {
+          cardId: id,
+          sharedWithId: userId
+        }
       },
       data: { accepted: true }
     });
