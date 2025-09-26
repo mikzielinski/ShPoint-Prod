@@ -899,7 +899,17 @@ app.get("/api/characters", async (req, res) => {
         squad_points: char.squad_points || char.sp || 0,
         unit_type: char.unit_type || char.role || 'Primary',
         // Map image fields - use portrait if image is not available
-        image: char.image || char.portrait || null,
+        image: (() => {
+          const result = char.image || char.portrait || null;
+          if (char.id === '104th-wolfpack-troopers') {
+            console.log(`🔍 Image mapping for ${char.id}:`, { 
+              originalImage: char.image, 
+              originalPortrait: char.portrait, 
+              result 
+            });
+          }
+          return result;
+        })(),
         // Ensure period is array
         period: char.period ? (Array.isArray(char.period) ? char.period : [char.period]) : []
       };
