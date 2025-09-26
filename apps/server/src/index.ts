@@ -892,6 +892,8 @@ app.get("/api/characters", async (req, res) => {
         // Map legacy fields to new structure
         squad_points: char.squad_points || char.sp || 0,
         unit_type: char.unit_type || char.role || 'Primary',
+        // Map image fields - use portrait if image is not available
+        image: char.image || char.portrait || null,
         // Ensure period is array
         period: char.period ? (Array.isArray(char.period) ? char.period : [char.period]) : []
       };
