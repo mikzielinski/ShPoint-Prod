@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { api } from "../lib/env";
+import { api, API_BASE } from "../lib/env";
 
 /**
  * Minimalny model karty – robimy mapowanie defensywne,
@@ -142,7 +142,7 @@ function normalizeCard(raw: any): Card | null {
   const portraitUrl =
     typeof portrait === "string" && portrait.trim()
       ? portrait
-      : `/characters_assets/${id}/portrait.png`;
+      : `${API_BASE}/characters/${id}/portrait.png`;
 
   return { 
     id, 

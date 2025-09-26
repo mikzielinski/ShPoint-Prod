@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { api } from '../lib/env';
+import { api, API_BASE } from '../lib/env';
 import { Set as SetData } from '../data/sets';
 import { setsData } from '../data/sets';
 import FiltersPanel from '../components/FiltersPanel';
@@ -731,7 +731,7 @@ const SetsPage: React.FC = () => {
     const characterId = getCharacterId(character.name);
     
     // Use character.portrait if available, otherwise construct URL
-    const imageSrc = character.portrait || `/characters_assets/${characterId}/portrait.png`;
+    const imageSrc = character.portrait || `${API_BASE}/characters/${characterId}/portrait.png`;
 
     return (
       <div style={{

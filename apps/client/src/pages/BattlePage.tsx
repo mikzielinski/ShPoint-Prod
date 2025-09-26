@@ -4,7 +4,7 @@ import CharacterDetails from '../components/CharacterDetails';
 import { GLYPHS, iconFromCode } from '../lib/icons';
 import DiceSimulator from '../components/DiceSimulator';
 import CharacterModal from '../components/CharacterModal';
-import { api } from '../lib/env';
+import { api, API_BASE } from '../lib/env';
 
 /** ====== Ikony (PUA) ====== */
 const ICON: Record<string, string> = {
@@ -1218,7 +1218,7 @@ const BattlePage: React.FC = () => {
                           }}
                         >
                           <img
-                            src={`/characters_assets/${character.id}/portrait.png`}
+                            src={`${API_BASE}/characters/${character.id}/portrait.png`}
                             alt={character.name}
                             style={{
                               width: '90%',
@@ -1680,7 +1680,7 @@ const BattlePage: React.FC = () => {
                           }}
                         >
                           <img
-                            src={`/characters_assets/${character.id}/portrait.png`}
+                            src={`${API_BASE}/characters/${character.id}/portrait.png`}
                             alt={character.name}
                             style={{
                               width: '90%',
@@ -2113,7 +2113,7 @@ const BattlePage: React.FC = () => {
                       }}
                     >
                       <img
-                        src={`/characters_assets/${character.id}/portrait.png`}
+                        src={`${API_BASE}/characters/${character.id}/portrait.png`}
                         alt={character.name}
                         style={{
                           width: '60px',
@@ -2170,7 +2170,7 @@ const BattlePage: React.FC = () => {
                       }}
                     >
                       <img
-                        src={`/characters_assets/${character.id}/portrait.png`}
+                        src={`${API_BASE}/characters/${character.id}/portrait.png`}
                         alt={character.name}
                         style={{
                           width: '60px',
@@ -2283,7 +2283,7 @@ const BattlePage: React.FC = () => {
                       }}
                     >
                       <img
-                        src={`/characters_assets/${character.id}/portrait.png`}
+                        src={`${API_BASE}/characters/${character.id}/portrait.png`}
                         alt={character.name}
                         style={{
                           width: '60px',
@@ -2340,7 +2340,7 @@ const BattlePage: React.FC = () => {
                       }}
                     >
                       <img
-                        src={`/characters_assets/${character.id}/portrait.png`}
+                        src={`${API_BASE}/characters/${character.id}/portrait.png`}
                         alt={character.name}
                         style={{
                           width: '60px',
@@ -2451,7 +2451,7 @@ const BattlePage: React.FC = () => {
             textAlign: 'center'
           }}>
             <img
-              src={hero1.portrait || `/characters_assets/${hero1.id}/portrait.png`}
+              src={hero1.portrait || `${API_BASE}/characters/${hero1.id}/portrait.png`}
               alt={hero1.name}
               style={{
                 width: '200px',
@@ -3152,7 +3152,7 @@ const BattlePage: React.FC = () => {
             textAlign: 'center'
           }}>
             <img
-              src={hero2.portrait || `/characters_assets/${hero2.id}/portrait.png`}
+              src={hero2.portrait || `${API_BASE}/characters/${hero2.id}/portrait.png`}
               alt={hero2.name}
               style={{
                 width: '200px',

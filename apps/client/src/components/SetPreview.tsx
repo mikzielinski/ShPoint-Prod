@@ -2,6 +2,7 @@ import React from 'react';
 import { Set } from '../data/sets';
 import SetImageWithFallback from './SetImageWithFallback';
 import CharacterModal from './CharacterModal';
+import { API_BASE } from '../lib/env';
 
 interface SetPreviewProps {
   set: Set;
@@ -46,7 +47,7 @@ const CharacterPortrait: React.FC<{ characterName: string; size: number }> = ({ 
   };
 
   const characterId = getCharacterId(characterName);
-  const portraitUrl = `/characters_assets/${characterId}/portrait.png`;
+  const portraitUrl = `${API_BASE}/characters/${characterId}/portrait.png`;
 
   return (
     <div style={{
@@ -133,7 +134,7 @@ const SetPreview: React.FC<SetPreviewProps> = ({ set }) => {
         name,
         unit_type,
         squad_points,
-        portrait: `/characters_assets/${id}/portrait.png`
+        portrait: `${API_BASE}/characters/${id}/portrait.png`
       };
     };
 

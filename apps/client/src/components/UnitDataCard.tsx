@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Ability as StructuredAbility } from "../lib/shpoint/abilities/types";
 import { AbilityCard } from "./AbilityCard";
+import { API_BASE } from "../lib/env";
 
 type LegacyAbility = { title?: string; text?: string };
 type CharacterData = {
@@ -92,8 +93,8 @@ export default function UnitDataCard({ character, data }: Props) {
   const stamina = c.stamina ?? "—";
   const durability = c.durability ?? "—";
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
-  // Always use local portrait.png from assets folder
-  const portrait = c.id ? `/characters_assets/${c.id}/portrait.png` : null;
+  // Use portrait from API or construct URL to backend
+  const portrait = c.portrait || (c.id ? `${API_BASE}/characters/${c.id}/portrait.png` : null);
   const legacyAbilities: LegacyAbility[] = Array.isArray(c.abilities) ? c.abilities! : [];
   const structuredAbilities: StructuredAbility[] = Array.isArray(c.structuredAbilities) ? c.structuredAbilities! : [];
   const factions = Array.isArray(c.factions) ? c.factions : null;
