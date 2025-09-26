@@ -843,6 +843,71 @@ app.get("/api/shatterpoint/stats", ensureAuth, async (req, res) => {
 });
 
 // ===== CHARACTERS API
+// GET /characters/:id/data.json — dane postaci z naprawionymi ścieżkami portretów
+app.get("/characters/:id/data.json", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Try production path first, then fallback to development path
+    let dataPath = path.join(process.cwd(), `characters_assets/${id}/data.json`);
+    if (!fs.existsSync(dataPath)) {
+      dataPath = path.join(process.cwd(), `../client/characters_assets/${id}/data.json`);
+    }
+    
+    if (!fs.existsSync(dataPath)) {
+      return res.status(404).json({ ok: false, error: "Character data not found" });
+    }
+    
+    const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    
+    // Fix portrait paths to use full backend URLs
+    if (data.portrait && typeof data.portrait === 'string') {
+      if (data.portrait.startsWith('/characters/')) {
+        data.portrait = `https://shpoint-prod.onrender.com${data.portrait}`;
+      }
+    }
+    
+    // Fix image paths if they exist
+    if (data.image && typeof data.image === 'string') {
+      if (data.image.startsWith('/characters/')) {
+        data.image = `https://shpoint-prod.onrender.com${data.image}`;
+      }
+    }
+    
+    res.json(data);
+  } catch (error) {
+    console.error(`Error loading character data for ${req.params.id}:`, error);
+    res.status(500).json({ ok: false, error: "Failed to load character data" });
+  }
+});
+
+// GET /characters/:id/stance.json — dane stance postaci
+app.get("/characters/:id/stance.json", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Try production path first, then fallback to development path
+    let stancePath = path.join(process.cwd(), `characters_assets/${id}/stance.json`);
+    if (!fs.existsSync(stancePath)) {
+      stancePath = path.join(process.cwd(), `../client/characters_assets/${id}/stance.json`);
+    }
+    
+    if (!fs.existsSync(stancePath)) {
+      return res.status(404).json({ ok: false, error: "Character stance not found" });
+    }
+    
+    const data = JSON.parse(fs.readFileSync(stancePath, 'utf8'));
+    res.json(data);
+  } catch (error) {
+    console.error(`Error loading character stance for ${req.params.id}:`, error);
+    res.status(500).json({ ok: false, error: "Failed to load character stance" });
+  }
+});
+
 // GET /api/characters — publiczny katalog kart/misji
 app.get("/api/characters", async (req, res) => {
   try {
@@ -1100,8 +1165,8 @@ app.get("/api/characters", async (req, res) => {
         boxSetCode: char.boxSetCode || char.set_code || null,
         role: char.unit_type || char.role,
         faction: char.factions && char.factions.length > 0 ? char.factions.join(', ') : 'Unknown',
-        portrait: `/characters/${char.id}/portrait.png`,
-        image: char.image || char.portrait || `/characters/${char.id}/portrait.png`,
+        portrait: `https://shpoint-prod.onrender.com/characters/${char.id}/portrait.png`,
+        image: char.image || char.portrait || `https://shpoint-prod.onrender.com/characters/${char.id}/portrait.png`,
         tags: char.factions || [],
         sp: isPrimary ? (char.squad_points || char.sp) : null,
         pc: !isPrimary ? (char.squad_points || char.pc) : null,
@@ -1364,6 +1429,20 @@ app.get("/api/characters/:id", async (req, res) => {
     }
     
     const characterData = JSON.parse(fs.readFileSync(characterDataPath, 'utf8'));
+    
+    // Fix portrait paths to use full backend URLs
+    if (characterData.portrait && typeof characterData.portrait === 'string') {
+      if (characterData.portrait.startsWith('/characters/')) {
+        characterData.portrait = `https://shpoint-prod.onrender.com${characterData.portrait}`;
+      }
+    }
+    
+    // Fix image paths if they exist
+    if (characterData.image && typeof characterData.image === 'string') {
+      if (characterData.image.startsWith('/characters/')) {
+        characterData.image = `https://shpoint-prod.onrender.com${characterData.image}`;
+      }
+    }
     
     res.json({ 
       ok: true, 
