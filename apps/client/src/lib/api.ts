@@ -1,5 +1,5 @@
 // src/lib/api.ts
-export const API_BASE = import.meta.env.VITE_API_BASE?.replace(/\/+$/, '') || '';
+import { API_BASE } from './env';
 
 type Json = Record<string, unknown> | unknown[];
 

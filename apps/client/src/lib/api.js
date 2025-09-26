@@ -1,5 +1,5 @@
 // src/lib/api.ts
-export const API_BASE = import.meta.env.VITE_API_BASE?.replace(/\/+$/, '') || '';
+import { API_BASE } from './env';
 async function request(path, init) {
     const url = `${API_BASE}${path}`;
     const res = await fetch(url, {
