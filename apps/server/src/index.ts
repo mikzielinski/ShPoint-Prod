@@ -34,8 +34,8 @@ const prisma = new PrismaClient();
 // --- ENV ---
 const PORT = Number(process.env.PORT ?? 3001);
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? "http://localhost:5174";
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "fallback-client-id";
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "fallback-client-secret";
 const GOOGLE_CALLBACK_URL =
   process.env.GOOGLE_CALLBACK_URL ?? "http://localhost:3001/auth/google/callback";
 const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev_dev_dev_change_me";
