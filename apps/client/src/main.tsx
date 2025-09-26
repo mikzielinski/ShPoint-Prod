@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
+import "./debug-env.js";
 import "./styles/global.css";
 import "./styles/shatterpoint-icons.css";
 import "./lib/icons.css";

@@ -12,7 +12,7 @@ export const API_BASE: string = (() => {
   console.log('VITE_SERVER_URL:', viteServerUrl);
   console.log('window.__API_BASE__:', windowApiBase);
   
-  const raw = viteApiBase ?? viteServerUrl ?? windowApiBase ?? "http://localhost:3001"; // domyślnie backend dev
+  const raw = viteApiBase ?? viteServerUrl ?? windowApiBase ?? "https://shpoint-prod.onrender.com"; // domyślnie backend prod
   
   console.log('🔍 Selected API_BASE:', raw);
 

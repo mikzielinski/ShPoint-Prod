@@ -4,7 +4,7 @@ export const API_BASE = (() => {
     const raw = import.meta?.env?.VITE_API_BASE ??
         import.meta?.env?.VITE_SERVER_URL ??
         (typeof window !== "undefined" ? window.__API_BASE__ : undefined) ??
-        "http://localhost:3001"; // domyślnie backend dev
+        "https://shpoint-prod.onrender.com"; // domyślnie backend prod
     // Normalizacja: trim + bez końcowego "/"
     let url = String(raw).trim().replace(/\/+$/, "");
     // Jeśli ktoś poda względną ścieżkę (np. "/api"), zrób z niej absolutny URL
