@@ -2,6 +2,7 @@
 // Jedno źródło prawdy dla adresu API w kliencie (Vite)
 export const API_BASE = (() => {
     const raw = import.meta?.env?.VITE_API_BASE ??
+        import.meta?.env?.VITE_SERVER_URL ??
         (typeof window !== "undefined" ? window.__API_BASE__ : undefined) ??
         "http://localhost:3001"; // domyślnie backend dev
     // Normalizacja: trim + bez końcowego "/"

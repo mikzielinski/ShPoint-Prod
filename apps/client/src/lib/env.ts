@@ -4,6 +4,7 @@
 export const API_BASE: string = (() => {
   const raw =
     (import.meta as any)?.env?.VITE_API_BASE ??
+    (import.meta as any)?.env?.VITE_SERVER_URL ??
     (typeof window !== "undefined" ? (window as any).__API_BASE__ : undefined) ??
     "http://localhost:3001"; // domyślnie backend dev
 
