@@ -5,6 +5,7 @@ import CharacterDetails from '../components/CharacterDetails';
 import { GLYPHS, iconFromCode } from '../lib/icons';
 import DiceSimulator from '../components/DiceSimulator';
 import CharacterModal from '../components/CharacterModal';
+import { api } from '../lib/env';
 /** ====== Ikony (PUA) ====== */
 const ICON = {
     "1": "\u0031", // pinned
@@ -587,7 +588,7 @@ const BattlePage = () => {
         try {
             let allTeams = [];
             // Load user's own teams
-            const userResponse = await fetch('/api/shatterpoint/strike-teams', {
+            const userResponse = await fetch(api('/api/shatterpoint/strike-teams'), {
                 credentials: 'include'
             });
             if (userResponse.ok) {
@@ -595,7 +596,7 @@ const BattlePage = () => {
                 allTeams = [...allTeams, ...(userData.strikeTeams || [])];
             }
             // Load all public teams
-            const publicResponse = await fetch('/api/shatterpoint/strike-teams/public', {
+            const publicResponse = await fetch(api('/api/shatterpoint/strike-teams/public'), {
                 credentials: 'include'
             });
             if (publicResponse.ok) {

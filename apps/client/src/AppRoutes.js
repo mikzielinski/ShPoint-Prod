@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { api } from "./lib/env";
 import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
@@ -350,7 +351,7 @@ function CharactersPage() {
     // Add a function to manually add SWP24 set
     window.addSWP24Set = async () => {
         try {
-            const response = await fetch('/api/shatterpoint/sets', {
+            const response = await fetch(api('/api/shatterpoint/sets'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

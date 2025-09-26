@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/env';
 const HeroVsHeroPage = () => {
     const [characters, setCharacters] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +16,7 @@ const HeroVsHeroPage = () => {
     }, []);
     const loadCharacters = async () => {
         try {
-            const response = await fetch('/api/characters', {
+            const response = await fetch(api('/api/characters'), {
                 credentials: 'include'
             });
             if (response.ok) {

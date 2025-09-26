@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../lib/env';
 const StrikeTeamVsStrikeTeamPage = () => {
     const [strikeTeams, setStrikeTeams] = useState([]);
     const [characters, setCharacters] = useState([]);
@@ -23,7 +24,7 @@ const StrikeTeamVsStrikeTeamPage = () => {
     }, []);
     const loadCurrentUser = async () => {
         try {
-            const response = await fetch('/auth/status', {
+            const response = await fetch(api('/auth/status'), {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -39,7 +40,7 @@ const StrikeTeamVsStrikeTeamPage = () => {
         try {
             let allTeams = [];
             // Load user's own teams (private + public)
-            const userResponse = await fetch('/api/shatterpoint/strike-teams', {
+            const userResponse = await fetch(api('/api/shatterpoint/strike-teams'), {
                 credentials: 'include'
             });
             if (userResponse.ok) {
@@ -47,7 +48,7 @@ const StrikeTeamVsStrikeTeamPage = () => {
                 allTeams = [...allTeams, ...(userData.strikeTeams || [])];
             }
             // Load all public teams (from all users)
-            const publicResponse = await fetch('/api/shatterpoint/strike-teams/public', {
+            const publicResponse = await fetch(api('/api/shatterpoint/strike-teams/public'), {
                 credentials: 'include'
             });
             if (publicResponse.ok) {
@@ -65,7 +66,7 @@ const StrikeTeamVsStrikeTeamPage = () => {
     };
     const loadCharacters = async () => {
         try {
-            const response = await fetch('/api/characters', {
+            const response = await fetch(api('/api/characters'), {
                 credentials: 'include'
             });
             if (response.ok) {
