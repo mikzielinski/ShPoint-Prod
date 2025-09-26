@@ -278,7 +278,7 @@ app.get(
   passport.authenticate("google", { failureRedirect: `${CLIENT_ORIGIN}/unauthorized` }),
   (req, res) => {
     // express-session automatically handles session management with Passport
-    res.redirect(`${CLIENT_ORIGIN}/characters`);
+    res.redirect(`${CLIENT_ORIGIN}/builder`);
   }
 );
 

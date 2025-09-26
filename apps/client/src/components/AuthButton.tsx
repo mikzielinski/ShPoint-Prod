@@ -4,7 +4,7 @@ import { API_BASE } from "../lib/env";
 export default function AuthButton() {
   const goLogin = () => {
     // pełne przekierowanie do backendu
-    window.location.href = `${API_BASE}/auth/google/start`;
+    window.location.href = `${API_BASE}/auth/google`;
   };
 
   const goLogout = async () => {
