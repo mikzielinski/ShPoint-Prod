@@ -613,10 +613,10 @@ const BattlePage: React.FC = () => {
   const loadHeroes = async (hero1Id: string, hero2Id: string) => {
     try {
       const [response1, response2, stance1Response, stance2Response] = await Promise.all([
-        fetch(`/api/characters/${hero1Id}`),
-        fetch(`/api/characters/${hero2Id}`),
-        fetch(`/characters/${hero1Id}/stance.json`),
-        fetch(`/characters/${hero2Id}/stance.json`)
+        fetch(api(`/api/characters/${hero1Id}`)),
+        fetch(api(`/api/characters/${hero2Id}`)),
+        fetch(api(`/characters/${hero1Id}/stance.json`)),
+        fetch(api(`/characters/${hero2Id}/stance.json`))
       ]);
 
       // Check if character data loaded successfully
@@ -714,7 +714,7 @@ const BattlePage: React.FC = () => {
         // Load character data with error handling
         const characterPromises = allCharacterIds.map(async (id) => {
           try {
-            const response = await fetch(`/api/characters/${id}`);
+            const response = await fetch(api(`/api/characters/${id}`));
             if (response.ok) {
               const data = await response.json();
               return data.character;
@@ -897,7 +897,7 @@ const BattlePage: React.FC = () => {
       
       // Load character stance data
       try {
-        const stanceResponse = await fetch(`/characters/${character.id}/stance.json`);
+        const stanceResponse = await fetch(api(`/characters/${character.id}/stance.json`));
         if (stanceResponse.ok) {
           try {
             const stanceData = await stanceResponse.json();

@@ -296,7 +296,7 @@ const MissionsPage: React.FC = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      fetch(`/api/shatterpoint/missions/${mission.id}`, {
+                      fetch(api(`/api/shatterpoint/missions/${mission.id}`), {
                         method: 'DELETE',
                         credentials: 'include'
                       }).then(() => {

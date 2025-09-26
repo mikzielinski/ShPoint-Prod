@@ -1,13 +1,14 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from "react";
 import { AbilityCard } from "./AbilityCard";
+import { api } from "../lib/env";
 export default function CharacterDetails({ characterId }) {
     const [character, setCharacter] = useState(null);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const loadCharacter = async () => {
             try {
-                const response = await fetch(`/api/characters/${characterId}`);
+                const response = await fetch(api(`/api/characters/${characterId}`));
                 if (response.ok) {
                     const data = await response.json();
                     setCharacter(data.character);

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { API_BASE } from '../../lib/env';
+import { API_BASE, api } from '../../lib/env';
 import StanceEditor from './StanceEditor';
 
 interface Ability {
@@ -424,7 +424,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       console.log('🔍 Saving stance for character:', formData.id);
       
       // Call API to save stance
-      const response = await fetch(`/api/characters/${formData.id}/stance`, {
+      const response = await fetch(api(`/api/characters/${formData.id}/stance`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -466,7 +466,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     console.log('🔍 Loading stance data for character:', formData.id);
     
     try {
-      const response = await fetch(`/characters/${formData.id}/stance.json`);
+      const response = await fetch(api(`/characters/${formData.id}/stance.json`));
       console.log('🔍 Stance response status:', response.status);
       
       if (response.ok) {

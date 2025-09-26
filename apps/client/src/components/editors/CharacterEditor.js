@@ -381,7 +381,7 @@ export const CharacterEditor = ({ character, onSave, onCancel, onDelete }) => {
         }
         console.log('🔍 Loading stance data for character:', formData.id);
         try {
-            const response = await fetch(`/characters/${formData.id}/stance.json`);
+            const response = await fetch(api(`/characters/${formData.id}/stance.json`));
             console.log('🔍 Stance response status:', response.status);
             if (response.ok) {
                 const stance = await response.json();

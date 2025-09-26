@@ -102,7 +102,7 @@ const ContentManagementPage: React.FC = () => {
       console.log('Zapisywanie postaci:', character);
       
       // Call API to save character
-      const response = await fetch(`/api/characters/${character.id}`, {
+      const response = await fetch(api(`/api/characters/${character.id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ const ContentManagementPage: React.FC = () => {
     if (!characterToDelete) return;
     
     try {
-      const response = await fetch(`/api/characters/${characterToDelete}`, {
+      const response = await fetch(api(`/api/characters/${characterToDelete}`), {
         method: 'DELETE',
         credentials: 'include',
         headers: {
