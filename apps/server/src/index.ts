@@ -27,7 +27,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
-import { sendInvitationEmail, testEmailConfiguration } from "./email";
+import { sendInvitationEmail, testEmailConfiguration } from "./email.js";
 
 const prisma = new PrismaClient();
 
