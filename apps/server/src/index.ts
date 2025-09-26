@@ -1101,6 +1101,7 @@ app.get("/api/characters", async (req, res) => {
         role: char.unit_type || char.role,
         faction: char.factions && char.factions.length > 0 ? char.factions.join(', ') : 'Unknown',
         portrait: `/characters/${char.id}/portrait.png`,
+        image: char.image || char.portrait || `/characters/${char.id}/portrait.png`,
         tags: char.factions || [],
         sp: isPrimary ? (char.squad_points || char.sp) : null,
         pc: !isPrimary ? (char.squad_points || char.pc) : null,
