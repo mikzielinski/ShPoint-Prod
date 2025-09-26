@@ -2,8 +2,7 @@ import React from "react";
 import { Button } from "../ui/Button";
 import { Card, CardHeader, CardContent } from "../ui/Card";
 
-const API_BASE =
-  (import.meta as any).env?.VITE_SERVER_URL || "http://localhost:3001";
+import { API_BASE } from "../../lib/env";
 const GOOGLE_START = `${API_BASE}/auth/google/start`;
 
 const GoogleIcon = (

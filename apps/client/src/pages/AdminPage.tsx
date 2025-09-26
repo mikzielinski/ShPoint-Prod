@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
+import { API_BASE as API } from "../lib/env";
 import AdminInvitationSettings from "../components/AdminInvitationSettings";
 import "../styles/admin.css";
 
@@ -41,8 +42,6 @@ type AllowedEmail = {
   expiresAt?: string | null;
   usedAt?: string | null;
 };
-
-const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
 
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: "include", ...init });

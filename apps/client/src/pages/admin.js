@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import "../styles/admin.css"; // ⬅️ WYMUSZAMY załadowanie styli tej strony
-const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+import { API_BASE as API } from "../lib/env";
 async function apiFetch(url, init) {
     const res = await fetch(url, { credentials: "include", ...init });
     if (!res.ok)

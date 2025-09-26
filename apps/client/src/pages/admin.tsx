@@ -12,7 +12,7 @@ type AdminUser = {
   createdAt?: string;
 };
 
-const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+import { API_BASE as API } from "../lib/env";
 
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: "include", ...init });

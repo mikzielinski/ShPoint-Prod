@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
-
-const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+import { API_BASE as API } from '../lib/env';
 
 async function apiFetch(url: string, init?: RequestInit) {
   const res = await fetch(url, { credentials: "include", ...init });

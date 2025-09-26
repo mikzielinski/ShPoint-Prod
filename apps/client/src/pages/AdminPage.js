@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import AdminInvitationSettings from "../components/AdminInvitationSettings";
 import "../styles/admin.css";
-const API = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+import { API_BASE as API } from "../lib/env";
 async function apiFetch(url, init) {
     const res = await fetch(url, { credentials: "include", ...init });
     if (!res.ok)
