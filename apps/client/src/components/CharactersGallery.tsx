@@ -5,13 +5,14 @@ import taxo from "@shpoint/shared/data/taxo.json";
 import { NewFactionsBadge } from "../components/NewFactionsBadge";
 import { FactionsReviewPanel } from "../components/FactionsReviewPanel";
 import FiltersPanel from "../components/FiltersPanel";
+import { api } from "../lib/env";
 
 function useMeRole() {
   const [role, setRole] = useState<string | undefined>(undefined);
   useMemo(() => {
     (async () => {
       try {
-        const r = await fetch("/api/me", { credentials: "include" });
+        const r = await fetch(api("/api/me"), { credentials: "include" });
         if (r.ok) {
           const j = await r.json();
           setRole(j?.user?.role);

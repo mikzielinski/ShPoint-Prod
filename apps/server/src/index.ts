@@ -37,6 +37,15 @@ const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? "http://localhost:5174";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "fallback-client-id";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "fallback-client-secret";
 
+// CORS allowed origins
+const ALLOWED_ORIGINS = [
+  CLIENT_ORIGIN,
+  "https://shpoint.netlify.app", // Netlify production
+  "https://sh-point-prod-client.vercel.app", // Vercel production (if used)
+  "http://localhost:5173", // Vite dev server
+  "http://localhost:5174", // Alternative dev port
+];
+
 // Debug log
 console.log("🔍 Environment variables:");
 console.log("GOOGLE_CLIENT_ID:", GOOGLE_CLIENT_ID);
@@ -56,9 +65,20 @@ export const app = express();
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
   cors({
-    origin: CLIENT_ORIGIN,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      console.warn(`🚫 CORS blocked origin: ${origin}`);
+      return callback(new Error('Not allowed by CORS'), false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(morgan("dev"));
@@ -2782,7 +2802,8 @@ app.post("/api/custom-cards/:id/accept", ensureAuth, async (req, res) => {
 });
 
 // ===== start
-app.listen(PORT, () => {
-  console.log(`API on http://localhost:${PORT}`);
-  console.log(`CORS -> ${CLIENT_ORIGIN}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 API listening on port ${PORT}`);
+  console.log(`🌐 CORS allowed origins:`, ALLOWED_ORIGINS);
+  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
 });

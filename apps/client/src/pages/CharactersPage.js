@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // apps/client/src/pages/CharactersPage.tsx
 import { useEffect, useState } from "react";
+import { api } from "../lib/env";
 export default function CharactersPage() {
     console.log('=== CHARACTERS PAGE RENDER ===');
     console.log('You are on the WRONG page! Go to /content-management instead!');
@@ -10,7 +11,7 @@ export default function CharactersPage() {
         let alive = true;
         (async () => {
             try {
-                const res = await fetch("/api/characters", { credentials: "include" });
+                const res = await fetch(api("/api/characters"), { credentials: "include" });
                 const json = (await res.json());
                 if (alive)
                     setData(json.items ?? []);

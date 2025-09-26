@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "../lib/env";
 
 type MeResponse =
   | { user: { id: string; email?: string; name?: string; username?: string | null; role?: string; image?: string | null; avatarUrl?: string | null } }
@@ -10,7 +11,7 @@ export function useAuthMe() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/me", { credentials: "include" });
+      const res = await fetch(api("/api/me"), { credentials: "include" });
       if (res.ok) {
         setData(await res.json());
       } else {

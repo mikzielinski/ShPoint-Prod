@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useMemo, useState } from "react";
+import { api } from "../lib/env";
 import { useCharacterFilters } from "../lib/shpoint/characters/useCharacterFilters";
 import { collectUnknownFactions } from "../lib/shpoint/characters/unknownFactions";
 import taxo from "@shpoint/shared/data/taxo.json";
@@ -11,7 +12,7 @@ function useMeRole() {
     useMemo(() => {
         (async () => {
             try {
-                const r = await fetch("/api/me", { credentials: "include" });
+                const r = await fetch(api("/api/me"), { credentials: "include" });
                 if (r.ok) {
                     const j = await r.json();
                     setRole(j?.user?.role);

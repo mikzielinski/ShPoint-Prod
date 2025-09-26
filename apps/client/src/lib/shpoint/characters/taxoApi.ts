@@ -1,3 +1,5 @@
+import { api } from "../../env";
+
 export interface UpdateTaxoPayload {
   addKnown?: string[];
   addAliases?: Record<string, string>;
@@ -10,7 +12,7 @@ export interface UpdateTaxoPayload {
 export async function updateTaxonomy(
   payload: UpdateTaxoPayload
 ): Promise<{ ok: true }> {
-  const res = await fetch("/api/taxo/update", {
+  const res = await fetch(api("/api/taxo/update"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

@@ -36,7 +36,7 @@ function useAuthMe() {
   
   const refetch = async () => {
     try {
-      const res = await fetch("/api/me", { credentials: "include" });
+      const res = await fetch(api("/api/me"), { credentials: "include" });
       setData(res.ok ? ((await res.json()) as MeResponse) : { user: undefined });
     } catch {
       setData({ user: undefined });
@@ -47,7 +47,7 @@ function useAuthMe() {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/me", { credentials: "include" });
+        const res = await fetch(api("/api/me"), { credentials: "include" });
         if (!alive) return;
         setData(res.ok ? ((await res.json()) as MeResponse) : { user: undefined });
       } catch {
@@ -159,7 +159,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
                              // If this is Google image and user doesn't have custom avatarUrl, save it as backup
                              if (me.image && target.src === me.image && !me.avatarUrl) {
                             try {
-                              await fetch("/api/user/save-google-avatar", {
+                              await fetch(api("/api/user/save-google-avatar"), {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
                                 credentials: "include",
@@ -266,7 +266,7 @@ function CharactersPage() {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/shatterpoint/characters", { credentials: "include" });
+        const res = await fetch(api("/api/shatterpoint/characters"), { credentials: "include" });
         const json = await res.json();
         if (alive && json.ok) {
           setCharacterCollections(json.collections || []);
@@ -377,7 +377,7 @@ function CharactersPage() {
     
     try {
       // Get current character collections
-      const charResponse = await fetch("/api/shatterpoint/characters", {
+      const charResponse = await fetch(api("/api/shatterpoint/characters"), {
         credentials: "include"
       });
       
@@ -445,7 +445,7 @@ function CharactersPage() {
           console.log(`🎉 Auto-adding set "${set.name}" to collection!`);
           
           // Add set to collection
-          const setResponse = await fetch("/api/shatterpoint/sets", {
+          const setResponse = await fetch(api("/api/shatterpoint/sets"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -505,7 +505,7 @@ function CharactersPage() {
     if (!me) return;
     
     try {
-      const response = await fetch("/api/shatterpoint/characters", {
+      const response = await fetch(api("/api/shatterpoint/characters"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -525,7 +525,7 @@ function CharactersPage() {
       alert(`Added ${characterId} to your collection!`);
       
       // Refresh character collections
-      const res = await fetch("/api/shatterpoint/characters", { credentials: "include" });
+      const res = await fetch(api("/api/shatterpoint/characters"), { credentials: "include" });
       const json = await res.json();
       if (json.ok) {
         setCharacterCollections(json.collections || []);
@@ -545,7 +545,7 @@ function CharactersPage() {
     if (!me) return;
     
     try {
-      const response = await fetch("/api/shatterpoint/characters", {
+      const response = await fetch(api("/api/shatterpoint/characters"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -578,7 +578,7 @@ function CharactersPage() {
     if (!me) return;
     
     try {
-      const response = await fetch("/api/shatterpoint/characters", {
+      const response = await fetch(api("/api/shatterpoint/characters"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

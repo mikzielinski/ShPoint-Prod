@@ -1,5 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useEffect, useMemo, useState } from "react";
+import { api } from "../lib/env";
 /** Wyciągnij bazową nazwę postaci z nazwy karty */
 function extractBaseCharacterName(cardName) {
     // Usuń typowe sufiksy i prefiksy z nazw kart
@@ -126,7 +127,7 @@ function normalizeCard(raw) {
 /** Pobranie danych z naszego API */
 async function loadCards() {
     console.log(`🚀 NEW VERSION LOADED! loadCards called - fetching from /api/characters`);
-    const res = await fetch("/api/characters", { cache: "no-store" });
+    const res = await fetch(api("/api/characters"), { cache: "no-store" });
     if (!res.ok)
         throw new Error(`Failed to fetch cards: ${res.status}`);
     const json = await res.json();
