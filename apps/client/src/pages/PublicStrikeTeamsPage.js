@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from 'react';
 import CharacterModal from '../components/CharacterModal';
-const api = (path) => `http://localhost:3001${path}`;
+import { api } from '../lib/env';
 export default function PublicStrikeTeamsPage() {
     // State
     const [strikeTeams, setStrikeTeams] = useState([]);

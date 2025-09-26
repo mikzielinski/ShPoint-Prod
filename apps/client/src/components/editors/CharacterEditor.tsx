@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import { API_BASE } from '../../lib/env';
 import StanceEditor from './StanceEditor';
 
 interface Ability {
@@ -484,7 +485,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     console.log('🔍 Loading stance data for character ID:', characterId);
     
     try {
-      const response = await fetch(`http://localhost:3001/characters/${characterId}/stance.json`);
+      const response = await fetch(`${API_BASE}/characters/${characterId}/stance.json`);
       console.log('🔍 Stance response status:', response.status);
       
       if (response.ok) {

@@ -43,7 +43,9 @@ interface Character {
   era?: string;
 }
 
-const api = (path: string) => `http://localhost:3001${path}`;
+import { api } from '../lib/env';
+
+// const api = (path: string) => `http://localhost:3001${path}`;
 
 export default function PublicStrikeTeamsPage() {
   // State

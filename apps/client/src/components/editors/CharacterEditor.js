@@ -1,6 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import { API_BASE } from '../../lib/env';
 import StanceEditor from './StanceEditor';
 export const CharacterEditor = ({ character, onSave, onCancel, onDelete }) => {
     const { auth } = useAuth();
@@ -398,7 +399,7 @@ export const CharacterEditor = ({ character, onSave, onCancel, onDelete }) => {
     const loadStanceDataForCharacter = async (characterId) => {
         console.log('🔍 Loading stance data for character ID:', characterId);
         try {
-            const response = await fetch(`http://localhost:3001/characters/${characterId}/stance.json`);
+            const response = await fetch(`${API_BASE}/characters/${characterId}/stance.json`);
             console.log('🔍 Stance response status:', response.status);
             if (response.ok) {
                 const stance = await response.json();
