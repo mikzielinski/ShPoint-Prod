@@ -1,5 +1,5 @@
 // apps/server/src/prisma.ts
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient } from "@prisma/client";
 
 const logLevels: ("query" | "error" | "warn" | "info")[] =
   process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"];

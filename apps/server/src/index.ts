@@ -1,7 +1,7 @@
 // apps/server/src/index.ts
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
-import { User } from "@prisma/client";
+import { User as PrismaUser } from "@prisma/client";
 
 // Extend Express Request interface
 declare global {
@@ -1381,7 +1381,7 @@ app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
                 validateSquad(squad2, 'Squad 2');
     
     // Check for duplicate characters across the entire strike team
-    const allCharacterIds = characters.map((c: any) => c.characterId);
+    const allCharacterIds = characters.map((c: { characterId: string }) => c.characterId);
     const uniqueTeamIds = new Set(allCharacterIds);
     if (uniqueTeamIds.size !== allCharacterIds.length) {
       throw new Error("Strike team cannot have duplicate characters across squads");
