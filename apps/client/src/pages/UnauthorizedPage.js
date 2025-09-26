@@ -1,4 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { API_BASE } from "../lib/env";
 export default function UnauthorizedPage() {
     return (_jsx("div", { style: {
             minHeight: '100vh',
@@ -76,7 +77,7 @@ export default function UnauthorizedPage() {
                         gap: '12px',
                         justifyContent: 'center',
                         flexWrap: 'wrap'
-                    }, children: [_jsx("button", { onClick: () => window.location.href = '/auth/google', style: {
+                    }, children: [_jsx("button", { onClick: () => window.location.href = `${API_BASE}/auth/google`, style: {
                                 background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                                 color: 'white',
                                 border: 'none',

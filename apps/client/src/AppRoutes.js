@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { api } from "./lib/env";
+import { api, API_BASE } from "./lib/env";
 import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
@@ -72,7 +72,7 @@ function NavBar({ onAvatarClick, onInviteClick }) {
         const p = n.split(" ");
         return (p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase();
     }, [me?.name, me?.username, me?.email]);
-    const gotoLogin = () => (window.location.href = "/auth/google");
+    const gotoLogin = () => (window.location.href = `${API_BASE}/auth/google`);
     const doLogout = async () => { await fetch("/auth/logout", { method: "POST", credentials: "include" }); location.href = "/"; };
     return (_jsx("nav", { className: "nb-root", children: _jsxs("div", { className: "nb-inner", children: [_jsxs(NavLink, { to: "/", className: "nb-brand", children: [_jsx("div", { className: "nb-brand-dot" }), _jsx("span", { className: "nb-brand-name", children: "ShPoint" })] }), _jsxs("div", { className: "nb-nav", children: [_jsx(NavLink, { to: "/", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "News" }), _jsx(NavLink, { to: "/play", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "Play" }), _jsx(NavLink, { to: "/characters", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "Characters" }), _jsx(NavLink, { to: "/library", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "Library" }), _jsx(NavLink, { to: "/strike-teams", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "Strike Teams" }), me && (_jsxs(_Fragment, { children: [me.status !== 'SUSPENDED' && (_jsx(_Fragment, { children: _jsx(NavLink, { to: "/my-collection", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "My Collection" }) })), (me.role === "ADMIN" || me.role === "EDITOR") && me.status !== 'SUSPENDED' && (_jsx(NavLink, { to: "/content-management", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "Manage Content" })), me.role === "ADMIN" && me.status !== 'SUSPENDED' && (_jsx(NavLink, { to: "/admin", className: ({ isActive }) => `nb-link ${isActive ? "is-active" : ""}`, children: "Admin" }))] }))] }), _jsxs("div", { className: "nb-actions", children: [!loading && !me && (_jsx("button", { className: "nb-btn", onClick: gotoLogin, children: "Sign in" })), loading ? (_jsx("span", { className: "nb-guest", children: "..." })) : me ? (_jsxs(_Fragment, { children: [_jsxs("div", { style: {
                                         display: "flex",

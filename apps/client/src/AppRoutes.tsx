@@ -1,6 +1,6 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { api } from "./lib/env";
+import { api, API_BASE } from "./lib/env";
 import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
@@ -79,7 +79,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
     return (p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase();
   }, [me?.name, me?.username, me?.email]);
 
-  const gotoLogin = () => (window.location.href = "/auth/google");
+  const gotoLogin = () => (window.location.href = `${API_BASE}/auth/google`);
   const doLogout = async () => { await fetch("/auth/logout", { method: "POST", credentials: "include" }); location.href = "/"; };
 
   return (
