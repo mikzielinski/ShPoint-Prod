@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { api } from "../lib/env";
 
 type Line = { ts: number; text: string };
 
@@ -24,7 +25,7 @@ export default function AdminRefreshPanel() {
     setProgress(0);
     setRunning(true);
     try {
-      const res = await fetch("/admin/refresh-cards", {
+      const res = await fetch(api("/admin/refresh-cards"), {
         method: "POST",
         // jeśli masz token: headers: { "x-admin-token": import.meta.env.VITE_ADMIN_TOKEN }
       });

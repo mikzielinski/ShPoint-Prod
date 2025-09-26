@@ -397,7 +397,7 @@ function CharactersPage() {
             // Show success message
             alert(`Added ${characterId} to your collection!`);
             // Refresh character collections
-            const res = await fetch("/api/shatterpoint/characters", { credentials: "include" });
+            const res = await fetch(api("/api/shatterpoint/characters"), { credentials: "include" });
             const json = await res.json();
             if (json.ok) {
                 setCharacterCollections(json.collections || []);

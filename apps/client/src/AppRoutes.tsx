@@ -80,7 +80,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
   }, [me?.name, me?.username, me?.email]);
 
   const gotoLogin = () => (window.location.href = `${API_BASE}/auth/google`);
-  const doLogout = async () => { await fetch("/auth/logout", { method: "POST", credentials: "include" }); location.href = "/"; };
+  const doLogout = async () => { await fetch(api("/auth/logout"), { method: "POST", credentials: "include" }); location.href = "/"; };
 
   return (
     <nav className="nb-root">
