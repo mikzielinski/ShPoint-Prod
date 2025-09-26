@@ -1,0 +1,21 @@
+{
+  "factionAliases": {
+    "Rebel Alliance": "Rebels",
+    "Imperials": "Galactic Empire"
+  },
+  "knownFactions": [
+    "Galactic Republic",
+    "Separatist Alliance",
+    "Galactic Empire",
+    "Rebels",
+    "Shadow Collective",
+    "Mandalorian",
+    "Jedi",
+    "Sith",
+    "Bounty Hunter",
+    "Dathomirian",
+    "Inquisitorius"
+  ],
+  "forceTagPatterns": [".*Trooper$", ".*Droid$", "Force User"],
+  "defaults": { "unknownFactionPolicy": "demote" }
+}
