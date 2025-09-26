@@ -13,6 +13,12 @@
   force = true
 
 [[redirects]]
+  from = "/characters_assets/*"
+  to = "https://shpoint-prod.onrender.com/characters/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
