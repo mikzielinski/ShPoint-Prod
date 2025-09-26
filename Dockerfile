@@ -2,11 +2,11 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY package*.json ./
+COPY apps/server/package*.json ./
 RUN npm install
 
 # Copy server source code
-COPY . .
+COPY apps/server/ .
 
 # Copy character data from client (relative to build context)
 COPY apps/client/characters_assets ./characters_assets

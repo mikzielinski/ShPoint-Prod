@@ -27,6 +27,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
+import fs from "fs";
 import { sendInvitationEmail, testEmailConfiguration } from "./email.js";
 
 const prisma = new PrismaClient();
@@ -85,9 +86,16 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
-// Static files
-app.use('/characters', express.static(path.join(process.cwd(), '../client/characters_assets')));
-app.use('/sets', express.static(path.join(process.cwd(), '../client/public/images/sets')));
+// Static files - try production paths first, then fallback to development paths
+const charactersAssetsPath = fs.existsSync(path.join(process.cwd(), 'characters_assets')) 
+  ? path.join(process.cwd(), 'characters_assets')
+  : path.join(process.cwd(), '../client/characters_assets');
+const setsPath = fs.existsSync(path.join(process.cwd(), 'public/images/sets'))
+  ? path.join(process.cwd(), 'public/images/sets')
+  : path.join(process.cwd(), '../client/public/images/sets');
+
+app.use('/characters', express.static(charactersAssetsPath));
+app.use('/sets', express.static(setsPath));
 
 // express-session (compatible with Passport)
 app.use(
@@ -843,13 +851,20 @@ app.get("/api/characters", async (req, res) => {
     const path = await import('path');
     
     // Use unified character data source with period/era information
-    const charactersPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    // Try production path first, then fallback to development path
+    let charactersPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(charactersPath)) {
+      charactersPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
     const charactersData = JSON.parse(fs.readFileSync(charactersPath, 'utf8'));
     
     // Merge with additional data from individual files if available
     const enrichedCharacters = charactersData.map((char: any) => {
       try {
-        const dataPath = path.join(process.cwd(), `../client/characters_assets/${char.id}/data.json`);
+        let dataPath = path.join(process.cwd(), `characters_assets/${char.id}/data.json`);
+        if (!fs.existsSync(dataPath)) {
+          dataPath = path.join(process.cwd(), `../client/characters_assets/${char.id}/data.json`);
+        }
         if (fs.existsSync(dataPath)) {
           const fullData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
           return { ...char, ...fullData }; // Merge unified data with detailed data
@@ -1123,7 +1138,10 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
     const path = await import('path');
     
     // Remove from characters_unified.json
-    const charactersUnifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    let charactersUnifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(charactersUnifiedPath)) {
+      charactersUnifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
     if (fs.existsSync(charactersUnifiedPath)) {
       const charactersData = JSON.parse(fs.readFileSync(charactersUnifiedPath, 'utf8'));
       const filteredCharacters = charactersData.filter((char: any) => char.id !== characterId);
@@ -1131,7 +1149,10 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
     }
     
     // Remove from src/data/characters.json
-    const charactersDataPath = path.join(process.cwd(), '../client/src/data/characters.json');
+    let charactersDataPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(charactersDataPath)) {
+      charactersDataPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
     if (fs.existsSync(charactersDataPath)) {
       const charactersData = JSON.parse(fs.readFileSync(charactersDataPath, 'utf8'));
       const filteredCharacters = charactersData.filter((char: any) => char.id !== characterId);
@@ -1139,7 +1160,10 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
     }
     
     // Remove from characters_assets/index.json
-    const indexPath = path.join(process.cwd(), '../client/characters_assets/index.json');
+    let indexPath = path.join(process.cwd(), 'characters_assets/index.json');
+    if (!fs.existsSync(indexPath)) {
+      indexPath = path.join(process.cwd(), '../client/characters_assets/index.json');
+    }
     if (fs.existsSync(indexPath)) {
       const indexData = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
       const filteredIndex = indexData.filter((char: any) => char.id !== characterId);
@@ -1147,7 +1171,10 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
     }
     
     // Remove character directory and files
-    const characterDir = path.join(process.cwd(), `../client/characters_assets/${characterId}`);
+    let characterDir = path.join(process.cwd(), `characters_assets/${characterId}`);
+    if (!fs.existsSync(characterDir)) {
+      characterDir = path.join(process.cwd(), `../client/characters_assets/${characterId}`);
+    }
     if (fs.existsSync(characterDir)) {
       fs.rmSync(characterDir, { recursive: true, force: true });
     }
@@ -1186,7 +1213,10 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
     const path = await import('path');
     
     // Update characters_unified.json
-    const charactersUnifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    let charactersUnifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(charactersUnifiedPath)) {
+      charactersUnifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
     if (fs.existsSync(charactersUnifiedPath)) {
       const charactersData = JSON.parse(fs.readFileSync(charactersUnifiedPath, 'utf8'));
       const characterIndex = charactersData.findIndex((char: any) => char.id === characterId);
@@ -1205,7 +1235,10 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
     }
     
     // Update src/data/characters.json
-    const charactersDataPath = path.join(process.cwd(), '../client/src/data/characters.json');
+    let charactersDataPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(charactersDataPath)) {
+      charactersDataPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
     if (fs.existsSync(charactersDataPath)) {
       const charactersData = JSON.parse(fs.readFileSync(charactersDataPath, 'utf8'));
       const characterIndex = charactersData.findIndex((char: any) => char.id === characterId);
@@ -1222,7 +1255,10 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
     }
     
     // Update individual character data file if it exists
-    const individualDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
+    let individualDataPath = path.join(process.cwd(), `characters_assets/${characterId}/data.json`);
+    if (!fs.existsSync(individualDataPath)) {
+      individualDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
+    }
     const individualDir = path.dirname(individualDataPath);
     
     // Create directory if it doesn't exist
@@ -1267,7 +1303,10 @@ app.put("/api/characters/:id/stance", ensureAuth, async (req, res) => {
     const path = await import('path');
     
     // Update individual character stance file
-    const stancePath = path.join(process.cwd(), `../client/characters_assets/${characterId}/stance.json`);
+    let stancePath = path.join(process.cwd(), `characters_assets/${characterId}/stance.json`);
+    if (!fs.existsSync(stancePath)) {
+      stancePath = path.join(process.cwd(), `../client/characters_assets/${characterId}/stance.json`);
+    }
     const stanceDir = path.dirname(stancePath);
     
     // Create directory if it doesn't exist
@@ -1296,7 +1335,10 @@ app.get("/api/characters/:id", async (req, res) => {
     const path = await import('path');
     
     const characterId = req.params.id;
-    const characterDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
+    let characterDataPath = path.join(process.cwd(), `characters_assets/${characterId}/data.json`);
+    if (!fs.existsSync(characterDataPath)) {
+      characterDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
+    }
     
     if (!fs.existsSync(characterDataPath)) {
       return res.status(404).json({ ok: false, error: "Character not found" });
@@ -1415,7 +1457,10 @@ app.post("/api/shatterpoint/strike-teams", ensureAuth, async (req, res) => {
     // Load character data for characterName and unitCount
     const fs = await import('fs');
     const path = await import('path');
-    const charactersDataPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    let charactersDataPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(charactersDataPath)) {
+      charactersDataPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
     const charactersData = JSON.parse(fs.readFileSync(charactersDataPath, 'utf8'));
     
     // Create strike team with characters in a transaction
