@@ -260,7 +260,31 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.9" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.10" }));
+
+// ===== Seed endpoint for production
+app.post("/api/seed", async (req, res) => {
+  try {
+    console.log('🌱 Running seed on production...');
+    
+    // Add admin user to allowed emails
+    await prisma.allowedEmail.upsert({
+      where: { email: 'mikzielinski@gmail.com' },
+      update: {},
+      create: {
+        email: 'mikzielinski@gmail.com',
+        role: 'ADMIN',
+        isActive: true
+      }
+    });
+    
+    console.log('✅ Seed completed successfully');
+    res.json({ ok: true, message: "Seed completed successfully" });
+  } catch (error) {
+    console.error('❌ Seed failed:', error);
+    res.status(500).json({ ok: false, error: "Seed failed" });
+  }
+});
 
 // ===== AUTH
 // start
