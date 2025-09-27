@@ -43,6 +43,7 @@ const ALLOWED_ORIGINS = [
   CLIENT_ORIGIN,
   "https://shpoint.netlify.app", // Netlify production
   "https://sh-point-prod-client.vercel.app", // Vercel production (if used)
+  "https://sh-point-prod-client-cbvhr7v70-mikolajs-projects-bd5e358a.vercel.app", // New Vercel URL
   "http://localhost:5173", // Vite dev server
   "http://localhost:5174", // Alternative dev port
 ];
@@ -262,7 +263,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.13" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.14" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
