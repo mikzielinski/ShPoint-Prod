@@ -9,7 +9,7 @@ RUN npm install
 # Copy server source code
 COPY . .
 
-# Copy character data from client (relative to build context)
+# Copy character data from client (relative to build context) - v1.2.6
 COPY apps/client/characters_assets_backup ./characters_assets
 COPY apps/client/public/images/sets ./public/images/sets
 
