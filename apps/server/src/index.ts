@@ -263,7 +263,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.16" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.17" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
