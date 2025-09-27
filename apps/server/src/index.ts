@@ -260,7 +260,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.8" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.9" }));
 
 // ===== AUTH
 // start
@@ -866,6 +866,9 @@ app.get("/characters/:id/data.json", async (req, res) => {
     if (data.portrait && typeof data.portrait === 'string') {
       if (data.portrait.startsWith('/characters/')) {
         data.portrait = `https://shpoint-prod.onrender.com${data.portrait}`;
+      } else if (data.portrait.includes('shatterpointdb.com')) {
+        // Replace shatterpointdb.com URLs with our backend URLs
+        data.portrait = `https://shpoint-prod.onrender.com/characters/${id}/portrait.png`;
       }
     }
     
@@ -873,6 +876,9 @@ app.get("/characters/:id/data.json", async (req, res) => {
     if (data.image && typeof data.image === 'string') {
       if (data.image.startsWith('/characters/')) {
         data.image = `https://shpoint-prod.onrender.com${data.image}`;
+      } else if (data.image.includes('shatterpointdb.com')) {
+        // Replace shatterpointdb.com URLs with our backend URLs
+        data.image = `https://shpoint-prod.onrender.com/characters/${id}/portrait.png`;
       }
     }
     
