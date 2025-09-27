@@ -272,7 +272,18 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.24" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.25" }));
+
+// Test email configuration
+app.get("/api/test-email", ensureAuth, async (req, res) => {
+  try {
+    const result = await testEmailConfiguration();
+    res.json({ ok: true, result });
+  } catch (error: any) {
+    console.error('Email test error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
@@ -304,8 +315,11 @@ app.get(
   "/auth/google",
   (req, res, next) => {
     // Store the return URL in session if provided
+    console.log('🔍 Google OAuth start - query:', req.query);
+    console.log('🔍 Google OAuth start - returnTo:', req.query.returnTo);
     if (req.query.returnTo) {
       (req.session as any).returnTo = req.query.returnTo as string;
+      console.log('🔍 Google OAuth start - stored returnTo in session:', req.query.returnTo);
     }
     next();
   },
@@ -330,6 +344,9 @@ app.get(
     req.session.save(() => {
       // Check if there's a return URL in the session, otherwise default to builder
       const returnUrl = (req.session as any).returnTo || '/builder';
+      console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
+      console.log('🔍 Google OAuth callback - final returnUrl:', returnUrl);
+      console.log('🔍 Google OAuth callback - redirecting to:', `https://shpoint.netlify.app${returnUrl}`);
       res.redirect(`https://shpoint.netlify.app${returnUrl}`);
     });
   }
