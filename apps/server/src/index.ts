@@ -53,7 +53,7 @@ console.log("🔍 Environment variables:");
 console.log("GOOGLE_CLIENT_ID:", GOOGLE_CLIENT_ID);
 console.log("GOOGLE_CLIENT_SECRET:", GOOGLE_CLIENT_SECRET ? "***SET***" : "NOT SET");
 const GOOGLE_CALLBACK_URL =
-  process.env.GOOGLE_CALLBACK_URL ?? "http://localhost:3001/auth/google/callback";
+  process.env.GOOGLE_CALLBACK_URL ?? "https://shpoint.netlify.app/backend-auth/google/callback";
 const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev_dev_dev_change_me";
 const ADMIN_EMAILS =
   (process.env.ADMIN_EMAILS ?? "")
@@ -263,7 +263,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.17" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.18" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
