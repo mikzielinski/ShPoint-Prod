@@ -1,0 +1,33 @@
+{
+  "id": "naboo-royal-handmaidens",
+  "url": "https://shatterpointdb.com/characters/naboo-royal-handmaidens",
+  "name": "Naboo Royal Handmaidens",
+  "portrait": "https://shatterpointdb.com/media/c4xfmpuj/shatterpoint-haindmaden-unit-card.png?height=600&v=1d9d65d09e95710",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Expose Flank",
+      "text": "Each character in this Unit may . If any character ends this movement at a higher elevation than it began, characters in this Unit have Sharpshooter [1] until the end of the Turn and this Unit immediately makes a focus action. Coordinated Fire: When a character in an allied Galactic Republic Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit suffers . Intercede While this Unit is not Wounded, enemy characters Engaged with one or more characters in this Unit cannot target allied Primary characters or allied Secondary characters with attacks."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Each character in this Unit may . If any character ends this movement at a higher elevation than it began, characters in this Unit have  until the end of the Turn and this Unit immediately makes a focus action."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When a character in an allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "title": "Primary",
+      "text": "While this Unit is not Wounded, enemy characters Engaged with one or more characters in this Unit cannot target allied  characters or allied Secondary characters with attacks."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897057
+  }
+}

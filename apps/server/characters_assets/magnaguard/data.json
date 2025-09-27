@@ -1,0 +1,29 @@
+{
+  "id": "magnaguard",
+  "url": "https://shatterpointdb.com/characters/magnaguard",
+  "name": "MagnaGuard",
+  "portrait": "https://shatterpointdb.com/media/xtxn0ays/star-wars-shatterpoint-magnaguard-unit-card.png?height=600&v=1d9837a22a18600",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Protection Protocols",
+      "text": "After an allied Separatist Alliance Primary unit makes a move action, this unit can use this ability. Choose a character in the activating Primary Unit . One character from this unit can perform a towards the chosen character. Bodyguard Allied Primary characters within 2 and allied Secondary characters within 2 of a character in this unit have COVER [1] Intercede While this Unit is not Wounded, enemy characters Engaged with one or more characters in this Unit cannot target allied Primary characters or allied Secondary characters with attacks."
+    },
+    {
+      "title": "Separatist Alliance",
+      "text": "After an allied  Primary unit makes a move action, this unit can use this ability. Choose a character in the activating Primary Unit . One character from this unit can perform a towards the chosen character."
+    },
+    {
+      "title": "Primary",
+      "text": "Allied  characters within 2 and allied Secondary characters within 2 of a character in this unit have COVER [1]"
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897055
+  }
+}

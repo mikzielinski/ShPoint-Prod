@@ -1,0 +1,29 @@
+{
+  "id": "kanan-jarrus-spectre-1",
+  "url": "https://shatterpointdb.com/characters/kanan-jarrus-spectre-1",
+  "name": "Kanan Jarrus, Spectre-1",
+  "portrait": "https://shatterpointdb.com/media/oponhs0f/shatterpoint-kanan-jarrus-spectre-1-unit-card.png?height=600&v=1daa141d9065cf0",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "A man with two names",
+      "text": "At the start of this Unit's activation, if its Active Stance is Form III Soresu , refresh and one character in this Unit may . If its Active Stance is Pack Leader , choose an allied Rebel Alliance character. The chosen character may . Then, if the chosen character is a Spectre , one character in this Unit may . Force Push Choose a character in this Unit and an enemy character within 3 of that character. Push the chosen enemy character 3 Away from the chosen allied character. Deflect After a attack targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Now I know there's something stronger than fear When an allied Rebel Alliance Unit is Wounded by an enemy attack, after the effect is resolved, one character in this Unit may and then . Then, if the Wounded Unit is a Spectre , one character in this Unit may make a 5 dice attack."
+    },
+    {
+      "title": "Form III Soresu",
+      "text": "At the start of this Unit's activation, if its Active Stance is  , refresh and one character in this Unit may . If its Active Stance is Pack Leader , choose an allied Rebel Alliance character. The chosen character may . Then, if the chosen character is a Spectre , one character in this Unit may ."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "When an allied  Unit is Wounded by an enemy attack, after the effect is resolved, one character in this Unit may and then . Then, if the Wounded Unit is a Spectre , one character in this Unit may make a 5 dice attack."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897045
+  }
+}

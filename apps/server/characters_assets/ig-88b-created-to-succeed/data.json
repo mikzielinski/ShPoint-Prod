@@ -1,0 +1,25 @@
+{
+  "id": "ig-88b-created-to-succeed",
+  "url": "https://shatterpointdb.com/characters/ig-88b-created-to-succeed",
+  "name": "IG-88B, Created to Succeed",
+  "portrait": "https://shatterpointdb.com/media/fzchu1c2/shatterpoint-ig-88b-created-to-succeed-unit-card-new.png?height=600&v=1db14e83be62bb0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "High-Priority Target",
+      "text": "At the start of this Unit's activation, one character in this Unit may . Then, if there are one or more enemy characters within 5, this Unit may immediately makes a focus action. Always gets the job done Choose an enemy Unit within 2 and roll 3 Defense Dice. If there are any [block] results, the chosen Unit gains . If there are any [expertise] results, it gains . If there are any results, it gains [exposed]. Calculated Plans When a character in this Unit makes an attack as part of a combat action, during the Modify Dice Rolls step, this Unit may use this ability. Reroll up to two [failture] or [expertise] results in the attack roll. I engineer success, yet... It eludes me When an allied Bounty hunter character makes an attack as part of a combat action, if the target is contesting an Active objective that you do not control, this Unit may use this ability. Add 3 dice to the attack roll. If the defender is not Wounded by the attack, lose a Momentum."
+    },
+    {
+      "title": "Bounty hunter",
+      "text": "When an allied  character makes an attack as part of a combat action, if the target is contesting an Active objective that you do not control, this Unit may use this ability. Add 3 dice to the attack roll. If the defender is not Wounded by the attack, lose a Momentum."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897037
+  }
+}

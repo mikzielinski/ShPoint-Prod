@@ -1,0 +1,29 @@
+{
+  "id": "elite-squad-troopers",
+  "url": "https://shatterpointdb.com/characters/elite-squad-troopers",
+  "name": "Elite Squad Troopers",
+  "portrait": "https://shatterpointdb.com/media/4ronclp4/shatterpoint-elite-squad-troopers-unit-card.png?height=600&v=1daf86cfb138d90",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Tactical Advance",
+      "text": "Each character in this Unit may . If any characters , this Unit immediately makes a focus action. Supporting Fire: When a character in another allied Galactic Empire Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the attacking character is withing 5, the attack Unit may gain . Supporting Fire: When a character in another allied Galactic Empire Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the attacking character is withing 5, the attack Unit may gain . The Future of Imperial Might Characters in this Unit have Sharpshooter [1] and Impact [1] ."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the attacking character is withing 5, the attack Unit may gain ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  and Impact [1] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897018
+  }
+}

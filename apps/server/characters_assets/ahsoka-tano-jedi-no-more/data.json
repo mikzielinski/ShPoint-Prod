@@ -1,0 +1,29 @@
+{
+  "id": "ahsoka-tano-jedi-no-more",
+  "name": "Ahsoka Tano, Jedi no more",
+  "characterNames": "Ahsoka Tano",
+  "boxSetCode": "SWP1",
+  "role": "Primary",
+  "faction": "Unknown",
+  "portrait": "/characters/ahsoka-tano-jedi-no-more/portrait.png",
+  "tags": [],
+  "sp": 8,
+  "pc": null,
+  "squad_points": 8,
+  "unit_type": "Primary",
+  "point_cost": 0,
+  "force": 3,
+  "stamina": 9,
+  "durability": 3,
+  "number_of_characters": 1,
+  "era": [
+    "Clone Wars"
+  ],
+  "period": [
+    "Clone Wars"
+  ],
+  "factions": [],
+  "abilities": [],
+  "structuredAbilities": [],
+  "legacyAbilities": []
+}

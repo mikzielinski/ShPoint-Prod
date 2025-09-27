@@ -1,0 +1,25 @@
+{
+  "id": "nightsister-acolytes",
+  "url": "https://shatterpointdb.com/characters/nightsister-acolytes",
+  "name": "Nightsister Acolytes",
+  "portrait": "https://shatterpointdb.com/media/ysdce00m/star-wars-shatterpoint-nightsisters-unit-card.png?height=600&v=1d9a86521838150",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Acrobatic Advance",
+      "text": "Each character in this Unit may . If any characters , this Unit gains . Coordinate Fire: When a character in another allied Dathomirian Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit gains . Darkness and Shadows While this Unit has one or more , characters in this Unit add 1 die to their defense rolls against attacks. Night Hunter When a character in this Unit makes a attack as part of a combat action, if it targets an enemy character that is Engaged with another allied Dathomirian character, it adds 2 dice to the attack roll."
+    },
+    {
+      "title": "Dathomirian",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit gains ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897058
+  }
+}

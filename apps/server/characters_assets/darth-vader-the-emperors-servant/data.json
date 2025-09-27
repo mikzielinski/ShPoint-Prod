@@ -1,0 +1,25 @@
+{
+  "id": "darth-vader-the-emperors-servant",
+  "url": "https://shatterpointdb.com/characters/darth-vader-the-emperors-servant",
+  "name": "Darth Vader, The Emperor's Servant",
+  "portrait": "https://shatterpointdb.com/media/dzan4rqk/darth-vader-emperors-servant-unit-card.png?height=600&v=1da2df5051635b0",
+  "squad_points": 7,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 12,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "You don't know the power of the Dark Side",
+      "text": "At the start of this Unit's activation, it may remove or one condition from itself, then refresh . Anger, Hate, Aggression One character in this Unit may . If it does, that character adds 3 dice to its next attack roll during this activation. If that attack roll contains one or more results, this Unit gains [exposed] after the attack is resolved. You are unwise to lower your defenses When a character in this Unit is targeted by a attack, this Unit may use this ability. After the attack is resolved, if the attack roll contained one or more results, the attacking Unit suffers . Perhaps I can find new ways to motivate them When a character in this Unit Wounds an enemy Unit, after the effect is resolved, another allied Galactic Empire character may . You cannot hide forever At the end of this Unit's activation, if no character in this Unit Wounded an enemy Unit during that activation and if this Unit's Order Card is not in the Order Deck or in reserve, shuffle its Order Card into your Order Deck."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "When a character in this Unit Wounds an enemy Unit, after the effect is resolved, another allied  character may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897011
+  }
+}

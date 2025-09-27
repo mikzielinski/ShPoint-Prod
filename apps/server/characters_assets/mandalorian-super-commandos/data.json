@@ -1,0 +1,29 @@
+{
+  "id": "mandalorian-super-commandos",
+  "url": "https://shatterpointdb.com/characters/mandalorian-super-commandos",
+  "name": "Mandalorian Super Commandos",
+  "portrait": "https://shatterpointdb.com/media/fzcj52gl/star-wars-shatterpoint-mandalorian-super-commandos-abilities.png",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Jet pack",
+      "text": "Each character in this Unit may . Mandalorians are stronger together After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied Mandalorian character, this Unit immediately makes a focus action. No mercy When an enemy character that is Engaged with one or more characters in this Unit or , after the move is resolved, the moving character's Unit suffers if the moving character is no longer Engaged with one or more characters in this unit. Victory or Death! Characters in this Unit have Impact [1] ."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied  character, this Unit immediately makes a focus action."
+    },
+    {
+      "title": "Impact [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897055
+  }
+}

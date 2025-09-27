@@ -1,0 +1,29 @@
+{
+  "id": "kalani-super-tactical-droid",
+  "url": "https://shatterpointdb.com/characters/kalani-super-tactical-droid",
+  "name": "Kalani, Super Tactical Droid",
+  "portrait": "https://shatterpointdb.com/media/gtbfzv2n/star-wars-shatterpoint-kalani-unit-card.png?height=600&v=1d97885e46be500",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 10,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Roger, Roger",
+      "text": "At the start of this Unit's activation, each allied Battle Droid Supporting character within 4 of a character in this Unit may . Tactical Network Choose another allied Battle Droid character within 4. The chosen character may , then may gain , remove one condition from itself, or make a 5 dice attack. Target, concentrate all firepower When an allied Battle Droid character makes an attack, if the targeted character is within 4 of one or more other allied Battle Droid characters, the attacking character adds 1 die to its attack roll. Complete analysis When you spend to place this Unit's Order Card in reserve, spend 1 less ."
+    },
+    {
+      "title": "Battle Droid Supporting",
+      "text": "At the start of this Unit's activation, each allied  character within 4 of a character in this Unit may ."
+    },
+    {
+      "title": "Battle Droid",
+      "text": "Choose another allied  character within 4. The chosen character may , then may gain , remove one condition from itself, or make a 5 dice attack."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897045
+  }
+}

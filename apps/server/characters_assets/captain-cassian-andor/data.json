@@ -1,0 +1,29 @@
+{
+  "id": "captain-cassian-andor",
+  "url": "https://shatterpointdb.com/characters/captain-cassian-andor",
+  "name": "Captain Cassian Andor",
+  "portrait": "https://shatterpointdb.com/media/rf2nfiy1/shatterpoint-captain-cassian-andor-character.png?height=600&v=1db8e87edb93a30",
+  "squad_points": 9,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "We need to blend in",
+      "text": "Choose another allied Rebel Alliance Unit. One character in this Unit and one character in the chosen Unit may . Then, if the chosen Unit is Spy , this Unit and the chosen Unit gain . This town is ready to blow When a player claims a Struggle Card, this Unit may use this ability. Roll 3 Attack Dice. Each enemy Unit that is contesting one or more Active objectives suffers for each [hit] and [expertise] result in the roll. We've all done terrible things When a character in this Unit makes a attack as part of a combat action, if the defender is Engaged with one or more allied characters in Units that are not Wounded, it may add 3 dice to its attack roll. If it does, choose one of those Engaged allied characters. The chosen character suffers . Make ten men feel like a hundred Once per Turn, when an allied Unit becomes Wounded, after the effect is resolved, choose another allied Unit. One character in the chosen Unit may . If the chosen Unit is a Spy , that character may instead . Additionally, when an allied Rebel Alliance Unit is chosen to activate with a Shatterpoint Card, characters in that Unit have Impact [2] and Sharpshooter [2] until the end of the Turn."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "Choose another allied  Unit. One character in this Unit and one character in the chosen Unit may . Then, if the chosen Unit is Spy , this Unit and the chosen Unit gain ."
+    },
+    {
+      "title": "Spy",
+      "text": "Once per Turn, when an allied Unit becomes Wounded, after the effect is resolved, choose another allied Unit. One character in the chosen Unit may . If the chosen Unit is a  , that character may instead ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896997
+  }
+}

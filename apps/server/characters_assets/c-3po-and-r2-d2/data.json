@@ -1,0 +1,37 @@
+{
+  "id": "c-3po-and-r2-d2",
+  "url": "https://shatterpointdb.com/characters/c-3po-and-r2-d2",
+  "name": "C-3PO and R2-D2",
+  "portrait": "https://shatterpointdb.com/media/ezzfewdw/shatterpoint-c3po-and-r2d2-new.jpg?height=600&v=1dbc89ceef441c0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Brilliant Oration",
+      "text": "Choose an allied Ewok Supporting character within 4. The chosen character may gain , [heal ] , gain , or make a 5 dice attack. Then one character in this Unit may , , gain , or make a 5 dice attack. R2, I'm not sure that's such a good idea When an allied Rebel Alliance Unit within 4 or an Allied Ewok Unit within 4 starts its activation, this Unit may use this ability. The activating Unit may remove one condition from itself. \"Divine Influence\" While this Unit's Active Stance is Against my programming , allied Ewok Units within 5 have Scale and allied Ewok characters within 5 can even while they are Engaged.\n\nWhile this Unit's Active Stance is Angry trilling , allied Ewok characters within 5 have Steadfast . Goodness gracious me While one or more allied Ewok Units that are not Wounded are within 3, characters in this Unit cannot be targeted with attacks."
+    },
+    {
+      "title": "Ewok Supporting",
+      "text": "Choose an allied  character within 4. The chosen character may gain , [heal ] , gain , or make a 5 dice attack. Then one character in this Unit may , , gain , or make a 5 dice attack."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "When an allied  Unit within 4 or an Allied Ewok Unit within 4 starts its activation, this Unit may use this ability. The activating Unit may remove one condition from itself."
+    },
+    {
+      "title": "Against my programming",
+      "text": "While this Unit's Active Stance is  , allied Ewok Units within 5 have Scale and allied Ewok characters within 5 can even while they are Engaged.\n\nWhile this Unit's Active Stance is Angry trilling , allied Ewok characters within 5 have Steadfast ."
+    },
+    {
+      "title": "Ewok",
+      "text": "While one or more allied  Units that are not Wounded are within 3, characters in this Unit cannot be targeted with attacks."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896996
+  }
+}

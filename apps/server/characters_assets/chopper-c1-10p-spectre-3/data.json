@@ -1,0 +1,29 @@
+{
+  "id": "chopper-c1-10p-spectre-3",
+  "url": "https://shatterpointdb.com/characters/chopper-c1-10p-spectre-3",
+  "name": "\"Chopper\" (C1-10P), Spectre-3",
+  "portrait": "https://shatterpointdb.com/media/vjaj344d/shatterpoint-chopper-c1-10p-spectre-3-unit-card.png?height=600&v=1daa6b77ca69990",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Mayhem",
+      "text": "Choose an enemy Unit within 2 and roll 3 Defense Dice. If there are any [block] results, the chosen Unit gains [strain]. If there are any [expertise] results, it gains .If there are any results, it gains [exposed]. Rocket Booster One character in this Unit may . \"Chopper,\" Sometimes you do it right When a character in this Unit wounds an enemy Unit with an attack, after the effect is resolved, this Unit may use this ability. Choose an allied Rebel Alliance character within 2. The chosen character may . If the chosen character is a Spectre , it may instead . Sturdy Construction Characters in this Unit have Protection , Immunity [ ] , and Immunity [ ] . Is that one of ours? While this Unit's Order card is in the Order Deck or in reserve, characters in this Unit cannot be targeted with attacks."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "When a character in this Unit wounds an enemy Unit with an attack, after the effect is resolved, this Unit may use this ability. Choose an allied  character within 2. The chosen character may . If the chosen character is a Spectre , it may instead ."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  , Immunity [ ] , and Immunity [ ] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897001
+  }
+}

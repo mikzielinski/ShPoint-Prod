@@ -1,0 +1,16 @@
+{
+  "id": "lord-maul",
+  "url": "https://shatterpointdb.com/characters/lord-maul",
+  "name": "Lord Maul",
+  "portrait": "https://shatterpointdb.com/media/klehavye/swp01_maul_unit_article-1.png?height=600&v=1d978862f118b50",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 11,
+  "durability": 2,
+  "factions": null,
+  "abilities": [],
+  "source": {
+    "scraped_at": 1755897052
+  }
+}

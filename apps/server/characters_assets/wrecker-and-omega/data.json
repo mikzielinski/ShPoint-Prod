@@ -1,0 +1,33 @@
+{
+  "id": "wrecker-and-omega",
+  "url": "https://shatterpointdb.com/characters/wrecker-and-omega",
+  "name": "Wrecker and Omega",
+  "portrait": "https://shatterpointdb.com/media/huvim3cq/shatterpoint-wrecker-and-omega-unit-card.png?height=600&v=1da74b1b6705720",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 10,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Bulldoze",
+      "text": "At the start of this Unit's activation, one character in this Unit may . If it ends this movement within 1 of one or more enemy characters it may [push] one of those characters. HAHAHAHA, YEAH!!! Action: One character in this Unit may make a attack. I wasn't sneaking... Choose an Active objective within 3 that you do not control and an enemy Unit that is contesting that objective. Roll 5 Attack Dice. The chosen Unit suffers for each [crit] and [hit] result in the roll. Then, if the chosen Unit was Wounded by this effect, gain an additional Momentum token. The muscle of the batch While this Unit is not Wounded, allied Bad Batch characters within 3 have Steadfast . While this Unit is not Wounded, allied Clone Trooper characters within 3 and allied Scoundrel characters within 3 have Protection ."
+    },
+    {
+      "title": "Action:",
+      "text": "One character in this Unit may make a attack."
+    },
+    {
+      "title": "Bad Batch",
+      "text": "While this Unit is not Wounded, allied  characters within 3 have Steadfast ."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "While this Unit is not Wounded, allied  characters within 3 and allied Scoundrel characters within 3 have Protection ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897086
+  }
+}

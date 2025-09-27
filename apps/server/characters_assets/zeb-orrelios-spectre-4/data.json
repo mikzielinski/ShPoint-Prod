@@ -1,0 +1,25 @@
+{
+  "id": "zeb-orrelios-spectre-4",
+  "url": "https://shatterpointdb.com/characters/zeb-orrelios-spectre-4",
+  "name": "\"Zeb\" Orrelios, Spectre-4",
+  "portrait": "https://shatterpointdb.com/media/xaceb2ve/shatterpoint-zeb-orrelios-spectre-4-unit-card.png?height=600&v=1daa141ccd8fe10",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "This is gonna hurt, Pal",
+      "text": "Choose an allied Rebel Alliance character in LOS. One character in this Unit may Toward the chosen character. If the chosen character is a Spectre , one character in this Unit may instead Toward the chosen character. After the move is resolved, if one or more characters in this Unit are Engaged, this Unit immediately makes a focus action. Lasan honor guard When this Unit becomes Wounded, after the effect is resolved, this Unit may use this ability. This Unit gains two Injured tokens. Then it removes one Wounded token, all , and one condition from itself. It's just something about the feel of their helmets on my fists After a character in this Unit makes an attack as part of a combat action, this Unit may use this ability. One character in this Unit may make a 5 dice attack targeting a character in the same enemy Unit. Karabast While this Unit has one or more Injured tokens, its Order Card cannot be placed in reserve."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "Choose an allied  character in LOS. One character in this Unit may Toward the chosen character. If the chosen character is a Spectre , one character in this Unit may instead Toward the chosen character. After the move is resolved, if one or more characters in this Unit are Engaged, this Unit immediately makes a focus action."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897093
+  }
+}

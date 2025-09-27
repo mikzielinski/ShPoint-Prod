@@ -1,0 +1,25 @@
+{
+  "id": "snowtroopers",
+  "url": "https://shatterpointdb.com/characters/snowtroopers",
+  "name": "Snowtroopers",
+  "portrait": "https://shatterpointdb.com/media/c5yljaxm/shatterpoint-snowtroopers-unit-card-new.png?height=600&v=1db0ea29805cf50",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Forced March",
+      "text": "At the start of this Unit's activation, it may suffer . If it does, it removes one condition from itself. Assault Tactics Each character in this Unit may . Then this Unit may suffer to immediately perform a focus action. Only Imperial Stormtroopers are so precise Characters in this Unit have Sharpshooter [1] ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897077
+  }
+}

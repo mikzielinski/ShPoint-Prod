@@ -1,0 +1,25 @@
+{
+  "id": "the-mandalorian",
+  "url": "https://shatterpointdb.com/characters/the-mandalorian",
+  "name": "The Mandalorian",
+  "portrait": "https://shatterpointdb.com/media/vxwht3l2/shatterpoint-the-mandalorian-unit-card.png?height=600&v=1da7b054e1da6f0",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 11,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "A clan of two",
+      "text": "Each character in this Unit may . Then, if all allied Units within 2 are Bounty Hunter , Mandalorian , or Scoundrel Units, one character in this Unit may immediately make a 5 dice attack or may choose an enemy character within 3 and Push it 2 Away. Fearless and inventive When a character in this Unit makes a attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 2 dice to the attack roll for each enemy character, other than the target, that is not Wounded and is Engaged with one or more characters in this Unit. Do the magic hand thing After a attack targetting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . This is the way When an enemy character Wounds another allied Unit, after the effect is resolved, one character in this Unit may and then may . Then, each other allied Bounty Hunter , Mandalorian , and Scoundrel Unit within 4 may remove one condition from itself and then may gain ."
+    },
+    {
+      "title": "Bounty Hunter",
+      "text": "Each character in this Unit may . Then, if all allied Units within 2 are  , Mandalorian , or Scoundrel Units, one character in this Unit may immediately make a 5 dice attack or may choose an enemy character within 3 and Push it 2 Away."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897082
+  }
+}

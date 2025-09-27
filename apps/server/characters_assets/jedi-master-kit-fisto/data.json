@@ -1,0 +1,29 @@
+{
+  "id": "jedi-master-kit-fisto",
+  "url": "https://shatterpointdb.com/characters/jedi-master-kit-fisto",
+  "name": "Jedi Master Kit Fisto",
+  "portrait": "https://shatterpointdb.com/media/ex0pb2mb/shatterpoint-jedi-master-kit-fisto-unit-card.png?height=600&v=1db7e569f4f6770",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Galactic Republic",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, after the effect is resolved, this Unit may use this ability. If the attacking character is within 5, that character may ."
+    },
+    {
+      "title": "Form I Shii-Cho",
+      "text": "While this Unit's Active Stance is  , characters in this Unit have Steadfast and add [expertise] to their defense rolls."
+    },
+    {
+      "title": "Form IV Ataru",
+      "text": "While this Unit's Active Stance is  , characters in this Unit have Protection and Immunity: ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897040
+  }
+}

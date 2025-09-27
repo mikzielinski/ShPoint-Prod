@@ -1,0 +1,25 @@
+{
+  "id": "aurra-sing",
+  "url": "https://shatterpointdb.com/characters/aurra-sing",
+  "name": "Aurra Sing",
+  "portrait": "https://shatterpointdb.com/media/rlxpwysx/shatterpoint-aurra-sing-abilities-new2.jpg",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Double the Contact, Double the Payout",
+      "text": "After a character in this Unit makes an attack as part of a combat action, this Unit may use this ability. One character in this Unit may make a 5 dice attack targeting a character in a different enemy Unit. Hit and Run After a character in this Unit makes an attack as part of a combat action, this Unit may use this ability. One character in this Unit may . Expendable Distraction When a character in this Unit makes a attack as part of a combat action, if the defender is Engaged with one or more allied characters in Units that are not Wounded, it may add 3 dice to its attack roll. If it does, choose one of those Engaged allied characters. The chosen character suffers . On Contract At the end of Setup, choose an allied Primary Unit and a Tag that Unit has. This Unit has the chosen Tag."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "At the end of Setup, choose an allied  and a Tag that Unit has. This Unit has the chosen Tag."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896988
+  }
+}

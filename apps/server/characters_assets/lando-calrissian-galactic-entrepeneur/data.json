@@ -1,0 +1,33 @@
+{
+  "id": "lando-calrissian-galactic-entrepeneur",
+  "url": "https://shatterpointdb.com/characters/lando-calrissian-galactic-entrepeneur",
+  "name": "Lando Calrissian, Galactic Entrepeneur",
+  "portrait": "https://shatterpointdb.com/media/bczddusw/shatterpoint-lendo-calrissian-unit-card-new.jpeg?height=600&v=1db056874ac05d0",
+  "squad_points": 8,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "How you doin' ya old pirate?",
+      "text": "At the start of this Unit's activation, choose any non-Wounded Scoundrel Unit within 4. If an allied Unit was chosen, one character in that Unit may . Then, this Unit may remove all conditions from itself. If it does, the chosen Unit gains each removed condition. Hedged Bets Before you refresh your Order Deck, choose a Unit for each readied in your Force Pool. Each chosen allied Unit removes a condition from itself. Each chosen enemy Unit gains a condition of your choice. Sabacc Shift Once per Turn, when you reveal this Unit's Order Card, this Unit may gain a condition it does not have. If it does, refresh and shuffle this Unit's Order Card into your Order Deck. Then reveal the next card in your Order Deck. If a Unit Order Card is revealed, it cannot be put in reserve. Conflicting Responsibilities At the end of Setup choose one of the following: - I've got my own problems : This Unit has the Galactic Empire Tag. - This deal's getting worse all the time : This Unit has the Rebel Alliance Tag. Additionally, each time you reveal an Order Card, you may choose an allied Scoundrel Unit. If you do, the chosen Unit gains another Tag this Unit has until the end of the Turn."
+    },
+    {
+      "title": "Scoundrel",
+      "text": "At the start of this Unit's activation, choose any non-Wounded  Unit within 4. If an allied Unit was chosen, one character in that Unit may . Then, this Unit may remove all conditions from itself. If it does, the chosen Unit gains each removed condition."
+    },
+    {
+      "title": "I've got my own problems",
+      "text": "This Unit has the Galactic Empire Tag."
+    },
+    {
+      "title": "This deal's getting worse all the time",
+      "text": "This Unit has the Rebel Alliance Tag."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897047
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "wing-guard",
+  "url": "https://shatterpointdb.com/characters/wing-guard",
+  "name": "Wing Guard",
+  "portrait": "https://shatterpointdb.com/media/cn5lvchn/shatterpoint-wing-guard-unit-card.jpeg?height=600&v=1db0568a43891b0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Headlong Assault",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 2 of an enemy character, this Unit immediately makes a focus action and characters in this Unit have Impact [1] until the end of the Turn. Rapid Response Team When you spend to place this Unit's Order Card in reserve, spend 1 less . Security Force While a character in this Unit is contesting one or more Active objectives, it has Steadfast ."
+    },
+    {
+      "title": "Impact [1]",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 2 of an enemy character, this Unit immediately makes a focus action and characters in this Unit have  until the end of the Turn."
+    },
+    {
+      "title": "Steadfast",
+      "text": "While a character in this Unit is contesting one or more Active objectives, it has  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897086
+  }
+}

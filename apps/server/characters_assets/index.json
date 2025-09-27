@@ -1,0 +1,1071 @@
+[
+  {
+    "id": "104th-wolfpack-troopers",
+    "name": "104th Wolfpack Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/104th-wolfpack-troopers/portrait.png"
+  },
+  {
+    "id": "212th-clone-troopers",
+    "name": "212th Clone Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/212th-clone-troopers/portrait.png"
+  },
+  {
+    "id": "501st-clone-troopers",
+    "name": "501st Clone Troopers",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/501st-clone-troopers/portrait.png"
+  },
+  {
+    "id": "agent-kallus-inside-man",
+    "name": "Agent Kallus, Inside Man",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/agent-kallus-inside-man/portrait.png"
+  },
+  {
+    "id": "ahsoka-tano-fulcrum",
+    "name": "Ahsoka Tano Fulcrum",
+    "characterNames": "Ahsoka Tano",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Spy",
+      "Jedi"
+    ],
+    "portrait": "/characters/ahsoka-tano-fulcrum/portrait.png"
+  },
+  {
+    "id": "ahsoka-tano-jedi-no-more",
+    "name": "Ahsoka Tano, Jedi no more",
+    "characterNames": "Ahsoka Tano",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/ahsoka-tano-jedi-no-more/portrait.png"
+  },
+  {
+    "id": "aqua-droids",
+    "name": "Aqua Droids",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/aqua-droids/portrait.png"
+  },
+  {
+    "id": "arf-clone-troopers",
+    "name": "ARF Clone Troopers",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/arf-clone-troopers/portrait.png"
+  },
+  {
+    "id": "asajj-ventress-sith-assassin",
+    "name": "Asajj Ventress, Sith Assassin",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/asajj-ventress-sith-assassin/portrait.png"
+  },
+  {
+    "id": "aurra-sing",
+    "name": "Aurra Sing",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/aurra-sing/portrait.png"
+  },
+  {
+    "id": "b1-battle-droids",
+    "name": "B1 Battle Droids",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/b1-battle-droids/portrait.png"
+  },
+  {
+    "id": "b2-battle-droids",
+    "name": "B2 Battle Droids",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/b2-battle-droids/portrait.png"
+  },
+  {
+    "id": "barriss-offee-jedi-padawan",
+    "name": "Barriss Offee, Jedi Padawan",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/barriss-offee-jedi-padawan/portrait.png"
+  },
+  {
+    "id": "baze-malbus-and-chirrut-imwe",
+    "name": "Baze Malbus and Chirrut Imwe",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/baze-malbus-and-chirrut-imwe/portrait.png"
+  },
+  {
+    "id": "bo-katan-kryze",
+    "name": "Bo-Katan Kryze",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/bo-katan-kryze/portrait.png"
+  },
+  {
+    "id": "boba-fett-on-contract",
+    "name": "Boba Fett, On Contract",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/boba-fett-on-contract/portrait.png"
+  },
+  {
+    "id": "bodhi-rook",
+    "name": "Bodhi Rook",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/bodhi-rook/portrait.png"
+  },
+  {
+    "id": "bossk-single-minded-slayer",
+    "name": "Bossk, Single-Minded Slayer",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/bossk-single-minded-slayer/portrait.png"
+  },
+  {
+    "id": "bounty-hunters",
+    "name": "Bounty Hunters",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/bounty-hunters/portrait.png"
+  },
+  {
+    "id": "boushh-leia-organa",
+    "name": "Boushh (Leia Organa)",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/boushh-leia-organa/portrait.png"
+  },
+  {
+    "id": "c-3po-and-r2-d2",
+    "name": "C-3PO and R2-D2",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/c-3po-and-r2-d2/portrait.png"
+  },
+  {
+    "id": "cad-bane-notorious-hunter",
+    "name": "Cad Bane, Notorious Hunter",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/cad-bane-notorious-hunter/portrait.png"
+  },
+  {
+    "id": "captain-cassian-andor",
+    "name": "Captain Cassian Andor",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/captain-cassian-andor/portrait.png"
+  },
+  {
+    "id": "cc-2224-clone-commander-cody",
+    "name": "CC-2224 Clone Commander Cody",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/cc-2224-clone-commander-cody/portrait.png"
+  },
+  {
+    "id": "cc-3636-commander-wolffe",
+    "name": "CC-3636 Commander Wolffe",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/cc-3636-commander-wolffe/portrait.png"
+  },
+  {
+    "id": "cc-3714-clone-commander-fil",
+    "name": "CC-3714 Clone Commander Fil",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/cc-3714-clone-commander-fil/portrait.png"
+  },
+  {
+    "id": "cc-7567-captain-rex",
+    "name": "CC-7567 Captain Rex",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/cc-7567-captain-rex/portrait.png"
+  },
+  {
+    "id": "chewie",
+    "name": "Chewie",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/chewie/portrait.png"
+  },
+  {
+    "id": "chief-chirpa",
+    "name": "Chief Chirpa",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/chief-chirpa/portrait.png"
+  },
+  {
+    "id": "chopper-c1-10p-spectre-3",
+    "name": "\"Chopper\" (C1-10P), Spectre-3",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/chopper-c1-10p-spectre-3/portrait.png"
+  },
+  {
+    "id": "clan-kryze-mandalorians",
+    "name": "Clan Kryze Mandalorians",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/clan-kryze-mandalorians/portrait.png"
+  },
+  {
+    "id": "clone-sergeant-hunter",
+    "name": "Clone Sergeant Hunter",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/clone-sergeant-hunter/portrait.png"
+  },
+  {
+    "id": "commander-iden-versio",
+    "name": "Commander Iden Versio",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/commander-iden-versio/portrait.png"
+  },
+  {
+    "id": "count-dooku-separatist-leader",
+    "name": "Count Dooku, Separatist Leader",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/count-dooku-separatist-leader/portrait.png"
+  },
+  {
+    "id": "covert-mandalorians",
+    "name": "Covert Mandalorians",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/covert-mandalorians/portrait.png"
+  },
+  {
+    "id": "crosshair",
+    "name": "Crosshair",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/crosshair/portrait.png"
+  },
+  {
+    "id": "ct-411-commander-ponds",
+    "name": "CT-411 Commander Ponds",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/ct-411-commander-ponds/portrait.png"
+  },
+  {
+    "id": "ct-9904-elite-squad-leader",
+    "name": "CT-9904, Elite Squad Leader",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/ct-9904-elite-squad-leader/portrait.png"
+  },
+  {
+    "id": "dark-troopers",
+    "name": "Dark Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/dark-troopers/portrait.png"
+  },
+  {
+    "id": "darth-vader-fallen-master",
+    "name": "Darth Vader, Fallen Master",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/darth-vader-fallen-master/portrait.png"
+  },
+  {
+    "id": "darth-vader-jedi-hunter",
+    "name": "Darth Vader, Jedi Hunter",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/darth-vader-jedi-hunter/portrait.png"
+  },
+  {
+    "id": "darth-vader-the-emperors-servant",
+    "name": "Darth Vader, The Emperor's Servant",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/darth-vader-the-emperors-servant/portrait.png"
+  },
+  {
+    "id": "death-trooper-escort",
+    "name": "Death Trooper Escort",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/death-trooper-escort/portrait.png"
+  },
+  {
+    "id": "death-trooper-specialist",
+    "name": "Death Trooper Specialist",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/death-trooper-specialist/portrait.png"
+  },
+  {
+    "id": "death-troopers",
+    "name": "Death Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/death-troopers/portrait.png"
+  },
+  {
+    "id": "del-meeko-inferno-squad",
+    "name": "Del Meeko, Inferno Squad",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/del-meeko-inferno-squad/portrait.png"
+  },
+  {
+    "id": "dengar-the-demolisher",
+    "name": "Dengar, The Demolisher",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/dengar-the-demolisher/portrait.png"
+  },
+  {
+    "id": "director-krennic",
+    "name": "Director Krennic",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/director-krennic/portrait.png"
+  },
+  {
+    "id": "echo-and-tech",
+    "name": "Echo and Tech",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/echo-and-tech/portrait.png"
+  },
+  {
+    "id": "elite-squad-troopers",
+    "name": "Elite Squad Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/elite-squad-troopers/portrait.png"
+  },
+  {
+    "id": "es-04-firebrand",
+    "name": "ES-04, Firebrand",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/es-04-firebrand/portrait.png"
+  },
+  {
+    "id": "ewok-hunters",
+    "name": "Ewok Hunters",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/ewok-hunters/portrait.png"
+  },
+  {
+    "id": "ewok-trappers",
+    "name": "Ewok Trappers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/ewok-trappers/portrait.png"
+  },
+  {
+    "id": "ezra-bridger-spectre-6",
+    "name": "Ezra Bridger, Spectre-6",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/ezra-bridger-spectre-6/portrait.png"
+  },
+  {
+    "id": "fifth-brother",
+    "name": "Fifth Brother",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/fifth-brother/portrait.png"
+  },
+  {
+    "id": "fils-clones",
+    "name": "Fil's Clones",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/fils-clones/portrait.png"
+  },
+  {
+    "id": "fourth-sister",
+    "name": "Fourth Sister",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/fourth-sister/portrait.png"
+  },
+  {
+    "id": "gar-saxon-merciless-commander",
+    "name": "Gar Saxon, Merciless Commander",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/gar-saxon-merciless-commander/portrait.png"
+  },
+  {
+    "id": "general-anakin-skywalker",
+    "name": "General Anakin Skywalker",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/general-anakin-skywalker/portrait.png"
+  },
+  {
+    "id": "general-grievous",
+    "name": "General Grievous",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/general-grievous/portrait.png"
+  },
+  {
+    "id": "general-obi-wan-kenobi",
+    "name": "General Obi-Wan Kenobi",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/general-obi-wan-kenobi/portrait.png"
+  },
+  {
+    "id": "general-solo",
+    "name": "General Solo",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/general-solo/portrait.png"
+  },
+  {
+    "id": "general-veers-tactical-genius",
+    "name": "General Veers, Tactical Genius",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/general-veers-tactical-genius/portrait.png"
+  },
+  {
+    "id": "gideon-hask-inferno-squad",
+    "name": "Gideon Hask, Inferno Squad",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/gideon-hask-inferno-squad/portrait.png"
+  },
+  {
+    "id": "grand-admiral-thrawn",
+    "name": "Grand Admiral Thrawn",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/grand-admiral-thrawn/portrait.png"
+  },
+  {
+    "id": "grand-inquisitor-fallen-jedi",
+    "name": "Grand Inquisitor, Fallen Jedi",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/grand-inquisitor-fallen-jedi/portrait.png"
+  },
+  {
+    "id": "greef-karga",
+    "name": "Greef Karga",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/greef-karga/portrait.png"
+  },
+  {
+    "id": "gwarm",
+    "name": "Gwarm",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/gwarm/portrait.png"
+  },
+  {
+    "id": "han-and-chewie-in-it-for-the-money",
+    "name": "Han and Chewie, in it for the money",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/han-and-chewie-in-it-for-the-money/portrait.png"
+  },
+  {
+    "id": "hera-syndulla-spectre-2",
+    "name": "Hera Syndulla, Spectre-2",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/hera-syndulla-spectre-2/portrait.png"
+  },
+  {
+    "id": "hondo-honest-businessman",
+    "name": "Hondo, Honest Businessman",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/hondo-honest-businessman/portrait.png"
+  },
+  {
+    "id": "ig-11-assassin-droid",
+    "name": "IG-11, Assassin Droid",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/ig-11-assassin-droid/portrait.png"
+  },
+  {
+    "id": "ig-88b-created-to-succeed",
+    "name": "IG-88B, Created to Succeed",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/ig-88b-created-to-succeed/portrait.png"
+  },
+  {
+    "id": "imperial-special-forces",
+    "name": "Imperial Special Forces",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/imperial-special-forces/portrait.png"
+  },
+  {
+    "id": "isb-agents",
+    "name": "ISB Agents",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/isb-agents/portrait.png"
+  },
+  {
+    "id": "jango-fett-bounty-hunter",
+    "name": "Jango Fett, Bounty Hunter",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/jango-fett-bounty-hunter/portrait.png"
+  },
+  {
+    "id": "jedi-knight-luke-skywalker",
+    "name": "Jedi Knight Luke Skywalker",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/jedi-knight-luke-skywalker/portrait.png"
+  },
+  {
+    "id": "jedi-master-ki-adi-mundi",
+    "name": "Jedi Master Ki-Adi-Mundi",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jedi-master-ki-adi-mundi/portrait.png"
+  },
+  {
+    "id": "jedi-master-kit-fisto",
+    "name": "Jedi Master Kit Fisto",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jedi-master-kit-fisto/portrait.png"
+  },
+  {
+    "id": "jedi-master-luminara-unduli",
+    "name": "Jedi Master Luminara Unduli",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jedi-master-luminara-unduli/portrait.png"
+  },
+  {
+    "id": "jedi-master-mace-windu",
+    "name": "Jedi Master Mace Windu",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/jedi-master-mace-windu/portrait.png"
+  },
+  {
+    "id": "jedi-master-plo-koon",
+    "name": "Jedi Master Plo Koon",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jedi-master-plo-koon/portrait.png"
+  },
+  {
+    "id": "jedi-master-shaak-ti",
+    "name": "Jedi Master Shaak Ti",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/jedi-master-shaak-ti/portrait.png"
+  },
+  {
+    "id": "jyn-erso-stardust",
+    "name": "Jyn Erso, Stardust",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jyn-erso-stardust/portrait.png"
+  },
+  {
+    "id": "k-2so-outspoken-enforcer",
+    "name": "K-2SO, Outspoken Enforcer",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/k-2so-outspoken-enforcer/portrait.png"
+  },
+  {
+    "id": "kalani-super-tactical-droid",
+    "name": "Kalani, Super Tactical Droid",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/kalani-super-tactical-droid/portrait.png"
+  },
+  {
+    "id": "kanan-jarrus-spectre-1",
+    "name": "Kanan Jarrus, Spectre-1",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/kanan-jarrus-spectre-1/portrait.png"
+  },
+  {
+    "id": "kraken-super-tactical-droid",
+    "name": "Kraken, Super Tactical Droid",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/kraken-super-tactical-droid/portrait.png"
+  },
+  {
+    "id": "lando-and-r2-d2-inside-job",
+    "name": "Lando and R2-D2, Inside Job",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/lando-and-r2-d2-inside-job/portrait.png"
+  },
+  {
+    "id": "lando-calrissian-galactic-entrepeneur",
+    "name": "Lando Calrissian, Galactic Entrepeneur",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/lando-calrissian-galactic-entrepeneur/portrait.png"
+  },
+  {
+    "id": "leia-organa-freedom-fighter",
+    "name": "Leia Organa, Freedom Fighter",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/leia-organa-freedom-fighter/portrait.png"
+  },
+  {
+    "id": "lobot-computer-liaison-officer",
+    "name": "Lobot, Computer Liaison Officer",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/lobot-computer-liaison-officer/portrait.png"
+  },
+  {
+    "id": "logray-bright-tree-shaman",
+    "name": "Logray, Bright Tree Shaman",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/logray-bright-tree-shaman/portrait.png"
+  },
+  {
+    "id": "lord-maul",
+    "name": "Lord Maul",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/lord-maul/portrait.png"
+  },
+  {
+    "id": "luke-skywalker-daring-hero",
+    "name": "Luke Skywalker, Daring Hero",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/luke-skywalker-daring-hero/portrait.png"
+  },
+  {
+    "id": "magnaguard",
+    "name": "MagnaGuard",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/magnaguard/portrait.png"
+  },
+  {
+    "id": "mandalorian-super-commandos",
+    "name": "Mandalorian Super Commandos",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/mandalorian-super-commandos/portrait.png"
+  },
+  {
+    "id": "moff-gideon",
+    "name": "Moff Gideon",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/moff-gideon/portrait.png"
+  },
+  {
+    "id": "mother-talzin",
+    "name": "Mother Talzin",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/mother-talzin/portrait.png"
+  },
+  {
+    "id": "naboo-royal-handmaidens",
+    "name": "Naboo Royal Handmaidens",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/naboo-royal-handmaidens/portrait.png"
+  },
+  {
+    "id": "nahdar-vebb-jedi-knight",
+    "name": "Nahdar Vebb, Jedi Knight",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/nahdar-vebb-jedi-knight/portrait.png"
+  },
+  {
+    "id": "nightsister-acolytes",
+    "name": "Nightsister Acolytes",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/nightsister-acolytes/portrait.png"
+  },
+  {
+    "id": "nossor-ri",
+    "name": "Nossor Ri",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/nossor-ri/portrait.png"
+  },
+  {
+    "id": "obi-wan-kenobi-out-of-hiding",
+    "name": "Obi-Wan Kenobi, Out of Hiding",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/obi-wan-kenobi-out-of-hiding/portrait.png"
+  },
+  {
+    "id": "padawan-ahsoka-tano",
+    "name": "Padawan Ahsoka Tano",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/padawan-ahsoka-tano/portrait.png"
+  },
+  {
+    "id": "padawan-learners",
+    "name": "Padawan Learners",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/padawan-learners/portrait.png"
+  },
+  {
+    "id": "paploo-curious-creature",
+    "name": "Paploo, Curious Creature",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/paploo-curious-creature/portrait.png"
+  },
+  {
+    "id": "paz-vizsla",
+    "name": "Paz Vizsla",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/paz-vizsla/portrait.png"
+  },
+  {
+    "id": "princess-leia-charming-to-the-last",
+    "name": "Princess Leia, Charming to the last",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/princess-leia-charming-to-the-last/portrait.png"
+  },
+  {
+    "id": "queen-padme-amidala",
+    "name": "Queen Padmé Amidala",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/queen-padme-amidala/portrait.png"
+  },
+  {
+    "id": "rc-1138-boss",
+    "name": "RC-1138 \"Boss\"",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/rc-1138-boss/portrait.png"
+  },
+  {
+    "id": "rc-1140-fixer",
+    "name": "RC-1140 \"Fixer\"",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/rc-1140-fixer/portrait.png"
+  },
+  {
+    "id": "rebel-commandos",
+    "name": "Rebel Commandos",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/rebel-commandos/portrait.png"
+  },
+  {
+    "id": "rebel-pathfinders",
+    "name": "Rebel Pathfinders",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/rebel-pathfinders/portrait.png"
+  },
+  {
+    "id": "republic-clone-commandos",
+    "name": "Republic Clone Commandos",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/republic-clone-commandos/portrait.png"
+  },
+  {
+    "id": "riff-tamson",
+    "name": "Riff Tamson",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/riff-tamson/portrait.png"
+  },
+  {
+    "id": "sabe-royal-bodyguard",
+    "name": "Sabé, Royal Bodyguard",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/sabe-royal-bodyguard/portrait.png"
+  },
+  {
+    "id": "sabine-wren-spectre-5",
+    "name": "Sabine Wren, Spectre-5",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/sabine-wren-spectre-5/portrait.png"
+  },
+  {
+    "id": "savage-opress",
+    "name": "Savage Opress",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/savage-opress/portrait.png"
+  },
+  {
+    "id": "sev-and-scorch",
+    "name": "\"Sev\" and \"Scorch\"",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/sev-and-scorch/portrait.png"
+  },
+  {
+    "id": "shoretroopers",
+    "name": "Shoretroopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/shoretroopers/portrait.png"
+  },
+  {
+    "id": "snowtrooper-lieutenant",
+    "name": "Snowtrooper Lieutenant",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/snowtrooper-lieutenant/portrait.png"
+  },
+  {
+    "id": "snowtroopers",
+    "name": "Snowtroopers",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/snowtroopers/portrait.png"
+  },
+  {
+    "id": "stormtrooper-sergeant",
+    "name": "Stormtrooper Sergeant",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/stormtrooper-sergeant/portrait.png"
+  },
+  {
+    "id": "stormtroopers",
+    "name": "Stormtroopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/stormtroopers/portrait.png"
+  },
+  {
+    "id": "the-armorer",
+    "name": "The Armorer",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/the-armorer/portrait.png"
+  },
+  {
+    "id": "the-mandalorian",
+    "name": "The Mandalorian",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/the-mandalorian/portrait.png"
+  },
+  {
+    "id": "third-sister",
+    "name": "Third Sister",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/third-sister/portrait.png"
+  },
+  {
+    "id": "weequay-pirates",
+    "name": "Weequay Pirates",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/weequay-pirates/portrait.png"
+  },
+  {
+    "id": "wicket-intrepid-warrior",
+    "name": "Wicket, Intrepid Warrior",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/wicket-intrepid-warrior/portrait.png"
+  },
+  {
+    "id": "wing-guard",
+    "name": "Wing Guard",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/wing-guard/portrait.png"
+  },
+  {
+    "id": "wrecker-and-omega",
+    "name": "Wrecker and Omega",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/wrecker-and-omega/portrait.png"
+  },
+  {
+    "id": "zeb-orrelios-spectre-4",
+    "name": "\"Zeb\" Orrelios, Spectre-4",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/zeb-orrelios-spectre-4/portrait.png"
+  }
+]

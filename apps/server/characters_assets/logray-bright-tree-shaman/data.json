@@ -1,0 +1,33 @@
+{
+  "id": "logray-bright-tree-shaman",
+  "url": "https://shatterpointdb.com/characters/logray-bright-tree-shaman",
+  "name": "Logray, Bright Tree Shaman",
+  "portrait": "https://shatterpointdb.com/media/voybg0fg/shatterpoint-logray-bright-tree-shaman-unit-card.png?height=600&v=1da433be109d3a0",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Inspiring Presence",
+      "text": "At the start of this Unit's activation, each allied Ewok Warrior Unit gains and may remove or one condition from itself. Then each allied Ewok Scout character may . Elder's Command Choose an allied Ewok Supporting character within 4. The chosen character may , then may gain , remove one condition from itself or make a 5 dice attack. Stealthy approach Each character in this Unit may . Then this Unit may gain or immediately make a focus action. Protective wards While this Unit is not Wounded, characters in other allied Ewok Units add 1 die to their defense rolls. Secret ingredients Each time an allied Ewok character Wounds an enemy Unit, after the effect is resolved, roll an attack die. On a [crit] or [hit] result, refresh . On a or [expertise] result, each character in that allied Unit may ."
+    },
+    {
+      "title": "Ewok Warrior",
+      "text": "At the start of this Unit's activation, each allied  Unit gains and may remove or one condition from itself. Then each allied Ewok Scout character may ."
+    },
+    {
+      "title": "Ewok Supporting",
+      "text": "Choose an allied  character within 4. The chosen character may , then may gain , remove one condition from itself or make a 5 dice attack."
+    },
+    {
+      "title": "Ewok",
+      "text": "While this Unit is not Wounded, characters in other allied  Units add 1 die to their defense rolls."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897051
+  }
+}

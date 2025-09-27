@@ -1,0 +1,25 @@
+{
+  "id": "barriss-offee-jedi-padawan",
+  "url": "https://shatterpointdb.com/characters/barriss-offee-jedi-padawan",
+  "name": "Barriss Offee, Jedi Padawan",
+  "portrait": "https://shatterpointdb.com/media/k5pbgrs2/star-wars-shatterpoint-barriss-offee-unit-card.png?height=600&v=1d98e3912015ea0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Galactic Republic",
+      "text": "When another allied  character targets an enemy character that is Engaged with one or more characters in this Unit with an attack, this Unit may use this ability. One character in this Unit that is Engaged with the target character may immediately . If it does, this Unit gains ."
+    },
+    {
+      "title": "Jedi Primary Unit",
+      "text": "While an enemy character is Engaged with a character in this Unit and a character in another allied  , characters in this Unit and characters in that allied Jedi Primary Unit add 2 dice to attacks targeting that enemy character."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896991
+  }
+}

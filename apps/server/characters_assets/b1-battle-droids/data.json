@@ -1,0 +1,29 @@
+{
+  "id": "b1-battle-droids",
+  "url": "https://shatterpointdb.com/characters/b1-battle-droids",
+  "name": "B1 Battle Droids",
+  "portrait": "https://shatterpointdb.com/media/arpd4hfq/star-wars-shatterpoint-b1-unit-card.png?height=600&v=1d97885cd80e3e0",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Combat A.I. protocols",
+      "text": "After an allied Battle Droid Unit makes a combat action, choose one of the targeted characters that is within 4 of all characters in this Unit, if able. The chosen character gains [strain] or . Well, I guess I'm in charge, now When this Unit's Order Card would be placed in reserve, its controlling player may place it on the bottom of their Order Deck instead. I hate this job While a character in this Unit is contesting one or more Active objectives, it has Protection ."
+    },
+    {
+      "title": "Battle Droid",
+      "text": "After an allied  Unit makes a combat action, choose one of the targeted characters that is within 4 of all characters in this Unit, if able. The chosen character gains [strain] or ."
+    },
+    {
+      "title": "Protection",
+      "text": "While a character in this Unit is contesting one or more Active objectives, it has  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896989
+  }
+}

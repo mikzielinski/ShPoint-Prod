@@ -1,0 +1,2144 @@
+[
+  {
+    "id": "104th-wolfpack-troopers",
+    "name": "104th Wolfpack Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/104th-wolfpack-troopers/portrait.png",
+    "set_code": "SWP11",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper",
+      "Wolfpack"
+    ]
+  },
+  {
+    "id": "212th-clone-troopers",
+    "name": "212th Clone Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Clone Trooper"
+    ],
+    "portrait": "/characters/212th-clone-troopers/portrait.png",
+    "set_code": "SWP06",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "212th",
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "501st-clone-troopers",
+    "name": "501st Clone Troopers",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/501st-clone-troopers/portrait.png",
+    "set_code": "SWP01",
+    "period": "Clone Wars",
+    "tags": [
+      "Clone Trooper",
+      "Trooper",
+      "501st",
+      "Galactic Republic"
+    ]
+  },
+  {
+    "id": "agent-kallus-inside-man",
+    "name": "Agent Kallus, Inside Man",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/agent-kallus-inside-man/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "ahsoka-tano-fulcrum",
+    "name": "Ahsoka Tano Fulcrum",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Force User",
+      "Rebel Alliance"
+    ],
+    "portrait": "/characters/ahsoka-tano-fulcrum/portrait.png",
+    "set_code": null,
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Rebel Alliance"
+    ],
+    "characterNames": "Ahsoka Tano",
+    "boxSetCode": "",
+    "role": "Primary",
+    "faction": "Force User, Rebel Alliance",
+    "sp": 8,
+    "pc": null,
+    "point_cost": 0,
+    "force": 4,
+    "stamina": 9,
+    "durability": 3,
+    "number_of_characters": 1,
+    "era": [
+      "Galactic Civil War"
+    ],
+    "abilities": [
+      {
+        "id": "she-is-fearless-0",
+        "type": "Active",
+        "symbol": "j",
+        "name": "She is fearless",
+        "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": [
+          "Movement",
+          "Force"
+        ]
+      },
+      {
+        "id": "riposte-1",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Riposte",
+        "description": "After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers .",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Defense",
+          "Force"
+        ]
+      },
+      {
+        "id": "then-i-will-avenge-his-death-2",
+        "type": "Active",
+        "symbol": "j",
+        "name": "Then I will avenge his death",
+        "description": "After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS.",
+        "forceCost": 1,
+        "trigger": "after_combat_action",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Force"
+        ]
+      },
+      {
+        "id": "i-am-no-jedi-3",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "I am no Jedi",
+        "description": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack.",
+        "forceCost": 0,
+        "trigger": "when_wounds_enemy",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Force",
+          "Conditional"
+        ]
+      }
+    ],
+    "structuredAbilities": [
+      {
+        "id": "she-is-fearless-0",
+        "type": "Active",
+        "symbol": "j",
+        "name": "She is fearless",
+        "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": [
+          "Movement",
+          "Force"
+        ]
+      },
+      {
+        "id": "riposte-1",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Riposte",
+        "description": "After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers .",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Defense",
+          "Force"
+        ]
+      },
+      {
+        "id": "then-i-will-avenge-his-death-2",
+        "type": "Active",
+        "symbol": "j",
+        "name": "Then I will avenge his death",
+        "description": "After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS.",
+        "forceCost": 1,
+        "trigger": "after_combat_action",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Force"
+        ]
+      },
+      {
+        "id": "i-am-no-jedi-3",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "I am no Jedi",
+        "description": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack.",
+        "forceCost": 0,
+        "trigger": "when_wounds_enemy",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Force",
+          "Conditional"
+        ]
+      }
+    ],
+    "legacyAbilities": [
+      {
+        "id": "she-is-fearless-0",
+        "type": "Active",
+        "symbol": "j",
+        "name": "She is fearless",
+        "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": [
+          "Movement",
+          "Force"
+        ]
+      },
+      {
+        "id": "riposte-1",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Riposte",
+        "description": "After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers .",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Defense",
+          "Force"
+        ]
+      },
+      {
+        "id": "then-i-will-avenge-his-death-2",
+        "type": "Active",
+        "symbol": "j",
+        "name": "Then I will avenge his death",
+        "description": "After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS.",
+        "forceCost": 1,
+        "trigger": "after_combat_action",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Force"
+        ]
+      },
+      {
+        "id": "i-am-no-jedi-3",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "I am no Jedi",
+        "description": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack.",
+        "forceCost": 0,
+        "trigger": "when_wounds_enemy",
+        "isAction": false,
+        "tags": [
+          "Combat",
+          "Force",
+          "Conditional"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ahsoka-tano-jedi-no-more",
+    "name": "Ahsoka Tano, Jedi no more",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/ahsoka-tano-jedi-no-more/portrait.png",
+    "set_code": "SWP1",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [],
+    "characterNames": "Ahsoka Tano",
+    "boxSetCode": "SWP1",
+    "role": "Primary",
+    "faction": "Unknown",
+    "sp": 8,
+    "pc": null,
+    "point_cost": 0,
+    "force": 3,
+    "stamina": 9,
+    "durability": 3,
+    "number_of_characters": 1,
+    "era": [
+      "Clone Wars"
+    ],
+    "abilities": [],
+    "structuredAbilities": [],
+    "legacyAbilities": []
+  },
+  {
+    "id": "aqua-droids",
+    "name": "Aqua Droids",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/aqua-droids/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "arf-clone-troopers",
+    "name": "ARF Clone Troopers",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/arf-clone-troopers/portrait.png",
+    "set_code": "SWP08",
+    "period": [
+      "Galactic Republic"
+    ],
+    "tags": [
+      "ARF",
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "asajj-ventress-sith-assassin",
+    "name": "Asajj Ventress, Sith Assassin",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/asajj-ventress-sith-assassin/portrait.png",
+    "set_code": "SWP01",
+    "period": "Clone Wars",
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Nightsister",
+      "Separatist Alliance"
+    ]
+  },
+  {
+    "id": "aurra-sing",
+    "name": "Aurra Sing",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [
+      "Bounty Hunter"
+    ],
+    "portrait": "/characters/aurra-sing/portrait.png",
+    "set_code": "SWP09",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel"
+    ]
+  },
+  {
+    "id": "b1-battle-droids",
+    "name": "B1 Battle Droids",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/b1-battle-droids/portrait.png",
+    "set_code": "SWP01",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "B1",
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "b2-battle-droids",
+    "name": "B2 Battle Droids",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/b2-battle-droids/portrait.png",
+    "set_code": "SWP05",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "B2",
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "barriss-offee-jedi-padawan",
+    "name": "Barriss Offee, Jedi Padawan",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
+    "portrait": "/characters/barriss-offee-jedi-padawan/portrait.png",
+    "set_code": "SWP04",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi",
+      "Padawan"
+    ]
+  },
+  {
+    "id": "baze-malbus-and-chirrut-imwe",
+    "name": "Baze Malbus and Chirrut Imwe",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/baze-malbus-and-chirrut-imwe/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "bo-katan-kryze",
+    "name": "Bo-Katan Kryze",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "period": [
+      "Clone Wars"
+    ],
+    "factions": [
+      "Mandalorian"
+    ],
+    "portrait": "/characters/bo-katan-kryze/portrait.png",
+    "set_code": "SWP01",
+    "tags": [
+      "Clan Kryze",
+      "Death Watch",
+      "Mandalorian",
+      "Nite Owls"
+    ]
+  },
+  {
+    "id": "boba-fett-on-contract",
+    "name": "Boba Fett, On Contract",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/boba-fett-on-contract/portrait.png",
+    "set_code": "SWP25"
+  },
+  {
+    "id": "bodhi-rook",
+    "name": "Bodhi Rook",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/bodhi-rook/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "bossk-single-minded-slayer",
+    "name": "Bossk, Single-Minded Slayer",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/bossk-single-minded-slayer/portrait.png",
+    "set_code": "SWP25"
+  },
+  {
+    "id": "bounty-hunters",
+    "name": "Bounty Hunters",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Bounty Hunter"
+    ],
+    "portrait": "/characters/bounty-hunters/portrait.png",
+    "set_code": "SWP09",
+    "period": [
+      "Clone Wars",
+      "Galactic Civil War",
+      "Reign of the Empire",
+      "The New Republic"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "boushh-leia-organa",
+    "name": "Boushh (Leia Organa)",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/boushh-leia-organa/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "c-3po-and-r2-d2",
+    "name": "C-3PO and R2-D2",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/c-3po-and-r2-d2/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "cad-bane-notorious-hunter",
+    "name": "Cad Bane, Notorious Hunter",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [
+      "Bounty Hunter"
+    ],
+    "portrait": "/characters/cad-bane-notorious-hunter/portrait.png",
+    "set_code": "SWP09",
+    "period": [
+      "Clone Wars",
+      "Galactic Civil War",
+      "Reign of the Empire",
+      "The New Republic"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel"
+    ]
+  },
+  {
+    "id": "captain-cassian-andor",
+    "name": "Captain Cassian Andor",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/captain-cassian-andor/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "cc-2224-clone-commander-cody",
+    "name": "CC-2224 Clone Commander Cody",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/cc-2224-clone-commander-cody/portrait.png",
+    "set_code": "SWP06",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "212th",
+      "Clone Commando",
+      "Clone Trooper",
+      "Galactic Republic"
+    ]
+  },
+  {
+    "id": "cc-3636-commander-wolffe",
+    "name": "CC-3636 Commander Wolffe",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/cc-3636-commander-wolffe/portrait.png",
+    "set_code": "SWP11",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Trooper",
+      "Galactic Republic",
+      "Wolfpack"
+    ]
+  },
+  {
+    "id": "cc-3714-clone-commander-fil",
+    "name": "CC-3714 Clone Commander Fil",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/cc-3714-clone-commander-fil/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "cc-7567-captain-rex",
+    "name": "CC-7567 Captain Rex",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "period": [
+      "Clone Wars"
+    ],
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/cc-7567-captain-rex/portrait.png",
+    "set_code": "SWP01",
+    "tags": [
+      "501st",
+      "Clone Trooper",
+      "Galactic Republic"
+    ]
+  },
+  {
+    "id": "chewie",
+    "name": "Chewie",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/chewie/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "chief-chirpa",
+    "name": "Chief Chirpa",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/chief-chirpa/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "chopper-c1-10p-spectre-3",
+    "name": "\"Chopper\" (C1-10P), Spectre-3",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/chopper-c1-10p-spectre-3/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "clan-kryze-mandalorians",
+    "name": "Clan Kryze Mandalorians",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Mandalorian"
+    ],
+    "portrait": "/characters/clan-kryze-mandalorians/portrait.png",
+    "set_code": "SWP01",
+    "tags": [
+      "Mandalorian",
+      "Death Watch",
+      "Clan Kryze",
+      "Trooper"
+    ],
+    "period": [
+      "Clone Wars"
+    ]
+  },
+  {
+    "id": "clone-sergeant-hunter",
+    "name": "Clone Sergeant Hunter",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/clone-sergeant-hunter/portrait.png",
+    "set_code": "SWP38"
+  },
+  {
+    "id": "commander-iden-versio",
+    "name": "Commander Iden Versio",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/commander-iden-versio/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "count-dooku-separatist-leader",
+    "name": "Count Dooku, Separatist Leader",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/count-dooku-separatist-leader/portrait.png",
+    "set_code": "SWP03",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Separatist Alliance",
+      "Sith"
+    ]
+  },
+  {
+    "id": "covert-mandalorians",
+    "name": "Covert Mandalorians",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/covert-mandalorians/portrait.png",
+    "set_code": "SWP16"
+  },
+  {
+    "id": "crosshair",
+    "name": "Crosshair",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/crosshair/portrait.png",
+    "set_code": "SWP38"
+  },
+  {
+    "id": "ct-411-commander-ponds",
+    "name": "CT-411 Commander Ponds",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [
+      "Galactic Empire"
+    ],
+    "portrait": "/characters/ct-411-commander-ponds/portrait.png",
+    "set_code": "SWP08",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Commando",
+      "Clone Trooper",
+      "Galactic Republic"
+    ]
+  },
+  {
+    "id": "ct-9904-elite-squad-leader",
+    "name": "CT-9904, Elite Squad Leader",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/ct-9904-elite-squad-leader/portrait.png",
+    "set_code": "SWP36"
+  },
+  {
+    "id": "dark-troopers",
+    "name": "Dark Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/dark-troopers/portrait.png",
+    "set_code": "SWP26"
+  },
+  {
+    "id": "darth-vader-fallen-master",
+    "name": "Darth Vader, Fallen Master",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/darth-vader-fallen-master/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "darth-vader-jedi-hunter",
+    "name": "Darth Vader, Jedi Hunter",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [
+      "Galactic Empire",
+      "Sith"
+    ],
+    "portrait": "/characters/darth-vader-jedi-hunter/portrait.png",
+    "set_code": "SWP30",
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Galactic Republic",
+      "Inquisitorius",
+      "Sith"
+    ]
+  },
+  {
+    "id": "darth-vader-the-emperors-servant",
+    "name": "Darth Vader, The Emperor's Servant",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/darth-vader-the-emperors-servant/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "death-trooper-escort",
+    "name": "Death Trooper Escort",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/death-trooper-escort/portrait.png",
+    "set_code": "SWP26"
+  },
+  {
+    "id": "death-trooper-specialist",
+    "name": "Death Trooper Specialist",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/death-trooper-specialist/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "death-troopers",
+    "name": "Death Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/death-troopers/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "del-meeko-inferno-squad",
+    "name": "Del Meeko, Inferno Squad",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/del-meeko-inferno-squad/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "dengar-the-demolisher",
+    "name": "Dengar, The Demolisher",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/dengar-the-demolisher/portrait.png",
+    "set_code": "SWP25"
+  },
+  {
+    "id": "director-krennic",
+    "name": "Director Krennic",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/director-krennic/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "echo-and-tech",
+    "name": "Echo and Tech",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/echo-and-tech/portrait.png",
+    "set_code": "SWP38"
+  },
+  {
+    "id": "elite-squad-troopers",
+    "name": "Elite Squad Troopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/elite-squad-troopers/portrait.png",
+    "set_code": "SWP36"
+  },
+  {
+    "id": "es-04-firebrand",
+    "name": "ES-04, Firebrand",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/es-04-firebrand/portrait.png",
+    "set_code": "SWP36"
+  },
+  {
+    "id": "ewok-hunters",
+    "name": "Ewok Hunters",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/ewok-hunters/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "ewok-trappers",
+    "name": "Ewok Trappers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/ewok-trappers/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "ezra-bridger-spectre-6",
+    "name": "Ezra Bridger, Spectre-6",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/ezra-bridger-spectre-6/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "fifth-brother",
+    "name": "Fifth Brother",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Empire"
+    ],
+    "portrait": "/characters/fifth-brother/portrait.png",
+    "set_code": "SWP12",
+    "period": [
+      "Galatic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
+  },
+  {
+    "id": "fils-clones",
+    "name": "Fil's Clones",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/fils-clones/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "fourth-sister",
+    "name": "Fourth Sister",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Empire"
+    ],
+    "portrait": "/characters/fourth-sister/portrait.png",
+    "set_code": "SWP12",
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
+  },
+  {
+    "id": "gar-saxon-merciless-commander",
+    "name": "Gar Saxon, Merciless Commander",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Shadow Collective"
+    ],
+    "portrait": "/characters/gar-saxon-merciless-commander/portrait.png",
+    "set_code": "SWP01",
+    "tags": [
+      "Mandalorian",
+      "Shadow Collective",
+      "Super Commando"
+    ],
+    "period": [
+      "Clone Wars"
+    ]
+  },
+  {
+    "id": "general-anakin-skywalker",
+    "name": "General Anakin Skywalker",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [
+      "Jedi"
+    ],
+    "portrait": "/characters/general-anakin-skywalker/portrait.png",
+    "period": [
+      "Clone Wars"
+    ],
+    "set_code": "SWP01",
+    "tags": [
+      "501st",
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
+  },
+  {
+    "id": "general-grievous",
+    "name": "General Grievous",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/general-grievous/portrait.png",
+    "set_code": "SWP05",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Droid Separatist",
+      "Alliance"
+    ]
+  },
+  {
+    "id": "general-obi-wan-kenobi",
+    "name": "General Obi-Wan Kenobi",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Jedi"
+    ],
+    "portrait": "/characters/general-obi-wan-kenobi/portrait.png",
+    "set_code": "SWP06",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "212th",
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
+  },
+  {
+    "id": "general-solo",
+    "name": "General Solo",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/general-solo/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "general-veers-tactical-genius",
+    "name": "General Veers, Tactical Genius",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/general-veers-tactical-genius/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "gideon-hask-inferno-squad",
+    "name": "Gideon Hask, Inferno Squad",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/gideon-hask-inferno-squad/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "grand-admiral-thrawn",
+    "name": "Grand Admiral Thrawn",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/grand-admiral-thrawn/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "grand-inquisitor-fallen-jedi",
+    "name": "Grand Inquisitor, Fallen Jedi",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Galactic Empire"
+    ],
+    "portrait": "/characters/grand-inquisitor-fallen-jedi/portrait.png",
+    "set_code": "SWP12",
+    "period": "Clone Wars",
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
+  },
+  {
+    "id": "greef-karga",
+    "name": "Greef Karga",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/greef-karga/portrait.png",
+    "set_code": "SWP24"
+  },
+  {
+    "id": "gwarm",
+    "name": "Gwarm",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/gwarm/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "han-and-chewie-in-it-for-the-money",
+    "name": "Han and Chewie, in it for the money",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/han-and-chewie-in-it-for-the-money/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "hera-syndulla-spectre-2",
+    "name": "Hera Syndulla, Spectre-2",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/hera-syndulla-spectre-2/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "hondo-honest-businessman",
+    "name": "Hondo, Honest Businessman",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/hondo-honest-businessman/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "ig-11-assassin-droid",
+    "name": "IG-11, Assassin Droid",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/ig-11-assassin-droid/portrait.png",
+    "set_code": "SWP24"
+  },
+  {
+    "id": "ig-88b-created-to-succeed",
+    "name": "IG-88B, Created to Succeed",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/ig-88b-created-to-succeed/portrait.png",
+    "set_code": "SWP25"
+  },
+  {
+    "id": "imperial-special-forces",
+    "name": "Imperial Special Forces",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/imperial-special-forces/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "isb-agents",
+    "name": "ISB Agents",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/isb-agents/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "jango-fett-bounty-hunter",
+    "name": "Jango Fett, Bounty Hunter",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Bounty Hunter",
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/jango-fett-bounty-hunter/portrait.png",
+    "set_code": "SWP03",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Bounty Hunter",
+      "Mercenary",
+      "Scoundrel",
+      "Separatist Alliance"
+    ]
+  },
+  {
+    "id": "jedi-knight-luke-skywalker",
+    "name": "Jedi Knight Luke Skywalker",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/jedi-knight-luke-skywalker/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "jedi-master-ki-adi-mundi",
+    "name": "Jedi Master Ki-Adi-Mundi",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jedi-master-ki-adi-mundi/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "jedi-master-kit-fisto",
+    "name": "Jedi Master Kit Fisto",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jedi-master-kit-fisto/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "jedi-master-luminara-unduli",
+    "name": "Jedi Master Luminara Unduli",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
+    "portrait": "/characters/jedi-master-luminara-unduli/portrait.png",
+    "set_code": "SWP04",
+    "perdiod": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
+  },
+  {
+    "id": "jedi-master-mace-windu",
+    "name": "Jedi Master Mace Windu",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
+    "portrait": "/characters/jedi-master-mace-windu/portrait.png",
+    "set_code": "SWP08",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
+  },
+  {
+    "id": "jedi-master-plo-koon",
+    "name": "Jedi Master Plo Koon",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Galactic Republic",
+      "Jedi"
+    ],
+    "portrait": "/characters/jedi-master-plo-koon/portrait.png",
+    "set_code": "SWP11",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Republic",
+      "Jedi"
+    ]
+  },
+  {
+    "id": "jedi-master-shaak-ti",
+    "name": "Jedi Master Shaak Ti",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/jedi-master-shaak-ti/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "jyn-erso-stardust",
+    "name": "Jyn Erso, Stardust",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/jyn-erso-stardust/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "k-2so-outspoken-enforcer",
+    "name": "K-2SO, Outspoken Enforcer",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/k-2so-outspoken-enforcer/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "kalani-super-tactical-droid",
+    "name": "Kalani, Super Tactical Droid",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/kalani-super-tactical-droid/portrait.png",
+    "set_code": "SWP01",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance"
+    ]
+  },
+  {
+    "id": "kanan-jarrus-spectre-1",
+    "name": "Kanan Jarrus, Spectre-1",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/kanan-jarrus-spectre-1/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "kraken-super-tactical-droid",
+    "name": "Kraken, Super Tactical Droid",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/kraken-super-tactical-droid/portrait.png",
+    "set_code": "SWP05",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance"
+    ]
+  },
+  {
+    "id": "lando-and-r2-d2-inside-job",
+    "name": "Lando and R2-D2, Inside Job",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/lando-and-r2-d2-inside-job/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "lando-calrissian-galactic-entrepeneur",
+    "name": "Lando Calrissian, Galactic Entrepeneur",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/lando-calrissian-galactic-entrepeneur/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "leia-organa-freedom-fighter",
+    "name": "Leia Organa, Freedom Fighter",
+    "unit_type": "Primary",
+    "squad_points": 7,
+    "factions": [],
+    "portrait": "/characters/leia-organa-freedom-fighter/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "lobot-computer-liaison-officer",
+    "name": "Lobot, Computer Liaison Officer",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/lobot-computer-liaison-officer/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "logray-bright-tree-shaman",
+    "name": "Logray, Bright Tree Shaman",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/logray-bright-tree-shaman/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "lord-maul",
+    "name": "Lord Maul",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Shadow Collective"
+    ],
+    "portrait": "/characters/lord-maul/portrait.png",
+    "set_code": "SWP01",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Scoundrel",
+      "Shadow Collective"
+    ]
+  },
+  {
+    "id": "luke-skywalker-daring-hero",
+    "name": "Luke Skywalker, Daring Hero",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/luke-skywalker-daring-hero/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "magnaguard",
+    "name": "MagnaGuard",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [
+      "Separatist Alliance"
+    ],
+    "portrait": "/characters/magnaguard/portrait.png",
+    "set_code": "SWP03",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Battle Droid",
+      "Droid",
+      "Separatist Alliance",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "mandalorian-super-commandos",
+    "name": "Mandalorian Super Commandos",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Shadow Collective"
+    ],
+    "portrait": "/characters/mandalorian-super-commandos/portrait.png",
+    "set_code": "SWP01",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Mandalorian",
+      "Shadow Collective",
+      "Super Commando",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "moff-gideon",
+    "name": "Moff Gideon",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/moff-gideon/portrait.png",
+    "set_code": "SWP26"
+  },
+  {
+    "id": "mother-talzin",
+    "name": "Mother Talzin",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      "Dathomirian"
+    ],
+    "portrait": "/characters/mother-talzin/portrait.png",
+    "set_code": "SWP07",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Nightsister"
+    ]
+  },
+  {
+    "id": "naboo-royal-handmaidens",
+    "name": "Naboo Royal Handmaidens",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/naboo-royal-handmaidens/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "nahdar-vebb-jedi-knight",
+    "name": "Nahdar Vebb, Jedi Knight",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/nahdar-vebb-jedi-knight/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "nightsister-acolytes",
+    "name": "Nightsister Acolytes",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Dathomirian"
+    ],
+    "portrait": "/characters/nightsister-acolytes/portrait.png",
+    "set_code": "SWP07",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Nightsister",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "nossor-ri",
+    "name": "Nossor Ri",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/nossor-ri/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "obi-wan-kenobi-out-of-hiding",
+    "name": "Obi-Wan Kenobi, Out of Hiding",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Force User",
+      "Jedi"
+    ],
+    "portrait": "/characters/obi-wan-kenobi-out-of-hiding/portrait.png",
+    "set_code": "SWP30",
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Jedi"
+    ]
+  },
+  {
+    "id": "padawan-ahsoka-tano",
+    "name": "Padawan Ahsoka Tano",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/padawan-ahsoka-tano/portrait.png",
+    "set_code": "SWP11",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [],
+    "characterNames": "Ahsoka Tano",
+    "boxSetCode": "SWP11",
+    "role": "Secondary",
+    "faction": "Unknown",
+    "sp": null,
+    "pc": 4,
+    "point_cost": 4,
+    "force": 0,
+    "stamina": 8,
+    "durability": 2,
+    "number_of_characters": 1,
+    "era": [
+      "Clone Wars"
+    ],
+    "abilities": [
+      {
+        "id": "at-0",
+        "type": "Tactic",
+        "symbol": "k",
+        "name": "At",
+        "description": "At the start of this Unit's activation, choose an allied",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "primary-unit-1",
+        "type": "Tactic",
+        "symbol": "k",
+        "name": "Primary Unit",
+        "description": "Primary Unit or an allied",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "primary-unit-2",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "Primary Unit",
+        "description": "Primary Unit . One character in the chosen Unit may . She is",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "fearless-each-3",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "Fearless Each",
+        "description": "Fearless Each character in this Unit may .",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "this-unit-4",
+        "type": "Active",
+        "symbol": "j",
+        "name": "This Unit",
+        "description": "This Unit may use this ability two times during its activation instead of the normal one.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "deflect-after-5",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Deflect After",
+        "description": "Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again,",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "snips-after-6",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Snips After",
+        "description": "Snips After an allied",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "supporting-unit-7",
+        "type": "Active",
+        "symbol": "j",
+        "name": "Supporting Unit",
+        "description": "Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "at-8",
+        "type": "Tactic",
+        "symbol": "k",
+        "name": "At",
+        "description": "At the start of this Unit's activation, choose an allied  or an allied",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "primary-unit-9",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "Primary Unit",
+        "description": "Primary Unit . One character in the chosen Unit may .",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "after-10",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "After",
+        "description": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": []
+      }
+    ],
+    "structuredAbilities": [
+      {
+        "id": "at-0",
+        "type": "Tactic",
+        "symbol": "k",
+        "name": "At",
+        "description": "At the start of this Unit's activation, choose an allied",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "primary-unit-1",
+        "type": "Tactic",
+        "symbol": "k",
+        "name": "Primary Unit",
+        "description": "Primary Unit or an allied",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "primary-unit-2",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "Primary Unit",
+        "description": "Primary Unit . One character in the chosen Unit may . She is",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "fearless-each-3",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "Fearless Each",
+        "description": "Fearless Each character in this Unit may .",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "this-unit-4",
+        "type": "Active",
+        "symbol": "j",
+        "name": "This Unit",
+        "description": "This Unit may use this ability two times during its activation instead of the normal one.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "deflect-after-5",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Deflect After",
+        "description": "Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again,",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "snips-after-6",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "Snips After",
+        "description": "Snips After an allied",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "supporting-unit-7",
+        "type": "Active",
+        "symbol": "j",
+        "name": "Supporting Unit",
+        "description": "Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+        "forceCost": 1,
+        "trigger": "on_activation",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "at-8",
+        "type": "Tactic",
+        "symbol": "k",
+        "name": "At",
+        "description": "At the start of this Unit's activation, choose an allied  or an allied",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "primary-unit-9",
+        "type": "Innate",
+        "symbol": "l",
+        "name": "Primary Unit",
+        "description": "Primary Unit . One character in the chosen Unit may .",
+        "forceCost": 0,
+        "trigger": "always",
+        "isAction": false,
+        "tags": []
+      },
+      {
+        "id": "after-10",
+        "type": "Reactive",
+        "symbol": "i",
+        "name": "After",
+        "description": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+        "forceCost": 1,
+        "trigger": "after_attack_targeting_unit",
+        "isAction": false,
+        "tags": []
+      }
+    ],
+    "legacyAbilities": [
+      {
+        "title": "Race Ya",
+        "text": "At the start of this Unit's activation, choose an allied Galactic Republic Primary Unit or an allied Jedi Primary Unit . One character in the chosen Unit may . She is Fearless Each character in this Unit may . This Unit may use this ability two times during its activation instead of the normal one. Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again, Snips After an allied Galactic Republic Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+      },
+      {
+        "title": "Galactic Republic Primary Unit",
+        "text": "At the start of this Unit's activation, choose an allied  or an allied Jedi Primary Unit . One character in the chosen Unit may ."
+      },
+      {
+        "title": "Galactic Republic Supporting Unit",
+        "text": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+      }
+    ]
+  },
+  {
+    "id": "padawan-learners",
+    "name": "Padawan Learners",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/padawan-learners/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "paploo-curious-creature",
+    "name": "Paploo, Curious Creature",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/paploo-curious-creature/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "paz-vizsla",
+    "name": "Paz Vizsla",
+    "unit_type": "Secondary",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/paz-vizsla/portrait.png",
+    "set_code": "SWP16"
+  },
+  {
+    "id": "princess-leia-charming-to-the-last",
+    "name": "Princess Leia, Charming to the last",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/princess-leia-charming-to-the-last/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "queen-padme-amidala",
+    "name": "Queen Padmé Amidala",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [
+      ""
+    ],
+    "portrait": "/characters/queen-padme-amidala/portrait.png",
+    "set_code": "SWP15"
+  },
+  {
+    "id": "rc-1138-boss",
+    "name": "RC-1138 \"Boss\"",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/rc-1138-boss/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "rc-1140-fixer",
+    "name": "RC-1140 \"Fixer\"",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/rc-1140-fixer/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "rebel-commandos",
+    "name": "Rebel Commandos",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/rebel-commandos/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "rebel-pathfinders",
+    "name": "Rebel Pathfinders",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/rebel-pathfinders/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "republic-clone-commandos",
+    "name": "Republic Clone Commandos",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Republic"
+    ],
+    "portrait": "/characters/republic-clone-commandos/portrait.png",
+    "set_code": "SWP04",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Clone Commando",
+      "Clone Trooper",
+      "Galactic Republic",
+      "Trooper"
+    ]
+  },
+  {
+    "id": "riff-tamson",
+    "name": "Riff Tamson",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/riff-tamson/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "sabe-royal-bodyguard",
+    "name": "Sabé, Royal Bodyguard",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/sabe-royal-bodyguard/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "sabine-wren-spectre-5",
+    "name": "Sabine Wren, Spectre-5",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/sabine-wren-spectre-5/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "savage-opress",
+    "name": "Savage Opress",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Separatist Alliance",
+      "Dathomirian"
+    ],
+    "portrait": "/characters/savage-opress/portrait.png",
+    "set_code": "SWP07",
+    "period": [
+      "Clone Wars"
+    ],
+    "tags": [
+      "Dathomirian",
+      "Force User",
+      "Separatist Alliance",
+      "Sith"
+    ]
+  },
+  {
+    "id": "sev-and-scorch",
+    "name": "\"Sev\" and \"Scorch\"",
+    "unit_type": "Support",
+    "squad_points": 5,
+    "factions": [],
+    "portrait": "/characters/sev-and-scorch/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "shoretroopers",
+    "name": "Shoretroopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/shoretroopers/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "snowtrooper-lieutenant",
+    "name": "Snowtrooper Lieutenant",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/snowtrooper-lieutenant/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "snowtroopers",
+    "name": "Snowtroopers",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/snowtroopers/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "stormtrooper-sergeant",
+    "name": "Stormtrooper Sergeant",
+    "unit_type": "Secondary",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/stormtrooper-sergeant/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "stormtroopers",
+    "name": "Stormtroopers",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/stormtroopers/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "the-armorer",
+    "name": "The Armorer",
+    "unit_type": "Primary",
+    "squad_points": 9,
+    "factions": [],
+    "portrait": "/characters/the-armorer/portrait.png",
+    "set_code": "SWP16"
+  },
+  {
+    "id": "the-mandalorian",
+    "name": "The Mandalorian",
+    "unit_type": "Primary",
+    "squad_points": 8,
+    "factions": [],
+    "portrait": "/characters/the-mandalorian/portrait.png",
+    "set_code": "SWP24"
+  },
+  {
+    "id": "third-sister",
+    "name": "Third Sister",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [
+      "Galactic Empire"
+    ],
+    "portrait": "/characters/third-sister/portrait.png",
+    "set_code": "SWP12",
+    "period": [
+      "Galactic Civil War"
+    ],
+    "tags": [
+      "Force User",
+      "Galactic Empire",
+      "Inquisitorius"
+    ]
+  },
+  {
+    "id": "weequay-pirates",
+    "name": "Weequay Pirates",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/weequay-pirates/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "wicket-intrepid-warrior",
+    "name": "Wicket, Intrepid Warrior",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/wicket-intrepid-warrior/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "wing-guard",
+    "name": "Wing Guard",
+    "unit_type": "Support",
+    "squad_points": 3,
+    "factions": [],
+    "portrait": "/characters/wing-guard/portrait.png",
+    "set_code": null
+  },
+  {
+    "id": "wrecker-and-omega",
+    "name": "Wrecker and Omega",
+    "unit_type": "Secondary",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/wrecker-and-omega/portrait.png",
+    "set_code": "SWP38"
+  },
+  {
+    "id": "zeb-orrelios-spectre-4",
+    "name": "\"Zeb\" Orrelios, Spectre-4",
+    "unit_type": "Support",
+    "squad_points": 4,
+    "factions": [],
+    "portrait": "/characters/zeb-orrelios-spectre-4/portrait.png",
+    "set_code": null
+  }
+]

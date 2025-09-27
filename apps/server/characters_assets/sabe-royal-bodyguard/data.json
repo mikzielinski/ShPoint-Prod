@@ -1,0 +1,37 @@
+{
+  "id": "sabe-royal-bodyguard",
+  "url": "https://shatterpointdb.com/characters/sabe-royal-bodyguard",
+  "name": "Sabé, Royal Bodyguard",
+  "portrait": "https://shatterpointdb.com/media/yexheddv/shatterpoint-sabe-unit-card.png?height=600&v=1d9d65d0ca039b0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Loyal Protectors",
+      "text": "At the start of this Unit's activation, each allied Handmaiden character may Toward an allied Primary character. Expose Flank Each character in this Unit may . If any character ends this movement at a higher elevation than it began, characters in this Unit have Sharpshooter [1] until the end of the Turn and this Unit immediately makes a focus action. Coordinated Assault: When a character in another allied Galactic Republic Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, one character in this Unit may . Bodyguard Allied Primary characters within 2 and allied Secondary characters within 2 of a character in this Unit have Cover [1]"
+    },
+    {
+      "title": "Handmaiden",
+      "text": "At the start of this Unit's activation, each allied  character may Toward an allied Primary character."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Each character in this Unit may . If any character ends this movement at a higher elevation than it began, characters in this Unit have  until the end of the Turn and this Unit immediately makes a focus action."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, one character in this Unit may ."
+    },
+    {
+      "title": "Primary",
+      "text": "Allied  characters within 2 and allied Secondary characters within 2 of a character in this Unit have Cover [1]"
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897069
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "gar-saxon-merciless-commander",
+  "url": "https://shatterpointdb.com/characters/gar-saxon-merciless-commander",
+  "name": "Gar Saxon, Merciless Commander",
+  "portrait": "https://shatterpointdb.com/media/sp4njwnf/star-wars-shatterpoint-gar-saxon-character-card.png?height=600&v=1d97cf99c160510",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Pride of the Mandalore",
+      "text": "At the start of this Unit's activation, choose another allied Mandalorian character. The chosen character may . Jet pack Each character in this Unit may . Mandalorians are stronger together After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied Mandalorian character, this Unit immediately makes a focus action. I've got you in my sights Characters in this Unit have Sharpshooter [2] . When a character in this Unit makes a attack, the target does not benefit from Cover. After this Unit makes a focus action, it gains . Pack hunter When a character in this Unit makes a attack targeting an enemy character that is Engaged with another allied Mandalorian character, it adds 2 dice to the attack roll."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "At the start of this Unit's activation, choose another allied  character. The chosen character may ."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  . When a character in this Unit makes a attack, the target does not benefit from Cover. After this Unit makes a focus action, it gains ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897024
+  }
+}

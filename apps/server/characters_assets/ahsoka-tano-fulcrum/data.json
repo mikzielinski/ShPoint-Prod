@@ -1,0 +1,212 @@
+{
+  "id": "ahsoka-tano-fulcrum",
+  "name": "Ahsoka Tano Fulcrum",
+  "characterNames": "Ahsoka Tano",
+  "boxSetCode": "",
+  "role": "Primary",
+  "faction": "Force User, Rebel Alliance",
+  "portrait": "/characters/ahsoka-tano-fulcrum/portrait.png",
+  "tags": [
+    "Force User",
+    "Rebel Alliance"
+  ],
+  "sp": 8,
+  "pc": null,
+  "squad_points": 8,
+  "unit_type": "Primary",
+  "point_cost": 0,
+  "force": 4,
+  "stamina": 9,
+  "durability": 3,
+  "number_of_characters": 1,
+  "era": [
+    "Galactic Civil War"
+  ],
+  "period": [
+    "Galactic Civil War"
+  ],
+  "factions": [
+    "Force User",
+    "Rebel Alliance"
+  ],
+  "abilities": [
+    {
+      "id": "she-is-fearless-0",
+      "type": "Active",
+      "symbol": "j",
+      "name": "She is fearless",
+      "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": [
+        "Movement",
+        "Force"
+      ]
+    },
+    {
+      "id": "riposte-1",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Riposte",
+      "description": "After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers .",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Defense",
+        "Force"
+      ]
+    },
+    {
+      "id": "then-i-will-avenge-his-death-2",
+      "type": "Active",
+      "symbol": "j",
+      "name": "Then I will avenge his death",
+      "description": "After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS.",
+      "forceCost": 1,
+      "trigger": "after_combat_action",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Force"
+      ]
+    },
+    {
+      "id": "i-am-no-jedi-3",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "I am no Jedi",
+      "description": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack.",
+      "forceCost": 0,
+      "trigger": "when_wounds_enemy",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Force",
+        "Conditional"
+      ]
+    }
+  ],
+  "structuredAbilities": [
+    {
+      "id": "she-is-fearless-0",
+      "type": "Active",
+      "symbol": "j",
+      "name": "She is fearless",
+      "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": [
+        "Movement",
+        "Force"
+      ]
+    },
+    {
+      "id": "riposte-1",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Riposte",
+      "description": "After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers .",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Defense",
+        "Force"
+      ]
+    },
+    {
+      "id": "then-i-will-avenge-his-death-2",
+      "type": "Active",
+      "symbol": "j",
+      "name": "Then I will avenge his death",
+      "description": "After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS.",
+      "forceCost": 1,
+      "trigger": "after_combat_action",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Force"
+      ]
+    },
+    {
+      "id": "i-am-no-jedi-3",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "I am no Jedi",
+      "description": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack.",
+      "forceCost": 0,
+      "trigger": "when_wounds_enemy",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Force",
+        "Conditional"
+      ]
+    }
+  ],
+  "legacyAbilities": [
+    {
+      "id": "she-is-fearless-0",
+      "type": "Active",
+      "symbol": "j",
+      "name": "She is fearless",
+      "description": "Each character in this Unit may [[jump]] This Unit may use this ability two times during its activation instead of the normal one.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": [
+        "Movement",
+        "Force"
+      ]
+    },
+    {
+      "id": "riposte-1",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Riposte",
+      "description": "After a attacking targeting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contains one or more results, the attacking Unit suffers .",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Defense",
+        "Force"
+      ]
+    },
+    {
+      "id": "then-i-will-avenge-his-death-2",
+      "type": "Active",
+      "symbol": "j",
+      "name": "Then I will avenge his death",
+      "description": "After this Unit makes a combat action, it may use this ability. One character in this Unit may make an attack targeting one of the same enemy characters within range and LOS.",
+      "forceCost": 1,
+      "trigger": "after_combat_action",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Force"
+      ]
+    },
+    {
+      "id": "i-am-no-jedi-3",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "I am no Jedi",
+      "description": "Once per Turn, when a character in this Unit Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then if the enemy Unit was a Primary Unit or Secondary Unit you may refresh or one character in this Unit may make a 5 dice attack.",
+      "forceCost": 0,
+      "trigger": "when_wounds_enemy",
+      "isAction": false,
+      "tags": [
+        "Combat",
+        "Force",
+        "Conditional"
+      ]
+    }
+  ]
+}

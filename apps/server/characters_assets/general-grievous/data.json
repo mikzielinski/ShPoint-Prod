@@ -1,0 +1,33 @@
+{
+  "id": "general-grievous",
+  "url": "https://shatterpointdb.com/characters/general-grievous",
+  "name": "General Grievous",
+  "portrait": "https://shatterpointdb.com/media/fx4lex3u/star-wars-shatterpoint-grievous-unit-card.png?height=600&v=1d9932a75bf6f90",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 11,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Onward",
+      "text": "At the start of this Unit's activation, choose another allied Battle Droid character within 4. The chosen character may . Scuttle Characters in this Unit have Scale until the end of the Turn. One character in this Unit may . I have been trained in your Jedi Arts After a attack made by a character in this Unit is resolved, this Unit may use this ability. Each enemy Unit that has one or more characters engaged with the attacker, except the defending Unit, suffers . Appetite for Destruction After this Unit makes a combat action, choose an allied Battle Droid supporting character within 3. The chosen character may . Then, that character may make a 5 dice attack targeting one of the same enemy characters within and LOS. Another fine addition to my collection When a character in this Unit Wounds an enemy Unit, after the effect is resolved, that character may . Then, if the Wounded Unit was a Force User , refresh ."
+    },
+    {
+      "title": "Battle Droid",
+      "text": "At the start of this Unit's activation, choose another allied  character within 4. The chosen character may ."
+    },
+    {
+      "title": "Scale",
+      "text": "Characters in this Unit have  until the end of the Turn. One character in this Unit may ."
+    },
+    {
+      "title": "Battle Droid supporting",
+      "text": "After this Unit makes a combat action, choose an allied  character within 3. The chosen character may . Then, that character may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897025
+  }
+}

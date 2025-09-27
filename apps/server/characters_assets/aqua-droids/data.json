@@ -1,0 +1,37 @@
+{
+  "id": "aqua-droids",
+  "url": "https://shatterpointdb.com/characters/aqua-droids",
+  "name": "Aqua Droids",
+  "portrait": "https://shatterpointdb.com/media/hjjah2sy/shatterpoint-aqua-droid-unit-card.png?height=600&v=1dbf5c89e14f700",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Calculated Advance",
+      "text": "Each character in this Unit may . Then this Unit immediately makes a focus action. Submerge When you reveal this Unit's Order Card, if another allied Aquatic Unit's Order card is in reserve, this Unit may use this ability. Put the Order Card in reserve on the top or bottom of your Order Deck. Then put this Unit's Order Card in reserve. Augmented Power Servos Characters in this Unit have Impact [1] . Enhanced Blast Armor Characters in this Unit have Protection . Sonar Detection While a character in this Unit makes a attack, the target of that attack reduces its Cover value by 1, to a minimum of 0."
+    },
+    {
+      "title": "Aquatic",
+      "text": "When you reveal this Unit's Order Card, if another allied  Unit's Order card is in reserve, this Unit may use this ability. Put the Order Card in reserve on the top or bottom of your Order Deck. Then put this Unit's Order Card in reserve."
+    },
+    {
+      "title": "Impact [1]",
+      "text": "Characters in this Unit have  ."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  ."
+    },
+    {
+      "title": "Cover",
+      "text": "While a character in this Unit makes a attack, the target of that attack reduces its  value by 1, to a minimum of 0."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896986
+  }
+}

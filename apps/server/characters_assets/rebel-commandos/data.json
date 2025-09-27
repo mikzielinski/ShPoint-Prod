@@ -1,0 +1,29 @@
+{
+  "id": "rebel-commandos",
+  "url": "https://shatterpointdb.com/characters/rebel-commandos",
+  "name": "Rebel Commandos",
+  "portrait": "https://shatterpointdb.com/media/avhlwurm/shatterpoint-rebel-commandos-unit-card.png?height=600&v=1da9c11a64a8690",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Commando Doctrines",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and gains . Coordinated Fire: When a character in another allied Rebel Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers . Camouflage At the end of the Setup, this Unit may gain . Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's Primary Unit , instead of the normal 1."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's  , instead of the normal 1."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897067
+  }
+}

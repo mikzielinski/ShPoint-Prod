@@ -1,0 +1,33 @@
+{
+  "id": "savage-opress",
+  "url": "https://shatterpointdb.com/characters/savage-opress",
+  "name": "Savage Opress",
+  "portrait": "https://shatterpointdb.com/media/ixfhwc4v/star-wars-shatterpoint-savage-opress-unit-card.png?height=600&v=1d9b49933e74210",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 10,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Dark Fury",
+      "text": "Choose an enemy Unit within 2 and roll 5 attack dice. The chosen Unit suffers for each [crit] and [hit] result in the roll. If the chosen Unit is a Force User and suffers from this ability, that Unit gains . Furious Rush Each character in this Unit may . If this Unit is injured, each character in this Unit may instead . Overpowering monster When a character in this Unit makes an attack targeting a Primary character, add 2 dice to the attack roll. Pain is Weakness Characters in this Unit have Protection and Steadfast . Unwitting brute When an allied Separatist Primary Unit or an allied Dathomirian Primary Unit starts its activation within 3 of this Unit, one character in this Unit may ."
+    },
+    {
+      "title": "Primary",
+      "text": "When a character in this Unit makes an attack targeting a  character, add 2 dice to the attack roll."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  and Steadfast ."
+    },
+    {
+      "title": "Separatist Primary Unit",
+      "text": "When an allied  or an allied Dathomirian Primary Unit starts its activation within 3 of this Unit, one character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897071
+  }
+}

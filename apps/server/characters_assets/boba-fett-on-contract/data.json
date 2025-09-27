@@ -1,0 +1,33 @@
+{
+  "id": "boba-fett-on-contract",
+  "url": "https://shatterpointdb.com/characters/boba-fett-on-contract",
+  "name": "Boba Fett, On Contract",
+  "portrait": "https://shatterpointdb.com/media/usdlegz2/shatterpoint-boba-fett-on-contract-unit-card-new.png?height=600&v=1db14e819d32dc0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "You're running out of options",
+      "text": "At the start of this Unit's activation, one character in this Unit may or may make a 5 dice attack targeting an enemy Primary Unit . Knee Rockets Choose up to two enemy Units within 3. Each chosen Unit suffers . Whipcord Launcher Choose an enemy Unit within 3. The chosen Unit gains and . Dead or alive When an enemy Primary Unit ends its activation, this Unit may use this ability. One character in this Unit may Toward a character in enemy Primary Unit . Hired Hand At the end of Setup, choose one of the following: - As you wish : This Unit has the Galactic Empire Tag. - He's worth a lot to me : This Unit has the Scoundrel Tag."
+    },
+    {
+      "title": "Primary Unit",
+      "text": "At the start of this Unit's activation, one character in this Unit may or may make a 5 dice attack targeting an enemy  ."
+    },
+    {
+      "title": "As you wish",
+      "text": "This Unit has the Galactic Empire Tag."
+    },
+    {
+      "title": "He's worth a lot to me",
+      "text": "This Unit has the Scoundrel Tag."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896993
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "es-04-firebrand",
+  "url": "https://shatterpointdb.com/characters/es-04-firebrand",
+  "name": "ES-04, Firebrand",
+  "portrait": "https://shatterpointdb.com/media/34wfx1dj/shatterpoint-es04-firebrand-unit-card.png?height=600&v=1daf86c3e9f3ab0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Marching Orders",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Empire Supporting character. The chosen character and one character in this Unit may . Prescribed Fire Choose an objective within 3. Each character within 2 of that objective may . Then each Unit within 2 of that objective suffers and removes all its . Obscuring Flames Choose an allied Unit within 3. The chosen Unit gains . Can't stand the heat While this Unit is not Wounded, when one or more characters in an enemy Unit end a move action Engaged with one or more characters in this Unit, this Unit may use this ability. The enemy Unit gains and [strain]."
+    },
+    {
+      "title": "Galactic Empire Supporting",
+      "text": "At the start of this Unit's activation, choose an allied  character. The chosen character and one character in this Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897018
+  }
+}

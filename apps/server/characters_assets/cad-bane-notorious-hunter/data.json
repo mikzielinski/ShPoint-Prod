@@ -1,0 +1,25 @@
+{
+  "id": "cad-bane-notorious-hunter",
+  "url": "https://shatterpointdb.com/characters/cad-bane-notorious-hunter",
+  "name": "Cad Bane, Notorious Hunter",
+  "portrait": "https://shatterpointdb.com/media/fxufe4lc/shatterpoint-cad-bane-notorious-hunter-new.jpg?height=600&v=1dbc839827b4790",
+  "squad_points": 9,
+  "force": 2,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "How about you step aside?",
+      "text": "Choose an enemy character within 3 and an Active objective it is contesting. The chosen character may Away from that objective. Then, after any moves are resolved, if the chosen character is no longer contesting the chosen objective, it gains . If the chosen character is still contesting the chosen objective, it gains and . Rocket Boots Each character in this Unit may . No one gets between me and my job After another allied Unit makes a combat action, this Unit may use this ability if no characters in this Unit are Engaged. Choose one of the targeted characters within 4. One character in this Unit deals to the chosen character. If none of the targeted characters are within 4, each character in this Unit may Toward one of the targeted characters. I'll take on any job....For the right price When an allied character Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then, if the allied character is a Bounty Hunter , refresh ."
+    },
+    {
+      "title": "Bounty Hunter",
+      "text": "When an allied character Wounds an enemy Unit, after the effect is resolved, refresh and one character in this Unit may . Then, if the allied character is a  , refresh ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896996
+  }
+}

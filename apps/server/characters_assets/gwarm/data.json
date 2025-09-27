@@ -1,0 +1,33 @@
+{
+  "id": "gwarm",
+  "url": "https://shatterpointdb.com/characters/gwarm",
+  "name": "Gwarm",
+  "portrait": "https://shatterpointdb.com/media/y2nn0unb/shatterpoint-gwarm-new.jpg?height=600&v=1dbc83a0b4f5b10",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Get moving, you dogs",
+      "text": "At the start of this Unit's activation, choose another allied Weequay Unit. Each character in the chosen Unit may . Spotchka rations Choose an allied Scoundrel Unit within 3. One character in the chosen Unit may . Exit Strategy Characters in this Unit can even while they are Engaged. Pack hunter When a character in this Unit makes a attack targeting an enemy character that is Engaged with another allied Weequay character, it adds 2 dice to the attack roll. I've got you in my sights Characters in this Unit have Sharpshooter [2] . When a character in this Unit makes a attack, the target does not benefit from Cover . After this Unit makes a focus action, it gains ."
+    },
+    {
+      "title": "Weequay",
+      "text": "At the start of this Unit's activation, choose another allied  Unit. Each character in the chosen Unit may ."
+    },
+    {
+      "title": "Scoundrel",
+      "text": "Choose an allied  Unit within 3. One character in the chosen Unit may ."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  . When a character in this Unit makes a attack, the target does not benefit from Cover . After this Unit makes a focus action, it gains ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897032
+  }
+}

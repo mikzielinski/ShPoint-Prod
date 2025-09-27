@@ -1,0 +1,29 @@
+{
+  "id": "count-dooku-separatist-leader",
+  "url": "https://shatterpointdb.com/characters/count-dooku-separatist-leader",
+  "name": "Count Dooku, Separatist Leader",
+  "portrait": "https://shatterpointdb.com/media/skjjanqg/star-wars-shatterpoint-count-dooku-unit-card.png?height=600&v=1d98379ba91a950",
+  "squad_points": 7,
+  "force": 4,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Leader of the separatist army",
+      "text": "At the start of this unit activation choose another allied Separatist Alliance character within 3. Each character in this unit and the chosen character may . Surely you can do better When a character in this Unit defends, during the Modify Dice Rolls step, this Unit may spend 1-3 to use this\nability. Change one [hit] result to a for each spent. Twice the pride, double the fall After a attack targetting an allied character within 2 is resolved, this Unit may use this ability. If the attack contained no [hit] results, one character in this Unit may and then make a 5 dice attack targetting the attacking character. Brave. But foolish Once a turn, when an allied Primary unit or allied Secondary unit is wounded by an enemy effect, after the effect is resolved, refresh . Then, choose an allied Separatist Alliance Supporting Unit . One character in the chosen unit may or make a 5 dice attack."
+    },
+    {
+      "title": "Separatist Alliance",
+      "text": "At the start of this unit activation choose another allied  character within 3. Each character in this unit and the chosen character may ."
+    },
+    {
+      "title": "Primary",
+      "text": "Once a turn, when an allied  unit or allied Secondary unit is wounded by an enemy effect, after the effect is resolved, refresh . Then, choose an allied Separatist Alliance Supporting Unit . One character in the chosen unit may or make a 5 dice attack."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897004
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "id": "padawan-ahsoka-tano",
+  "name": "Padawan Ahsoka Tano",
+  "characterNames": "Ahsoka Tano",
+  "boxSetCode": "SWP11",
+  "role": "Secondary",
+  "faction": "Unknown",
+  "portrait": "/characters/padawan-ahsoka-tano/portrait.png",
+  "tags": [],
+  "sp": null,
+  "pc": 4,
+  "squad_points": 4,
+  "unit_type": "Secondary",
+  "point_cost": 4,
+  "force": 0,
+  "stamina": 8,
+  "durability": 2,
+  "number_of_characters": 1,
+  "era": [
+    "Clone Wars"
+  ],
+  "period": [
+    "Clone Wars"
+  ],
+  "factions": [],
+  "abilities": [
+    {
+      "id": "at-0",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "At",
+      "description": "At the start of this Unit's activation, choose an allied",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "primary-unit-1",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "Primary Unit",
+      "description": "Primary Unit or an allied",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "primary-unit-2",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "Primary Unit",
+      "description": "Primary Unit . One character in the chosen Unit may . She is",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "fearless-each-3",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "Fearless Each",
+      "description": "Fearless Each character in this Unit may .",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "this-unit-4",
+      "type": "Active",
+      "symbol": "j",
+      "name": "This Unit",
+      "description": "This Unit may use this ability two times during its activation instead of the normal one.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "deflect-after-5",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Deflect After",
+      "description": "Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again,",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "snips-after-6",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Snips After",
+      "description": "Snips After an allied",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "supporting-unit-7",
+      "type": "Active",
+      "symbol": "j",
+      "name": "Supporting Unit",
+      "description": "Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "at-8",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "At",
+      "description": "At the start of this Unit's activation, choose an allied  or an allied",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "primary-unit-9",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "Primary Unit",
+      "description": "Primary Unit . One character in the chosen Unit may .",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "after-10",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "After",
+      "description": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": []
+    }
+  ],
+  "structuredAbilities": [
+    {
+      "id": "at-0",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "At",
+      "description": "At the start of this Unit's activation, choose an allied",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "primary-unit-1",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "Primary Unit",
+      "description": "Primary Unit or an allied",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "primary-unit-2",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "Primary Unit",
+      "description": "Primary Unit . One character in the chosen Unit may . She is",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "fearless-each-3",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "Fearless Each",
+      "description": "Fearless Each character in this Unit may .",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "this-unit-4",
+      "type": "Active",
+      "symbol": "j",
+      "name": "This Unit",
+      "description": "This Unit may use this ability two times during its activation instead of the normal one.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "deflect-after-5",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Deflect After",
+      "description": "Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again,",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "snips-after-6",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Snips After",
+      "description": "Snips After an allied",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "supporting-unit-7",
+      "type": "Active",
+      "symbol": "j",
+      "name": "Supporting Unit",
+      "description": "Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+      "forceCost": 1,
+      "trigger": "on_activation",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "at-8",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "At",
+      "description": "At the start of this Unit's activation, choose an allied  or an allied",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "primary-unit-9",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "Primary Unit",
+      "description": "Primary Unit . One character in the chosen Unit may .",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": []
+    },
+    {
+      "id": "after-10",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "After",
+      "description": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS.",
+      "forceCost": 1,
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "tags": []
+    }
+  ],
+  "legacyAbilities": [
+    {
+      "title": "Race Ya",
+      "text": "At the start of this Unit's activation, choose an allied Galactic Republic Primary Unit or an allied Jedi Primary Unit . One character in the chosen Unit may . She is Fearless Each character in this Unit may . This Unit may use this ability two times during its activation instead of the normal one. Deflect After a attack targeting a character in this Unit is resolved, it may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . Getting ahead of yourself again, Snips After an allied Galactic Republic Supporting Unit within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    },
+    {
+      "title": "Galactic Republic Primary Unit",
+      "text": "At the start of this Unit's activation, choose an allied  or an allied Jedi Primary Unit . One character in the chosen Unit may ."
+    },
+    {
+      "title": "Galactic Republic Supporting Unit",
+      "text": "After an allied  within 3 makes a combat action, this Unit may use this ability. One character in this Unit may , then may make a 5 dice attack targeting one of the same enemy characters within and LOS."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "darth-vader-fallen-master",
+  "url": "https://shatterpointdb.com/characters/darth-vader-fallen-master",
+  "name": "Darth Vader, Fallen Master",
+  "portrait": "https://shatterpointdb.com/media/oowlj2d5/shatterpoint-darth-vader-fallen-master-unit.png?height=600&v=1db888a6357e290",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Anakin Skywalker was weak",
+      "text": "At the start of this Unit's activation, if this Unit does not have , refresh . After this effect is resolved, this Unit removes and one condition from itself and one character in this Unit may . Then you will die braver than most Choose a character in this Unit and an enemy character within 3 of that character. Pull the chosen enemy character 2 Toward the chosen allied character. Then the chosen enemy character gains [exposed]. The power within will soon serve the Emperor At the end of this Unit's activation, it may use this ability. This Unit gains . Then choose a character in this Unit and an Active objective within 3 of that character. The chosen character contests the chosen objective until the end of this Turn. More machine now than man Characters in this Unit have Protection , Steadfast , and Impact [1] ."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  , Steadfast , and Impact [1] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897010
+  }
+}

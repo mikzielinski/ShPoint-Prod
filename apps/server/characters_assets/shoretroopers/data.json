@@ -1,0 +1,33 @@
+{
+  "id": "shoretroopers",
+  "url": "https://shatterpointdb.com/characters/shoretroopers",
+  "name": "Shoretroopers",
+  "portrait": "https://shatterpointdb.com/media/x05lno5r/shatterpoint-shoretroopers-unit.png?height=600&v=1db88881551be10",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Defensive Maneuver",
+      "text": "Each character in this Unit may . If any characters , this Unit gains . For the empire Action: Choose an enemy character Engaged with one or more characters in this Unit and one of the allied characters it is Engaged with. Push the chosen enemy character 2 Away from the chosen allied character.  Then this Unit gains [exposed]. Garrison Force When a character in this Unit makes an attack outside of this Unit's activation, if this Unit has one or more , add 1 die to the attack roll. Additionally, while a character in this Unit is contesting one or more Active objectives, It has Steadfast and Protection . Only imperial stormtroopers are so precise Characters in this Unit have Sharpshooter [1] ."
+    },
+    {
+      "title": "Action:",
+      "text": "Choose an enemy character Engaged with one or more characters in this Unit and one of the allied characters it is Engaged with. Push the chosen enemy character 2 Away from the chosen allied character.  Then this Unit gains [exposed]."
+    },
+    {
+      "title": "Steadfast",
+      "text": "Additionally, while a character in this Unit is contesting one or more Active objectives, It has  and Protection ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897072
+  }
+}

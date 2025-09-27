@@ -1,0 +1,29 @@
+{
+  "id": "clan-kryze-mandalorians",
+  "url": "https://shatterpointdb.com/characters/clan-kryze-mandalorians",
+  "name": "Clan Kryze Mandalorians",
+  "portrait": "https://shatterpointdb.com/media/gptniics/shatterpoint-new-clan-kryze-mandalorians.webp?height=600&v=1db311f1ef4d2b0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Jet pack",
+      "text": "Each character in this Unit may . Mandalorians are stronger together After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied Mandalorian character, this Unit immediately makes a focus action. Helmet Visor Characters in this Unit have Sharpshooter [1] ."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied  character, this Unit immediately makes a focus action."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897003
+  }
+}

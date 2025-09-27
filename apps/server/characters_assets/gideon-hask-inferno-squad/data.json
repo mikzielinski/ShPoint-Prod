@@ -1,0 +1,33 @@
+{
+  "id": "gideon-hask-inferno-squad",
+  "url": "https://shatterpointdb.com/characters/gideon-hask-inferno-squad",
+  "name": "Gideon Hask, Inferno Squad",
+  "portrait": "https://shatterpointdb.com/media/shqlfkyc/shatterpoint-gideon-hask-inferno-squad-unit-card.png?height=600&v=1da9b4098cdfe60",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Covert Operations",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and characters in this Unit have Sharpshooter [1] until the end of the Turn. Long Live the Empire Choose an Active objective and an allied Galactic Empire Supporting Unit . One character in the chosen Unit may Toward that objective. Then the chosen Unit suffers . If this effect Wounds the chosen Unit, that Unit may remove one Wounded token, all , and one condition from itself. If it does, that Unit gains an Injured token. Defiance will be the death of you When an allied Galactic Empire Supporting character makes an attack as part of a combat action, if the target is within 5 of a character in this Unit, the attacking character may change one result in the attack roll to a [success] result. May we live up to our name When this Unit is Wounded by an attack, after the effect is resolved, one character in this Unit may immediately and make a 5 dice attack targeting the character that Wounded it."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and characters in this Unit have  until the end of the Turn."
+    },
+    {
+      "title": "Galactic Empire Supporting Unit",
+      "text": "Choose an Active objective and an allied  . One character in the chosen Unit may Toward that objective. Then the chosen Unit suffers . If this effect Wounds the chosen Unit, that Unit may remove one Wounded token, all , and one condition from itself. If it does, that Unit gains an Injured token."
+    },
+    {
+      "title": "Galactic Empire Supporting",
+      "text": "When an allied  character makes an attack as part of a combat action, if the target is within 5 of a character in this Unit, the attacking character may change one result in the attack roll to a [success] result."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897030
+  }
+}

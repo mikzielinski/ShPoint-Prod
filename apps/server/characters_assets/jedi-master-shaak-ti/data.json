@@ -1,0 +1,29 @@
+{
+  "id": "jedi-master-shaak-ti",
+  "url": "https://shatterpointdb.com/characters/jedi-master-shaak-ti",
+  "name": "Jedi Master Shaak Ti",
+  "portrait": "https://shatterpointdb.com/media/345buocn/shatterpoint-jedi-master-shaak-ti-unit.png?height=600&v=1db531b70f63e50",
+  "squad_points": 5,
+  "force": 1,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Unity Wins War",
+      "text": "At the start of this Unit's activation, choose another allied Galactic Republic character or another allied Mercenary character. The chosen character may . Then, one character in this Unit may . Force Repulse Choose a character in this Unit. Push each other character within 2 of the chosen character 2 Away from it. Feinting Blow When a character in this Unit makes a attack as part of a combat action, during the Modify Dice step, this Unit may use this ability. If there are one or more [expertise] results in the defense roll, change one [block] result in the defense roll to a result. Virtuoso Characters in this Unit have Immunity [ ] and Immunity [ ] ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "At the start of this Unit's activation, choose another allied  character or another allied Mercenary character. The chosen character may . Then, one character in this Unit may ."
+    },
+    {
+      "title": "Immunity [ ]",
+      "text": "Characters in this Unit have  and Immunity [ ] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897043
+  }
+}

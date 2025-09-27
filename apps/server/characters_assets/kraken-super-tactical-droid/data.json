@@ -1,0 +1,33 @@
+{
+  "id": "kraken-super-tactical-droid",
+  "url": "https://shatterpointdb.com/characters/kraken-super-tactical-droid",
+  "name": "Kraken, Super Tactical Droid",
+  "portrait": "https://shatterpointdb.com/media/30hehhkx/star-wars-shatterpoint-kraken-unit-card.png?height=600&v=1d997e5a19a01b0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 10,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Do Not Let Them Escape",
+      "text": "At the start of this Unit's Activation, you may choose this Unit or an allied Battle Droid Supporting Unit . Each character in the chosen unit may . Tactical Network Choose another allied Battle Droid character within 4. The chosen character may , then may gain , remove one condition from itself, or make a 5 dice attack. Complete Analysis When you spend to place this Unit's Order Card in reserve, spend one less . Conqueror's Resolve While a character in this Unit is contesting one or more Active objectives, it has Protection and Steadfast ."
+    },
+    {
+      "title": "Battle Droid Supporting Unit",
+      "text": "At the start of this Unit's Activation, you may choose this Unit or an allied  . Each character in the chosen unit may ."
+    },
+    {
+      "title": "Battle Droid",
+      "text": "Choose another allied  character within 4. The chosen character may , then may gain , remove one condition from itself, or make a 5 dice attack."
+    },
+    {
+      "title": "Protection",
+      "text": "While a character in this Unit is contesting one or more Active objectives, it has  and Steadfast ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897046
+  }
+}

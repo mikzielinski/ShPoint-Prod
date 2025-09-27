@@ -1,0 +1,29 @@
+{
+  "id": "cc-2224-clone-commander-cody",
+  "url": "https://shatterpointdb.com/characters/cc-2224-clone-commander-cody",
+  "name": "CC-2224 Clone Commander Cody",
+  "portrait": "https://shatterpointdb.com/media/rbggh5uu/star-wars-shatterpoint-cody-unit-card.png?height=600&v=1d9890915d71b30",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "We've got a big problem...",
+      "text": "At the start of this Unit's activation, choose an Active objective. One character in this Unit may Toward the chosen objective. Then choose an enemy character within 3 that is contesting the chosen objective, if able. The chosen character gains [exposed]. Defensive maneuver Each character in this Unit may .If any characters , this unit gains . Say goodnight, clankers! Characters in this unit have SHARPSHOOTER [2]. When a character in this unit makes a attack, the target does not benefit from cover . Bring it down! When an allied Clone trooper supporting character within 4 that has a one or more making a attack as part of a combat action, it may reroll up to two of its results."
+    },
+    {
+      "title": "cover",
+      "text": "Characters in this unit have SHARPSHOOTER [2]. When a character in this unit makes a attack, the target does not benefit from  ."
+    },
+    {
+      "title": "Clone trooper",
+      "text": "When an allied  supporting character within 4 that has a one or more making a attack as part of a combat action, it may reroll up to two of its results."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896997
+  }
+}

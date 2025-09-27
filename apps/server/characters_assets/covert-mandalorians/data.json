@@ -1,0 +1,37 @@
+{
+  "id": "covert-mandalorians",
+  "url": "https://shatterpointdb.com/characters/covert-mandalorians",
+  "name": "Covert Mandalorians",
+  "portrait": "https://shatterpointdb.com/media/10vfpud3/shatterpoint-covert-mandalorians-unit-new.png?height=600&v=1db09c1b9179470",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Jet Pack",
+      "text": "Each character in this Unit may . Mandalorian Armanents Choose one of the following effects: - Characters in this Unit have Sharpshooter [1] until the end of the Turn. - Characters in this Unit have Impact [1] until the end of the Turn. Mandalorians are stronger together After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied Mandalorian character, this Unit immediately makes a focus action. Our secrecy is our survival. This is the way While this Unit's Order Card is in the Order Deck or in reserve, characters in this Unit have Protection ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  until the end of the Turn."
+    },
+    {
+      "title": "Impact [1]",
+      "text": "Characters in this Unit have  until the end of the Turn."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied  character, this Unit immediately makes a focus action."
+    },
+    {
+      "title": "Protection",
+      "text": "While this Unit's Order Card is in the Order Deck or in reserve, characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897005
+  }
+}

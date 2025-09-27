@@ -1,0 +1,29 @@
+{
+  "id": "ewok-trappers",
+  "url": "https://shatterpointdb.com/characters/ewok-trappers",
+  "name": "Ewok Trappers",
+  "portrait": "https://shatterpointdb.com/media/nvzppd43/shatterpoint-ewok-trappers-unit-card.png?height=600&v=1da433bda3bbb10",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 7,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Stealthy Approach",
+      "text": "Each character in this Unit may . Then this Unit may gain or immediately make a focus action. Battle Tactics: Primitive Artifice When you create your starting Order Deck, you may include up to one Primitive Artifice Battle Tactics Card. When you draw a Battle Tactics Card, resolve the effects of that card then draw another Order Card and continue your Turn as normal. Camouflage At the end of Setup, this Unit may gain . Strength in Numbers When a character in this Unit makes an attack as part of a combat action, for each other allied Ewok character Engaged with the target that is not Wounded, add 1 attack die to the attack roll."
+    },
+    {
+      "title": "Primitive Artifice",
+      "text": "When you create your starting Order Deck, you may include up to one  Battle Tactics Card. When you draw a Battle Tactics Card, resolve the effects of that card then draw another Order Card and continue your Turn as normal."
+    },
+    {
+      "title": "Ewok",
+      "text": "When a character in this Unit makes an attack as part of a combat action, for each other allied  character Engaged with the target that is not Wounded, add 1 attack die to the attack roll."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897019
+  }
+}

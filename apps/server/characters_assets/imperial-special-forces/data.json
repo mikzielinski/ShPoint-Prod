@@ -1,0 +1,25 @@
+{
+  "id": "imperial-special-forces",
+  "url": "https://shatterpointdb.com/characters/imperial-special-forces",
+  "name": "Imperial Special Forces",
+  "portrait": "https://shatterpointdb.com/media/k32pevoj/shatterpoint-imperial-special-forces-unit-card.png?height=600&v=1da9b40a5b51050",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Special forces conditioning",
+      "text": "At the start of this Unit's activation, it may remove and one condition from itself. Covert Operations Each character in this Unit may . If one or more characters end this movement within 4 of enemy character, this Unit immediately makes a focus action and characters in this Unit have Sharpshooter [1] unit the end of the Turn. Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first places character from that squad's Primary Unit, instead of the normal 1."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of enemy character, this Unit immediately makes a focus action and characters in this Unit have  unit the end of the Turn."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897037
+  }
+}

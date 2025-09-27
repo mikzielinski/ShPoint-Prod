@@ -1,0 +1,33 @@
+{
+  "id": "commander-iden-versio",
+  "url": "https://shatterpointdb.com/characters/commander-iden-versio",
+  "name": "Commander Iden Versio",
+  "portrait": "https://shatterpointdb.com/media/lrmh2qmm/shatterpoint-commander-iden-versio-unit-card.png?height=600&v=1da9b3e49bc3640",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 9,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Today, the Rebellion dies",
+      "text": "At the start of this Unit's activation, each other allied Galactic Empire Scout character within 4 that is not Engaged may . Then, one character in this Unit may . Covert Operations Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and characters in this Unit have Sharpshooter [1] until the end of the Turn. ID10 Seeker Droid Choose an enemy Unit within 3. The chosen Unit removes all its . If no were removed, the chosen Unit gains . The Empire sends its regards When an allied Galactic Empire character Wounds an enemy Unit with an attack, after the effect is resolved, that allied character may choose another enemy Unit within 4. The chosen Unit gains or [strain]. Then the allied character may and ."
+    },
+    {
+      "title": "Galactic Empire Scout",
+      "text": "At the start of this Unit's activation, each other allied  character within 4 that is not Engaged may . Then, one character in this Unit may ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and characters in this Unit have  until the end of the Turn."
+    },
+    {
+      "title": "Galactic Empire",
+      "text": "When an allied  character Wounds an enemy Unit with an attack, after the effect is resolved, that allied character may choose another enemy Unit within 4. The chosen Unit gains or [strain]. Then the allied character may and ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897004
+  }
+}

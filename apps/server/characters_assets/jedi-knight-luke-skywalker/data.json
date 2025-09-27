@@ -1,0 +1,25 @@
+{
+  "id": "jedi-knight-luke-skywalker",
+  "url": "https://shatterpointdb.com/characters/jedi-knight-luke-skywalker",
+  "name": "Jedi Knight Luke Skywalker",
+  "portrait": "https://shatterpointdb.com/media/4lujrsnr/jedi-knight-luke-skywalker-unit-card.png?height=600&v=1da2df51412e130",
+  "squad_points": 7,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 11,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Return of the Jedi",
+      "text": "At the start of this Unit's activation, one character in this Unit may , then refresh . You can either profit by this, or be destroyed Choose an Active objective within 2. Each enemy character contesting that objective may . Then one character in this Unit may Toward that objective and it may make a 5 dice attack. Deflect After a attack targetting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . I will not fight you When a character in this Unit is targeted with a attack, this Unit may use this ability. After the attack is resolved, if the attack contained one or more results, one character in this Unit may and . I am a Jedi, like my father before me While this Unit's Order Card is in the Order Deck or in reserve, this Unit and allied Rebel Alliance Units within 5 have Immunity [ ] .\nWhile this Unit's Order Card is not in the Order Deck, this Unit and allied Rebel Alliance Units within 5 have Immunity [ ] ."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "While this Unit's Order Card is in the Order Deck or in reserve, this Unit and allied  Units within 5 have Immunity [ ] .\nWhile this Unit's Order Card is not in the Order Deck, this Unit and allied Rebel Alliance Units within 5 have Immunity [ ] ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897039
+  }
+}

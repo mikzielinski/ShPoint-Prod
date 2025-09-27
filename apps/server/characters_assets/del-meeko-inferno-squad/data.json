@@ -1,0 +1,29 @@
+{
+  "id": "del-meeko-inferno-squad",
+  "url": "https://shatterpointdb.com/characters/del-meeko-inferno-squad",
+  "name": "Del Meeko, Inferno Squad",
+  "portrait": "https://shatterpointdb.com/media/hhklqjqr/shatterpoint-del-meeko-inferno-squad-unit-card.png?height=600&v=1da9b45bf2bfa30",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Trick shot",
+      "text": "At the start of this Unit's activation, if no characters in this Unit are Engaged, choose an enemy Unit in LOS. The chosen Unit suffers and removes all it's . Covert Operations Each character in this Unit may . If one or more characters end this movement within 4 of en enemy character, this Unit immediately makes a focus action and characters in this Unit have Sharpshooter [1] until the end of the Turn. Deadeye Characters in this Unit have Sharpshooter [2] . When a character in this Unit makes a attack, the target does not benefit from Cover . Special Forces Sniper This Unit may make a combat action up to two times during its activation instead of the normal one."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of en enemy character, this Unit immediately makes a focus action and characters in this Unit have  until the end of the Turn."
+    },
+    {
+      "title": "Sharpshooter [2]",
+      "text": "Characters in this Unit have  . When a character in this Unit makes a attack, the target does not benefit from Cover ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897014
+  }
+}

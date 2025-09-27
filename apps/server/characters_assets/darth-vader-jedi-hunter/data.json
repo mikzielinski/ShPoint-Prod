@@ -1,0 +1,25 @@
+{
+  "id": "darth-vader-jedi-hunter",
+  "url": "https://shatterpointdb.com/characters/darth-vader-jedi-hunter",
+  "name": "Darth Vader, Jedi Hunter",
+  "portrait": "https://shatterpointdb.com/media/cvhfip0s/star-wars-shatterpoint-darth-vader-jedi-hunter-unit-card.png?height=600&v=1d9a2e885307c80",
+  "squad_points": 7,
+  "force": 4,
+  "unit_type": "Primary",
+  "stamina": 12,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Vader's Fury",
+      "text": "Each character in this Unit may . During the next attack made by a character in this Unit during this activation, after all dice rolls have been modified, add to the Damage Pool. Riposte After a attack targetting a character in this Unit is resolved, this Unit may use this ability. If the attack roll contained one or more results, the attacking Unit suffers . The Sith Lord strikes back When this Unit is Wounded by an attack, after the attack is resolved, it may use this ability. One character in this Unit may immediately and make a 5 dice attack targeting the character that Wounded it. Your hatred makes you powerful When an allied Galactic Republic or Galactic Empire character makes a attack as part of a combat action, after choosing a target, the attacking Unit may suffer . If it does, the attacker adds 3 dice to the attack roll."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When an allied  or Galactic Empire character makes a attack as part of a combat action, after choosing a target, the attacking Unit may suffer . If it does, the attacker adds 3 dice to the attack roll."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897011
+  }
+}

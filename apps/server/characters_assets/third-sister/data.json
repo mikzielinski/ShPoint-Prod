@@ -1,0 +1,21 @@
+{
+  "id": "third-sister",
+  "url": "https://shatterpointdb.com/characters/third-sister",
+  "name": "Third Sister",
+  "portrait": "https://shatterpointdb.com/media/rbahd5em/star-wars-shatterpoint-third-sister-unit-card.png?height=600&v=1d99e2cda6aeb10",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Inquisitorius Supporting",
+      "text": "Choose an allied  character. The chosen character may and then may make a 5 dice attack."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897083
+  }
+}

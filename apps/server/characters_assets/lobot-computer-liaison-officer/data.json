@@ -1,0 +1,29 @@
+{
+  "id": "lobot-computer-liaison-officer",
+  "url": "https://shatterpointdb.com/characters/lobot-computer-liaison-officer",
+  "name": "Lobot, Computer Liaison Officer",
+  "portrait": "https://shatterpointdb.com/media/jurfgp53/shatterpoint-lobot-unit-card.jpeg?height=600&v=1db0568debb0de0",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Detain",
+      "text": "Choose an allied Scoundrel character. The chosen character may . Then choose an enemy character within 3 of that allied character. The chosen character gains or . Security Network Choose another allied Scoundrel Secondary character within 4, or an allied Scoundrel Supporting character within 4. The chosen character may , then may make a 5 dice attack targetting an enemy character that is contesting an Active objective. Battlefield calculations During another allied Unit's activation, when one or more characters in that Unit end as , , , within 2, this Unit may use this ability. The activating Unit immediately makes a focus action. Lockdown While this Unit is not Wounded, your opponent cannot remove your Control token from an objective that one or more characters in this Unit are contesting."
+    },
+    {
+      "title": "Scoundrel",
+      "text": "Choose an allied  character. The chosen character may . Then choose an enemy character within 3 of that allied character. The chosen character gains or ."
+    },
+    {
+      "title": "Scoundrel Secondary",
+      "text": "Choose another allied  character within 4, or an allied Scoundrel Supporting character within 4. The chosen character may , then may make a 5 dice attack targetting an enemy character that is contesting an Active objective."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897051
+  }
+}

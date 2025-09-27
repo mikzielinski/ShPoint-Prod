@@ -1,0 +1,25 @@
+{
+  "id": "fifth-brother",
+  "url": "https://shatterpointdb.com/characters/fifth-brother",
+  "name": "Fifth Brother",
+  "portrait": "https://shatterpointdb.com/media/vcebkvec/star-wars-shatterpoint-fifth-brother-unit-card.png?height=600&v=1d9a3ad69e81f30",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Inquisitorius",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 4 of a character in this Unit, the target Unit gains ."
+    },
+    {
+      "title": "Protection",
+      "text": "While a character in this Unit is contesting one or more Active objectives, it has  and Steadfast ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897021
+  }
+}

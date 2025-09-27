@@ -1,0 +1,29 @@
+{
+  "id": "k-2so-outspoken-enforcer",
+  "url": "https://shatterpointdb.com/characters/k-2so-outspoken-enforcer",
+  "name": "K-2SO, Outspoken Enforcer",
+  "portrait": "https://shatterpointdb.com/media/n1qly0vf/shatterpoint-k2so-outspoken-enforcer-character.png?height=600&v=1db8e8907dcb490",
+  "squad_points": 5,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Why does she get a blaster and I don't?",
+      "text": "Choose an allied Rebel Alliance character. One character in this Unit may Toward the chosen character. Then the chosen character may or remove one condition from itself. Congratulations, you are being rescued When another allied Rebel Alliance Unit within 4 becomes Wounded by an attack, after that effect is resolved, this Unit may use this ability. One character in this Unit may Toward the enemy character that caused the effect and then may make a 5 dice attack targeting that character. Goodbye When this Unit is Wounded by an enemy attack, after the effect is resolved, the attacking character gains and . Then choose an allied Spy character within 3. Chose chosen character may . Additionally, if this Unit has one or more Wounded or Injured tokens, you may spend up to 2 Momentum at the end of your turn. If you do, move the Struggle token one space toward your Momentum tokens for each Momentum spent and this Unit becomes Defeated. Lockdown While this Unit is not Wounded, your opponent cannot remove or replace your Control token from an objective that one or more characters in this Unit are contesting."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "Choose an allied  character. One character in this Unit may Toward the chosen character. Then the chosen character may or remove one condition from itself."
+    },
+    {
+      "title": "Spy",
+      "text": "When this Unit is Wounded by an enemy attack, after the effect is resolved, the attacking character gains and . Then choose an allied  character within 3. Chose chosen character may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897044
+  }
+}

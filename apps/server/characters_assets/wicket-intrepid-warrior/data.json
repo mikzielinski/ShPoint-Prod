@@ -1,0 +1,29 @@
+{
+  "id": "wicket-intrepid-warrior",
+  "url": "https://shatterpointdb.com/characters/wicket-intrepid-warrior",
+  "name": "Wicket, Intrepid Warrior",
+  "portrait": "https://shatterpointdb.com/media/5mjny5kq/shatterpoint-wicket-intrepid-unit-card.png?height=600&v=1da4f130186b7f0",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 9,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Lead The Charge",
+      "text": "At the start of this Unit's activation, choose an enemy character in LOS and an allied Ewok Supporting Unit within 3. Each character in this Unit and each character in the chosen allied Unit may Toward the chosen enemy character. Hunting Horn Action: Each enemy Unit within 3 that has no Engaged characters within 3 of a character in this Unit gains . Each enemy Unit that has one or more Engaged characters within 3 of a character in this Unit gains . Stealthy Approach Each character in this Unit may . Then this Unit may gain or immediately make a focus action."
+    },
+    {
+      "title": "Ewok Supporting Unit",
+      "text": "At the start of this Unit's activation, choose an enemy character in LOS and an allied  within 3. Each character in this Unit and each character in the chosen allied Unit may Toward the chosen enemy character."
+    },
+    {
+      "title": "Action:",
+      "text": "Each enemy Unit within 3 that has no Engaged characters within 3 of a character in this Unit gains . Each enemy Unit that has one or more Engaged characters within 3 of a character in this Unit gains ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897085
+  }
+}

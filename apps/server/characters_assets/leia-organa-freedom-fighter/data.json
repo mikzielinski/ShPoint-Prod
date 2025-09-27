@@ -1,0 +1,25 @@
+{
+  "id": "leia-organa-freedom-fighter",
+  "url": "https://shatterpointdb.com/characters/leia-organa-freedom-fighter",
+  "name": "Leia Organa, Freedom Fighter",
+  "portrait": "https://shatterpointdb.com/media/yyjle012/shatterpoint-leia-organa-freedom-fighter-unit-card.png?height=600&v=1da3e939b4dc210",
+  "squad_points": 7,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Infiltrate",
+      "text": "At the start of this Unit's activation, one allied Rebel Alliance character may . Defensive Maneuver Each character in this Unit may . If any characters , this Unit gains . Explosive Charge Choose an objective within 3. Each allied character within 2 of that objective may and gain . Then, each Unit within 2 of that objective suffers and removes any it has. Coordinated Fire: [exposed] When a character in another allied Rebel Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this unit, the target unit gains [exposed]. Unexpected Allies Allied Rebel Alliance Units have the Ewok Tag.\nAllied Ewok Units have the Rebel Alliance Tag."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "At the start of this Unit's activation, one allied  character may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897048
+  }
+}

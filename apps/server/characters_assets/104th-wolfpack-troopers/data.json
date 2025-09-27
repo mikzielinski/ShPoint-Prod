@@ -1,0 +1,29 @@
+{
+  "id": "104th-wolfpack-troopers",
+  "url": "https://shatterpointdb.com/characters/104th-wolfpack-troopers",
+  "name": "104th Wolfpack Troopers",
+  "portrait": "https://shatterpointdb.com/media/4bjpbhu3/shatterpoint-104th-wolfpack-troopers-stance-new.jpg",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Run and Gun",
+      "text": "Each character in this Unit may . If any characters , this Unit immediately makes a focus action. Coordinated Fire: When another allied Galactic Republic character makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit gains . Pack Hunter When a character in this Unit makes a attack targeting an enemy character that is Engaged with another allied Clone Trooper character, it adds 2 dice to the attack roll."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When another allied  character makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this Unit, the target Unit gains ."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "When a character in this Unit makes a attack targeting an enemy character that is Engaged with another allied  character, it adds 2 dice to the attack roll."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896982
+  }
+}

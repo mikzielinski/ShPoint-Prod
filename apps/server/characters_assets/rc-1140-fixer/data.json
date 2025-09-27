@@ -1,0 +1,25 @@
+{
+  "id": "rc-1140-fixer",
+  "url": "https://shatterpointdb.com/characters/rc-1140-fixer",
+  "name": "RC-1140 \"Fixer\"",
+  "portrait": "https://shatterpointdb.com/media/c5lf01ru/shatterpoint-rc1140-fixer-unit-card.png?height=600&v=1dbf5c89df67280",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Grab yourself some Bacta, Trooper",
+      "text": "At the start of this Unit's activation, choose an allied Clone Trooper character. The chosen character and then may . Forming up, Sir When another allied Clone Trooper Unit makes a move action, after all moves have been resolved, this Unit may use this ability. If one or more characters in this Unit that moved are within 3, that Unit gains . String 'em along and we'll mop 'em up When an allied Clone Trooper character makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. Add 1 die to the attack roll for each Delta Squad Unit, other than the attack Unit, that is within 5 and LOS of the target. Watch the Master at work When determining control of an Active objective that a character in this Unit is contesting, if there is a tie, this Unit's controlling player takes control of the objective."
+    },
+    {
+      "title": "Clone Trooper",
+      "text": "At the start of this Unit's activation, choose an allied  character. The chosen character and then may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897066
+  }
+}

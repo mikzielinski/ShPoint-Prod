@@ -1,0 +1,29 @@
+{
+  "id": "chief-chirpa",
+  "url": "https://shatterpointdb.com/characters/chief-chirpa",
+  "name": "Chief Chirpa",
+  "portrait": "https://shatterpointdb.com/media/41ahansc/shatterpoint-chief-chirpa-unit-card.png?height=600&v=1da4f12f9e71e90",
+  "squad_points": 7,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Bola Toss",
+      "text": "Choose an enemy Unit within 3. The chosen Unit gains or [exposed]. Stealthy Approach Each character in this Unit may . Then this Unit may gain or immediately make a focus action. Mobilize the Village While this Unit is not Wounded, characters in other allied Ewok Units add 1 die to their attack rolls. Sharp Stick Characters in this Unit have Impact [2] . When a character in this Unit makes a attack, the target does not benefit from Protection . Bright Tree Defender When another allied Ewok Unit becomes Wounded, after the effect is resolved, roll an attack die. On a [crit] or [hit] result, each character in this Unit may and make a 5 dice attack. On a or [expertise] result, each character in this Unit may and ."
+    },
+    {
+      "title": "Ewok",
+      "text": "While this Unit is not Wounded, characters in other allied  Units add 1 die to their attack rolls."
+    },
+    {
+      "title": "Impact [2]",
+      "text": "Characters in this Unit have  . When a character in this Unit makes a attack, the target does not benefit from Protection ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897000
+  }
+}

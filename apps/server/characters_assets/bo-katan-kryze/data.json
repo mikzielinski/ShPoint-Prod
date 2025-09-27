@@ -1,0 +1,29 @@
+{
+  "id": "bo-katan-kryze",
+  "url": "https://shatterpointdb.com/characters/bo-katan-kryze",
+  "name": "Bo-Katan Kryze",
+  "portrait": "https://shatterpointdb.com/media/uh5b3qvr/shatterpoint-new-bo-katan-kryze.webp?height=600&v=1db311f010bf670",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "[tactical]Pride of the Mandalore",
+      "text": "At the start of this Unit's activation, choose another allied Mandalorian character. The chosen character may . Jet pack Each character in this Unit may . Mandalorians are stronger together After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied Mandalorian character, this Unit immediately makes a focus action. Mandalore will survive After this Unit makes a focus action, one character in this Unit may and . Some of us serve a higher purpose Allied Madalorian characters within 3 of this Unit that are contesting one or more Active objectives have Protection and Steadfast ."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "At the start of this Unit's activation, choose another allied  character. The chosen character may ."
+    },
+    {
+      "title": "Madalorian",
+      "text": "Allied  characters within 3 of this Unit that are contesting one or more Active objectives have Protection and Steadfast ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896992
+  }
+}

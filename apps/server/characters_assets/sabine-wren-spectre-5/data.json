@@ -1,0 +1,33 @@
+{
+  "id": "sabine-wren-spectre-5",
+  "url": "https://shatterpointdb.com/characters/sabine-wren-spectre-5",
+  "name": "Sabine Wren, Spectre-5",
+  "portrait": "https://shatterpointdb.com/media/ihybe0en/shatterpoint-sabine-wren-spectre-5-unit-card.png?height=600&v=1daa6b773793440",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "My friends make the impossible possible",
+      "text": "At the start of this Unit's activation, choose another allied Rebel Alliance character. The chosen character may . Then, if the chosen character is Spectre , it may gain . I'm gonna go add some fireworks to the celebration One character in this Unit may choose an objective within 4 and roll 5 Attack Dice. Each Unit within 2 of that objective suffers for each [expertise] result in the roll. Then one character in this Unit may . I forged this armor with my family After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied Mandalorian character or another allied Spectre character, this Unit immediately makes a focus action. Daughter of Mandalore Characters in this Unit have Protection and Sharpshooter [2] . Additionally, When a character in this Unit would , , or, , it may instead ."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "At the start of this Unit's activation, choose another allied  character. The chosen character may . Then, if the chosen character is Spectre , it may gain ."
+    },
+    {
+      "title": "Mandalorian",
+      "text": "After this Unit makes a move action, it may use this ability. If a character in this Unit is within 2 of another allied  character or another allied Spectre character, this Unit immediately makes a focus action."
+    },
+    {
+      "title": "Protection",
+      "text": "Characters in this Unit have  and Sharpshooter [2] . Additionally, When a character in this Unit would , , or, , it may instead ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897070
+  }
+}

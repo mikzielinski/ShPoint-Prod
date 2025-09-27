@@ -1,0 +1,25 @@
+{
+  "id": "mother-talzin",
+  "url": "https://shatterpointdb.com/characters/mother-talzin",
+  "name": "Mother Talzin",
+  "portrait": "https://shatterpointdb.com/media/lyhckyo5/star-wars-shatterpoint-mother-talzin-unit-card.png?height=600&v=1d9a86514044e10",
+  "squad_points": 8,
+  "force": 3,
+  "unit_type": "Primary",
+  "stamina": 10,
+  "durability": 3,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Obscuring Shadows",
+      "text": "At the start of this Unit's activation, choose another allied Dathomirian Unit. One character in the chosen Unit may . Manipulating Hand Choose an enemy character within 4. The chosen character . You resolve this move. Life Drain After an allied Dathomirian character makes an attack, if the defender suffered one or more , this Unit may use this ability. That allied Dathomirian character may . Wrath of the Great Mother Once per Turn, when an enemy Wounds another allied Unit, after the effect is resolved, one character in this Unit may and then may make a 5 dice attack targeting that enemy character."
+    },
+    {
+      "title": "Dathomirian",
+      "text": "At the start of this Unit's activation, choose another allied  Unit. One character in the chosen Unit may ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755897057
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "bodhi-rook",
+  "url": "https://shatterpointdb.com/characters/bodhi-rook",
+  "name": "Bodhi Rook",
+  "portrait": "https://shatterpointdb.com/media/cjpfe2xk/shatterpoint-boohi-rook-unit.png?height=600&v=1dbe6dc11991400",
+  "squad_points": 3,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Rogue One, Pulling Away",
+      "text": "Choose an allied Rebel Alliance Unit within 4. One character in the chosen Unit may . Then if the chosen Unit is a Spy , one character in this Unit may . I just need an open line If one or more characters in this Unit are contesting an Active objective that you control and if there are no enemy characters contesting that objective, roll 3 Attack Dice unless your opponent spends 1 Momentum. Then, if dice were rolled, gain 1 Momentum for each [expertise] result in the roll. Galen said I could get right by myself, if I was brave enough Allied Rebel Alliance characters within 3 that are contesting one or more Active objectives have Steadfast . Allied Spy characters within 3 that are contesting one or more Active objectives have Immunity [ ]."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "Choose an allied  Unit within 4. One character in the chosen Unit may . Then if the chosen Unit is a Spy , one character in this Unit may ."
+    },
+    {
+      "title": "Spy",
+      "text": "Allied  characters within 3 that are contesting one or more Active objectives have Immunity [ ]."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896993
+  }
+}

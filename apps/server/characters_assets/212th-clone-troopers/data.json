@@ -1,0 +1,33 @@
+{
+  "id": "212th-clone-troopers",
+  "url": "https://shatterpointdb.com/characters/212th-clone-troopers",
+  "name": "212th Clone Troopers",
+  "portrait": "https://shatterpointdb.com/media/mnapd10l/shatterpoint-212th-clone-troopers-abilities-new.jpg",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Support",
+  "stamina": 8,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Defensive maneuver",
+      "text": "Each character in this Unit may .If any characters , this unit gains . Coordinated Fire: When a character in another allied Galactic Republic Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this unit, the target Unit gains . Brother in arms While this Unit has one or more , characters in this Unit have Steadfast . Clone Marksmen Characters in this Unit have Sharpshooter [1] ."
+    },
+    {
+      "title": "Galactic Republic",
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the targeted character is within 5 of a character in this unit, the target Unit gains ."
+    },
+    {
+      "title": "Steadfast",
+      "text": "While this Unit has one or more , characters in this Unit have  ."
+    },
+    {
+      "title": "Sharpshooter [1]",
+      "text": "Characters in this Unit have  ."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896983
+  }
+}

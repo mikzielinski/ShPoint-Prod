@@ -1,0 +1,29 @@
+{
+  "id": "chewie",
+  "url": "https://shatterpointdb.com/characters/chewie",
+  "name": "Chewie",
+  "portrait": "https://shatterpointdb.com/media/qrxmxnvf/shatterpoint-chewie-unit-card.png?height=600&v=1da9c10c6820330",
+  "squad_points": 4,
+  "force": 0,
+  "unit_type": "Secondary",
+  "stamina": 12,
+  "durability": 2,
+  "factions": null,
+  "abilities": [
+    {
+      "title": "Wookiee Loyalty",
+      "text": "At the start of this Unit's activation, each character in this Unit may Toward an allied Primary character. If, at the end of this movement, this character is within 3 of the chosen character, that character gains and each character in this Unit may . It's not wise to upset a Wookiee Choose an enemy Unit within 3 and in LOS. Roll 5 Attack Dice. The chosen Unit suffers for each [crit] and [hit] result in the roll. Bodyguard Allied Primary characters within 2 and allied Secondary characters within 2 of a character in this Unit gain Cover [1] . Intimidating Presence While this Unit is not Wounded, allied Rebel Alliance characters within 2 add [expertise] to their defense rolls."
+    },
+    {
+      "title": "Primary",
+      "text": "At the start of this Unit's activation, each character in this Unit may Toward an allied  character. If, at the end of this movement, this character is within 3 of the chosen character, that character gains and each character in this Unit may ."
+    },
+    {
+      "title": "Rebel Alliance",
+      "text": "While this Unit is not Wounded, allied  characters within 2 add [expertise] to their defense rolls."
+    }
+  ],
+  "source": {
+    "scraped_at": 1755896999
+  }
+}
