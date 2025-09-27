@@ -26,7 +26,7 @@ export const API_BASE: string = (() => {
   
   // WYMUSZENIE względnych ścieżek dla Netlify (tymczasowe)
   if (typeof window !== "undefined" && window.location.hostname.includes('netlify.app')) {
-    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.3.1 - FORCE DEPLOY');
+    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.3.2 - MANUAL DEPLOY REQUIRED');
     return "";
   }
 
