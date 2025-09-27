@@ -208,6 +208,12 @@ passport.use(
 // ===== Helpers
 function ensureAuth(req: Request, res: Response, next: NextFunction) {
   // @ts-ignore
+  console.log('🔍 ensureAuth - req.user:', req.user);
+  console.log('🔍 ensureAuth - req.session:', req.session?.id);
+  console.log('🔍 ensureAuth - req.session.passport:', req.session?.passport);
+  console.log('🔍 ensureAuth - cookies:', req.headers.cookie);
+  
+  // @ts-ignore
   if (req.user) return next();
   return res.status(401).json({ ok: false, error: "unauthorized" });
 }
@@ -266,7 +272,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.21" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.22" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
