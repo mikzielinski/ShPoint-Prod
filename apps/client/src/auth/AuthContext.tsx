@@ -35,7 +35,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 async function fetchStatus() {
   try {
-    return await fetch(`${API_BASE}/auth/status`, {
+    return await fetch(api("/auth/status"), {
       credentials: "include",
     });
   } catch {
