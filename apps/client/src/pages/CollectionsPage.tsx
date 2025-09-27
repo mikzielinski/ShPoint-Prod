@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { getCollections, createCollection, type Collection } from '../lib/api';
+import { api } from '../lib/env';
 
 export default function CollectionsPage() {
   const { auth } = useAuth();
@@ -52,7 +53,7 @@ export default function CollectionsPage() {
         <h1 className="text-2xl font-bold mb-4">Collections</h1>
         <p className="text-gray-600 mb-4">Please log in to manage your collections.</p>
         <a 
-          href="/auth/google" 
+          href={api("/auth/google")} 
           className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
         >
           Login with Google
