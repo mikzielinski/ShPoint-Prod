@@ -23,6 +23,12 @@ export const API_BASE: string = (() => {
     console.log('🔍 Production mode: using relative paths for Netlify proxy');
     return ""; // Względne ścieżki - proxy na Netlify
   }
+  
+  // WYMUSZENIE względnych ścieżek dla Netlify (tymczasowe)
+  if (typeof window !== "undefined" && window.location.hostname.includes('netlify.app')) {
+    console.log('🔍 Netlify detected: forcing relative paths');
+    return "";
+  }
 
   const raw = viteApiBase ?? viteServerUrl ?? windowApiBase ?? "https://shpoint-prod.onrender.com"; // domyślnie backend prod
 
