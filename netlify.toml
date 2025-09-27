@@ -7,12 +7,6 @@
   NODE_VERSION = "20"
 
 [[redirects]]
-  from = "/characters"
-  to = "https://shpoint-prod.onrender.com/characters/"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/characters/*"
   to = "https://shpoint-prod.onrender.com/characters/:splat"
   status = 200
@@ -25,8 +19,8 @@
   force = true
 
 [[redirects]]
-  from = "/api/*"
-  to = "https://shpoint-prod.onrender.com/:splat"
+  from = "/backend-api/*"
+  to = "https://shpoint-prod.onrender.com/api/:splat"
   status = 200
   force = true
 

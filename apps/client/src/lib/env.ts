@@ -49,6 +49,14 @@ export const API_BASE: string = (() => {
 // Helper do budowania ścieżek: api("/auth/status") -> "http://.../auth/status"
 export function api(path = ""): string {
   const p = String(path || "");
+  
+  // Jeśli to API path, zamień /api/ na /backend-api/ dla Netlify proxy
+  if (p.startsWith('/api/') && API_BASE === "") {
+    const backendPath = p.replace('/api/', '/backend-api/');
+    console.log('🔍 api() called with path:', path, '-> backend path:', backendPath);
+    return backendPath;
+  }
+  
   const fullUrl = `${API_BASE}${p.startsWith("/") ? "" : "/"}${p}`;
   console.log('🔍 api() called with path:', path, '-> full URL:', fullUrl);
   return fullUrl;
