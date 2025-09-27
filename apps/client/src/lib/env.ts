@@ -13,7 +13,11 @@ export const API_BASE: string = (() => {
   console.log('window.__API_BASE__:', windowApiBase);
 
   // W produkcji używaj względnych ścieżek (proxy na Netlify)
-  const isProduction = (import.meta as any)?.env?.MODE === 'production';
+  const mode = (import.meta as any)?.env?.MODE;
+  const prod = (import.meta as any)?.env?.PROD;
+  const isProduction = mode === 'production' || prod === true;
+  
+  console.log('🔍 MODE:', mode, 'PROD:', prod, 'isProduction:', isProduction);
   
   if (isProduction) {
     console.log('🔍 Production mode: using relative paths for Netlify proxy');
