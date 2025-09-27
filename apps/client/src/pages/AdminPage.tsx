@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { API_BASE as API } from "../lib/env";
 import AdminInvitationSettings from "../components/AdminInvitationSettings";
+import HealthCheck from "../components/HealthCheck";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -410,6 +411,10 @@ export default function AdminPage() {
         <p>Manage users, invitations, and system settings.</p>
       </header>
 
+      {/* Health Check Section */}
+      <section className="card">
+        <HealthCheck />
+      </section>
 
       {/* Users Section */}
       <section className="card">

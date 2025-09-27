@@ -266,7 +266,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.19" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.20" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
@@ -296,6 +296,13 @@ app.post("/api/seed", async (req, res) => {
 // start
 app.get(
   "/auth/google",
+  (req, res, next) => {
+    // Store the return URL in session if provided
+    if (req.query.returnTo) {
+      req.session.returnTo = req.query.returnTo as string;
+    }
+    next();
+  },
   passport.authenticate("google", {
     scope: ["profile", "email"],
     prompt: "select_account",
@@ -315,7 +322,9 @@ app.get(
     
     // Zapisuj sesję przed redirectem - ważne dla Safari
     req.session.save(() => {
-      res.redirect(`https://shpoint.netlify.app/builder`);
+      // Check if there's a return URL in the session, otherwise default to builder
+      const returnUrl = req.session.returnTo || '/builder';
+      res.redirect(`https://shpoint.netlify.app${returnUrl}`);
     });
   }
 );
