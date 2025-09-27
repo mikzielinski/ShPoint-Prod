@@ -57,6 +57,13 @@ export function api(path = ""): string {
     return backendPath;
   }
   
+  // Jeśli to AUTH path, zamień /auth/ na /backend-auth/ dla Netlify proxy
+  if (p.startsWith('/auth/') && API_BASE === "") {
+    const backendPath = p.replace('/auth/', '/backend-auth/');
+    console.log('🔍 api() called with path:', path, '-> backend path:', backendPath);
+    return backendPath;
+  }
+  
   const fullUrl = `${API_BASE}${p.startsWith("/") ? "" : "/"}${p}`;
   console.log('🔍 api() called with path:', path, '-> full URL:', fullUrl);
   return fullUrl;
