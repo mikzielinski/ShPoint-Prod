@@ -266,7 +266,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.20" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.21" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
@@ -299,7 +299,7 @@ app.get(
   (req, res, next) => {
     // Store the return URL in session if provided
     if (req.query.returnTo) {
-      req.session.returnTo = req.query.returnTo as string;
+      (req.session as any).returnTo = req.query.returnTo as string;
     }
     next();
   },
@@ -323,7 +323,7 @@ app.get(
     // Zapisuj sesję przed redirectem - ważne dla Safari
     req.session.save(() => {
       // Check if there's a return URL in the session, otherwise default to builder
-      const returnUrl = req.session.returnTo || '/builder';
+      const returnUrl = (req.session as any).returnTo || '/builder';
       res.redirect(`https://shpoint.netlify.app${returnUrl}`);
     });
   }
