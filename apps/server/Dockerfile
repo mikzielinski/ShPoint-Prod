@@ -1,6 +1,6 @@
 FROM node:20-alpine
 WORKDIR /app
-# Force cache bust
+# Force cache bust - v1.2.6
 
 # Copy package files and install dependencies
 COPY package*.json ./
