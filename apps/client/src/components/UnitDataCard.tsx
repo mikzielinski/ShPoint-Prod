@@ -93,8 +93,8 @@ export default function UnitDataCard({ character, data }: Props) {
   const stamina = c.stamina ?? "—";
   const durability = c.durability ?? "—";
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
-  // Use portrait from API or construct URL to backend
-  const portrait = c.portrait || (c.id ? `${API_BASE}/characters/${c.id}/portrait.png` : null);
+  // Always use backend URL for portrait, ignore data.json URLs
+  const portrait = c.id ? `${API_BASE}/characters/${c.id}/portrait.png` : null;
   const legacyAbilities: LegacyAbility[] = Array.isArray(c.abilities) ? c.abilities! : [];
   const structuredAbilities: StructuredAbility[] = Array.isArray(c.structuredAbilities) ? c.structuredAbilities! : [];
   const factions = Array.isArray(c.factions) ? c.factions : null;
