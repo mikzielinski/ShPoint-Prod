@@ -1,14 +1,14 @@
 import React from "react";
-import { API_BASE } from "../lib/env";
+import { api } from "../lib/env";
 
 export default function AuthButton() {
   const goLogin = () => {
     // pełne przekierowanie do backendu
-    window.location.href = `${API_BASE}/auth/google`;
+    window.location.href = api("/auth/google");
   };
 
   const goLogout = async () => {
-    await fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include" });
+    await fetch(api("/auth/logout"), { method: "POST", credentials: "include" });
     // odśwież UI po wylogowaniu
     window.location.reload();
   };

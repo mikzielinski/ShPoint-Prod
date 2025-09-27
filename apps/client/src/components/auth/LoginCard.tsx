@@ -2,8 +2,8 @@ import React from "react";
 import { Button } from "../ui/Button";
 import { Card, CardHeader, CardContent } from "../ui/Card";
 
-import { API_BASE } from "../../lib/env";
-const GOOGLE_START = `${API_BASE}/auth/google`;
+import { api } from "../../lib/env";
+const GOOGLE_START = api("/auth/google");
 
 const GoogleIcon = (
   <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>

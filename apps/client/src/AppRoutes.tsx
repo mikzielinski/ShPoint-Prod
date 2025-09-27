@@ -79,7 +79,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
     return (p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase();
   }, [me?.name, me?.username, me?.email]);
 
-  const gotoLogin = () => (window.location.href = `${API_BASE}/auth/google`);
+  const gotoLogin = () => (window.location.href = api("/auth/google"));
   const doLogout = async () => { await fetch(api("/auth/logout"), { method: "POST", credentials: "include" }); location.href = "/"; };
 
   return (
