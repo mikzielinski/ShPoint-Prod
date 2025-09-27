@@ -1,5 +1,5 @@
 import React from 'react';
-import { API_BASE } from "../lib/env";
+import { api } from "../lib/env";
 
 export default function UnauthorizedPage() {
   return (
@@ -119,7 +119,7 @@ export default function UnauthorizedPage() {
           flexWrap: 'wrap'
         }}>
           <button
-            onClick={() => window.location.href = `${API_BASE}/auth/google`}
+            onClick={() => window.location.href = api("/auth/google")}
             style={{
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
               color: 'white',
