@@ -260,7 +260,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.3" }));
 
 // ===== AUTH
 // start
