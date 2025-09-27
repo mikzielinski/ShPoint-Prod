@@ -272,7 +272,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.23" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.24" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
@@ -394,6 +394,23 @@ async function updateUserStatusIfNeeded(req: Request, res: Response, next: NextF
     next();
   }
 }
+
+// Debug endpoint to check session without auth
+app.get("/api/debug-session", (req, res) => {
+  console.log('🔍 Debug session endpoint called');
+  console.log('🔍 req.user:', req.user);
+  console.log('🔍 req.session:', req.session?.id);
+  console.log('🔍 req.session.passport:', (req.session as any)?.passport);
+  console.log('🔍 cookies:', req.headers.cookie);
+  
+  res.json({ 
+    ok: true, 
+    user: req.user || null,
+    sessionId: req.session?.id || null,
+    passport: (req.session as any)?.passport || null,
+    cookies: req.headers.cookie || null
+  });
+});
 
 app.get("/api/me", ensureAuth, updateUserStatusIfNeeded, (req, res) => {
   // @ts-ignore
