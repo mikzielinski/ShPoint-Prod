@@ -93,7 +93,7 @@ export default function UnitDataCard({ character, data }: Props) {
   const stamina = c.stamina ?? "—";
   const durability = c.durability ?? "—";
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
-  // Always use backend URL for portrait, ignore data.json URLs
+  // Always use backend URL for portrait, ignore data.json URLs - FORCE FIX v1.0
   const portrait = c.id ? `${API_BASE}/characters/${c.id}/portrait.png` : null;
   const legacyAbilities: LegacyAbility[] = Array.isArray(c.abilities) ? c.abilities! : [];
   const structuredAbilities: StructuredAbility[] = Array.isArray(c.structuredAbilities) ? c.structuredAbilities! : [];
