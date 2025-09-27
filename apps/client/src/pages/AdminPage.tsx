@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { API_BASE as API } from "../lib/env";
+import { api } from "../lib/env";
 import AdminInvitationSettings from "../components/AdminInvitationSettings";
 import HealthCheck from "../components/HealthCheck";
+import AvatarManager from "../components/AvatarManager";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -77,6 +78,8 @@ export default function AdminPage() {
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   const canManage = auth.user?.role === "ADMIN";
   const myId = auth.user?.id;
@@ -90,9 +93,9 @@ export default function AdminPage() {
       const qs = new URLSearchParams();
       if (q) qs.set("search", q);
       if (r) qs.set("role", r);
-      const url = `${API}/api/admin/users?${qs.toString()}`;
+      const url = api(`/api/admin/users?${qs.toString()}`);
       console.log("AdminPage fetching URL:", url);
-      console.log("AdminPage API constant:", API);
+      console.log("AdminPage API URL:", url);
       const data = await apiFetch<{ ok: boolean; users: AdminUser[] }>(url);
       console.log("AdminPage users data:", data.users);
       console.log("AdminPage data.ok:", data.ok);
@@ -154,7 +157,7 @@ export default function AdminPage() {
 
     try {
       setSavingId(u.id);
-      await apiFetch(`${API}/api/admin/users/${u.id}/role`, {
+      await apiFetch(api(`/api/admin/users/${u.id}/role`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: next }),
@@ -178,7 +181,7 @@ export default function AdminPage() {
 
     try {
       setSavingId(u.id);
-      await apiFetch(`${API}/api/admin/users/${u.id}/suspend`, {
+      await apiFetch(api(`/api/admin/users/${u.id}/suspend`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ days, reason }),
@@ -198,7 +201,7 @@ export default function AdminPage() {
 
     try {
       setSavingId(u.id);
-      await apiFetch(`${API}/api/admin/users/${u.id}/unsuspend`, {
+      await apiFetch(api(`/api/admin/users/${u.id}/unsuspend`), {
         method: "PATCH",
       });
       setOk(`User unsuspended: ${u.email}`);
@@ -216,7 +219,7 @@ export default function AdminPage() {
 
     try {
       setSavingId(u.id);
-      await apiFetch(`${API}/api/admin/users/${u.id}/unsuspend`, {
+      await apiFetch(api(`/api/admin/users/${u.id}/unsuspend`), {
         method: "PATCH",
       });
       setOk(`User unbanned: ${u.email} - access restored immediately`);
@@ -240,7 +243,7 @@ export default function AdminPage() {
 
     try {
       setSavingId(u.id);
-      await apiFetch(`${API}/api/admin/users/${u.id}`, {
+      await apiFetch(api(`/api/admin/users/${u.id}`), {
         method: "DELETE",
       });
       setOk(`User deleted: ${u.email}`);
@@ -261,7 +264,7 @@ export default function AdminPage() {
 
     try {
       setSavingId(u.id);
-      await apiFetch(`${API}/api/admin/users/${u.id}/save-google-avatar`, {
+      await apiFetch(api(`/api/admin/users/${u.id}/save-google-avatar`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageUrl: u.image }),
@@ -279,7 +282,7 @@ export default function AdminPage() {
   const loadInvitations = async () => {
     try {
       setInvitationsLoading(true);
-      const data = await apiFetch<{ ok: boolean; allowedEmails: AllowedEmail[] }>(`${API}/api/admin/allowed-emails`);
+      const data = await apiFetch<{ ok: boolean; allowedEmails: AllowedEmail[] }>(api(`/api/admin/allowed-emails`));
       setInvitations(data.allowedEmails);
     } catch (err: any) {
       setError(err.message);
@@ -295,7 +298,7 @@ export default function AdminPage() {
     }
 
     try {
-      await apiFetch(`${API}/api/admin/allowed-emails`, {
+      await apiFetch(api(`/api/admin/allowed-emails`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -317,7 +320,7 @@ export default function AdminPage() {
     if (!confirm(`Remove invitation for ${invitation.email}?`)) return;
 
     try {
-      await apiFetch(`${API}/api/admin/allowed-emails/${invitation.id}`, {
+      await apiFetch(api(`/api/admin/allowed-emails/${invitation.id}`), {
         method: "DELETE",
       });
       setOk(`Invitation removed for ${invitation.email}`);
@@ -522,7 +525,20 @@ export default function AdminPage() {
                       {/* Generate initials from name */}
                       {u.name ? u.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : u.email[0].toUpperCase()}
                     </div>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span 
+                      style={{ 
+                        overflow: "hidden", 
+                        textOverflow: "ellipsis", 
+                        whiteSpace: "nowrap",
+                        cursor: "pointer",
+                        color: "#3b82f6"
+                      }}
+                      onClick={() => {
+                        setSelectedUser(u);
+                        setShowAvatarModal(true);
+                      }}
+                      title="Click to manage user profile"
+                    >
                       {u.email}
                     </span>
                   </div>
@@ -949,6 +965,68 @@ export default function AdminPage() {
           </div>
         )}
       </section>
+
+      {/* Avatar Manager Modal */}
+      {showAvatarModal && selectedUser && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: "#1f2937",
+            borderRadius: "8px",
+            padding: "24px",
+            maxWidth: "500px",
+            width: "90%",
+            maxHeight: "90%",
+            overflow: "auto"
+          }}>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px"
+            }}>
+              <h3 style={{ color: "white", margin: 0 }}>
+                Manage Profile: {selectedUser.email}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowAvatarModal(false);
+                  setSelectedUser(null);
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#9ca3af",
+                  fontSize: "24px",
+                  cursor: "pointer"
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <AvatarManager 
+              onAvatarUpdate={() => {
+                // Refresh user data after avatar update
+                load(search, role);
+              }}
+              onClose={() => {
+                setShowAvatarModal(false);
+                setSelectedUser(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
