@@ -299,7 +299,7 @@ app.get(
   })
 );
 
-// callback
+// callback (działa dla obu: direct i proxy)
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: `https://shpoint.netlify.app/unauthorized` }),
@@ -308,6 +308,7 @@ app.get(
     console.log('🔍 Google OAuth callback - user:', req.user?.email);
     console.log('🔍 Google OAuth callback - session:', req.session?.id);
     console.log('🔍 Google OAuth callback - cookies:', req.headers.cookie);
+    console.log('🔍 Google OAuth callback - origin:', req.get('origin'));
     
     // Zapisuj sesję przed redirectem - ważne dla Safari
     req.session.save(() => {
