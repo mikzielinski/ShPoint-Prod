@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
 
 // Email configuration from environment variables
-const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
-const SMTP_PORT = Number(process.env.SMTP_PORT) || 587;
+const SMTP_HOST = process.env.EMAIL_HOST || process.env.SMTP_HOST || 'smtp.gmail.com';
+const SMTP_PORT = Number(process.env.EMAIL_PORT) || Number(process.env.SMTP_PORT) || 587;
 const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_USER = process.env.EMAIL_USER || process.env.SMTP_USER;
+const SMTP_PASS = process.env.EMAIL_PASS || process.env.SMTP_PASS;
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'ShPoint Team';
 const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || SMTP_USER;
 const APP_URL = process.env.APP_URL || 'http://localhost:5174';
@@ -14,8 +14,18 @@ const APP_URL = process.env.APP_URL || 'http://localhost:5174';
 let transporter: nodemailer.Transporter | null = null;
 
 function getTransporter(): nodemailer.Transporter | null {
+  console.log('🔍 Email config debug:');
+  console.log('  EMAIL_HOST:', process.env.EMAIL_HOST);
+  console.log('  EMAIL_PORT:', process.env.EMAIL_PORT);
+  console.log('  EMAIL_USER:', process.env.EMAIL_USER);
+  console.log('  EMAIL_PASS:', process.env.EMAIL_PASS ? '[SET]' : '[NOT SET]');
+  console.log('  SMTP_HOST:', SMTP_HOST);
+  console.log('  SMTP_PORT:', SMTP_PORT);
+  console.log('  SMTP_USER:', SMTP_USER);
+  console.log('  SMTP_PASS:', SMTP_PASS ? '[SET]' : '[NOT SET]');
+  
   if (!SMTP_USER || !SMTP_PASS) {
-    console.warn('⚠️  Email configuration missing. Set SMTP_USER and SMTP_PASS in .env');
+    console.warn('⚠️  Email configuration missing. Set EMAIL_USER and EMAIL_PASS in .env');
     return null;
   }
 
