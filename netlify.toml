@@ -7,6 +7,12 @@
   NODE_VERSION = "20"
 
 [[redirects]]
+  from = "/characters"
+  to = "https://shpoint-prod.onrender.com/characters/"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/characters/*"
   to = "https://shpoint-prod.onrender.com/characters/:splat"
   status = 200
