@@ -63,6 +63,9 @@ const ADMIN_EMAILS =
 // --- APP ---
 export const app = express();
 
+// Trust proxy for Render (needed for secure cookies)
+app.set('trust proxy', 1);
+
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
   cors({
@@ -105,10 +108,9 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "none", // Cross-origin (Netlify -> Render)
+      secure: true, // Wymagane dla sameSite: "none"
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      // w dev nie ustawiamy secure, żeby działało na http
-      // secure: process.env.NODE_ENV === "production",
     },
   })
 );
@@ -260,7 +262,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.11" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.12" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
