@@ -272,7 +272,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.25" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.28" }));
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {
@@ -281,6 +281,32 @@ app.get("/api/test-email", ensureAuth, async (req, res) => {
     res.json({ ok: true, result });
   } catch (error: any) {
     console.error('Email test error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Delete user by email (admin only) - for testing
+app.delete("/api/admin/users-by-email/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    console.log('🗑️  Deleting user by email:', email);
+    
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
+    
+    if (!user) {
+      return res.status(404).json({ ok: false, error: 'User not found' });
+    }
+    
+    await prisma.user.delete({
+      where: { email }
+    });
+    
+    console.log('✅ User deleted:', email);
+    res.json({ ok: true, message: `User ${email} deleted successfully` });
+  } catch (error: any) {
+    console.error('❌ Error deleting user:', error);
     res.status(500).json({ ok: false, error: error.message });
   }
 });
