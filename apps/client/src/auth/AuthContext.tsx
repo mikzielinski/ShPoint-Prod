@@ -35,7 +35,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 async function fetchStatus() {
   try {
-    return await fetch(api("/auth/status"), {
+    return await fetch(api("/api/me"), {
       credentials: "include",
     });
   } catch {
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     try {
       const data = await res.json();
-      if (data?.authenticated && data?.user) {
+      if (data?.ok && data?.user) {
         setAuth({ status: "authenticated", user: data.user as User });
       } else {
         setAuth({ status: "anonymous" });
