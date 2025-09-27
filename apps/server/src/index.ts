@@ -260,7 +260,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.10" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.11" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
@@ -299,10 +299,10 @@ app.get(
 // callback
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: `${CLIENT_ORIGIN}/unauthorized` }),
+  passport.authenticate("google", { failureRedirect: `https://shpoint.netlify.app/unauthorized` }),
   (req, res) => {
     // express-session automatically handles session management with Passport
-    res.redirect(`${CLIENT_ORIGIN}/builder`);
+    res.redirect(`https://shpoint.netlify.app/builder`);
   }
 );
 
