@@ -5,15 +5,23 @@ export const API_BASE: string = (() => {
   const viteApiBase = (import.meta as any)?.env?.VITE_API_BASE;
   const viteServerUrl = (import.meta as any)?.env?.VITE_SERVER_URL;
   const windowApiBase = (typeof window !== "undefined" ? (window as any).__API_BASE__ : undefined);
-  
+
   // Debug logs
   console.log('🔍 Environment variables in env.ts:');
   console.log('VITE_API_BASE:', viteApiBase);
   console.log('VITE_SERVER_URL:', viteServerUrl);
   console.log('window.__API_BASE__:', windowApiBase);
+
+  // W produkcji używaj względnych ścieżek (proxy na Netlify)
+  const isProduction = (import.meta as any)?.env?.MODE === 'production';
   
+  if (isProduction) {
+    console.log('🔍 Production mode: using relative paths for Netlify proxy');
+    return ""; // Względne ścieżki - proxy na Netlify
+  }
+
   const raw = viteApiBase ?? viteServerUrl ?? windowApiBase ?? "https://shpoint-prod.onrender.com"; // domyślnie backend prod
-  
+
   console.log('🔍 Selected API_BASE:', raw);
 
   // Normalizacja: trim + bez końcowego "/"

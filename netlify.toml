@@ -19,6 +19,18 @@
   force = true
 
 [[redirects]]
+  from = "/api/*"
+  to = "https://shpoint-prod.onrender.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/auth/*"
+  to = "https://shpoint-prod.onrender.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

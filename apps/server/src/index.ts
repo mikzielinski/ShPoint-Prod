@@ -263,7 +263,7 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.14" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.15" }));
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
@@ -309,7 +309,10 @@ app.get(
     console.log('🔍 Google OAuth callback - session:', req.session?.id);
     console.log('🔍 Google OAuth callback - cookies:', req.headers.cookie);
     
-    res.redirect(`https://shpoint.netlify.app/builder`);
+    // Zapisuj sesję przed redirectem - ważne dla Safari
+    req.session.save(() => {
+      res.redirect(`https://shpoint.netlify.app/builder`);
+    });
   }
 );
 
