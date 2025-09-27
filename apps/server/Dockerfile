@@ -9,7 +9,7 @@ RUN npm install
 COPY . .
 
 # Copy character data from client (relative to build context)
-COPY apps/client/characters_assets ./characters_assets
+COPY apps/client/characters_assets_backup ./characters_assets
 COPY apps/client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
