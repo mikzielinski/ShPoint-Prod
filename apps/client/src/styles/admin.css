@@ -241,19 +241,16 @@ main, body, html {
 }
 
 .dropdown-menu {
-  position: absolute;
+  position: fixed;
   background: var(--ad-panel);
   border: 1px solid var(--ad-b);
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 9999;
+  z-index: 99999;
   min-width: 140px;
   max-height: 250px;
   overflow-y: auto;
   backdrop-filter: blur(10px);
-  top: 100%;
-  left: 0;
-  margin-top: 4px;
 }
 
 .dropdown-item {

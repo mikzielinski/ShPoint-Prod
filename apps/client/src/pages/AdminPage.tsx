@@ -339,12 +339,24 @@ export default function AdminPage() {
     }));
   };
 
-  const handleDropdownToggle = (userId: string) => {
+  const handleDropdownToggle = (userId: string, event: React.MouseEvent) => {
     console.log('🔍 handleDropdownToggle called with userId:', userId);
     console.log('🔍 Current openDropdown:', openDropdown);
     const newValue = openDropdown === userId ? null : userId;
     console.log('🔍 Setting openDropdown to:', newValue);
     setOpenDropdown(newValue);
+    
+    // Calculate position for dropdown
+    if (newValue) {
+      const button = event.currentTarget as HTMLElement;
+      const rect = button.getBoundingClientRect();
+      const dropdown = document.querySelector('.dropdown-menu') as HTMLElement;
+      if (dropdown) {
+        // Position above the button
+        dropdown.style.top = `${rect.top - dropdown.offsetHeight - 4}px`;
+        dropdown.style.left = `${rect.left}px`;
+      }
+    }
   };
 
   // Close dropdown when clicking outside
@@ -699,7 +711,7 @@ export default function AdminPage() {
                       disabled={!canManage || savingId === u.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDropdownToggle(u.id);
+                        handleDropdownToggle(u.id, e);
                       }}
                       style={{
                         minWidth: "120px",
@@ -717,9 +729,7 @@ export default function AdminPage() {
                       <div
                         className="dropdown-menu"
                         style={{
-                          position: "absolute",
-                          top: "100%",
-                          left: "0",
+                          position: "fixed",
                           zIndex: 99999,
                           backgroundColor: "#1f2937",
                           border: "1px solid #374151",

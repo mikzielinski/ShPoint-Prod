@@ -142,6 +142,42 @@ app.use(
 );
 
 // --- PASSPORT ---
+// Middleware to authenticate Bearer tokens
+const authenticateBearerToken = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    
+    try {
+      const apiToken = await prisma.apiToken.findUnique({
+        where: { token },
+        include: {
+          user: true
+        }
+      });
+      
+      if (apiToken && apiToken.isActive && (!apiToken.expiresAt || apiToken.expiresAt > new Date())) {
+        // Update last used timestamp
+        await prisma.apiToken.update({
+          where: { id: apiToken.id },
+          data: { lastUsedAt: new Date() }
+        });
+        
+        // Set user in request
+        // @ts-ignore
+        req.user = apiToken.user;
+        return next();
+      }
+    } catch (error) {
+      console.error('Bearer token authentication error:', error);
+    }
+  }
+  
+  // If no valid Bearer token, continue with session authentication
+  next();
+};
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -2254,42 +2290,6 @@ const ensureApiAccess = (req: Request, res: Response, next: NextFunction) => {
   if (!user || (user.role !== 'ADMIN' && user.role !== 'API_USER')) {
     return res.status(403).json({ ok: false, error: 'API access required' });
   }
-  next();
-};
-
-// Middleware to authenticate Bearer tokens
-const authenticateBearerToken = async (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    
-    try {
-      const apiToken = await prisma.apiToken.findUnique({
-        where: { token },
-        include: {
-          user: true
-        }
-      });
-      
-      if (apiToken && apiToken.isActive && (!apiToken.expiresAt || apiToken.expiresAt > new Date())) {
-        // Update last used timestamp
-        await prisma.apiToken.update({
-          where: { id: apiToken.id },
-          data: { lastUsedAt: new Date() }
-        });
-        
-        // Set user in request
-        // @ts-ignore
-        req.user = apiToken.user;
-        return next();
-      }
-    } catch (error) {
-      console.error('Bearer token authentication error:', error);
-    }
-  }
-  
-  // If no valid Bearer token, continue with session authentication
   next();
 };
 
