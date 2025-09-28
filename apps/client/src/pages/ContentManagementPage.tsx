@@ -101,9 +101,16 @@ const ContentManagementPage: React.FC = () => {
     try {
       console.log('Zapisywanie postaci:', character);
       
+      // Determine if this is a new character or editing existing one
+      const isNewCharacter = !editingCharacter;
+      const method = isNewCharacter ? 'POST' : 'PUT';
+      const url = isNewCharacter ? api('/api/characters') : api(`/api/characters/${character.id}`);
+      
+      console.log('API call:', { method, url, isNewCharacter });
+      
       // Call API to save character
-      const response = await fetch(api(`/api/characters/${character.id}`), {
-        method: 'PUT',
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -125,7 +132,9 @@ const ContentManagementPage: React.FC = () => {
           prev.map(c => c.id === character.id ? character : c)
         );
       } else {
-        setCharacters(prev => [...prev, character]);
+        // For new characters, use the character data from the response
+        const newCharacter = result.character || character;
+        setCharacters(prev => [...prev, newCharacter]);
       }
       
       setShowEditor(false);
