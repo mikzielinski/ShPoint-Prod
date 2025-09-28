@@ -144,7 +144,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     d: "\u0064", // failure
     e: "\u0065", // block
     f: "\u0066", // defense expertise
-    g: "\u0067", // advance
+    g: "\u0078", // advance
     h: "\u0068", // dash
     i: "\u0069", // reactive
     j: "\u006A", // active
@@ -268,7 +268,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       'strained': "\u0035", // 5 - sp-strained
       'disarm': "\u0039", // 9 - sp-disarm
       'climb': "\u0075", // u - sp-climb
-      'advance': "\u0067", // g - sp-advance
+      'advance': "\u0078", // x - sp-advance
       'tactic': "\u006B", // k - sp-tactic
       'innate': "\u006C", // l - sp-innate
       'reactive': "\u0069", // i - sp-reactive
