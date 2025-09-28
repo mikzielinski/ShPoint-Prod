@@ -1761,6 +1761,20 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
     const fs = await import('fs');
     const path = await import('path');
     
+    // Get original data for audit logging
+    let originalData: any = null;
+    let originalDataPath = path.join(process.cwd(), `characters_assets/${characterId}/data.json`);
+    if (!fs.existsSync(originalDataPath)) {
+      originalDataPath = path.join(process.cwd(), `../client/characters_assets/${characterId}/data.json`);
+    }
+    if (fs.existsSync(originalDataPath)) {
+      try {
+        originalData = JSON.parse(fs.readFileSync(originalDataPath, 'utf8'));
+      } catch (error) {
+        console.log('Could not read original data for audit logging');
+      }
+    }
+    
     // Update characters_unified.json
     let charactersUnifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
     if (!fs.existsSync(charactersUnifiedPath)) {
@@ -1819,6 +1833,7 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
     console.log('Updated individual character data file');
     
     // Log the character update
+    const updatedData = characterData;
     await logAuditEvent({
       entityType: 'CHARACTER',
       entityId: characterId,
@@ -4092,7 +4107,7 @@ app.get("/api/debug/audit-logs", async (req, res) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const entityType = req.query.entityType as string;
     
-    const where = entityType ? { entityType } : {};
+    const where = entityType ? { entityType: entityType as any } : {};
     
     const logs = await prisma.auditLog.findMany({
       where,
