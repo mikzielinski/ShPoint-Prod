@@ -381,10 +381,9 @@ const StrikeTeamVsStrikeTeamPage: React.FC = () => {
           position: 'absolute',
           top: '50%',
           left: '50%',
-          transform: 'translate(-50%, -50%)',
+          transform: 'translate(-50%, -50%) scale(0)',
           animation: 'vsAppear 2s ease-out forwards',
-          opacity: 0,
-          transform: 'translate(-50%, -50%) scale(0)'
+          opacity: 0
         }}>
           <div style={{
             background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
