@@ -995,8 +995,9 @@ export default function AdminPage() {
           </div>
         )}
       </section>
+      )}
 
-      {/* Avatar Manager Modal */}
+      {/* Avatar Manager Modal - Global Modal */}
       {showAvatarModal && selectedUser && (
         <div style={{
           position: "fixed",
@@ -1056,7 +1057,6 @@ export default function AdminPage() {
             />
           </div>
         </div>
-        </section>
       )}
     </main>
   );
