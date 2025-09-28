@@ -1,4 +1,4 @@
-import { prisma } from './prisma';
+import { prisma } from './prisma.js';
 
 export interface AuditLogData {
   entityType: 'USER' | 'CARD' | 'CHARACTER' | 'MISSION' | 'SET' | 'STRIKE_TEAM' | 'CUSTOM_CARD' | 'COLLECTION' | 'SYSTEM_SETTINGS';
