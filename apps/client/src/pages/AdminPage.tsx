@@ -614,6 +614,10 @@ export default function AdminPage() {
                     {(() => {
                       const shouldShow = openDropdown === u.id && dropdownPosition;
                       console.log(`🔍 User ${u.id} dropdown should show:`, shouldShow, 'openDropdown:', openDropdown, 'dropdownPosition:', dropdownPosition);
+                      if (shouldShow) {
+                        console.log('🔍 RENDERING DROPDOWN for user:', u.id);
+                        console.log('🔍 Dropdown position:', dropdownPosition);
+                      }
                       return shouldShow;
                     })() && (
                       <div
@@ -622,7 +626,11 @@ export default function AdminPage() {
                           position: "fixed",
                           top: dropdownPosition.top,
                           left: dropdownPosition.left,
-                          zIndex: 9999
+                          zIndex: 9999,
+                          backgroundColor: "red", // Temporary debug color
+                          border: "2px solid yellow", // Temporary debug border
+                          minWidth: "200px",
+                          minHeight: "100px"
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
