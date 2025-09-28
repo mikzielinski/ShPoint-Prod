@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { API_BASE, api } from '../../lib/env';
 import StanceEditor from './StanceEditor';
+import { RichTextEditor } from './RichTextEditor';
 
 interface Ability {
   id: string;
@@ -234,7 +235,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     }));
   };
 
-  // Function to render symbols in ability descriptions
+  // Function to render symbols and formatting in ability descriptions
   const renderAbilityDescription = (description: string) => {
     if (!description) return '';
     
@@ -271,14 +272,23 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       'active': "\u006A", // j - sp-active
     };
 
+    let result = description;
+    
+    // Replace faction tags with styled spans
+    result = result.replace(/<faction>([^<]+)<\/faction>/g, (match, faction) => {
+      return `<span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid rgba(59, 130, 246, 0.3);">${faction}</span>`;
+    });
+    
     // Replace [[symbol]] tags with actual symbols
-    return description.replace(/\[\[([^\]]+)\]\]/g, (match, symbolName) => {
+    result = result.replace(/\[\[([^\]]+)\]\]/g, (match, symbolName) => {
       const unicode = symbolMap[symbolName.toLowerCase()];
       if (unicode) {
         return `<span style="font-family: 'ShatterpointIcons', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #fbbf24; font-size: 16px;">${unicode}</span>`;
       }
       return match; // Return original if symbol not found
     });
+    
+    return result;
   };
 
   const insertGameSymbol = (symbol: string, name: string, unicode: string) => {
@@ -1304,21 +1314,13 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
               marginBottom: '8px',
               color: '#d1d5db'
             }}>Description</label>
-            <textarea
-              ref={descriptionTextareaRef}
+            <RichTextEditor
               value={newAbility.description}
-              onChange={(e) => handleAbilityChange('description', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                background: '#374151',
-                border: '1px solid #4b5563',
-                borderRadius: '6px',
-                color: '#f9fafb',
-                minHeight: '80px'
-              }}
-              rows={3}
-              placeholder="Ability description (use Game Symbols above to insert [[symbol]] tags)"
+              onChange={(value) => handleAbilityChange('description', value)}
+              placeholder="Ability description (use formatting tools above)"
+              availableFactions={availableFactions}
+              gameSymbols={gameSymbols}
+              onInsertSymbol={insertGameSymbol}
             />
           </div>
 
