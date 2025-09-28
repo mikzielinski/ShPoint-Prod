@@ -372,11 +372,11 @@ const renderPreview = (text: string): React.ReactNode => {
       );
     }
     
-    if (part === '<b>') return <strong key={index}>;
+    if (part === '<b>') return <strong key={index}></strong>;
     if (part === '</b>') return </strong>;
-    if (part === '<i>') return <em key={index}>;
+    if (part === '<i>') return <em key={index}></em>;
     if (part === '</i>') return </em>;
-    if (part === '<u>') return <u key={index}>;
+    if (part === '<u>') return <u key={index}></u>;
     if (part === '</u>') return </u>;
     
     // Handle symbol tags

@@ -82,7 +82,6 @@ export function iconFromCode(code: string): IconName | undefined {
     w: "durability",
     r: "heal",     // existing mapping
     x: "stamina",  // keep for backward compatibility
-    "3": "hunker",  // existing mapping
     y: "hanker",    // keep for backward compatibility
     // Combo Glyphs
     "b→a": "crit_to_strike",
