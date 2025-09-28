@@ -5,6 +5,7 @@ import AdminInvitationSettings from "../components/AdminInvitationSettings";
 import HealthCheck from "../components/HealthCheck";
 import AvatarManager from "../components/AvatarManager";
 import ApiDocumentation from "../components/ApiDocumentation";
+import AuditLogs from "../components/AuditLogs";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -80,7 +81,7 @@ export default function AdminPage() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api' | 'audit'>('overview');
 
   const canManage = auth.user?.role === "ADMIN";
   const myId = auth.user?.id;
@@ -392,7 +393,8 @@ export default function AdminPage() {
           { id: 'users', label: 'Users', icon: '👥' },
           { id: 'invitations', label: 'Invitations', icon: '📧' },
           { id: 'settings', label: 'Settings', icon: '⚙️' },
-          { id: 'api', label: 'API Docs', icon: '📚' }
+          { id: 'api', label: 'API Docs', icon: '📚' },
+          { id: 'audit', label: 'Audit Logs', icon: '📋' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -436,7 +438,13 @@ export default function AdminPage() {
         </section>
       )}
 
-      {activeTab !== 'api' && activeTab !== 'overview' && (
+      {activeTab === 'audit' && (
+        <section className="card">
+          <AuditLogs />
+        </section>
+      )}
+
+      {activeTab !== 'api' && activeTab !== 'overview' && activeTab !== 'audit' && (
         <>
           {/* Health Check Section */}
           <section className="card">

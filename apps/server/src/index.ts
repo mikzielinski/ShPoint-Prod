@@ -445,12 +445,25 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", { failureRedirect: `https://shpoint.netlify.app/unauthorized` }),
-  (req, res) => {
+  async (req, res) => {
     // express-session automatically handles session management with Passport
     console.log('🔍 Google OAuth callback - user:', req.user?.email);
     console.log('🔍 Google OAuth callback - session:', req.session?.id);
     console.log('🔍 Google OAuth callback - cookies:', req.headers.cookie);
     console.log('🔍 Google OAuth callback - origin:', req.get('origin'));
+    
+    // Log successful login
+    if (req.user) {
+      await logAuditEvent({
+        entityType: 'USER',
+        entityId: req.user.id,
+        action: 'LOGIN',
+        userId: req.user.id,
+        description: `Google OAuth login successful: ${req.user.email}`,
+        ipAddress: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+    }
     
     // Zapisuj sesję przed redirectem - ważne dla Safari
     req.session.save(() => {
@@ -570,9 +583,22 @@ app.get("/api/debug-session", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-app.get("/api/me", ensureAuth, updateUserStatusIfNeeded, (req, res) => {
+app.get("/api/me", ensureAuth, updateUserStatusIfNeeded, async (req, res) => {
   // @ts-ignore
-  res.json({ ok: true, user: publicUser(req.user) });
+  const user = req.user;
+  
+  // Log user login/status check
+  await logAuditEvent({
+    entityType: 'USER',
+    entityId: user.id,
+    action: 'LOGIN',
+    userId: user.id,
+    description: `User status check: ${user.email}`,
+    ipAddress: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  
+  res.json({ ok: true, user: publicUser(user) });
 });
 
 // ===== COLLECTIONS API
@@ -2629,14 +2655,37 @@ app.patch("/api/admin/users/:id/role", ensureAuth, ensureAdmin, async (req, res)
   try {
     const { id } = req.params;
     const { role } = req.body;
+    // @ts-ignore
+    const adminUser = req.user;
     
     if (!['GUEST', 'USER', 'EDITOR', 'ADMIN'].includes(role)) {
       return res.status(400).json({ ok: false, error: 'Invalid role' });
     }
     
+    // Get current user data for audit log
+    const currentUser = await prisma.user.findUnique({ where: { id } });
+    if (!currentUser) {
+      return res.status(404).json({ ok: false, error: 'User not found' });
+    }
+    
     const user = await prisma.user.update({
       where: { id },
       data: { role }
+    });
+    
+    // Log role change
+    await logAuditEvent({
+      entityType: 'USER',
+      entityId: user.id,
+      action: 'ROLE_CHANGE',
+      userId: adminUser.id,
+      description: `Role changed from ${currentUser.role} to ${role} for ${user.email}`,
+      changes: {
+        before: { role: currentUser.role },
+        after: { role: role }
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
     });
     
     res.json({ ok: true, user });
