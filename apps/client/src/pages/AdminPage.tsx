@@ -77,6 +77,7 @@ export default function AdminPage() {
     invitationSettings: true
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{top: number, left: number} | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
@@ -336,8 +337,18 @@ export default function AdminPage() {
     }));
   };
 
-  const handleDropdownToggle = (userId: string) => {
-    setOpenDropdown(openDropdown === userId ? null : userId);
+  const handleDropdownToggle = (userId: string, buttonElement: HTMLElement) => {
+    if (openDropdown === userId) {
+      setOpenDropdown(null);
+      setDropdownPosition(null);
+    } else {
+      const rect = buttonElement.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX
+      });
+      setOpenDropdown(userId);
+    }
   };
 
   // Close dropdown when clicking outside
@@ -346,6 +357,7 @@ export default function AdminPage() {
       const target = event.target as HTMLElement;
       if (!target.closest('.dropdown-container')) {
         setOpenDropdown(null);
+        setDropdownPosition(null);
       }
     };
 
@@ -550,7 +562,7 @@ export default function AdminPage() {
                       disabled={!canManage || savingId === u.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDropdownToggle(u.id);
+                        handleDropdownToggle(u.id, e.currentTarget);
                       }}
                       style={{
                         minWidth: "120px",
@@ -564,13 +576,13 @@ export default function AdminPage() {
                       <span style={{ fontSize: "12px" }}>▼</span>
                     </button>
 
-                    {openDropdown === u.id && (
+                    {openDropdown === u.id && dropdownPosition && (
                       <div
                         className="dropdown-menu"
                         style={{
-                          position: "absolute",
-                          top: "100%",
-                          left: "0",
+                          position: "fixed",
+                          top: dropdownPosition.top,
+                          left: dropdownPosition.left,
                           zIndex: 99999
                         }}
                         onClick={(e) => e.stopPropagation()}
@@ -581,6 +593,7 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSetRole(u, "USER");
                             setOpenDropdown(null);
+                            setDropdownPosition(null);
                           }}
                         >
                           Set USER
@@ -591,6 +604,7 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSetRole(u, "EDITOR");
                             setOpenDropdown(null);
+                            setDropdownPosition(null);
                           }}
                         >
                           Set EDITOR
@@ -601,6 +615,7 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSetRole(u, "ADMIN");
                             setOpenDropdown(null);
+                            setDropdownPosition(null);
                           }}
                         >
                           Set ADMIN
@@ -626,6 +641,7 @@ export default function AdminPage() {
                                   handleSuspendUser(u, days, reason || undefined);
                                 }
                                 setOpenDropdown(null);
+                            setDropdownPosition(null);
                                 setDropdownPosition(null);
                               }}
                               style={{ color: "#f59e0b" }}
@@ -642,6 +658,7 @@ export default function AdminPage() {
                                   handleSuspendUser(u, days, reason || undefined);
                                 }
                                 setOpenDropdown(null);
+                            setDropdownPosition(null);
                                 setDropdownPosition(null);
                               }}
                               style={{ color: "#f59e0b" }}
@@ -658,6 +675,7 @@ export default function AdminPage() {
                                   handleSuspendUser(u, days, reason || undefined);
                                 }
                                 setOpenDropdown(null);
+                            setDropdownPosition(null);
                                 setDropdownPosition(null);
                               }}
                               style={{ color: "#f59e0b" }}
@@ -672,6 +690,7 @@ export default function AdminPage() {
                               onClick={() => {
                                 handleUnbanUser(u);
                                 setOpenDropdown(null);
+                            setDropdownPosition(null);
                                 setDropdownPosition(null);
                               }}
                               style={{ color: "#059669", fontWeight: "600" }}
@@ -683,6 +702,7 @@ export default function AdminPage() {
                               onClick={() => {
                                 handleUnsuspendUser(u);
                                 setOpenDropdown(null);
+                            setDropdownPosition(null);
                                 setDropdownPosition(null);
                               }}
                               style={{ color: "#16a34a" }}
@@ -696,6 +716,7 @@ export default function AdminPage() {
                                   handleUnbanUser(u);
                                 }
                                 setOpenDropdown(null);
+                            setDropdownPosition(null);
                                 setDropdownPosition(null);
                               }}
                               style={{ color: "#059669", fontWeight: "600" }}
@@ -719,6 +740,7 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSaveGoogleAvatar(u);
                             setOpenDropdown(null);
+                            setDropdownPosition(null);
                           }}
                           style={{ color: "#059669" }}
                         >
@@ -732,6 +754,7 @@ export default function AdminPage() {
                               handleDeleteUser(u);
                             }
                             setOpenDropdown(null);
+                            setDropdownPosition(null);
                           }}
                           style={{ color: "#dc2626" }}
                         >
