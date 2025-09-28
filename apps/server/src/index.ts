@@ -286,30 +286,56 @@ app.get("/api/test-email", ensureAuth, async (req, res) => {
 });
 
 // Delete user by email (admin only) - for testing
-app.delete("/api/admin/users-by-email/:email", async (req, res) => {
-  try {
-    const { email } = req.params;
-    console.log('🗑️  Deleting user by email:', email);
-    
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
-    
-    if (!user) {
-      return res.status(404).json({ ok: false, error: 'User not found' });
+  app.delete("/api/admin/users-by-email/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      console.log('🗑️  Deleting user by email:', email);
+      
+      const user = await prisma.user.findUnique({
+        where: { email }
+      });
+      
+      if (!user) {
+        return res.status(404).json({ ok: false, error: 'User not found' });
+      }
+      
+      await prisma.user.delete({
+        where: { email }
+      });
+      
+      console.log('✅ User deleted:', email);
+      res.json({ ok: true, message: `User ${email} deleted successfully` });
+    } catch (error: any) {
+      console.error('❌ Error deleting user:', error);
+      res.status(500).json({ ok: false, error: error.message });
     }
-    
-    await prisma.user.delete({
-      where: { email }
-    });
-    
-    console.log('✅ User deleted:', email);
-    res.json({ ok: true, message: `User ${email} deleted successfully` });
-  } catch (error: any) {
-    console.error('❌ Error deleting user:', error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
+  });
+
+  // Debug endpoint to remove email from allowedEmails (no auth required for testing)
+  app.delete("/api/debug/remove-allowed-email/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      console.log('🗑️  Removing allowed email:', email);
+      
+      const allowedEmail = await prisma.allowedEmail.findUnique({
+        where: { email }
+      });
+      
+      if (!allowedEmail) {
+        return res.status(404).json({ ok: false, error: 'Allowed email not found' });
+      }
+      
+      await prisma.allowedEmail.delete({
+        where: { email }
+      });
+      
+      console.log('✅ Allowed email removed:', email);
+      res.json({ ok: true, message: `Allowed email ${email} removed successfully` });
+    } catch (error: any) {
+      console.error('❌ Error removing allowed email:', error);
+      res.status(500).json({ ok: false, error: error.message });
+    }
+  });
 
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
