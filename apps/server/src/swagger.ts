@@ -40,7 +40,7 @@ const options = {
             id: { type: 'string' },
             email: { type: 'string', format: 'email' },
             name: { type: 'string', nullable: true },
-            role: { type: 'string', enum: ['USER', 'ADMIN', 'EDITOR', 'GUEST'] },
+            role: { type: 'string', enum: ['USER', 'ADMIN', 'EDITOR', 'GUEST', 'API_USER'] },
             status: { type: 'string', enum: ['ACTIVE', 'SUSPENDED'] },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
@@ -126,15 +126,15 @@ const options = {
 
 const specs = swaggerJsdoc(options);
 
-export function setupSwagger(app: Express) {
-  // Swagger UI
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+export function setupSwagger(app: Express, ensureApiAccess: any) {
+  // Swagger UI with API access protection
+  app.use('/api-docs', ensureApiAccess, swaggerUi.serve, swaggerUi.setup(specs, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'ShPoint API Documentation'
   }));
 
-  // JSON endpoint
-  app.get('/api-docs.json', (req, res) => {
+  // JSON endpoint with API access protection
+  app.get('/api-docs.json', ensureApiAccess, (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(specs);
   });

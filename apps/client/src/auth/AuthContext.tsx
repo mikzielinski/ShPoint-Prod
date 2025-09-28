@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { api } from "../lib/env";
 
-type Role = "USER" | "EDITOR" | "ADMIN";
+type Role = "USER" | "EDITOR" | "ADMIN" | "API_USER";
 
 type User = {
   id: string;
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const doLogout = async () => {
     try {
-      await fetch(`${API_BASE}/auth/logout`, {
+      await fetch(api("/auth/logout"), {
         method: "POST",
         credentials: "include",
       });

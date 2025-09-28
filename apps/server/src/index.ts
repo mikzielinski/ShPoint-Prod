@@ -72,8 +72,7 @@ export const app = express();
 // Trust proxy for Render (needed for secure cookies)
 app.set('trust proxy', 1);
 
-// Setup Swagger documentation
-setupSwagger(app);
+// Setup Swagger documentation (will be called after ensureApiAccess is defined)
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
@@ -372,7 +371,7 @@ app.get("/api/test-email", ensureAuth, async (req, res) => {
       
       console.log('🔄 Changing role for user:', email, 'to:', role);
       
-      if (!['GUEST', 'USER', 'EDITOR', 'ADMIN'].includes(role)) {
+      if (!['GUEST', 'USER', 'EDITOR', 'ADMIN', 'API_USER'].includes(role)) {
         return res.status(400).json({ ok: false, error: 'Invalid role' });
       }
       
@@ -467,8 +466,8 @@ app.get(
     
     // Zapisuj sesję przed redirectem - ważne dla Safari
     req.session.save(() => {
-      // Check if there's a return URL in the session, otherwise default to builder
-      const returnUrl = (req.session as any).returnTo || '/builder';
+      // Check if there's a return URL in the session, otherwise default to home page
+      const returnUrl = (req.session as any).returnTo || '/';
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
       console.log('🔍 Google OAuth callback - final returnUrl:', returnUrl);
       console.log('🔍 Google OAuth callback - redirecting to:', `https://shpoint.netlify.app${returnUrl}`);
@@ -2213,6 +2212,19 @@ const ensureAdmin = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// Middleware to check if user has API access (ADMIN or API_USER)
+const ensureApiAccess = (req: Request, res: Response, next: NextFunction) => {
+  // @ts-ignore
+  const user = req.user;
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'API_USER')) {
+    return res.status(403).json({ ok: false, error: 'API access required' });
+  }
+  next();
+};
+
+// Setup Swagger documentation with API access protection
+setupSwagger(app, ensureApiAccess);
+
 // Get all users (admin only)
 app.get("/api/admin/users", ensureAuth, ensureAdmin, async (req, res) => {
   try {
@@ -2658,7 +2670,7 @@ app.patch("/api/admin/users/:id/role", ensureAuth, ensureAdmin, async (req, res)
     // @ts-ignore
     const adminUser = req.user;
     
-    if (!['GUEST', 'USER', 'EDITOR', 'ADMIN'].includes(role)) {
+    if (!['GUEST', 'USER', 'EDITOR', 'ADMIN', 'API_USER'].includes(role)) {
       return res.status(400).json({ ok: false, error: 'Invalid role' });
     }
     

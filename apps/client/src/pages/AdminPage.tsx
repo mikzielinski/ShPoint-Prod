@@ -679,6 +679,16 @@ export default function AdminPage() {
                         >
                           Set ADMIN
                         </button>
+                        <button
+                          className="dropdown-item"
+                          disabled={u.role === "API_USER"}
+                          onClick={() => {
+                            handleSetRole(u, "API_USER");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Set API_USER
+                        </button>
                         
                         {/* Separator */}
                         <div style={{ 

@@ -293,7 +293,7 @@ main, body, html {
   overflow: visible;
 }
 
-.table{ width:100%; }
+.table{ width:100%; overflow: visible; }
 
 /* Wiersze danych */
 .table__row{
@@ -303,6 +303,7 @@ main, body, html {
   padding: 16px 18px;
   border-top: 1px solid var(--ad-b);
   color: #e5e7eb;
+  overflow: visible;
 }
 .table__row:nth-child(even):not(.table__row--header){ background: rgba(255,255,255,.02); }
 .table__row:hover:not(.table__row--header){ background: rgba(255,255,255,.035); }
@@ -338,12 +339,14 @@ main, body, html {
 .badge[data-role="ADMIN"]{ background: rgba(255,122,0,.18); border-color: rgba(255,122,0,.38); color:#ffb27a; }
 .badge[data-role="EDITOR"]{ background: rgba(59,130,246,.18); border-color: rgba(59,130,246,.38); color:#93c5fd; }
 .badge[data-role="USER"]{ background: rgba(100,116,139,.18); border-color: rgba(148,163,184,.38); color:#cbd5e1; }
+.badge[data-role="API_USER"]{ background: rgba(168,85,247,.18); border-color: rgba(168,85,247,.38); color:#c084fc; }
 
 /* Akcje */
 .table__cell:last-child{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-start; }
 .btn-chip{ border-radius:999px; background: rgba(148,163,184,.08); border-color: rgba(148,163,184,.28); }
 .btn-chip--editor{ background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.35); color:#93c5fd; }
 .btn-chip--admin{ background: rgba(255,122,0,.12); border-color: rgba(255,122,0,.35); color:#ffb27a; }
+.btn-chip--api_user{ background: rgba(168,85,247,.12); border-color: rgba(168,85,247,.35); color:#c084fc; }
 
 /* Alerty */
 .alert{ padding:10px 12px; border-radius:10px; font-size:14px; margin:8px 0; }
