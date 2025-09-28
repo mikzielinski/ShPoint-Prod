@@ -1717,6 +1717,67 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
   }
 });
 
+// PUT /backend-api/characters/:id — update character data for Netlify proxy (Admin/Editor only)
+app.put("/backend-api/characters/:id", ensureAuth, async (req, res) => {
+  try {
+    console.log('PUT /backend-api/characters/:id called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      console.log('Access denied: User does not have permission');
+      return res.status(403).json({ ok: false, error: 'Access denied. Admin or Editor role required.' });
+    }
+    
+    const { id } = req.params;
+    const characterData = req.body;
+    
+    console.log('Updating character:', id, 'with data:', characterData);
+    
+    // Validate required fields
+    if (!characterData.name || !characterData.name.trim()) {
+      return res.status(400).json({ ok: false, error: 'Character name is required' });
+    }
+    
+    // Import fs and path
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Try production path first, then fallback to development path
+    let dataPath = path.join(process.cwd(), `characters_assets/${id}/data.json`);
+    if (!fs.existsSync(dataPath)) {
+      dataPath = path.join(process.cwd(), `../client/characters_assets/${id}/data.json`);
+    }
+    
+    if (!fs.existsSync(dataPath)) {
+      return res.status(404).json({ ok: false, error: 'Character not found' });
+    }
+    
+    // Read existing data
+    const existingData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    
+    // Update with new data
+    const updatedData = {
+      ...existingData,
+      ...characterData,
+      id: id, // Ensure ID doesn't change
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Write back to file
+    fs.writeFileSync(dataPath, JSON.stringify(updatedData, null, 2));
+    
+    console.log('Character updated successfully:', id);
+    res.json({ ok: true, character: updatedData });
+    
+  } catch (error) {
+    console.error('Error updating character:', error);
+    res.status(500).json({ ok: false, error: 'Failed to update character' });
+  }
+});
+
 // PUT /api/characters/:id/stance — update character stance data (Admin/Editor only)
 app.put("/api/characters/:id/stance", ensureAuth, async (req, res) => {
   try {
