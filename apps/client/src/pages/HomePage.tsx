@@ -10,7 +10,7 @@ import ShPointLogo from '../components/ShPointLogo';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: authData } = useAuthMe();
+  const { data: authData, loading: authLoading } = useAuthMe();
   const me = authData?.user;
   const [stats, setStats] = useState({
     characters: 0,
@@ -421,8 +421,10 @@ const HomePage: React.FC = () => {
   const [editingNews, setEditingNews] = useState<any>(null);
   const [previewNews, setPreviewNews] = useState<any>(null);
 
-  // Load dynamic stats
+  // Load dynamic stats (wait for auth to complete)
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to complete
+
     const loadStats = async () => {
       try {
         // Load characters
@@ -447,6 +449,8 @@ const HomePage: React.FC = () => {
           }
         } else if (me) {
           usersCount = 1; // Show 1 for logged in non-admin users
+        } else {
+          usersCount = 0; // For unauthenticated users
         }
 
         setStats({
@@ -470,41 +474,8 @@ const HomePage: React.FC = () => {
     };
 
     loadStats();
-  }, []); // Load stats once on mount for all users (authenticated and unauthenticated)
+  }, [authLoading, me?.role]); // Load stats when auth completes
 
-  // Update user stats when authentication status changes
-  useEffect(() => {
-    if (me?.role === 'ADMIN') {
-      const loadUserStats = async () => {
-        try {
-          const usersResponse = await fetch(api('/api/admin/users'));
-          const usersData = await usersResponse.json();
-          const usersCount = usersData.length || 0;
-          
-          setStats(prev => ({
-            ...prev,
-            users: usersCount
-          }));
-        } catch (error) {
-          console.log('Could not load users count:', error);
-        }
-      };
-      
-      loadUserStats();
-    } else if (me) {
-      // For logged in non-admin users, show 1
-      setStats(prev => ({
-        ...prev,
-        users: 1
-      }));
-    } else {
-      // For unauthenticated users, show 0
-      setStats(prev => ({
-        ...prev,
-        users: 0
-      }));
-    }
-  }, [me?.role]);
 
   // News management functions
   const handleNewNews = () => {
