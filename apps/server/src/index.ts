@@ -4009,4 +4009,22 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 API listening on port ${PORT}`);
   console.log(`🌐 CORS allowed origins:`, ALLOWED_ORIGINS);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+});app.get("/api/debug/check-database", async (req, res) => {
+  try {
+    // Check if AuditLog table exists
+    const auditLogs = await prisma.auditLog.findMany({ take: 1 });
+    res.json({ 
+      ok: true, 
+      auditLogsExist: true,
+      auditLogsCount: await prisma.auditLog.count(),
+      message: "Database connection and AuditLog table working"
+    });
+  } catch (error) {
+    res.json({ 
+      ok: false, 
+      auditLogsExist: false,
+      error: error.message,
+      message: "Database connection or AuditLog table issue"
+    });
+  }
 });
