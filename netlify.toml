@@ -20,7 +20,7 @@
 
 [[redirects]]
   from = "/backend-api/*"
-  to = "https://shpoint-prod.onrender.com/api/:splat"
+  to = "https://shpoint-prod.onrender.com/:splat"
   status = 200
   force = true
 
