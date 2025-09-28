@@ -40,6 +40,7 @@ model User {
   customCardShares     CustomCardShare[]
   customCardCollections CustomCardCollection[]
   auditLogs            AuditLog[]
+  apiTokens            ApiToken[]
 
   @@index([createdAt])
   @@index([email])
@@ -406,4 +407,20 @@ enum AuditAction {
   UNPUBLISH
   SHARE
   UNSHARE
+}
+
+model ApiToken {
+  id          String   @id @default(cuid())
+  name        String   // User-friendly name for the token
+  token       String   @unique // The actual bearer token
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isActive    Boolean  @default(true)
+  lastUsedAt  DateTime?
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime? // Optional expiration date
+  
+  @@index([userId])
+  @@index([token])
+  @@index([isActive])
 }

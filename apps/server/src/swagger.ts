@@ -31,6 +31,12 @@ const options = {
           in: 'cookie',
           name: 'connect.sid',
           description: 'Session cookie authentication'
+        },
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Bearer token authentication for API users'
         }
       },
       schemas: {
@@ -118,6 +124,9 @@ const options = {
     security: [
       {
         sessionAuth: []
+      },
+      {
+        bearerAuth: []
       }
     ]
   },

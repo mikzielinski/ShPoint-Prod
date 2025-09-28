@@ -145,6 +145,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Add Bearer token authentication middleware
+app.use(authenticateBearerToken);
+
 // w sesji trzymaj tylko id
 passport.serializeUser((user: any, done) => done(null, { id: user.id }));
 passport.deserializeUser(async (obj: any, done) => {
@@ -2245,6 +2248,42 @@ const ensureApiAccess = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// Middleware to authenticate Bearer tokens
+const authenticateBearerToken = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    
+    try {
+      const apiToken = await prisma.apiToken.findUnique({
+        where: { token },
+        include: {
+          user: true
+        }
+      });
+      
+      if (apiToken && apiToken.isActive && (!apiToken.expiresAt || apiToken.expiresAt > new Date())) {
+        // Update last used timestamp
+        await prisma.apiToken.update({
+          where: { id: apiToken.id },
+          data: { lastUsedAt: new Date() }
+        });
+        
+        // Set user in request
+        // @ts-ignore
+        req.user = apiToken.user;
+        return next();
+      }
+    } catch (error) {
+      console.error('Bearer token authentication error:', error);
+    }
+  }
+  
+  // If no valid Bearer token, continue with session authentication
+  next();
+};
+
 // Add endpoint to check if user has API access
 app.get("/api/check-api-access", ensureAuth, (req, res) => {
   // @ts-ignore
@@ -2259,6 +2298,127 @@ app.get("/api/check-api-access", ensureAuth, (req, res) => {
       role: user?.role 
     } 
   });
+});
+
+// API Token management endpoints
+app.get("/api/admin/api-tokens", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const tokens = await prisma.apiToken.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({ ok: true, tokens });
+  } catch (error) {
+    console.error("Error fetching API tokens:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch API tokens" });
+  }
+});
+
+app.post("/api/admin/api-tokens", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { userId, name, expiresAt } = req.body;
+    // @ts-ignore
+    const adminUser = req.user;
+    
+    // Generate a secure random token
+    const token = `sp_${require('crypto').randomBytes(32).toString('hex')}`;
+    
+    const apiToken = await prisma.apiToken.create({
+      data: {
+        name,
+        token,
+        userId,
+        expiresAt: expiresAt ? new Date(expiresAt) : null
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true
+          }
+        }
+      }
+    });
+    
+    // Log the creation
+    await logAuditEvent({
+      entityType: 'USER',
+      entityId: userId,
+      action: 'CREATE',
+      userId: adminUser.id,
+      description: `API token created for user: ${apiToken.user.email}`,
+      changes: {
+        tokenName: name,
+        expiresAt: expiresAt
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    res.json({ ok: true, token: apiToken });
+  } catch (error) {
+    console.error("Error creating API token:", error);
+    res.status(500).json({ ok: false, error: "Failed to create API token" });
+  }
+});
+
+app.delete("/api/admin/api-tokens/:id", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    // @ts-ignore
+    const adminUser = req.user;
+    
+    const apiToken = await prisma.apiToken.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    if (!apiToken) {
+      return res.status(404).json({ ok: false, error: "API token not found" });
+    }
+    
+    await prisma.apiToken.delete({
+      where: { id }
+    });
+    
+    // Log the deletion
+    await logAuditEvent({
+      entityType: 'USER',
+      entityId: apiToken.userId,
+      action: 'DELETE',
+      userId: adminUser.id,
+      description: `API token deleted for user: ${apiToken.user.email}`,
+      changes: {
+        tokenName: apiToken.name
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    res.json({ ok: true, message: "API token deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting API token:", error);
+    res.status(500).json({ ok: false, error: "Failed to delete API token" });
+  }
 });
 
 // Setup Swagger documentation with API access protection

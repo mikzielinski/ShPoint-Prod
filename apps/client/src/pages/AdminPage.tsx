@@ -530,7 +530,7 @@ export default function AdminPage() {
 
       {/* Users Section */}
       {activeTab === 'users' && (
-        <section className="card">
+        <section className="card card--dropdown-enabled">
         <div className="card-header">
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
