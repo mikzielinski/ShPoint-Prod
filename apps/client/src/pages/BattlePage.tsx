@@ -296,7 +296,16 @@ const BattlePage: React.FC = () => {
       dfs([], startNode);
     });
     
-    return paths;
+    // Remove duplicate paths by converting to string keys and back
+    const uniquePaths = new Map<string, string[]>();
+    paths.forEach(path => {
+      const pathKey = path.join('-');
+      if (!uniquePaths.has(pathKey)) {
+        uniquePaths.set(pathKey, path);
+      }
+    });
+    
+    return Array.from(uniquePaths.values());
   };
 
   // Function to activate nodes based on Final Attack result
