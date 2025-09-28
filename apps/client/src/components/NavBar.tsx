@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import ShPointLogo from "./ShPointLogo";
 import "./NavBar.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -52,8 +53,7 @@ export default function NavBar() {
       <div className="nb-inner">
         {/* logo / brand */}
         <button className="nb-brand" onClick={() => navigate("/builder")} aria-label="Go home">
-          <span className="nb-brand-dot" />
-          <span className="nb-brand-name">ShPoint</span>
+          <ShPointLogo size={28} showText={true} />
         </button>
 
         {/* desktop links */}

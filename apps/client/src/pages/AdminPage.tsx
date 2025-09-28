@@ -4,6 +4,7 @@ import { api } from "../lib/env";
 import AdminInvitationSettings from "../components/AdminInvitationSettings";
 import HealthCheck from "../components/HealthCheck";
 import AvatarManager from "../components/AvatarManager";
+import ApiDocumentation from "../components/ApiDocumentation";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -79,6 +80,7 @@ export default function AdminPage() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api'>('overview');
 
   const canManage = auth.user?.role === "ADMIN";
   const myId = auth.user?.id;
@@ -375,13 +377,77 @@ export default function AdminPage() {
         <p>Manage users, invitations, and system settings.</p>
       </header>
 
-      {/* Health Check Section */}
-      <section className="card">
-        <HealthCheck />
-      </section>
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '2px',
+        marginBottom: '30px',
+        background: '#1f2937',
+        borderRadius: '8px',
+        padding: '4px',
+        border: '1px solid #374151'
+      }}>
+        {[
+          { id: 'overview', label: 'Overview', icon: '📊' },
+          { id: 'users', label: 'Users', icon: '👥' },
+          { id: 'invitations', label: 'Invitations', icon: '📧' },
+          { id: 'settings', label: 'Settings', icon: '⚙️' },
+          { id: 'api', label: 'API Docs', icon: '📚' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              borderRadius: '6px',
+              border: 'none',
+              background: activeTab === tab.id ? '#3b82f6' : 'transparent',
+              color: activeTab === tab.id ? '#f9fafb' : '#9ca3af',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <>
+          {/* Health Check Section */}
+          <section className="card">
+            <HealthCheck />
+          </section>
+        </>
+      )}
+
+      {activeTab === 'api' && (
+        <section className="card">
+          <ApiDocumentation />
+        </section>
+      )}
+
+      {activeTab !== 'api' && activeTab !== 'overview' && (
+        <>
+          {/* Health Check Section */}
+          <section className="card">
+            <HealthCheck />
+          </section>
+        </>
+      )}
 
       {/* Users Section */}
-      <section className="card">
+      {activeTab === 'users' && (
+        <section className="card">
         <div className="card-header">
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
@@ -754,10 +820,12 @@ export default function AdminPage() {
       </div>
           </>
         )}
-      </section>
+        </section>
+      )}
 
       {/* Invitations Section */}
-      <section className="card" style={{ marginTop: "24px" }}>
+      {activeTab === 'invitations' && (
+        <section className="card" style={{ marginTop: "24px" }}>
         <div className="card-header">
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
@@ -894,10 +962,12 @@ export default function AdminPage() {
         </div>
           </>
         )}
-      </section>
+        </section>
+      )}
 
       {/* Invitation Settings Section */}
-      <section className="card" style={{ marginTop: "24px" }}>
+      {activeTab === 'settings' && (
+        <section className="card" style={{ marginTop: "24px" }}>
         <div className="card-header">
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
@@ -986,6 +1056,7 @@ export default function AdminPage() {
             />
           </div>
         </div>
+        </section>
       )}
     </main>
   );

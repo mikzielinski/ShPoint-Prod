@@ -29,6 +29,8 @@ import { PrismaClient } from "@prisma/client";
 import path from "path";
 import fs from "fs";
 import { sendInvitationEmail, testEmailConfiguration } from "./email.js";
+import { logAuditEvent, getAuditLogs } from "./audit.js";
+import { setupSwagger } from "./swagger.js";
 
 const prisma = new PrismaClient();
 
@@ -69,6 +71,9 @@ export const app = express();
 
 // Trust proxy for Render (needed for secure cookies)
 app.set('trust proxy', 1);
+
+// Setup Swagger documentation
+setupSwagger(app);
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
@@ -272,6 +277,28 @@ function setInvitationLimits(user: any) {
 
 
 // ===== Health
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Returns the health status of the API
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: API is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 version:
+ *                   type: string
+ *                   example: "v1.2.28"
+ */
 app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.28" }));
 
 // Test email configuration
@@ -514,6 +541,35 @@ app.get("/api/debug-session", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /api/me:
+ *   get:
+ *     summary: Get current user information
+ *     description: Returns the authenticated user's profile information
+ *     tags: [Authentication]
+ *     security:
+ *       - sessionAuth: []
+ *     responses:
+ *       200:
+ *         description: User information retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.get("/api/me", ensureAuth, updateUserStatusIfNeeded, (req, res) => {
   // @ts-ignore
   res.json({ ok: true, user: publicUser(req.user) });
@@ -1087,6 +1143,29 @@ app.get("/characters/:id/stance.json", async (req, res) => {
 });
 
 // GET /api/characters — publiczny katalog kart/misji
+/**
+ * @swagger
+ * /api/characters:
+ *   get:
+ *     summary: Get all characters
+ *     description: Returns a list of all available characters
+ *     tags: [Characters]
+ *     responses:
+ *       200:
+ *         description: List of characters retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Character'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 app.get("/api/characters", async (req, res) => {
   try {
     // Read the real character data from the client's public folder
@@ -2449,6 +2528,99 @@ app.get("/api/admin/test-email", ensureAuth, ensureAdmin, async (req, res) => {
   } catch (error) {
     console.error("Error testing email configuration:", error);
     res.status(500).json({ ok: false, error: "Failed to test email configuration" });
+  }
+});
+
+// Get audit logs (admin only)
+/**
+ * @swagger
+ * /api/admin/audit-logs:
+ *   get:
+ *     summary: Get audit logs
+ *     description: Returns audit logs for system activities (admin only)
+ *     tags: [Admin]
+ *     security:
+ *       - sessionAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: entityType
+ *         schema:
+ *           type: string
+ *           enum: [USER, CARD, CHARACTER, MISSION, SET, STRIKE_TEAM, CUSTOM_CARD, COLLECTION, SYSTEM_SETTINGS]
+ *         description: Filter by entity type
+ *       - in: query
+ *         name: entityId
+ *         schema:
+ *           type: string
+ *         description: Filter by entity ID
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         description: Filter by user ID
+ *       - in: query
+ *         name: action
+ *         schema:
+ *           type: string
+ *           enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT, ROLE_CHANGE, STATUS_CHANGE, PUBLISH, UNPUBLISH, SHARE, UNSHARE]
+ *         description: Filter by action type
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
+ *         description: Number of logs to return
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Number of logs to skip
+ *     responses:
+ *       200:
+ *         description: Audit logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                   example: true
+ *                 logs:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/AuditLog'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Forbidden (not admin)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+app.get("/api/admin/audit-logs", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { entityType, entityId, userId, action, limit = 100, offset = 0 } = req.query;
+    
+    const logs = await getAuditLogs({
+      entityType: entityType as string,
+      entityId: entityId as string,
+      userId: userId as string,
+      action: action as string,
+      limit: Number(limit),
+      offset: Number(offset),
+    });
+    
+    res.json({ ok: true, logs });
+  } catch (error) {
+    console.error("Error fetching audit logs:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch audit logs" });
   }
 });
 

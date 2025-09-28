@@ -6,6 +6,7 @@ import { api } from '../lib/env';
 import Modal from '../components/Modal';
 import NewsEditor from '../components/editors/NewsEditor';
 import NewsPreview from '../components/NewsPreview';
+import ShPointLogo from '../components/ShPointLogo';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -596,6 +597,9 @@ const HomePage: React.FC = () => {
           textAlign: 'center',
           marginBottom: '40px'
         }}>
+          <div style={{ marginBottom: '20px' }}>
+            <ShPointLogo size={80} showText={true} />
+          </div>
           <h1 style={{
             fontSize: '48px',
             fontWeight: '800',

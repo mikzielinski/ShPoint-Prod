@@ -39,6 +39,7 @@ model User {
   customCards          CustomMadeCard[]
   customCardShares     CustomCardShare[]
   customCardCollections CustomCardCollection[]
+  auditLogs            AuditLog[]
 
   @@index([createdAt])
   @@index([email])
@@ -359,4 +360,49 @@ model CustomCardCollection {
   @@index([isOwned])
   @@index([isPainted])
   @@index([isWishlist])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  entityType  EntityType
+  entityId    String
+  action      AuditAction
+  userId      String?
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  changes     Json?       // Before/after values
+  description String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+enum EntityType {
+  USER
+  CARD
+  CHARACTER
+  MISSION
+  SET
+  STRIKE_TEAM
+  CUSTOM_CARD
+  COLLECTION
+  SYSTEM_SETTINGS
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  ROLE_CHANGE
+  STATUS_CHANGE
+  PUBLISH
+  UNPUBLISH
+  SHARE
+  UNSHARE
 }
