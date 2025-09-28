@@ -34,17 +34,103 @@ const GLYPH_MAP: Record<string, string> = {
   innate: "\u006C", // l - sp-innate
   reactive: "\u0069", // i - sp-reactive
   active: "\u006A", // j - sp-active
+  advance: "\u0078", // x - advance
 };
+
+// Helper function to render text with placeholders
+function renderTextWithPlaceholders(
+  text: string, 
+  boldMatches: Array<{match: string, content: string, index: number}>,
+  italicMatches: Array<{match: string, content: string, index: number}>,
+  factionMatches: Array<{match: string, faction: string, index: number}>
+): React.ReactNode[] {
+  const parts = text.split(/(__BOLD_\d+__|__ITALIC_\d+__|__FACTION_\d+__)/);
+  return parts.map((part, index) => {
+    if (part.startsWith('__BOLD_') && part.endsWith('__')) {
+      const boldIndex = parseInt(part.replace('__BOLD_', '').replace('__', ''));
+      const boldMatch = boldMatches[boldIndex];
+      if (boldMatch) {
+        return <strong key={`bold-${boldIndex}-${index}`}>{boldMatch.content}</strong>;
+      }
+    }
+    if (part.startsWith('__ITALIC_') && part.endsWith('__')) {
+      const italicIndex = parseInt(part.replace('__ITALIC_', '').replace('__', ''));
+      const italicMatch = italicMatches[italicIndex];
+      if (italicMatch) {
+        return <em key={`italic-${italicIndex}-${index}`}>{italicMatch.content}</em>;
+      }
+    }
+    if (part.startsWith('__FACTION_') && part.endsWith('__')) {
+      const factionIndex = parseInt(part.replace('__FACTION_', '').replace('__', ''));
+      const factionMatch = factionMatches[factionIndex];
+      if (factionMatch) {
+        return (
+          <span
+            key={`faction-${factionIndex}-${index}`}
+            style={{
+              background: 'rgba(59, 130, 246, 0.2)',
+              color: '#60a5fa',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '500',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              margin: '0 2px'
+            }}
+          >
+            {factionMatch.faction}
+          </span>
+        );
+      }
+    }
+    return part;
+  });
+}
 
 function renderWithGlyphs(text?: string) {
   if (!text) return null;
   
-  // First, handle faction tags
-  const factionRegex = /<faction>([^<]+)<\/faction>/g;
+  // First, handle bold and italic tags
   let processedText = text;
+  
+  // Handle <b> tags
+  const boldMatches: Array<{match: string, content: string, index: number}> = [];
+  const boldRegex = /<b>([^<]+)<\/b>/g;
+  let boldMatch;
+  while ((boldMatch = boldRegex.exec(text)) !== null) {
+    boldMatches.push({
+      match: boldMatch[0],
+      content: boldMatch[1],
+      index: boldMatch.index
+    });
+  }
+  
+  // Handle <i> tags
+  const italicMatches: Array<{match: string, content: string, index: number}> = [];
+  const italicRegex = /<i>([^<]+)<\/i>/g;
+  let italicMatch;
+  while ((italicMatch = italicRegex.exec(text)) !== null) {
+    italicMatches.push({
+      match: italicMatch[0],
+      content: italicMatch[1],
+      index: italicMatch.index
+    });
+  }
+  
+  // Replace bold and italic tags with placeholders
+  boldMatches.forEach((boldMatch, i) => {
+    processedText = processedText.replace(boldMatch.match, `__BOLD_${i}__`);
+  });
+  
+  italicMatches.forEach((italicMatch, i) => {
+    processedText = processedText.replace(italicMatch.match, `__ITALIC_${i}__`);
+  });
+  
+  // Then handle faction tags
+  const factionRegex = /<faction>([^<]+)<\/faction>/g;
   const factionMatches: Array<{match: string, faction: string, index: number}> = [];
   let match;
-  while ((match = factionRegex.exec(text)) !== null) {
+  while ((match = factionRegex.exec(processedText)) !== null) {
     factionMatches.push({
       match: match[0],
       faction: match[1],
@@ -65,39 +151,9 @@ function renderWithGlyphs(text?: string) {
   while ((m = re.exec(processedText))) {
     if (m.index > last) {
       const textPart = processedText.slice(last, m.index);
-      // Check if this part contains faction placeholders
-      if (textPart.includes('__FACTION_')) {
-        const parts = textPart.split(/(__FACTION_\d+__)/);
-        parts.forEach((part, partIndex) => {
-          if (part.startsWith('__FACTION_') && part.endsWith('__')) {
-            const factionIndex = parseInt(part.replace('__FACTION_', '').replace('__', ''));
-            const factionMatch = factionMatches[factionIndex];
-            if (factionMatch) {
-              out.push(
-                <span
-                  key={`faction-${factionIndex}-${partIndex}`}
-                  style={{
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    color: '#60a5fa',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
-                    margin: '0 2px'
-                  }}
-                >
-                  {factionMatch.faction}
-                </span>
-              );
-            }
-          } else if (part) {
-            out.push(part);
-          }
-        });
-      } else {
-        out.push(textPart);
-      }
+      // Use helper function to render text with all placeholders
+      const renderedParts = renderTextWithPlaceholders(textPart, boldMatches, italicMatches, factionMatches);
+      out.push(...renderedParts);
     }
     
     const token = m[1].trim().toLowerCase();
@@ -126,38 +182,8 @@ function renderWithGlyphs(text?: string) {
   // Handle remaining text
   if (last < processedText.length) {
     const remainingText = processedText.slice(last);
-    if (remainingText.includes('__FACTION_')) {
-      const parts = remainingText.split(/(__FACTION_\d+__)/);
-      parts.forEach((part, partIndex) => {
-        if (part.startsWith('__FACTION_') && part.endsWith('__')) {
-          const factionIndex = parseInt(part.replace('__FACTION_', '').replace('__', ''));
-          const factionMatch = factionMatches[factionIndex];
-          if (factionMatch) {
-            out.push(
-              <span
-                key={`faction-${factionIndex}-${partIndex}`}
-                style={{
-                  background: 'rgba(59, 130, 246, 0.2)',
-                  color: '#60a5fa',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  margin: '0 2px'
-                }}
-              >
-                {factionMatch.faction}
-              </span>
-            );
-          }
-        } else if (part) {
-          out.push(part);
-        }
-      });
-    } else {
-      out.push(remainingText);
-    }
+    const renderedParts = renderTextWithPlaceholders(remainingText, boldMatches, italicMatches, factionMatches);
+    out.push(...renderedParts);
   }
   
   return out;
