@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { API_BASE, api } from '../../lib/env';
 import StanceEditor from './StanceEditor';
-import { RichTextEditor } from './RichTextEditor';
+import RichTextEditor from './RichTextEditor';
 
 interface Ability {
   id: string;
