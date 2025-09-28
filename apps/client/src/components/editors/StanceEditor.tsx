@@ -112,45 +112,34 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
   // Memoize stance to prevent infinite loops - use JSON.stringify for deep comparison
   const memoizedStance = useMemo(() => stance, [JSON.stringify(stance)]);
 
-  const [formData, setFormData] = useState<StanceData>({
-    sides: [
-      {
-        id: "A",
-        name: "Side A",
-        attack: {
-          melee: { dice: 0, range: 0, defense: 0, expertise: [] },
-          ranged: { dice: 0, range: 0, defense: 0, expertise: [] }
-        },
-        defense: { expertise: [] },
-        tree: { 
-          layout: { rows: 3, cols: 6 }, 
-          nodes: {
-            N1: { row: 1, col: 1, effects: [] },
-            N2: { row: 1, col: 2, effects: [] },
-            N3: { row: 1, col: 3, effects: [] }
-          }, 
-          edges: [] 
+  const [formData, setFormData] = useState<StanceData>(() => {
+    // If stance prop is provided, use it, otherwise use default with only Side A
+    if (stance && stance.sides && stance.sides.length > 0) {
+      return stance;
+    }
+    
+    return {
+      sides: [
+        {
+          id: "A",
+          name: "Side A",
+          attack: {
+            melee: { dice: 0, range: 0, defense: 0, expertise: [] },
+            ranged: { dice: 0, range: 0, defense: 0, expertise: [] }
+          },
+          defense: { expertise: [] },
+          tree: { 
+            layout: { rows: 3, cols: 6 }, 
+            nodes: {
+              N1: { row: 1, col: 1, effects: [] },
+              N2: { row: 1, col: 2, effects: [] },
+              N3: { row: 1, col: 3, effects: [] }
+            }, 
+            edges: [] 
+          }
         }
-      },
-      {
-        id: "B",
-        name: "Side B",
-        attack: {
-          melee: { dice: 0, range: 0, defense: 0, expertise: [] },
-          ranged: { dice: 0, range: 0, defense: 0, expertise: [] }
-        },
-        defense: { expertise: [] },
-        tree: { 
-          layout: { rows: 3, cols: 6 }, 
-          nodes: {
-            N1: { row: 1, col: 1, effects: [] },
-            N2: { row: 1, col: 2, effects: [] },
-            N3: { row: 1, col: 3, effects: [] }
-          }, 
-          edges: [] 
-        }
-      }
-    ]
+      ]
+    };
   });
 
   // Log formData changes
@@ -316,6 +305,33 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
       const newExpertise = formData.sides?.find(s => s.id === sideId)?.attack?.[attackType]?.expertise?.filter((_, i) => i !== index) || [];
       updateAttack(sideId, attackType, { expertise: newExpertise });
     }
+  };
+
+  const addSecondStanceSide = () => {
+    setFormData(prev => ({
+      ...prev,
+      sides: [
+        ...prev.sides,
+        {
+          id: "B",
+          name: "Side B",
+          attack: {
+            melee: { dice: 0, range: 0, defense: 0, expertise: [] },
+            ranged: { dice: 0, range: 0, defense: 0, expertise: [] }
+          },
+          defense: { expertise: [] },
+          tree: { 
+            layout: { rows: 3, cols: 6 }, 
+            nodes: {
+              N1: { row: 1, col: 1, effects: [] },
+              N2: { row: 1, col: 2, effects: [] },
+              N3: { row: 1, col: 3, effects: [] }
+            }, 
+            edges: [] 
+          }
+        }
+      ]
+    }));
   };
 
   // Create stable callback functions that don't depend on formData
@@ -1166,6 +1182,42 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
             </div>
           );
           })}
+          
+          {/* Add Second Stance Side Button */}
+          {formData.sides?.length === 1 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '16px'
+            }}>
+              <button
+                onClick={addSecondStanceSide}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: '#8b5cf6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#7c3aed';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#8b5cf6';
+                }}
+              >
+                <span>+</span>
+                Add Second Stance Side
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
