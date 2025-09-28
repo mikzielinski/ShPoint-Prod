@@ -305,7 +305,17 @@ const BattlePage: React.FC = () => {
       }
     });
     
-    return Array.from(uniquePaths.values());
+    const result = Array.from(uniquePaths.values());
+    
+    // Debug log to see what's happening
+    console.log('🔍 findAttackPaths debug:', {
+      originalPaths: paths.length,
+      uniquePaths: result.length,
+      paths: paths.map(p => p.join('-')),
+      unique: result.map(p => p.join('-'))
+    });
+    
+    return result;
   };
 
   // Function to activate nodes based on Final Attack result

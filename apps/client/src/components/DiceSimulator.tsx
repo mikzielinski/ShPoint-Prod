@@ -90,6 +90,16 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
     hero2: { type: 'D8' | 'D6', count: number, results: any[] }
   } | null>(null);
   const [currentSymbols, setCurrentSymbols] = useState<{ hero1: string[], hero2: string[] }>({ hero1: [], hero2: [] });
+  const [showDiceLimitAlert, setShowDiceLimitAlert] = useState(false);
+
+  // Check dice limit and show alert
+  const checkDiceLimit = (value: number) => {
+    if (value > 999) {
+      setShowDiceLimitAlert(true);
+      return 999;
+    }
+    return Math.max(0, value);
+  };
 
   // Pobierz liczbę kostek z danych postaci
   const getDiceCount = (hero: 'hero1' | 'hero2', action: 'melee' | 'ranged' | 'defense') => {
@@ -805,8 +815,13 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
           </button>
           <input
             type="number"
+            min="0"
+            max="999"
             value={hero1DiceCount || defaultHero1Count}
-            onChange={(e) => setHero1DiceCount(parseInt(e.target.value) || 0)}
+            onChange={(e) => {
+              const value = parseInt(e.target.value) || 0;
+              setHero1DiceCount(checkDiceLimit(value));
+            }}
             style={{
               background: '#374151',
               color: '#f9fafb',
@@ -818,7 +833,7 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
             }}
           />
           <button
-            onClick={() => setHero1DiceCount(hero1DiceCount + 1)}
+            onClick={() => setHero1DiceCount(Math.min(999, hero1DiceCount + 1))}
             style={{
               background: '#059669',
               color: 'white',
@@ -1014,8 +1029,13 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
           </button>
           <input
             type="number"
+            min="0"
+            max="999"
             value={hero2DiceCount || defaultHero2Count}
-            onChange={(e) => setHero2DiceCount(parseInt(e.target.value) || 0)}
+            onChange={(e) => {
+              const value = parseInt(e.target.value) || 0;
+              setHero2DiceCount(checkDiceLimit(value));
+            }}
             style={{
               background: '#374151',
               color: '#f9fafb',
@@ -1027,7 +1047,7 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
             }}
           />
           <button
-            onClick={() => setHero2DiceCount(hero2DiceCount + 1)}
+            onClick={() => setHero2DiceCount(Math.min(999, hero2DiceCount + 1))}
             style={{
               background: '#059669',
               color: 'white',
@@ -1556,6 +1576,112 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
       })()}
 
     </div>
+
+    {/* Star Wars Style Dice Limit Alert */}
+    {showDiceLimitAlert && (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10000,
+        backdropFilter: 'blur(10px)'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+          border: '2px solid #fbbf24',
+          borderRadius: '20px',
+          padding: '40px',
+          maxWidth: '500px',
+          textAlign: 'center',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(251, 191, 36, 0.3)',
+          animation: 'pulse 2s infinite'
+        }}>
+          {/* Star Wars Header */}
+          <div style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#fbbf24',
+            textShadow: '0 0 20px rgba(251, 191, 36, 0.8)',
+            marginBottom: '20px',
+            fontFamily: 'monospace',
+            letterSpacing: '3px'
+          }}>
+            ⚠️ IMPERIAL RESTRICTION ⚠️
+          </div>
+          
+          {/* Main Message */}
+          <div style={{
+            fontSize: '18px',
+            color: '#f9fafb',
+            marginBottom: '20px',
+            lineHeight: '1.6'
+          }}>
+            Hey there, Rebel scum! 🚀
+          </div>
+          
+          <div style={{
+            fontSize: '16px',
+            color: '#e5e7eb',
+            marginBottom: '30px',
+            lineHeight: '1.5'
+          }}>
+            Using more than 999 dice would crash the Death Star... I mean, our servers! 😅<br/><br/>
+            <strong>Don't be that person who ruins the fun for everyone!</strong><br/><br/>
+            The Force is strong with reasonable limits. ⚡
+          </div>
+          
+          {/* Star Wars Quote */}
+          <div style={{
+            fontSize: '14px',
+            color: '#fbbf24',
+            fontStyle: 'italic',
+            marginBottom: '30px',
+            border: '1px solid #fbbf24',
+            padding: '15px',
+            borderRadius: '10px',
+            background: 'rgba(251, 191, 36, 0.1)'
+          }}>
+            "With great power comes great responsibility... and a 999 dice limit!"<br/>
+            <span style={{ fontSize: '12px', color: '#9ca3af' }}>- Uncle Ben Kenobi, probably</span>
+          </div>
+          
+          {/* Action Button */}
+          <button
+            onClick={() => setShowDiceLimitAlert(false)}
+            style={{
+              background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+              color: 'white',
+              border: '2px solid #fbbf24',
+              borderRadius: '10px',
+              padding: '12px 30px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              boxShadow: '0 5px 15px rgba(220, 38, 38, 0.4)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 8px 25px rgba(220, 38, 38, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = '0 5px 15px rgba(220, 38, 38, 0.4)';
+            }}
+          >
+            I Understand, Commander! 🫡
+          </button>
+        </div>
+      </div>
+    )}
     </>
   );
 };
