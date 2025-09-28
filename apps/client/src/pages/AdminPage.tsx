@@ -338,6 +338,11 @@ export default function AdminPage() {
   };
 
   const handleDropdownToggle = (userId: string, buttonElement: HTMLElement) => {
+    console.log('🔍 Dropdown toggle clicked for user:', userId);
+    console.log('🔍 Current openDropdown:', openDropdown);
+    console.log('🔍 canManage:', canManage);
+    console.log('🔍 savingId:', savingId);
+    
     if (openDropdown === userId) {
       setOpenDropdown(null);
       setDropdownPosition(null);
@@ -600,7 +605,11 @@ export default function AdminPage() {
                       <span style={{ fontSize: "12px" }}>▼</span>
                     </button>
 
-                    {openDropdown === u.id && dropdownPosition && (
+                    {(() => {
+                      const shouldShow = openDropdown === u.id && dropdownPosition;
+                      console.log(`🔍 User ${u.id} dropdown should show:`, shouldShow, 'openDropdown:', openDropdown, 'dropdownPosition:', dropdownPosition);
+                      return shouldShow;
+                    })() && (
                       <div
                         className="dropdown-menu"
                         style={{
@@ -609,6 +618,7 @@ export default function AdminPage() {
                           left: dropdownPosition.left,
                           zIndex: 9999
                         }}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <button
                           className="dropdown-item"
