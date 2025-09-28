@@ -111,7 +111,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
 
   const availablePeriods = [
     'The fall of the Jedi',
-    'The reign of the Empire', 
+    'The Reign of the Empire', 
     'The Age of Rebellion',
     'The New Republic',
     'Galactic Civil War'
@@ -126,6 +126,10 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     { value: 'on_force_spend', label: 'On force spend' },
     { value: 'on_move', label: 'On move' },
     { value: 'on_ability_use', label: 'On ability use' },
+    { value: 'start_of_struggle', label: 'Start of Struggle' },
+    { value: 'end_of_struggle', label: 'End of Struggle' },
+    { value: 'start_of_game', label: 'Start of Game' },
+    { value: 'end_of_game', label: 'End of Game' },
     { value: 'passive', label: 'Passive' },
     { value: 'constant', label: 'Constant' }
   ];
