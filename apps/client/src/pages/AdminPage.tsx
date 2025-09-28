@@ -77,7 +77,6 @@ export default function AdminPage() {
     invitationSettings: true
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
@@ -337,73 +336,20 @@ export default function AdminPage() {
     }));
   };
 
-  const handleDropdownToggle = (userId: string, buttonElement: HTMLElement) => {
-    console.log('🔍 Dropdown toggle clicked for user:', userId);
-    console.log('🔍 Current openDropdown:', openDropdown);
-    console.log('🔍 canManage:', canManage);
-    console.log('🔍 savingId:', savingId);
-    
-    if (openDropdown === userId) {
-      setOpenDropdown(null);
-      setDropdownPosition(null);
-    } else {
-      const rect = buttonElement.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
-      const dropdownHeight = 250; // Max height from CSS
-      const dropdownWidth = 140; // Min width from CSS
-      
-      // Check if there's enough space below the button
-      const spaceBelow = viewportHeight - rect.bottom;
-      const spaceAbove = rect.top;
-      
-      let top: number;
-      if (spaceBelow >= dropdownHeight || spaceBelow >= spaceAbove) {
-        // Show below the button
-        top = rect.bottom + window.scrollY + 4;
-      } else {
-        // Show above the button
-        top = rect.top + window.scrollY - dropdownHeight - 4;
-      }
-      
-      // Check horizontal positioning to prevent overflow
-      let left = rect.left + window.scrollX;
-      if (left + dropdownWidth > viewportWidth) {
-        left = viewportWidth - dropdownWidth - 10; // 10px margin from edge
-      }
-      if (left < 10) {
-        left = 10; // 10px margin from left edge
-      }
-      
-      setDropdownPosition({
-        top: Math.max(10, top), // Ensure dropdown doesn't go above viewport
-        left
-      });
-      setOpenDropdown(userId);
-    }
+  const handleDropdownToggle = (userId: string) => {
+    console.log('🔍 Simple dropdown toggle for user:', userId);
+    setOpenDropdown(openDropdown === userId ? null : userId);
   };
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      console.log('🔍 handleClickOutside triggered, target:', target);
-      console.log('🔍 closest dropdown-container:', target.closest('.dropdown-container'));
-      
-      // Don't close if clicking on the dropdown button itself
-      if (target.closest('button.btn.btn-sm.btn-chip')) {
-        console.log('🔍 Ignoring click on dropdown button');
-        return;
-      }
-      
       if (!target.closest('.dropdown-container')) {
-        console.log('🔍 Closing dropdown due to outside click');
         setOpenDropdown(null);
-        setDropdownPosition(null);
       }
     };
 
-    // Use click instead of mousedown to avoid conflicts
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
@@ -605,7 +551,7 @@ export default function AdminPage() {
                       disabled={!canManage || savingId === u.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDropdownToggle(u.id, e.currentTarget);
+                        handleDropdownToggle(u.id);
                       }}
                       style={{
                         minWidth: "120px",
@@ -619,23 +565,15 @@ export default function AdminPage() {
                       <span style={{ fontSize: "12px" }}>▼</span>
                     </button>
 
-                    {(() => {
-                      const shouldShow = openDropdown === u.id && dropdownPosition;
-                      console.log(`🔍 User ${u.id} dropdown should show:`, shouldShow, 'openDropdown:', openDropdown, 'dropdownPosition:', dropdownPosition);
-                      if (shouldShow) {
-                        console.log('🔍 RENDERING DROPDOWN for user:', u.id);
-                        console.log('🔍 Dropdown position:', dropdownPosition);
-                      }
-                      return shouldShow;
-                    })() && (
+                    {openDropdown === u.id && (
                       <div
                         className="dropdown-menu"
                         style={{
-                          position: "fixed",
-                          top: dropdownPosition.top,
-                          left: dropdownPosition.left,
+                          position: "absolute",
+                          top: "100%",
+                          left: "0",
                           zIndex: 9999,
-                          backgroundColor: "red", // Temporary debug color - CACHE BUST v1.4.0
+                          backgroundColor: "red", // Temporary debug color
                           border: "2px solid yellow", // Temporary debug border
                           minWidth: "200px",
                           minHeight: "100px"
@@ -648,7 +586,6 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSetRole(u, "USER");
                             setOpenDropdown(null);
-                            setDropdownPosition(null);
                           }}
                         >
                           Set USER
@@ -659,7 +596,6 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSetRole(u, "EDITOR");
                             setOpenDropdown(null);
-                            setDropdownPosition(null);
                           }}
                         >
                           Set EDITOR
@@ -670,7 +606,6 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSetRole(u, "ADMIN");
                             setOpenDropdown(null);
-                            setDropdownPosition(null);
                           }}
                         >
                           Set ADMIN
@@ -789,7 +724,6 @@ export default function AdminPage() {
                           onClick={() => {
                             handleSaveGoogleAvatar(u);
                             setOpenDropdown(null);
-                            setDropdownPosition(null);
                           }}
                           style={{ color: "#059669" }}
                         >
@@ -803,7 +737,6 @@ export default function AdminPage() {
                               handleDeleteUser(u);
                             }
                             setOpenDropdown(null);
-                            setDropdownPosition(null);
                           }}
                           style={{ color: "#dc2626" }}
                         >
