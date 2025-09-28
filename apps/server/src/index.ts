@@ -44,11 +44,29 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "fallback-clien
 const ALLOWED_ORIGINS = [
   CLIENT_ORIGIN,
   "https://shpoint.netlify.app", // Netlify production
+  "https://shpoint.org", // Custom domain
   "https://sh-point-prod-client.vercel.app", // Vercel production (if used)
   "https://sh-point-prod-client-cbvhr7v70-mikolajs-projects-bd5e358a.vercel.app", // New Vercel URL
   "http://localhost:5173", // Vite dev server
   "http://localhost:5174", // Alternative dev port
 ];
+
+// Function to get frontend URL based on origin
+function getFrontendUrl(origin?: string): string {
+  if (!origin) return "https://shpoint.netlify.app"; // Default fallback
+  
+  // Map origins to frontend URLs
+  const originMap: Record<string, string> = {
+    "https://shpoint.org": "https://shpoint.org",
+    "https://shpoint.netlify.app": "https://shpoint.netlify.app",
+    "https://sh-point-prod-client.vercel.app": "https://sh-point-prod-client.vercel.app",
+    "https://sh-point-prod-client-cbvhr7v70-mikolajs-projects-bd5e358a.vercel.app": "https://sh-point-prod-client-cbvhr7v70-mikolajs-projects-bd5e358a.vercel.app",
+    "http://localhost:5173": "http://localhost:5173",
+    "http://localhost:5174": "http://localhost:5174",
+  };
+  
+  return originMap[origin] || "https://shpoint.netlify.app";
+}
 
 // Debug log
 console.log("🔍 Environment variables:");
@@ -443,7 +461,10 @@ app.get(
 // callback (działa dla obu: direct i proxy)
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: `https://shpoint.netlify.app/unauthorized` }),
+  passport.authenticate("google", { failureRedirect: (req, res) => {
+    const frontendUrl = getFrontendUrl(req.get('origin'));
+    res.redirect(`${frontendUrl}/unauthorized`);
+  }}),
   async (req, res) => {
     // express-session automatically handles session management with Passport
     console.log('🔍 Google OAuth callback - user:', req.user?.email);
@@ -468,10 +489,12 @@ app.get(
     req.session.save(() => {
       // Check if there's a return URL in the session, otherwise default to home page
       const returnUrl = (req.session as any).returnTo || '/';
+      const frontendUrl = getFrontendUrl(req.get('origin'));
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
       console.log('🔍 Google OAuth callback - final returnUrl:', returnUrl);
-      console.log('🔍 Google OAuth callback - redirecting to:', `https://shpoint.netlify.app${returnUrl}`);
-      res.redirect(`https://shpoint.netlify.app${returnUrl}`);
+      console.log('🔍 Google OAuth callback - frontend URL:', frontendUrl);
+      console.log('🔍 Google OAuth callback - redirecting to:', `${frontendUrl}${returnUrl}`);
+      res.redirect(`${frontendUrl}${returnUrl}`);
     });
   }
 );
