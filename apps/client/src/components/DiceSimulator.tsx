@@ -91,14 +91,40 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
   } | null>(null);
   const [currentSymbols, setCurrentSymbols] = useState<{ hero1: string[], hero2: string[] }>({ hero1: [], hero2: [] });
   const [showDiceLimitAlert, setShowDiceLimitAlert] = useState(false);
+  const [diceLimitType, setDiceLimitType] = useState<'max' | 'min'>('max');
+
+  // Blokuj dostęp do funkcji z konsoli dev
+  React.useEffect(() => {
+    const blockConsoleAccess = () => {
+      // Zablokuj dostęp do funkcji rollDice z konsoli
+      (window as any).__BLOCKED_DICE_FUNCTIONS__ = {
+        rollDice: () => {
+          console.warn('🚫 Access to rollDice blocked - use UI controls only');
+          return null;
+        },
+        handleRollDice: () => {
+          console.warn('🚫 Access to handleRollDice blocked - use UI controls only');
+          return null;
+        }
+      };
+    };
+    
+    blockConsoleAccess();
+  }, [showDiceLimitAlert]);
 
   // Check dice limit and show alert
   const checkDiceLimit = (value: number) => {
     if (value > 999) {
+      setDiceLimitType('max');
       setShowDiceLimitAlert(true);
       return 999;
     }
-    return Math.max(0, value);
+    if (value < 0) {
+      setDiceLimitType('min');
+      setShowDiceLimitAlert(true);
+      return 0;
+    }
+    return value;
   };
 
   // Pobierz liczbę kostek z danych postaci
@@ -124,6 +150,32 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
 
   // Symuluj rzut kostkami
   const rollDice = (count: number, isAttack: boolean) => {
+    // Blokuj obliczenia jeśli alert jest aktywny
+    if (showDiceLimitAlert) {
+      console.warn('🚫 Dice calculations blocked - limit alert is active');
+      return {
+        criticals: 0,
+        strikes: 0,
+        blocks: 0,
+        attackExpertise: 0,
+        defenseExpertise: 0,
+        failures: 0
+      };
+    }
+
+    // Sprawdź limity przed obliczeniami
+    if (count > 999 || count < 0) {
+      console.warn('🚫 Dice calculations blocked - invalid dice count:', count);
+      return {
+        criticals: 0,
+        strikes: 0,
+        blocks: 0,
+        attackExpertise: 0,
+        defenseExpertise: 0,
+        failures: 0
+      };
+    }
+
     const results: DiceResult = {
       criticals: 0,
       strikes: 0,
@@ -156,6 +208,21 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
 
   // Obsługa rzutu kostek
   const handleRollDice = () => {
+    // Blokuj symulację jeśli alert jest aktywny
+    if (showDiceLimitAlert) {
+      console.warn('🚫 Dice simulation blocked - limit alert is active');
+      return;
+    }
+
+    // Sprawdź limity przed symulacją
+    const hero1Count = hero1DiceCount || getDiceCount('hero1', hero1Action);
+    const hero2Count = hero2DiceCount || getDiceCount('hero2', hero2Action);
+    
+    if (hero1Count > 999 || hero1Count < 0 || hero2Count > 999 || hero2Count < 0) {
+      console.warn('🚫 Dice simulation blocked - invalid dice counts:', { hero1Count, hero2Count });
+      return;
+    }
+
     if (manualMode) {
       // W trybie manualnym tylko wykonaj obliczenia (interpretResults już jest wywoływane przez useEffect)
       return;
@@ -163,8 +230,6 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
     
     const hero1IsAttack = hero1Action !== 'defense';
     const hero2IsAttack = hero2Action !== 'defense';
-    const hero1Count = hero1DiceCount || getDiceCount('hero1', hero1Action);
-    const hero2Count = hero2DiceCount || getDiceCount('hero2', hero2Action);
     
     // Uruchom animację kostek
     setDiceAnimation({
@@ -1612,7 +1677,7 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
             fontFamily: 'monospace',
             letterSpacing: '3px'
           }}>
-            ⚠️ IMPERIAL RESTRICTION ⚠️
+            {diceLimitType === 'max' ? '⚠️ IMPERIAL RESTRICTION ⚠️' : '⚠️ JEDI COUNCIL DECREE ⚠️'}
           </div>
           
           {/* Main Message */}
@@ -1622,7 +1687,7 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
             marginBottom: '20px',
             lineHeight: '1.6'
           }}>
-            Hey there, Rebel scum! 🚀
+            {diceLimitType === 'max' ? 'Hey there, Rebel scum! 🚀' : 'Young Padawan, that\'s not how the Force works! 🌟'}
           </div>
           
           <div style={{
@@ -1631,9 +1696,19 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
             marginBottom: '30px',
             lineHeight: '1.5'
           }}>
-            Using more than 999 dice would crash the Death Star... I mean, our servers! 😅<br/><br/>
-            <strong>Don't be that person who ruins the fun for everyone!</strong><br/><br/>
-            The Force is strong with reasonable limits. ⚡
+            {diceLimitType === 'max' ? (
+              <>
+                Using more than 999 dice would crash the Death Star... I mean, our servers! 😅<br/><br/>
+                <strong>Don't be that person who ruins the fun for everyone!</strong><br/><br/>
+                The Force is strong with reasonable limits. ⚡
+              </>
+            ) : (
+              <>
+                Negative dice? That's not even a thing in this galaxy! 🤔<br/><br/>
+                <strong>You can't have negative dice, that would break the very fabric of reality!</strong><br/><br/>
+                Even the Dark Side has limits, you know. 😈
+              </>
+            )}
           </div>
           
           {/* Star Wars Quote */}
@@ -1647,8 +1722,17 @@ const DiceSimulator: React.FC<DiceSimulatorProps> = ({
             borderRadius: '10px',
             background: 'rgba(251, 191, 36, 0.1)'
           }}>
-            "With great power comes great responsibility... and a 999 dice limit!"<br/>
-            <span style={{ fontSize: '12px', color: '#9ca3af' }}>- Uncle Ben Kenobi, probably</span>
+            {diceLimitType === 'max' ? (
+              <>
+                "With great power comes great responsibility... and a 999 dice limit!"<br/>
+                <span style={{ fontSize: '12px', color: '#9ca3af' }}>- Uncle Ben Kenobi, probably</span>
+              </>
+            ) : (
+              <>
+                "You cannot have negative dice, for that leads to the dark side of the Force!"<br/>
+                <span style={{ fontSize: '12px', color: '#9ca3af' }}>- Master Yoda, definitely</span>
+              </>
+            )}
           </div>
           
           {/* Action Button */}
