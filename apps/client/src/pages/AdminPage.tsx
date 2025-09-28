@@ -387,7 +387,10 @@ export default function AdminPage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+      console.log('🔍 handleClickOutside triggered, target:', target);
+      console.log('🔍 closest dropdown-container:', target.closest('.dropdown-container'));
       if (!target.closest('.dropdown-container')) {
+        console.log('🔍 Closing dropdown due to outside click');
         setOpenDropdown(null);
         setDropdownPosition(null);
       }
@@ -592,7 +595,10 @@ export default function AdminPage() {
                     <button
                       className="btn btn-sm btn-chip"
                       disabled={!canManage || savingId === u.id}
-                      onClick={(e) => handleDropdownToggle(u.id, e.currentTarget)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDropdownToggle(u.id, e.currentTarget);
+                      }}
                       style={{
                         minWidth: "120px",
                         display: "flex",
