@@ -144,6 +144,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     d: "\u0064", // failure
     e: "\u0065", // block
     f: "\u0066", // defense expertise
+    g: "\u0067", // advance
     h: "\u0068", // dash
     i: "\u0069", // reactive
     j: "\u006A", // active
@@ -186,6 +187,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     { symbol: '5', name: 'Strained', description: 'Strained condition', unicode: ICON["5"] },
     { symbol: '9', name: 'Disarm', description: 'Disarm condition', unicode: ICON["9"] },
     { symbol: 'u', name: 'Climb', description: 'Climb action', unicode: ICON.u },
+    { symbol: 'g', name: 'Advance', description: 'Advance action', unicode: ICON.g },
     { symbol: 'k', name: 'Tactic', description: 'Tactic action', unicode: ICON.k },
     { symbol: 'l', name: 'Innate', description: 'Innate ability', unicode: ICON.l },
     { symbol: 'i', name: 'Reactive', description: 'Reactive ability', unicode: ICON.i },
@@ -266,6 +268,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       'strained': "\u0035", // 5 - sp-strained
       'disarm': "\u0039", // 9 - sp-disarm
       'climb': "\u0075", // u - sp-climb
+      'advance': "\u0067", // g - sp-advance
       'tactic': "\u006B", // k - sp-tactic
       'innate': "\u006C", // l - sp-innate
       'reactive': "\u0069", // i - sp-reactive
