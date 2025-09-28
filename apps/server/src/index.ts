@@ -3106,6 +3106,72 @@ app.patch("/api/user/avatar/reset", ensureAuth, async (req, res) => {
   }
 });
 
+// Update user avatar (for Netlify proxy - /backend-api/user/avatar)
+app.patch("/backend-api/user/avatar", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { avatarUrl } = req.body;
+    
+    if (!avatarUrl || typeof avatarUrl !== 'string') {
+      return res.status(400).json({ ok: false, error: 'Avatar URL is required' });
+    }
+    
+    // Validate URL format
+    try {
+      new URL(avatarUrl);
+    } catch {
+      return res.status(400).json({ ok: false, error: 'Invalid avatar URL format' });
+    }
+    
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error updating avatar:", error);
+    res.status(500).json({ ok: false, error: "Failed to update avatar" });
+  }
+});
+
+// Reset avatar to Google image (for Netlify proxy - /backend-api/user/avatar/reset)
+app.patch("/backend-api/user/avatar/reset", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: null }, // Reset to null so it uses Google image
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error resetting avatar:", error);
+    res.status(500).json({ ok: false, error: "Failed to reset avatar" });
+  }
+});
+
 // Save Google avatar as backup (authenticated users only)
 app.patch("/api/user/save-google-avatar", ensureAuth, async (req, res) => {
   try {
@@ -3227,6 +3293,49 @@ app.patch("/api/user/username", ensureAuth, async (req, res) => {
       
       if (existingUser && existingUser.id !== userId) {
         return res.status(400).json({ ok: false, error: 'Username is already taken' });
+      }
+    }
+    
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { username: username ? username.trim() : null },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        image: true,
+        role: true
+      }
+    });
+    
+    res.json({ ok: true, user });
+  } catch (error) {
+    console.error("Error updating username:", error);
+    res.status(500).json({ ok: false, error: "Failed to update username" });
+  }
+});
+
+// Update username (for Netlify proxy - /backend-api/user/username)
+app.patch("/backend-api/user/username", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { username } = req.body;
+    
+    if (username !== null && (typeof username !== 'string' || username.trim().length === 0)) {
+      return res.status(400).json({ ok: false, error: 'Username must be a non-empty string or null' });
+    }
+    
+    // Check if username is already taken (if not null)
+    if (username && username.trim()) {
+      const existingUser = await prisma.user.findUnique({
+        where: { username: username.trim() }
+      });
+      
+      if (existingUser && existingUser.id !== userId) {
+        return res.status(400).json({ ok: false, error: 'Username already taken' });
       }
     }
     
