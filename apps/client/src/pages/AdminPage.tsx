@@ -385,31 +385,27 @@ export default function AdminPage() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    let clickTimeout: NodeJS.Timeout;
-    
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       console.log('🔍 handleClickOutside triggered, target:', target);
       console.log('🔍 closest dropdown-container:', target.closest('.dropdown-container'));
       
-      // Clear any existing timeout
-      if (clickTimeout) clearTimeout(clickTimeout);
+      // Don't close if clicking on the dropdown button itself
+      if (target.closest('button.btn.btn-sm.btn-chip')) {
+        console.log('🔍 Ignoring click on dropdown button');
+        return;
+      }
       
-      // Add small delay to prevent immediate closure when clicking the button
-      clickTimeout = setTimeout(() => {
-        if (!target.closest('.dropdown-container')) {
-          console.log('🔍 Closing dropdown due to outside click');
-          setOpenDropdown(null);
-          setDropdownPosition(null);
-        }
-      }, 10); // 10ms delay
+      if (!target.closest('.dropdown-container')) {
+        console.log('🔍 Closing dropdown due to outside click');
+        setOpenDropdown(null);
+        setDropdownPosition(null);
+      }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      if (clickTimeout) clearTimeout(clickTimeout);
-    };
+    // Use click instead of mousedown to avoid conflicts
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   const skeleton = useMemo(
