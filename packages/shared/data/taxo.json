@@ -14,7 +14,8 @@
     "Sith",
     "Bounty Hunter",
     "Dathomirian",
-    "Inquisitorius"
+    "Inquisitorius",
+    "Spy"
   ],
   "forceTagPatterns": [".*Trooper$", ".*Droid$", "Force User"],
   "defaults": { "unknownFactionPolicy": "demote" }

@@ -104,14 +104,16 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     'Bounty Hunter',
     'Inquisitorius',
     'Nightsister',
-    'Nightbrother'
+    'Nightbrother',
+    'Spy'
   ];
 
   const availablePeriods = [
     'The fall of the Jedi',
     'The reign of the Empire', 
     'The Age of Rebellion',
-    'The New Republic'
+    'The New Republic',
+    'Galactic Civil War'
   ];
 
   const availableTriggers = [
