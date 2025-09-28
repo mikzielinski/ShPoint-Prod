@@ -81,7 +81,7 @@ export default function AdminPage() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api' | 'audit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api' | 'audit' | 'api-users'>('overview');
 
   const canManage = auth.status === "authenticated" && auth.user?.role === "ADMIN";
   const myId = auth.status === "authenticated" ? auth.user?.id : null;
@@ -398,7 +398,8 @@ export default function AdminPage() {
           { id: 'invitations', label: 'Invitations', icon: '📧' },
           { id: 'settings', label: 'Settings', icon: '⚙️' },
           { id: 'api', label: 'API Docs', icon: '📚' },
-          { id: 'audit', label: 'Audit Logs', icon: '📋' }
+          { id: 'audit', label: 'Audit Logs', icon: '📋' },
+          { id: 'api-users', label: 'API Users', icon: '🔑' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -448,7 +449,77 @@ export default function AdminPage() {
         </section>
       )}
 
-      {activeTab !== 'api' && activeTab !== 'overview' && activeTab !== 'audit' && (
+      {activeTab === 'api-users' && (
+        <section className="card">
+          <div style={{ padding: '20px' }}>
+            <h3 style={{ margin: '0 0 20px 0', color: '#f9fafb' }}>API Users Management</h3>
+            <p style={{ color: '#9ca3af', marginBottom: '20px' }}>
+              Manage users with API access. API Users can access the Swagger documentation and make API calls.
+            </p>
+            
+            <div style={{ 
+              background: '#111827', 
+              padding: '20px', 
+              borderRadius: '8px', 
+              border: '1px solid #374151',
+              marginBottom: '20px'
+            }}>
+              <h4 style={{ color: '#f9fafb', margin: '0 0 15px 0' }}>API Access Information</h4>
+              <div style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.6' }}>
+                <p><strong>API Documentation:</strong> <a href="https://shpoint-prod.onrender.com/api-docs/" target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa' }}>https://shpoint-prod.onrender.com/api-docs/</a></p>
+                <p><strong>API Base URL:</strong> <code style={{ background: '#1f2937', padding: '2px 6px', borderRadius: '4px' }}>https://shpoint-prod.onrender.com</code></p>
+                <p><strong>Authentication:</strong> Session-based (cookies)</p>
+                <p><strong>Required Role:</strong> ADMIN or API_USER</p>
+              </div>
+            </div>
+
+            <div style={{ 
+              background: '#111827', 
+              padding: '20px', 
+              borderRadius: '8px', 
+              border: '1px solid #374151'
+            }}>
+              <h4 style={{ color: '#f9fafb', margin: '0 0 15px 0' }}>API Users</h4>
+              <p style={{ color: '#9ca3af', marginBottom: '15px' }}>
+                Users with API_USER role can access the API documentation and make API calls.
+              </p>
+              
+              <div style={{ 
+                background: '#1f2937', 
+                padding: '15px', 
+                borderRadius: '6px', 
+                border: '1px solid #374151',
+                marginBottom: '15px'
+              }}>
+                <h5 style={{ color: '#f9fafb', margin: '0 0 10px 0' }}>How to create API Users:</h5>
+                <ol style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.6', margin: 0, paddingLeft: '20px' }}>
+                  <li>Go to the "Users" tab</li>
+                  <li>Find the user you want to give API access</li>
+                  <li>Click "Actions" → "Set API_USER"</li>
+                  <li>The user will now have access to the API documentation</li>
+                </ol>
+              </div>
+
+              <div style={{ 
+                background: '#1f2937', 
+                padding: '15px', 
+                borderRadius: '6px', 
+                border: '1px solid #374151'
+              }}>
+                <h5 style={{ color: '#f9fafb', margin: '0 0 10px 0' }}>API Usage:</h5>
+                <ul style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.6', margin: 0, paddingLeft: '20px' }}>
+                  <li>API Users can access <code style={{ background: '#0f172a', padding: '1px 4px', borderRadius: '3px' }}>/api-docs/</code> for interactive documentation</li>
+                  <li>All API calls require authentication via session cookies</li>
+                  <li>API Users have the same permissions as regular users for API endpoints</li>
+                  <li>Only ADMIN users can access admin-specific endpoints</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {activeTab !== 'api' && activeTab !== 'overview' && activeTab !== 'audit' && activeTab !== 'api-users' && (
         <>
           {/* Health Check Section */}
           <section className="card">

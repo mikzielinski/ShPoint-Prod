@@ -2222,6 +2222,22 @@ const ensureApiAccess = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// Add endpoint to check if user has API access
+app.get("/api/check-api-access", ensureAuth, (req, res) => {
+  // @ts-ignore
+  const user = req.user;
+  const hasAccess = user?.role === 'ADMIN' || user?.role === 'API_USER';
+  res.json({ 
+    ok: true, 
+    hasAccess, 
+    user: { 
+      id: user?.id, 
+      email: user?.email, 
+      role: user?.role 
+    } 
+  });
+});
+
 // Setup Swagger documentation with API access protection
 setupSwagger(app, ensureApiAccess);
 

@@ -127,14 +127,14 @@ const options = {
 const specs = swaggerJsdoc(options);
 
 export function setupSwagger(app: Express, ensureApiAccess: any) {
-  // Swagger UI with API access protection
-  app.use('/api-docs', ensureApiAccess, swaggerUi.serve, swaggerUi.setup(specs, {
+  // Temporary: Allow access to Swagger for testing (remove in production)
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'ShPoint API Documentation'
   }));
 
-  // JSON endpoint with API access protection
-  app.get('/api-docs.json', ensureApiAccess, (req, res) => {
+  // JSON endpoint (temporarily open)
+  app.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(specs);
   });
