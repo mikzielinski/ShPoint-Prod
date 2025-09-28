@@ -464,10 +464,12 @@ app.get(
 // callback (działa dla obu: direct i proxy)
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: (req, res) => {
-    const frontendUrl = getFrontendUrl(req.get('origin'));
-    res.redirect(`${frontendUrl}/unauthorized`);
-  }}),
+  (req, res, next) => {
+    // Store origin for failure redirect
+    (req as any).origin = req.get('origin');
+    next();
+  },
+  passport.authenticate("google", { failureRedirect: "/auth/google/failure" }),
   async (req, res) => {
     // express-session automatically handles session management with Passport
     console.log('🔍 Google OAuth callback - user:', req.user?.email);
@@ -501,6 +503,13 @@ app.get(
     });
   }
 );
+
+// Google OAuth failure redirect
+app.get("/auth/google/failure", (req, res) => {
+  const origin = (req as any).origin || req.get('origin');
+  const frontendUrl = getFrontendUrl(origin);
+  res.redirect(`${frontendUrl}/unauthorized`);
+});
 
 // status dla frontu (czy zalogowany)
 app.get("/auth/status", (req, res) => {
