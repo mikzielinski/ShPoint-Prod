@@ -199,11 +199,30 @@
 
 /* Allow dropdown to overflow card boundaries */
 .card--dropdown-enabled {
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .card--dropdown-enabled .card-body {
-  overflow: visible;
+  overflow: visible !important;
+}
+
+/* Ensure dropdown container allows overflow */
+.dropdown-container {
+  overflow: visible !important;
+}
+
+/* Make sure dropdown menu is above everything */
+.dropdown-menu {
+  z-index: 99999 !important;
+}
+
+/* Ensure main containers allow overflow */
+main, body, html {
+  overflow-x: visible !important;
+}
+
+.admin-page {
+  overflow: visible !important;
 }
 
 .card-body.collapsed{
