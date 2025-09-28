@@ -4060,3 +4060,45 @@ app.get("/api/debug/check-user", async (req, res) => {
     });
   }
 });
+
+app.get("/api/debug/audit-logs", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const entityType = req.query.entityType as string;
+    
+    const where = entityType ? { entityType } : {};
+    
+    const logs = await prisma.auditLog.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        entityType: true,
+        entityId: true,
+        action: true,
+        description: true,
+        createdAt: true,
+        user: {
+          select: { email: true, name: true }
+        }
+      }
+    });
+    
+    const entityTypes = await prisma.auditLog.groupBy({
+      by: ['entityType'],
+      _count: { entityType: true }
+    });
+    
+    res.json({ 
+      ok: true, 
+      logs,
+      entityTypes: entityTypes.map(et => ({ type: et.entityType, count: et._count.entityType })),
+      total: logs.length,
+      message: `Found ${logs.length} audit logs`
+    });
+  } catch (error: any) {
+    console.error('Audit logs check failed:', error);
+    res.status(500).json({ ok: false, error: error.message || "Audit logs check failed" });
+  }
+});
