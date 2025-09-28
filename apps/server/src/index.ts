@@ -4028,3 +4028,35 @@ app.listen(PORT, "0.0.0.0", () => {
     });
   }
 });
+
+app.get("/api/debug/check-user", async (req, res) => {
+  try {
+    const email = req.query.email as string;
+    if (!email) {
+      return res.json({ ok: false, error: "Email parameter required" });
+    }
+    
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, name: true, role: true }
+    });
+    
+    const allowedEmail = await prisma.allowedEmail.findUnique({
+      where: { email },
+      select: { email: true, role: true, isActive: true }
+    });
+    
+    res.json({ 
+      ok: true, 
+      user,
+      allowedEmail,
+      message: user ? `User found with role: ${user.role}` : "User not found"
+    });
+  } catch (error) {
+    res.json({ 
+      ok: false, 
+      error: error.message,
+      message: "Error checking user"
+    });
+  }
+});
