@@ -589,11 +589,14 @@ export default function AdminPage() {
                         className="dropdown-menu"
                         style={{
                           position: "fixed",
-                          top: dropdownPosition.top,
-                          left: dropdownPosition.left,
+                          top: "100px", // Force visible position
+                          left: "100px", // Force visible position
                           zIndex: 99999,
                           backgroundColor: "red", // Debug color
-                          border: "2px solid yellow" // Debug border
+                          border: "2px solid yellow", // Debug border
+                          minWidth: "300px",
+                          minHeight: "200px",
+                          padding: "20px"
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
