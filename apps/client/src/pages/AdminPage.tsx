@@ -337,7 +337,6 @@ export default function AdminPage() {
   };
 
   const handleDropdownToggle = (userId: string) => {
-    console.log('🔍 Simple dropdown toggle for user:', userId);
     setOpenDropdown(openDropdown === userId ? null : userId);
   };
 
@@ -572,11 +571,7 @@ export default function AdminPage() {
                           position: "absolute",
                           top: "100%",
                           left: "0",
-                          zIndex: 9999,
-                          backgroundColor: "red", // Temporary debug color
-                          border: "2px solid yellow", // Temporary debug border
-                          minWidth: "200px",
-                          minHeight: "100px"
+                          zIndex: 9999
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
