@@ -150,7 +150,7 @@ const authenticateBearerToken = async (req: Request, res: Response, next: NextFu
     const token = authHeader.substring(7);
     
     try {
-      const apiToken = await prisma.apiToken.findUnique({
+      const apiToken = await (prisma as any).apiToken.findUnique({
         where: { token },
         include: {
           user: true
@@ -159,7 +159,7 @@ const authenticateBearerToken = async (req: Request, res: Response, next: NextFu
       
       if (apiToken && apiToken.isActive && (!apiToken.expiresAt || apiToken.expiresAt > new Date())) {
         // Update last used timestamp
-        await prisma.apiToken.update({
+        await (prisma as any).apiToken.update({
           where: { id: apiToken.id },
           data: { lastUsedAt: new Date() }
         });
@@ -1627,6 +1627,118 @@ app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
   }
 });
 
+// POST /api/characters — create new character (Admin/Editor only)
+app.post("/api/characters", ensureAuth, async (req, res) => {
+  try {
+    console.log('POST /api/characters called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      console.log('Access denied: User does not have permission');
+      return res.status(403).json({ ok: false, error: 'Access denied. Admin or Editor role required.' });
+    }
+    
+    const characterData = req.body;
+    console.log('Creating character with data:', characterData);
+    
+    // Validate required fields
+    if (!characterData.name || !characterData.name.trim()) {
+      return res.status(400).json({ ok: false, error: 'Character name is required' });
+    }
+    
+    // Generate unique ID if not provided
+    const id = characterData.id || `char-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Import fs and path
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Create character directory
+    const characterDir = path.join(process.cwd(), `characters_assets/${id}`);
+    if (!fs.existsSync(characterDir)) {
+      fs.mkdirSync(characterDir, { recursive: true });
+    }
+    
+    // Prepare character data
+    const newCharacter = {
+      ...characterData,
+      id: id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Write character data file
+    const dataPath = path.join(characterDir, 'data.json');
+    fs.writeFileSync(dataPath, JSON.stringify(newCharacter, null, 2));
+    
+    console.log('Character created successfully:', id);
+    res.status(201).json({ ok: true, character: newCharacter });
+    
+  } catch (error) {
+    console.error('Error creating character:', error);
+    res.status(500).json({ ok: false, error: 'Failed to create character' });
+  }
+});
+
+// POST /backend-api/characters — create new character for Netlify proxy (Admin/Editor only)
+app.post("/backend-api/characters", ensureAuth, async (req, res) => {
+  try {
+    console.log('POST /backend-api/characters called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      console.log('Access denied: User does not have permission');
+      return res.status(403).json({ ok: false, error: 'Access denied. Admin or Editor role required.' });
+    }
+    
+    const characterData = req.body;
+    console.log('Creating character with data:', characterData);
+    
+    // Validate required fields
+    if (!characterData.name || !characterData.name.trim()) {
+      return res.status(400).json({ ok: false, error: 'Character name is required' });
+    }
+    
+    // Generate unique ID if not provided
+    const id = characterData.id || `char-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Import fs and path
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Create character directory
+    const characterDir = path.join(process.cwd(), `characters_assets/${id}`);
+    if (!fs.existsSync(characterDir)) {
+      fs.mkdirSync(characterDir, { recursive: true });
+    }
+    
+    // Prepare character data
+    const newCharacter = {
+      ...characterData,
+      id: id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Write character data file
+    const dataPath = path.join(characterDir, 'data.json');
+    fs.writeFileSync(dataPath, JSON.stringify(newCharacter, null, 2));
+    
+    console.log('Character created successfully:', id);
+    res.status(201).json({ ok: true, character: newCharacter });
+    
+  } catch (error) {
+    console.error('Error creating character:', error);
+    res.status(500).json({ ok: false, error: 'Failed to create character' });
+  }
+});
+
 // PUT /api/characters/:id — update character data in JSON files (Admin/Editor only)
 app.put("/api/characters/:id", ensureAuth, async (req, res) => {
   try {
@@ -1775,6 +1887,54 @@ app.put("/backend-api/characters/:id", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error('Error updating character:', error);
     res.status(500).json({ ok: false, error: 'Failed to update character' });
+  }
+});
+
+// PUT /backend-api/characters/:id/stance — update character stance data for Netlify proxy (Admin/Editor only)
+app.put("/backend-api/characters/:id/stance", ensureAuth, async (req, res) => {
+  try {
+    console.log('PUT /backend-api/characters/:id/stance called');
+    // @ts-ignore
+    const user = req.user;
+    console.log('User:', user?.email, 'Role:', user?.role);
+    
+    // Check if user has permission (Admin or Editor)
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
+      console.log('Access denied: User does not have permission');
+      return res.status(403).json({ ok: false, error: 'Access denied. Admin or Editor role required.' });
+    }
+    
+    const characterId = req.params.id;
+    const stanceData = req.body;
+    
+    console.log('Updating stance for character:', characterId);
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Update individual character stance file
+    let stancePath = path.join(process.cwd(), `characters_assets/${characterId}/stance.json`);
+    if (!fs.existsSync(stancePath)) {
+      stancePath = path.join(process.cwd(), `../client/characters_assets/${characterId}/stance.json`);
+    }
+    const stanceDir = path.dirname(stancePath);
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(stanceDir)) {
+      fs.mkdirSync(stanceDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(stancePath, JSON.stringify(stanceData, null, 2));
+    console.log('Updated stance file for character:', characterId);
+    
+    res.json({ 
+      ok: true, 
+      message: 'Stance updated successfully',
+      characterId: characterId
+    });
+  } catch (error) {
+    console.error('Error updating stance:', error);
+    res.status(500).json({ ok: false, error: 'Failed to update stance' });
   }
 });
 
@@ -2373,7 +2533,7 @@ app.get("/api/check-api-access", ensureAuth, (req, res) => {
 // API Token management endpoints
 app.get("/api/admin/api-tokens", ensureAuth, ensureAdmin, async (req, res) => {
   try {
-    const tokens = await prisma.apiToken.findMany({
+        const tokens = await (prisma as any).apiToken.findMany({
       include: {
         user: {
           select: {
@@ -2403,7 +2563,7 @@ app.post("/api/admin/api-tokens", ensureAuth, ensureAdmin, async (req, res) => {
     // Generate a secure random token
     const token = `sp_${require('crypto').randomBytes(32).toString('hex')}`;
     
-    const apiToken = await prisma.apiToken.create({
+        const apiToken = await (prisma as any).apiToken.create({
       data: {
         name,
         token,
@@ -2450,7 +2610,7 @@ app.delete("/api/admin/api-tokens/:id", ensureAuth, ensureAdmin, async (req, res
     // @ts-ignore
     const adminUser = req.user;
     
-    const apiToken = await prisma.apiToken.findUnique({
+        const apiToken = await (prisma as any).apiToken.findUnique({
       where: { id },
       include: {
         user: {
@@ -2466,7 +2626,7 @@ app.delete("/api/admin/api-tokens/:id", ensureAuth, ensureAdmin, async (req, res
       return res.status(404).json({ ok: false, error: "API token not found" });
     }
     
-    await prisma.apiToken.delete({
+        await (prisma as any).apiToken.delete({
       where: { id }
     });
     
@@ -3461,6 +3621,117 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // ===== CUSTOM MADE CARDS API =====
+
+// GET /backend-api/custom-cards — get user's custom cards for Netlify proxy
+app.get("/backend-api/custom-cards", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    const customCards = await prisma.customMadeCard.findMany({
+      where: { authorId: userId },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json(customCards);
+  } catch (error) {
+    console.error("Error fetching custom cards:", error);
+    res.status(500).json({ error: "Failed to fetch custom cards" });
+  }
+});
+
+// POST /backend-api/custom-cards — create new custom card for Netlify proxy
+app.post("/backend-api/custom-cards", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const {
+      name,
+      faction,
+      unitType = 'PRIMARY',
+      squadPoints = 0,
+      stamina = 0,
+      durability = 0,
+      force = 0,
+      hanker = 0,
+      description,
+      abilities,
+      stances,
+      portrait,
+      status = 'DRAFT',
+      isPublic = false
+    } = req.body;
+
+    const customCard = await prisma.customMadeCard.create({
+      data: {
+        name,
+        faction,
+        unitType,
+        squadPoints: parseInt(squadPoints),
+        stamina: parseInt(stamina),
+        durability: parseInt(durability),
+        force: parseInt(force),
+        hanker: parseInt(hanker),
+        description,
+        abilities: abilities || [],
+        stances: stances || [],
+        portrait,
+        status,
+        isPublic,
+        authorId: userId
+      }
+    });
+
+    res.json(customCard);
+  } catch (error) {
+    console.error("Error creating custom card:", error);
+    res.status(500).json({ error: "Failed to create custom card" });
+  }
+});
+
+// PUT /backend-api/custom-cards/:id — update custom card for Netlify proxy
+app.put("/backend-api/custom-cards/:id", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const customCard = await prisma.customMadeCard.update({
+      where: {
+        id,
+        authorId: userId
+      },
+      data: updateData
+    });
+
+    res.json(customCard);
+  } catch (error) {
+    console.error("Error updating custom card:", error);
+    res.status(500).json({ error: "Failed to update custom card" });
+  }
+});
+
+// DELETE /backend-api/custom-cards/:id — delete custom card for Netlify proxy
+app.delete("/backend-api/custom-cards/:id", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await prisma.customMadeCard.delete({
+      where: {
+        id,
+        authorId: userId
+      }
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting custom card:", error);
+    res.status(500).json({ error: "Failed to delete custom card" });
+  }
+});
 
 // GET /api/custom-cards — get user's custom cards
 app.get("/api/custom-cards", ensureAuth, async (req, res) => {
