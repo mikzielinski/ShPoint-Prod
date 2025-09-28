@@ -338,19 +338,15 @@ export default function AdminPage() {
   };
 
   const handleDropdownToggle = (userId: string, buttonElement: HTMLElement) => {
-    console.log('🔍 Dropdown toggle clicked for user:', userId);
     if (openDropdown === userId) {
-      console.log('🔍 Closing dropdown');
       setOpenDropdown(null);
       setDropdownPosition(null);
     } else {
       const rect = buttonElement.getBoundingClientRect();
-      const position = {
+      setDropdownPosition({
         top: rect.bottom + window.scrollY + 4,
         left: rect.left + window.scrollX
-      };
-      console.log('🔍 Setting dropdown position:', position);
-      setDropdownPosition(position);
+      });
       setOpenDropdown(userId);
     }
   };
@@ -580,23 +576,14 @@ export default function AdminPage() {
                       <span style={{ fontSize: "12px" }}>▼</span>
                     </button>
 
-                    {(() => {
-                      const shouldShow = openDropdown === u.id && dropdownPosition;
-                      console.log(`🔍 User ${u.id} dropdown should show:`, shouldShow, 'openDropdown:', openDropdown, 'dropdownPosition:', dropdownPosition);
-                      return shouldShow;
-                    })() && (
+                    {openDropdown === u.id && dropdownPosition && (
                       <div
                         className="dropdown-menu"
                         style={{
                           position: "fixed",
-                          top: "100px", // Force visible position
-                          left: "100px", // Force visible position
-                          zIndex: 99999,
-                          backgroundColor: "red", // Debug color
-                          border: "2px solid yellow", // Debug border
-                          minWidth: "300px",
-                          minHeight: "200px",
-                          padding: "20px"
+                          top: dropdownPosition.top,
+                          left: dropdownPosition.left,
+                          zIndex: 99999
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
