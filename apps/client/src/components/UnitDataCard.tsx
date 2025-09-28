@@ -153,7 +153,7 @@ export default function UnitDataCard({ character, data }: Props) {
               {c.name.toUpperCase()}
             </div>
             <div style={{ fontSize: "14px", color: "#cbd5e1", marginBottom: "12px" }}>
-              {c.name} • Primary Unit
+              {c.name} • {c.unit_type || c.role || "Unknown"} Unit
             </div>
             {factions && factions.length > 0 && (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
