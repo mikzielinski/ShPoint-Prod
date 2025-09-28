@@ -35,6 +35,8 @@ const GLYPH_MAP: Record<string, string> = {
   reactive: "\u0069", // i - sp-reactive
   active: "\u006A", // j - sp-active
   advance: "\u0078", // x - advance
+  // Combo Glyphs
+  crit_to_fail: "\u0062\u2192\u0064", // b → d (Crit -> Fail)
 };
 
 // Helper function to render text with placeholders

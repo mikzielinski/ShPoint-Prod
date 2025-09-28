@@ -37,6 +37,7 @@ export const GLYPHS = {
   
   // Combo Glyphs (kombinacje glifów)
   crit_to_strike: "\u0062\u2192\u0061",        // b → a (Crit -> Strike)
+  crit_to_fail: "\u0062\u2192\u0064",          // b → d (Crit -> Fail)
   strike_to_fail: "\u0061\u2192\u0064",        // a → d (Strike -> Fail)
   strike_to_crit: "\u0061\u2192\u0062",        // a → b (Strike -> Crit)
   fail_to_strike: "\u0064\u2192\u0061",        // d → a (Fail -> Strike)
@@ -85,6 +86,7 @@ export function iconFromCode(code: string): IconName | undefined {
     y: "hanker",    // keep for backward compatibility
     // Combo Glyphs
     "b→a": "crit_to_strike",
+    "b→d": "crit_to_fail",
     "a→d": "strike_to_fail",
     "a→b": "strike_to_crit",
     "d→a": "fail_to_strike",
@@ -130,6 +132,7 @@ export function iconToCode(name: IconName): string {
     advance: "x", // advance action
     // Combo Glyphs
     crit_to_strike: "b→a",
+    crit_to_fail: "b→d",
     strike_to_fail: "a→d",
     strike_to_crit: "a→b",
     fail_to_strike: "d→a",
