@@ -639,7 +639,7 @@ export default function AdminPage() {
                           top: dropdownPosition.top,
                           left: dropdownPosition.left,
                           zIndex: 9999,
-                          backgroundColor: "red", // Temporary debug color
+                          backgroundColor: "red", // Temporary debug color - CACHE BUST v1.4.0
                           border: "2px solid yellow", // Temporary debug border
                           minWidth: "200px",
                           minHeight: "100px"
