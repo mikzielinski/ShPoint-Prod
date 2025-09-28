@@ -470,6 +470,40 @@ const HomePage: React.FC = () => {
     };
 
     loadStats();
+  }, []); // Load stats once on mount for all users (authenticated and unauthenticated)
+
+  // Update user stats when authentication status changes
+  useEffect(() => {
+    if (me?.role === 'ADMIN') {
+      const loadUserStats = async () => {
+        try {
+          const usersResponse = await fetch(api('/api/admin/users'));
+          const usersData = await usersResponse.json();
+          const usersCount = usersData.length || 0;
+          
+          setStats(prev => ({
+            ...prev,
+            users: usersCount
+          }));
+        } catch (error) {
+          console.log('Could not load users count:', error);
+        }
+      };
+      
+      loadUserStats();
+    } else if (me) {
+      // For logged in non-admin users, show 1
+      setStats(prev => ({
+        ...prev,
+        users: 1
+      }));
+    } else {
+      // For unauthenticated users, show 0
+      setStats(prev => ({
+        ...prev,
+        users: 0
+      }));
+    }
   }, [me?.role]);
 
   // News management functions
