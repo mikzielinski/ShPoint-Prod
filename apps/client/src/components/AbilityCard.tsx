@@ -38,12 +38,68 @@ const GLYPH_MAP: Record<string, string> = {
 
 function renderWithGlyphs(text?: string) {
   if (!text) return null;
+  
+  // First, handle faction tags
+  const factionRegex = /<faction>([^<]+)<\/faction>/g;
+  let processedText = text;
+  const factionMatches: Array<{match: string, faction: string, index: number}> = [];
+  let match;
+  while ((match = factionRegex.exec(text)) !== null) {
+    factionMatches.push({
+      match: match[0],
+      faction: match[1],
+      index: match.index
+    });
+  }
+  
+  // Replace faction tags with placeholders
+  factionMatches.forEach((factionMatch, i) => {
+    processedText = processedText.replace(factionMatch.match, `__FACTION_${i}__`);
+  });
+  
+  // Then handle glyphs
   const re = /\[\[([^[\]]+)\]\]/g;
   const out: React.ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(text))) {
-    if (m.index > last) out.push(text.slice(last, m.index));
+  while ((m = re.exec(processedText))) {
+    if (m.index > last) {
+      const textPart = processedText.slice(last, m.index);
+      // Check if this part contains faction placeholders
+      if (textPart.includes('__FACTION_')) {
+        const parts = textPart.split(/(__FACTION_\d+__)/);
+        parts.forEach((part, partIndex) => {
+          if (part.startsWith('__FACTION_') && part.endsWith('__')) {
+            const factionIndex = parseInt(part.replace('__FACTION_', '').replace('__', ''));
+            const factionMatch = factionMatches[factionIndex];
+            if (factionMatch) {
+              out.push(
+                <span
+                  key={`faction-${factionIndex}-${partIndex}`}
+                  style={{
+                    background: 'rgba(59, 130, 246, 0.2)',
+                    color: '#60a5fa',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    margin: '0 2px'
+                  }}
+                >
+                  {factionMatch.faction}
+                </span>
+              );
+            }
+          } else if (part) {
+            out.push(part);
+          }
+        });
+      } else {
+        out.push(textPart);
+      }
+    }
+    
     const token = m[1].trim().toLowerCase();
     const g = GLYPH_MAP[token];
     out.push(
@@ -66,7 +122,44 @@ function renderWithGlyphs(text?: string) {
     );
     last = m.index + m[0].length;
   }
-  if (last < text.length) out.push(text.slice(last));
+  
+  // Handle remaining text
+  if (last < processedText.length) {
+    const remainingText = processedText.slice(last);
+    if (remainingText.includes('__FACTION_')) {
+      const parts = remainingText.split(/(__FACTION_\d+__)/);
+      parts.forEach((part, partIndex) => {
+        if (part.startsWith('__FACTION_') && part.endsWith('__')) {
+          const factionIndex = parseInt(part.replace('__FACTION_', '').replace('__', ''));
+          const factionMatch = factionMatches[factionIndex];
+          if (factionMatch) {
+            out.push(
+              <span
+                key={`faction-${factionIndex}-${partIndex}`}
+                style={{
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  color: '#60a5fa',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  margin: '0 2px'
+                }}
+              >
+                {factionMatch.faction}
+              </span>
+            );
+          }
+        } else if (part) {
+          out.push(part);
+        }
+      });
+    } else {
+      out.push(remainingText);
+    }
+  }
+  
   return out;
 }
 

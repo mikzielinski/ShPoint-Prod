@@ -24,7 +24,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     'Republic', 'Mandalorian', 'Crimson Dawn', 'Spy'
   ];
 
-  const insertText = (before: string, after: string = '') => {
+  const insertText = useCallback((before: string, after: string = '') => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -35,11 +35,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     
     onChange(newText);
     
+    // Restore selection and scroll position after state update
     setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+      if (textarea) {
+        textarea.selectionStart = start + before.length;
+        textarea.selectionEnd = end + before.length;
+        textarea.focus();
+      }
     }, 0);
-  };
+  }, [value, onChange]);
 
   const insertFaction = (faction: string) => {
     insertText(`<faction>${faction}</faction>`);
@@ -185,83 +189,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           )}
         </div>
 
-        {gameSymbols.length > 0 && (
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              onClick={() => setShowSymbols(!showSymbols)}
-              style={{
-                background: '#4b5563',
-                border: '1px solid #6b7280',
-                borderRadius: '4px',
-                color: '#f9fafb',
-                padding: '4px 8px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              Symbols
-            </button>
-            
-            {showSymbols && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                background: '#1f2937',
-                border: '1px solid #374151',
-                borderRadius: '6px',
-                padding: '8px',
-                zIndex: 1000,
-                minWidth: '300px',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-              }}>
-                <div style={{
-                  fontSize: '12px',
-                  color: '#9ca3af',
-                  marginBottom: '8px'
-                }}>
-                  Click to insert symbol:
-                </div>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))',
-                  gap: '4px'
-                }}>
-                  {gameSymbols.map((symbol, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => insertSymbol(symbol)}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid #374151',
-                        borderRadius: '4px',
-                        color: '#f9fafb',
-                        padding: '8px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '2px'
-                      }}
-                    >
-                      <span style={{
-                        fontSize: '16px',
-                        color: '#fbbf24'
-                      }}>
-                        {symbol.unicode}
-                      </span>
-                      <span style={{ fontSize: '10px' }}>{symbol.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       <textarea
@@ -346,6 +273,43 @@ const renderPreview = (text: string): React.ReactNode => {
     if (part === '</u>') return null;
     
     if (part.startsWith('[[') && part.endsWith(']]')) {
+      const token = part.slice(2, -2).trim().toLowerCase();
+      // Map symbols to ShatterpointIcons font characters
+      const GLYPH_MAP: Record<string, string> = {
+        force: "\u0076",  // v - sp-force
+        dash: "\u0068",   // h - sp-dash
+        jump: "\u0074",   // t - sp-jump
+        crit: "\u0062",   // b - sp-critical
+        hit: "\u0061",    // a - sp-strike
+        block: "\u0065",  // e - sp-block
+        identify: "\u006D", // m - sp-identify
+        strike: "\u0061", // a - sp-strike
+        hunker: "\u0033", // 3 - sp-hunker
+        ranged: "\u006E", // n - sp-ranged
+        "attack-expertise": "\u0063", // c - sp-attack-expertise
+        "defense-expertise": "\u0066", // f - sp-defense-expertise
+        reposition: "\u0073", // s - sp-reposition
+        heal: "\u0072", // r - sp-heal
+        durability: "\u0077", // w - sp-durability
+        critical: "\u0062", // b - sp-critical
+        failure: "\u0064", // d - sp-failure
+        melee: "\u006F", // o - sp-melee
+        shove: "\u0070", // p - sp-shove
+        damage: "\u0071", // q - sp-damage
+        pinned: "\u0031", // 1 - sp-pinned
+        exposed: "\u0034", // 4 - sp-exposed
+        strained: "\u0035", // 5 - sp-strained
+        disarm: "\u0039", // 9 - sp-disarm
+        climb: "\u0075", // u - sp-climb
+        tactic: "\u006B", // k - sp-tactic
+        innate: "\u006C", // l - sp-innate
+        reactive: "\u0069", // i - sp-reactive
+        active: "\u006A", // j - sp-active
+        advance: "\u0078", // x - advance
+      };
+      
+      const glyph = GLYPH_MAP[token];
+      
       return (
         <span
           key={index}
@@ -354,11 +318,13 @@ const renderPreview = (text: string): React.ReactNode => {
             color: '#fbbf24',
             padding: '2px 4px',
             borderRadius: '3px',
-            fontSize: '12px',
-            fontFamily: 'monospace'
+            fontSize: '14px',
+            fontFamily: 'ShatterpointIcons, monospace',
+            margin: '0 2px'
           }}
+          title={token}
         >
-          {part}
+          {glyph || part}
         </span>
       );
     }
