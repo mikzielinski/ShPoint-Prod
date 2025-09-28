@@ -83,9 +83,9 @@ export default function AdminPage() {
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api' | 'audit'>('overview');
 
-  const canManage = auth.user?.role === "ADMIN";
-  const myId = auth.user?.id;
-  console.log("AdminPage canManage:", canManage, "myId:", myId);
+  const canManage = auth.status === "authenticated" && auth.user?.role === "ADMIN";
+  const myId = auth.status === "authenticated" ? auth.user?.id : null;
+  console.log("AdminPage canManage:", canManage, "myId:", myId, "auth:", auth);
 
   const load = async (q?: string, r?: Role | "") => {
     console.log("AdminPage load function called with:", q, r);
@@ -340,7 +340,11 @@ export default function AdminPage() {
   };
 
   const handleDropdownToggle = (userId: string) => {
-    setOpenDropdown(openDropdown === userId ? null : userId);
+    console.log('🔍 handleDropdownToggle called with userId:', userId);
+    console.log('🔍 Current openDropdown:', openDropdown);
+    const newValue = openDropdown === userId ? null : userId;
+    console.log('🔍 Setting openDropdown to:', newValue);
+    setOpenDropdown(newValue);
   };
 
   // Close dropdown when clicking outside
@@ -645,7 +649,12 @@ export default function AdminPage() {
                           position: "absolute",
                           top: "100%",
                           left: "0",
-                          zIndex: 99999
+                          zIndex: 99999,
+                          backgroundColor: "#1f2937",
+                          border: "1px solid #374151",
+                          borderRadius: "8px",
+                          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+                          minWidth: "140px"
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
