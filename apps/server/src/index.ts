@@ -1818,6 +1818,19 @@ app.put("/api/characters/:id", ensureAuth, async (req, res) => {
     fs.writeFileSync(individualDataPath, JSON.stringify(characterData, null, 2));
     console.log('Updated individual character data file');
     
+    // Log the character update
+    await logAuditEvent({
+      entityType: 'CHARACTER',
+      entityId: characterId,
+      action: 'UPDATE',
+      userId: user.id,
+      description: `Character ${characterId} updated by ${user.email}`,
+      changes: {
+        before: originalData,
+        after: updatedData
+      }
+    });
+    
     res.json({ 
       ok: true, 
       message: 'Character updated successfully',
@@ -1880,6 +1893,19 @@ app.put("/backend-api/characters/:id", ensureAuth, async (req, res) => {
     
     // Write back to file
     fs.writeFileSync(dataPath, JSON.stringify(updatedData, null, 2));
+    
+    // Log the character update
+    await logAuditEvent({
+      entityType: 'CHARACTER',
+      entityId: id,
+      action: 'UPDATE',
+      userId: user.id,
+      description: `Character ${id} updated by ${user.email}`,
+      changes: {
+        before: existingData,
+        after: updatedData
+      }
+    });
     
     console.log('Character updated successfully:', id);
     res.json({ ok: true, character: updatedData });
