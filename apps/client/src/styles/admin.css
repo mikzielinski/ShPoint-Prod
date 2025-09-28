@@ -197,6 +197,15 @@
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
+/* Allow dropdown to overflow card boundaries */
+.card--dropdown-enabled {
+  overflow: visible;
+}
+
+.card--dropdown-enabled .card-body {
+  overflow: visible;
+}
+
 .card-body.collapsed{
   max-height: 0;
   opacity: 0;

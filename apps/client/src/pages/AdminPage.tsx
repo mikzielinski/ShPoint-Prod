@@ -432,7 +432,7 @@ export default function AdminPage() {
       {ok && <div className="alert alert--ok">{ok}</div>}
       {error && <div className="alert alert--error">{error}</div>}
 
-      <div className="card">
+      <div className="card card--dropdown-enabled">
         <div className="table" role="table" aria-label="Users list">
           <div className="table__row table__row--header" role="row">
             <div className="table__cell">Email</div>
