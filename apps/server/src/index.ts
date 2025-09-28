@@ -337,6 +337,39 @@ app.get("/api/test-email", ensureAuth, async (req, res) => {
     }
   });
 
+  // Debug endpoint to change user role by email (no auth required for testing)
+  app.patch("/api/debug/change-user-role/:email", async (req, res) => {
+    try {
+      const { email } = req.params;
+      const { role } = req.body;
+      
+      console.log('🔄 Changing role for user:', email, 'to:', role);
+      
+      if (!['GUEST', 'USER', 'EDITOR', 'ADMIN'].includes(role)) {
+        return res.status(400).json({ ok: false, error: 'Invalid role' });
+      }
+      
+      const user = await prisma.user.findUnique({
+        where: { email }
+      });
+      
+      if (!user) {
+        return res.status(404).json({ ok: false, error: 'User not found' });
+      }
+      
+      const updatedUser = await prisma.user.update({
+        where: { email },
+        data: { role }
+      });
+      
+      console.log('✅ User role updated:', email, 'to', role);
+      res.json({ ok: true, user: updatedUser });
+    } catch (error: any) {
+      console.error('❌ Error updating user role:', error);
+      res.status(500).json({ ok: false, error: error.message });
+    }
+  });
+
 // ===== Seed endpoint for production
 app.post("/api/seed", async (req, res) => {
   try {
