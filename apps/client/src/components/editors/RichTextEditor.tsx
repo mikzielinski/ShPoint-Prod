@@ -373,11 +373,11 @@ const renderPreview = (text: string): React.ReactNode => {
     }
     
     if (part === '<b>') return <strong key={index}></strong>;
-    if (part === '</b>') return </strong>;
+    if (part === '</b>') return <></>;
     if (part === '<i>') return <em key={index}></em>;
-    if (part === '</i>') return </em>;
+    if (part === '</i>') return <></>;
     if (part === '<u>') return <u key={index}></u>;
-    if (part === '</u>') return </u>;
+    if (part === '</u>') return <></>;
     
     // Handle symbol tags
     if (part.startsWith('[[') && part.endsWith(']]')) {
