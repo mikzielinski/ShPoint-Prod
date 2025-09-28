@@ -18,9 +18,16 @@
   status = 200
   force = true
 
+# Special redirect for health endpoint
+[[redirects]]
+  from = "/backend-api/health"
+  to = "https://shpoint-prod.onrender.com/health"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/backend-api/*"
-  to = "https://shpoint-prod.onrender.com/:splat"
+  to = "https://shpoint-prod.onrender.com/api/:splat"
   status = 200
   force = true
 
