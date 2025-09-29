@@ -304,6 +304,11 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       return `<span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid rgba(59, 130, 246, 0.3);">${faction}</span>`;
     });
     
+    // Replace unittype tags with styled spans
+    result = result.replace(/<unittype>([^<]+)<\/unittype>/g, (match, unitType) => {
+      return `<span style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 500; border: 1px solid rgba(16, 185, 129, 0.3);">${unitType}</span>`;
+    });
+    
     // Replace [[symbol]] tags with actual symbols
     result = result.replace(/\[\[([^\]]+)\]\]/g, (match, symbolName) => {
       const unicode = symbolMap[symbolName.toLowerCase()];
