@@ -1,0 +1,15 @@
+{
+  "dice": {
+    "attack": 3,
+    "defense": 2
+  },
+  "expertise": {
+    "melee": 0,
+    "ranged": 1
+  },
+  "tree": [
+    ["start"],
+    ["ranged_attack"],
+    ["damage"]
+  ]
+}
