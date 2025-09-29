@@ -26,7 +26,7 @@ interface Character {
   squad_points: number;
   point_cost?: number;
   force: number;
-  unit_type: 'Primary' | 'Secondary' | 'Support';
+  unit_type: string[];
   stamina: number;
   durability: number;
   number_of_characters?: number;
@@ -60,7 +60,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     squad_points: 0,
     point_cost: 0,
     force: 0,
-    unit_type: 'Primary',
+    unit_type: ['Primary'],
     stamina: 0,
     durability: 0,
     number_of_characters: 1,
@@ -84,6 +84,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
 
   const [newFaction, setNewFaction] = useState('');
   const [newPeriod, setNewPeriod] = useState('');
+  const [newUnitType, setNewUnitType] = useState('');
   const [showGameSymbols, setShowGameSymbols] = useState(false);
   const [editingAbility, setEditingAbility] = useState<Ability | null>(null);
   const [showStanceEditor, setShowStanceEditor] = useState(false);
@@ -107,6 +108,12 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     'Nightsister',
     'Nightbrother',
     'Spy'
+  ];
+
+  const availableUnitTypes = [
+    'Primary',
+    'Secondary', 
+    'Support'
   ];
 
   const availablePeriods = [
@@ -216,12 +223,13 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         // Ensure new fields have default values if missing
         characterNames: character.characterNames || character.name || '',
         boxSetCode: character.boxSetCode || '',
-        point_cost: character.point_cost || (character.unit_type !== 'Primary' ? character.squad_points : 0),
+        point_cost: character.point_cost || (Array.isArray(character.unit_type) && !character.unit_type.includes('Primary') ? character.squad_points : 0),
         force: character.force || 0,
         stamina: character.stamina || 0,
         durability: character.durability || 0,
         number_of_characters: character.number_of_characters || 1,
         // Ensure arrays are always arrays
+        unit_type: Array.isArray(character.unit_type) ? character.unit_type : [character.unit_type || 'Primary'],
         factions: character.factions || [],
         period: character.period || [],
         abilities: character.abilities || [],
@@ -420,6 +428,23 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     setFormData(prev => ({
       ...prev,
       factions: (prev.factions || []).filter(f => f !== faction)
+    }));
+  };
+
+  const addUnitType = () => {
+    if (newUnitType.trim() && !(formData.unit_type || []).includes(newUnitType.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        unit_type: [...(prev.unit_type || []), newUnitType.trim()]
+      }));
+      setNewUnitType('');
+    }
+  };
+
+  const removeUnitType = (unitType: string) => {
+    setFormData(prev => ({
+      ...prev,
+      unit_type: (prev.unit_type || []).filter(u => u !== unitType)
     }));
   };
 
@@ -769,16 +794,93 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
               marginBottom: '8px',
               color: '#d1d5db'
             }}>Unit Type</label>
-            <select
-              value={formData.unit_type}
-              onChange={(e) => handleInputChange('unit_type', e.target.value)}
-              className="select"
-              style={{ width: '100%' }}
-            >
-              <option value="Primary">Primary</option>
-              <option value="Secondary">Secondary</option>
-              <option value="Support">Support</option>
-            </select>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <select
+                value={newUnitType}
+                onChange={(e) => setNewUnitType(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  background: '#1f2937',
+                  border: '1px solid #374151',
+                  borderRadius: '6px',
+                  color: '#f9fafb'
+                }}
+              >
+                <option value="">Select a unit type</option>
+                {availableUnitTypes
+                  .filter(unitType => !(formData.unit_type || []).includes(unitType))
+                  .map(unitType => (
+                    <option key={unitType} value={unitType}>{unitType}</option>
+                  ))
+                }
+              </select>
+              <button
+                onClick={addUnitType}
+                disabled={!newUnitType}
+                style={{
+                  padding: '8px 16px',
+                  background: newUnitType ? '#3b82f6' : '#374151',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: newUnitType ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+                onMouseEnter={(e) => {
+                  if (newUnitType) {
+                    e.currentTarget.style.background = '#2563eb';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (newUnitType) {
+                    e.currentTarget.style.background = '#3b82f6';
+                  }
+                }}
+              >
+                Add
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {(formData.unit_type || []).map((unitType, index) => (
+                <span
+                  key={index}
+                  style={{
+                    padding: '4px 12px',
+                    background: '#10b981',
+                    borderRadius: '9999px',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'white'
+                  }}
+                >
+                  {unitType}
+                  <button
+                    onClick={() => removeUnitType(unitType)}
+                    style={{
+                      color: '#6ee7b7',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0',
+                      fontSize: '16px',
+                      lineHeight: '1'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#6ee7b7';
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -802,14 +904,14 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
               marginBottom: '8px',
               color: '#d1d5db'
             }}>
-              {formData.unit_type === 'Primary' ? 'Squad Points (SP)' : 'Point Cost (PC)'}
+              {(formData.unit_type || []).includes('Primary') ? 'Squad Points (SP)' : 'Point Cost (PC)'}
             </label>
             <input
               type="number"
-              value={formData.unit_type === 'Primary' ? formData.squad_points : formData.point_cost}
+              value={(formData.unit_type || []).includes('Primary') ? formData.squad_points : formData.point_cost}
               onChange={(e) => {
                 const value = parseInt(e.target.value) || 0;
-                if (formData.unit_type === 'Primary') {
+                if ((formData.unit_type || []).includes('Primary')) {
                   handleInputChange('squad_points', value);
                 } else {
                   handleInputChange('point_cost', value);
@@ -824,7 +926,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
                 color: '#f9fafb'
               }}
               min="0"
-              placeholder={formData.unit_type === 'Primary' ? 'SP value' : 'PC value'}
+              placeholder={(formData.unit_type || []).includes('Primary') ? 'SP value' : 'PC value'}
             />
           </div>
 
