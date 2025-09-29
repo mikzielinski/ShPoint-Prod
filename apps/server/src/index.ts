@@ -2521,10 +2521,182 @@ app.get("/api/debug/check-ip", async (req, res) => {
   });
 });
 
+// POST /api/debug/fix-factions — debug fix factions for trusted IPs only
+app.post("/api/debug/fix-factions", async (req, res) => {
+  try {
+    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174']; // Your IP and proxy IPs
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const realIp = req.headers['x-real-ip'];
+    const clientIP = req.ip || req.connection.remoteAddress || 
+      (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor) ||
+      (Array.isArray(realIp) ? realIp[0] : realIp);
+    
+    if (!trustedIPs.includes(clientIP)) {
+      return res.status(403).json({ ok: false, error: 'Access denied' });
+    }
+    
+    console.log('🔧 Debug fix factions requested from trusted IP:', clientIP);
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let fixedCount = 0;
+    const errors: string[] = [];
+    
+    // Faction mapping based on character names and context
+    const factionMap: { [key: string]: string[] } = {
+      'rebel': ['Rebel Alliance'],
+      'empire': ['Galactic Empire'],
+      'republic': ['Galactic Republic'],
+      'separatist': ['Separatist'],
+      'mandalorian': ['Mandalorian'],
+      'jedi': ['Jedi'],
+      'sith': ['Sith'],
+      'clone': ['Clone Trooper'],
+      'droid': ['Droid'],
+      'bounty': ['Bounty Hunter'],
+      'scoundrel': ['Scoundrel'],
+      'spy': ['Spy'],
+      'trooper': ['Troopers'],
+      'scout': ['Scout']
+    };
+    
+    for (const char of unifiedData) {
+      try {
+        if (!char.factions || char.factions.length === 0 || char.factions.includes(null)) {
+          const name = char.name?.toLowerCase() || '';
+          const id = char.id?.toLowerCase() || '';
+          
+          let detectedFactions: string[] = [];
+          
+          // Check name and id for faction keywords
+          for (const [keyword, factions] of Object.entries(factionMap)) {
+            if (name.includes(keyword) || id.includes(keyword)) {
+              detectedFactions.push(...factions);
+            }
+          }
+          
+          // Special cases
+          if (name.includes('cassian') || name.includes('jyn') || name.includes('baze') || name.includes('chirrut') || name.includes('bodhi') || name.includes('k-2so')) {
+            detectedFactions.push('Rebel Alliance');
+          }
+          
+          if (detectedFactions.length > 0) {
+            char.factions = [...new Set(detectedFactions)]; // Remove duplicates
+            fixedCount++;
+          }
+        }
+      } catch (error) {
+        errors.push(`Failed to fix factions for ${char.id}: ${error}`);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    
+    // Sync individual files
+    await syncCharactersUnified();
+    
+    res.json({ 
+      ok: true, 
+      message: 'Missing factions fixed successfully',
+      convertedCount: fixedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error fixing missing factions:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fix missing factions' });
+  }
+});
+
+// POST /api/debug/fix-set-codes — debug fix set codes for trusted IPs only
+app.post("/api/debug/fix-set-codes", async (req, res) => {
+  try {
+    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174']; // Your IP and proxy IPs
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const realIp = req.headers['x-real-ip'];
+    const clientIP = req.ip || req.connection.remoteAddress || 
+      (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor) ||
+      (Array.isArray(realIp) ? realIp[0] : realIp);
+    
+    if (!trustedIPs.includes(clientIP)) {
+      return res.status(403).json({ ok: false, error: 'Access denied' });
+    }
+    
+    console.log('🔧 Debug fix set codes requested from trusted IP:', clientIP);
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let fixedCount = 0;
+    const errors: string[] = [];
+    
+    for (const char of unifiedData) {
+      try {
+        if (!char.set_code || char.set_code === null) {
+          // Try to determine set code from character name/context
+          const name = char.name?.toLowerCase() || '';
+          
+          if (name.includes('cassian') || name.includes('jyn') || name.includes('baze') || name.includes('chirrut') || name.includes('bodhi') || name.includes('k-2so')) {
+            char.set_code = 'SWP24'; // Rogue One set
+            fixedCount++;
+          } else if (name.includes('rebel') && (name.includes('commando') || name.includes('pathfinder'))) {
+            char.set_code = 'SWP24'; // Rogue One set
+            fixedCount++;
+          }
+          // Add more set code mappings as needed
+        }
+      } catch (error) {
+        errors.push(`Failed to fix set_code for ${char.id}: ${error}`);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    
+    // Sync individual files
+    await syncCharactersUnified();
+    
+    res.json({ 
+      ok: true, 
+      message: 'Missing set codes fixed successfully',
+      convertedCount: fixedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error fixing missing set codes:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fix missing set codes' });
+  }
+});
+
 // POST /api/debug/sync-characters — debug sync for trusted IPs only
 app.post("/api/debug/sync-characters", async (req, res) => {
   try {
-    const trustedIPs = ['89.151.22.52', '172.64.198.126']; // Your IP and proxy IP
+    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174']; // Your IP and proxy IPs
     const forwardedFor = req.headers['x-forwarded-for'];
     const realIp = req.headers['x-real-ip'];
     const clientIP = req.ip || req.connection.remoteAddress || 
