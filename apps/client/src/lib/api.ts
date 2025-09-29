@@ -4,6 +4,8 @@ import { API_BASE, api } from './env';
 // Re-export api function for backward compatibility
 export { api };
 
+// Force Netlify rebuild - v1.2.30
+
 type Json = Record<string, unknown> | unknown[];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
