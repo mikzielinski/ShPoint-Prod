@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../lib/api';
+import { api } from '../lib/env';
+
+async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, { credentials: "include", ...init });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
 
 interface ApiToken {
   id: string;
@@ -20,7 +26,7 @@ export default function ApiTokenManager() {
   const loadTokens = async () => {
     try {
       setLoading(true);
-      const response = await api('/api/me/tokens');
+      const response = await apiFetch(api('/api/me/tokens'));
       if (response.ok) {
         setTokens(response.tokens || []);
       } else {
@@ -51,7 +57,7 @@ export default function ApiTokenManager() {
     }
 
     try {
-      const response = await api(`/api/admin/tokens/${tokenId}`, {
+      const response = await apiFetch(api(`/api/admin/tokens/${tokenId}`), {
         method: 'DELETE'
       });
       if (response.ok) {

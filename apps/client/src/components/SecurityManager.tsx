@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../lib/api';
+import { api } from '../lib/env';
+
+async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, { credentials: "include", ...init });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
 
 interface DDoSStats {
   suspiciousIPs: Array<{
@@ -36,7 +42,7 @@ export default function SecurityManager() {
   // Load DDoS stats
   const loadDdosStats = async () => {
     try {
-      const response = await api('/api/admin/security/ddos');
+      const response = await apiFetch(api('/api/admin/security/ddos'));
       if (response.ok) {
         setDdosStats({
           suspiciousIPs: response.threats || [],
@@ -54,7 +60,7 @@ export default function SecurityManager() {
   // Load security settings
   const loadSecuritySettings = async () => {
     try {
-      const response = await api('/api/admin/security/settings');
+      const response = await apiFetch(api('/api/admin/security/settings'));
       if (response.ok) {
         setSecuritySettings(response.data);
       } else {
@@ -68,7 +74,7 @@ export default function SecurityManager() {
   // Clear DDoS stats
   const clearDdosStats = async () => {
     try {
-      const response = await api('/api/admin/security/ddos/clear', {
+      const response = await apiFetch(api('/api/admin/security/ddos/clear'), {
         method: 'DELETE'
       });
       if (response.ok) {
@@ -85,7 +91,7 @@ export default function SecurityManager() {
   // Add IP to whitelist
   const addToWhitelist = async (ip: string) => {
     try {
-      const response = await api('/api/admin/security/whitelist', {
+      const response = await apiFetch(api('/api/admin/security/whitelist'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ip })
@@ -106,7 +112,7 @@ export default function SecurityManager() {
   // Remove IP from whitelist
   const removeFromWhitelist = async (ip: string) => {
     try {
-      const response = await api('/api/admin/security/whitelist', {
+      const response = await apiFetch(api('/api/admin/security/whitelist'), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ip })
@@ -125,7 +131,7 @@ export default function SecurityManager() {
   // Update security settings
   const updateSecuritySettings = async (settings: Partial<SecuritySettings>) => {
     try {
-      const response = await api('/api/admin/security/settings', {
+      const response = await apiFetch(api('/api/admin/security/settings'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
