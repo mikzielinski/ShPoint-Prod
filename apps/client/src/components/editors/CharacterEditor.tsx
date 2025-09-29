@@ -107,7 +107,9 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     'Inquisitorius',
     'Nightsister',
     'Nightbrother',
-    'Spy'
+    'Spy',
+    'Troopers',
+    'Scout'
   ];
 
   const availableUnitTypes = [

@@ -22,7 +22,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const availableFactions = [
     'Galactic Empire', 'Rebel Alliance', 'Separatist Alliance', 
-    'Republic', 'Mandalorian', 'Crimson Dawn', 'Spy'
+    'Republic', 'Mandalorian', 'Crimson Dawn', 'Spy', 'Troopers', 'Scout'
   ];
 
   const availableUnitTypes = [
