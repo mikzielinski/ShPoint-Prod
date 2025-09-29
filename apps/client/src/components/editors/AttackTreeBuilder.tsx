@@ -15,9 +15,6 @@ const GlyphInput: React.FC<{
   const [isEditing, setIsEditing] = useState(false);
 
   const handleFocus = (e: React.FocusEvent<HTMLDivElement>) => {
-    console.log('🔧 GlyphInput handleFocus called');
-    console.log('🔧 GlyphInput value:', value);
-    console.log('🔧 GlyphInput onChange:', onChange);
     
     setIsEditing(true);
     // Don't open glyph panel on focus - only via button
@@ -299,8 +296,6 @@ function renderGlyphToken(token: string, key?: React.Key, variant: 'default' | '
 }
 
 export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onChange }) => {
-  console.log('🔍 AttackTreeBuilder rendered with tree:', tree);
-  console.log('🔍 AttackTreeBuilder onChange function:', onChange);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [editingNode, setEditingNode] = useState<string | null>(null);
   const [newEffects, setNewEffects] = useState<string>('');
@@ -343,11 +338,9 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
         const r = Math.max(0, Math.min(rows - 1, node.row - 1));
         const c = Math.max(0, Math.min(cols - 1, node.col - 1));
         matrix[r][c] = node.effects || [];
-        console.log(`🔧 Matrix[${r}][${c}] = [${(node.effects || []).join(', ')}] for node ${id}`);
       });
     }
     
-    console.log('🔧 Final matrix:', matrix);
     return matrix;
   };
 
@@ -373,7 +366,6 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
 
   const treeMatrix = useMemo(() => {
     const matrix = convertTreeToMatrix();
-    console.log('🔧 AttackTreeBuilder: treeMatrix converted:', matrix);
     return matrix;
   }, [tree]);
   const treeEdges = useMemo(() => convertEdgesToPositions(), [tree]);
@@ -491,7 +483,6 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
 
   // Dodaj nowy węzeł
   const addNode = useCallback((row: number, col: number) => {
-    console.log('🔧 addNode called:', { row, col, connectingMode });
     
     const newNodeId = `N${Object.keys(tree.nodes || {}).length + 1}`;
     const newNodes = {
@@ -518,7 +509,6 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
       nodes: newNodes
     };
     
-    console.log('🔧 addNode creating new tree:', newTree);
     onChange(newTree);
   }, [tree, onChange, connectingMode]);
 
@@ -540,9 +530,6 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
 
   // Aktualizuj effects węzła
   const updateNodeEffects = useCallback((nodeId: string, effects: string[]) => {
-    console.log('🔍 updateNodeEffects called with:', nodeId, effects);
-    console.log('🔍 Current tree.nodes:', tree.nodes);
-    console.log('🔍 Current tree.nodes[nodeId]:', tree.nodes[nodeId]);
     
     const newNodes = {
       ...tree.nodes,
@@ -552,16 +539,12 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
       }
     };
     
-    console.log('🔍 New nodes:', newNodes);
-    console.log('🔍 New nodes[nodeId]:', newNodes[nodeId]);
     
     const newTree = {
       ...tree,
       nodes: newNodes
     };
     
-    console.log('🔍 New tree:', newTree);
-    console.log('🔍 Calling onChange with new tree');
     
     onChange(newTree);
   }, [tree, onChange]);
@@ -648,14 +631,11 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
 
   // Obsługa kliknięcia na glif - uproszczona, tylko dla przycisku
   const handleInputFocus = useCallback((inputRef: HTMLInputElement, onChange: (value: string) => void, currentValue: string) => {
-    console.log('🔧 handleInputFocus called with:', { inputRef, onChange, currentValue });
-    console.log('🔧 selectedNode at focus time:', selectedNode);
     
     // Set state for glyph panel
     setActiveInputRef(inputRef);
     setActiveOnChange(onChange);
     setActiveCurrentValue(currentValue);
-    console.log('🔧 State set for glyph panel');
   }, [selectedNode]);
 
   const handleInputBlur = useCallback(() => {
@@ -666,47 +646,27 @@ export const AttackTreeBuilder: React.FC<AttackTreeBuilderProps> = ({ tree, onCh
   }, []);
 
   const handleGlyphClick = useCallback((glyphName: string) => {
-    console.log('🔍 handleGlyphClick called with:', glyphName);
-    console.log('🔍 activeOnChange:', activeOnChange);
-    console.log('🔍 activeCurrentValue:', activeCurrentValue);
-    console.log('🔍 selectedNode:', selectedNode);
-    console.log('🔍 showGlyphPanel:', showGlyphPanel);
-    console.log('🔍 activeInputRef:', activeInputRef);
     
     // Konwertuj nazwę glifu na kod (np. "strike" -> "a", "crit_to_strike" -> "b→a")
     const glyphCode = iconToCode(glyphName.toLowerCase() as IconName);
-    console.log('🔍 Converted glyph code:', glyphCode);
-    console.log('🔍 Glyph name:', glyphName);
-    console.log('🔍 Glyph name lowercase:', glyphName.toLowerCase());
     
     // Always use direct approach when there's a selected node
     if (selectedNode) {
-      console.log('🔍 Using direct approach for selected node');
       // Bezpośrednia aktualizacja node
       const currentEffects = tree.nodes?.[selectedNode]?.effects || [];
-      console.log('🔍 Current effects:', currentEffects);
       if (glyphCode) {
         const newEffects = [...currentEffects, glyphCode];
-        console.log('🔍 New effects:', newEffects);
         updateNodeEffects(selectedNode, newEffects);
-        console.log('🔍 Called updateNodeEffects');
       } else {
         console.log('❌ No glyph code generated');
       }
     } else if (activeOnChange && activeCurrentValue !== undefined) {
-      console.log('🔍 Using activeOnChange approach (no selected node)');
-      console.log('🔍 Current input value:', activeCurrentValue);
       // Automatycznie rozdzielaj przecinkami
       const newValue = activeCurrentValue ? `${activeCurrentValue}, ${glyphCode}` : glyphCode;
-      console.log('🔍 New value:', newValue);
       
       // Wywołaj callback onChange
       activeOnChange(newValue);
-      console.log('🔍 Called activeOnChange with:', newValue);
     } else {
-      console.log('❌ No selected node and no active input');
-      console.log('❌ selectedNode:', selectedNode);
-      console.log('❌ activeOnChange:', activeOnChange);
     }
     
     // Don't close the panel - keep it open for adding multiple glyphs

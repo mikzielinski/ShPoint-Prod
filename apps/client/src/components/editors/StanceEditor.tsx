@@ -142,17 +142,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
     };
   });
 
-  // Log formData changes
-  useEffect(() => {
-    console.log('🔍 StanceEditor: formData changed', formData);
-    console.log('🔍 StanceEditor: formData.sides[0].tree:', formData.sides?.[0]?.tree);
-    if (formData.sides?.[0]?.tree?.nodes) {
-      console.log('🔍 StanceEditor: nodes in tree:', Object.keys(formData.sides[0].tree.nodes));
-      Object.entries(formData.sides[0].tree.nodes).forEach(([id, node]) => {
-        console.log(`🔍 Node ${id}:`, node);
-      });
-    }
-  }, [formData]);
 
   const [showGlyphPanel, setShowGlyphPanel] = useState(false);
   const [activeInputRef, setActiveInputRef] = useState<HTMLInputElement | null>(null);
@@ -163,29 +152,17 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
   // Load stance data when component mounts or stance prop changes
   useEffect(() => {
     if (memoizedStance) {
-      console.log('🔍 StanceEditor: Loading stance data', memoizedStance);
-      console.log('🔍 StanceEditor: stance.sides[0].tree:', memoizedStance.sides?.[0]?.tree);
       setFormData(memoizedStance);
     } else {
-      console.log('🔍 StanceEditor: No stance data provided');
     }
   }, [memoizedStance]);
 
-  // Track formData changes
-  useEffect(() => {
-    console.log('🔍 StanceEditor: formData changed:', formData);
-    console.log('🔍 StanceEditor: formData.sides[0].tree:', formData.sides?.[0]?.tree);
-  }, [formData]);
 
   const handleSave = () => {
     onSave(formData);
   };
 
   const handleGlyphClick = (glyphName: string) => {
-    console.log('🔍 handleGlyphClick called with:', glyphName);
-    console.log('🔍 activeOnChangeRef.current type:', typeof activeOnChangeRef.current);
-    console.log('🔍 activeOnChangeRef.current value:', activeOnChangeRef.current);
-    console.log('🔍 activeCurrentValue:', activeCurrentValue);
     
     // Clear any pending timeout
     if (glyphPanelTimeoutRef.current) {
@@ -194,21 +171,15 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
     }
     
     if (activeOnChangeRef.current) {
-      console.log('🔍 Current input value:', activeCurrentValue);
-      console.log('🔍 activeOnChangeRef.current exists:', !!activeOnChangeRef.current);
       // Konwertuj nazwę glifu na kod (np. "strike" -> "a", "crit_to_strike" -> "b→a")
       const glyphCode = iconToCode(glyphName as IconName);
-      console.log('🔍 Converted glyph code:', glyphCode);
-      console.log('🔍 glyphName:', glyphName);
       
       if (!glyphCode) {
         console.log('❌ No glyph code found for:', glyphName);
         // Fallback: użyj nazwy glifu jako kodu
         const fallbackCode = glyphName;
-        console.log('🔍 Using fallback code:', fallbackCode);
         const currentValue = activeCurrentValue || '';
         const newValue = currentValue ? `${currentValue}, ${fallbackCode}` : fallbackCode;
-        console.log('🔍 New value with fallback:', newValue);
         activeOnChangeRef.current(newValue);
         setShowGlyphPanel(false);
         setActiveInputRef(null);
@@ -219,7 +190,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
       // Automatycznie rozdzielaj przecinkami
       const currentValue = activeCurrentValue || '';
       const newValue = currentValue ? `${currentValue}, ${glyphCode}` : glyphCode;
-      console.log('🔍 New value:', newValue);
       
       // Wywołaj callback onChange
       activeOnChangeRef.current(newValue);
@@ -485,7 +455,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
         {/* Stance Sides */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {formData.sides?.map((side, sideIndex) => {
-            console.log('🔍 StanceEditor: Rendering side', side.id, 'with tree:', side.tree);
             return (
             <div key={side.id} style={{
               backgroundColor: '#111827',
@@ -804,14 +773,11 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                             type="button"
                             onClick={() => {
                               // Otwórz panel glifów dla tego konkretnego pola
-                              console.log('🔍 Add Glyph button clicked for melee expertise', expIndex);
                               const callback = createMeleeExpertiseCallback(side.id, expIndex);
-                              console.log('🔍 Created callback:', typeof callback, callback);
                               setShowGlyphPanel(true);
                               setActiveInputRef(null);
                               activeOnChangeRef.current = callback;
                               const currentEffects = (exp.effects || []).join(', ');
-                              console.log('🔍 Setting activeCurrentValue to:', currentEffects);
                               setActiveCurrentValue(currentEffects);
                             }}
                             style={{
@@ -942,14 +908,11 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                             type="button"
                             onClick={() => {
                               // Otwórz panel glifów dla tego konkretnego pola
-                              console.log('🔍 Add Glyph button clicked for ranged expertise', expIndex);
                               const callback = createRangedExpertiseCallback(side.id, expIndex);
-                              console.log('🔍 Created callback:', typeof callback, callback);
                               setShowGlyphPanel(true);
                               setActiveInputRef(null);
                               activeOnChangeRef.current = callback;
                               const currentEffects = (exp.effects || []).join(', ');
-                              console.log('🔍 Setting activeCurrentValue to:', currentEffects);
                               setActiveCurrentValue(currentEffects);
                             }}
                             style={{
@@ -1079,14 +1042,11 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                             type="button"
                             onClick={() => {
                               // Otwórz panel glifów dla tego konkretnego pola
-                              console.log('🔍 Add Glyph button clicked for defense expertise', expIndex);
                               const callback = createDefenseExpertiseCallback(side.id, expIndex);
-                              console.log('🔍 Created callback:', typeof callback, callback);
                               setShowGlyphPanel(true);
                               setActiveInputRef(null);
                               activeOnChangeRef.current = callback;
                               const currentEffects = (exp.effects || []).join(', ');
-                              console.log('🔍 Setting activeCurrentValue to:', currentEffects);
                               setActiveCurrentValue(currentEffects);
                             }}
                             style={{
@@ -1161,9 +1121,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                 <AttackTreeBuilder
                   tree={side.tree || { layout: { rows: 3, cols: 6 }, nodes: {}, edges: [] }}
                   onChange={(newTree) => {
-                    console.log('🔧 StanceEditor onChange called:', { sideId: side.id, newTree });
-                    console.log('🔧 side.tree before update:', side.tree);
-                    console.log('🔧 Current formData:', formData);
                     setFormData(prev => {
                       const newFormData = {
                         ...prev,
@@ -1173,7 +1130,6 @@ export const StanceEditor: React.FC<StanceEditorProps> = ({
                             : s
                         )
                       };
-                      console.log('🔧 New formData:', newFormData);
                       return newFormData;
                     });
                   }}
