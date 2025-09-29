@@ -237,6 +237,7 @@ interface AbilityCardProps {
   ability: Ability;
   size?: 'sm' | 'md' | 'lg';
   showForceCost?: boolean;
+  showDamageCost?: boolean;
   showTrigger?: boolean;
   className?: string;
 }
@@ -245,6 +246,7 @@ export const AbilityCard: React.FC<AbilityCardProps> = ({
   ability,
   size = 'md',
   showForceCost = true,
+  showDamageCost = true,
   showTrigger = false,
   className = ''
 }) => {
@@ -299,6 +301,25 @@ export const AbilityCard: React.FC<AbilityCardProps> = ({
                     }}
                   >
                     {"\u0076"} {/* Force glyph - v - sp-force */}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            {/* Koszt Damage - jeśli jest */}
+            {showDamageCost && ability.damageCost && ability.damageCost > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                {Array.from({ length: ability.damageCost }, (_, i) => (
+                  <span 
+                    key={i}
+                    className="text-white"
+                    style={{ 
+                      fontFamily: 'ShatterpointIcons, monospace',
+                      fontSize: '18px',
+                      color: '#ef4444'
+                    }}
+                  >
+                    {"\u0071"} {/* Damage glyph - q - sp-damage */}
                   </span>
                 ))}
               </div>

@@ -370,6 +370,7 @@ export default function UnitDataCard({ character, data }: Props) {
                       ability={ability} 
                       size="sm"
                       showForceCost={true}
+                      showDamageCost={true}
                       showTrigger={false}
                     />
                   ))}

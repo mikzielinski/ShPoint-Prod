@@ -12,6 +12,7 @@ interface Ability {
   name: string;
   description: string;
   forceCost: number;
+  damageCost?: number;
   trigger: string;
   isAction: boolean;
   tags: string[];
@@ -77,6 +78,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     name: '',
     description: '',
     forceCost: 0,
+    damageCost: 0,
     trigger: 'on_activation',
     isAction: false,
     tags: []
@@ -373,6 +375,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         name: '',
         description: '',
         forceCost: 0,
+        damageCost: 0,
         trigger: 'on_activation',
         isAction: false,
         tags: []
@@ -403,6 +406,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       name: '',
       description: '',
       forceCost: 0,
+      damageCost: 0,
       trigger: 'on_activation',
       isAction: false,
       tags: []
@@ -1313,6 +1317,29 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
                 }}
                 min="0"
               />
+              
+              <label style={{
+                display: 'block',
+                fontSize: '14px',
+                fontWeight: '500',
+                marginBottom: '8px',
+                marginTop: '16px',
+                color: '#d1d5db'
+              }}>Damage Cost</label>
+              <input
+                type="number"
+                value={newAbility.damageCost || 0}
+                onChange={(e) => handleAbilityChange('damageCost', parseInt(e.target.value) || 0)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  background: '#374151',
+                  border: '1px solid #4b5563',
+                  borderRadius: '6px',
+                  color: '#f9fafb'
+                }}
+                min="0"
+              />
             </div>
 
             <div>
@@ -1528,6 +1555,9 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
                   <span style={{ fontWeight: '600', color: '#f9fafb' }}>{ability.name}</span>
                   {ability.forceCost > 0 && (
                     <span style={{ color: '#fbbf24' }}>Force: {ability.forceCost}</span>
+                  )}
+                  {ability.damageCost && ability.damageCost > 0 && (
+                    <span style={{ color: '#ef4444' }}>Damage: {ability.damageCost}</span>
                   )}
                 </div>
                 <p 

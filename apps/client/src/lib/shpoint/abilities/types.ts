@@ -20,6 +20,7 @@ export interface Ability {
   name: string;                  // Ability name
   description: string;           // Rules text
   forceCost?: number;            // Force cost (0 for Innate abilities)
+  damageCost?: number;           // Damage cost (damage taken to use ability)
   trigger?: AbilityTrigger;      // When this ability can be used
   isAction?: boolean;            // True if ability text begins with "Action:"
   tags?: string[];               // Tags for filtering (e.g., ["Force", "Combat"])
