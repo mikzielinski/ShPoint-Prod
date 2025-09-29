@@ -8,7 +8,7 @@ const SMTP_USER = process.env.EMAIL_USER || process.env.SMTP_USER;
 const SMTP_PASS = process.env.EMAIL_PASS || process.env.SMTP_PASS;
 const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME || 'ShPoint Team';
 const EMAIL_FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || SMTP_USER;
-const APP_URL = process.env.APP_URL || 'http://localhost:5174';
+const APP_URL = process.env.APP_URL || 'https://shpoint.org';
 
 // Create transporter
 let transporter: nodemailer.Transporter | null = null;
