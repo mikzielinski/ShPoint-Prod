@@ -2524,7 +2524,7 @@ app.get("/api/debug/check-ip", async (req, res) => {
 // POST /api/debug/sync-characters — debug sync for trusted IPs only
 app.post("/api/debug/sync-characters", async (req, res) => {
   try {
-    const trustedIPs = ['89.151.22.52']; // Your IP
+    const trustedIPs = ['89.151.22.52', '172.64.198.126']; // Your IP and proxy IP
     const forwardedFor = req.headers['x-forwarded-for'];
     const realIp = req.headers['x-real-ip'];
     const clientIP = req.ip || req.connection.remoteAddress || 
