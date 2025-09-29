@@ -134,6 +134,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     { value: 'lose_control_over_point', label: 'Lose control over point' },
     { value: 'allied_unit_damaged', label: 'Allied Unit Damaged' },
     { value: 'enemy_unit_damaged', label: 'Enemy Unit Damaged' },
+    { value: 'when_unit_wounded', label: 'When unit wounded' },
+    { value: 'when_unit_wound', label: 'When unit wound' },
     { value: 'passive', label: 'Passive' },
     { value: 'constant', label: 'Constant' }
   ];
