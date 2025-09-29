@@ -2524,7 +2524,7 @@ app.get("/api/debug/check-ip", async (req, res) => {
 // POST /api/debug/fix-factions — debug fix factions for trusted IPs only
 app.post("/api/debug/fix-factions", async (req, res) => {
   try {
-    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174']; // Your IP and proxy IPs
+    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174', '172.71.150.15']; // Your IP and proxy IPs
     const forwardedFor = req.headers['x-forwarded-for'];
     const realIp = req.headers['x-real-ip'];
     const clientIP = req.ip || req.connection.remoteAddress || 
@@ -2624,7 +2624,7 @@ app.post("/api/debug/fix-factions", async (req, res) => {
 // POST /api/debug/fix-set-codes — debug fix set codes for trusted IPs only
 app.post("/api/debug/fix-set-codes", async (req, res) => {
   try {
-    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174']; // Your IP and proxy IPs
+    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174', '172.71.150.15']; // Your IP and proxy IPs
     const forwardedFor = req.headers['x-forwarded-for'];
     const realIp = req.headers['x-real-ip'];
     const clientIP = req.ip || req.connection.remoteAddress || 
@@ -2696,7 +2696,7 @@ app.post("/api/debug/fix-set-codes", async (req, res) => {
 // POST /api/debug/sync-characters — debug sync for trusted IPs only
 app.post("/api/debug/sync-characters", async (req, res) => {
   try {
-    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174']; // Your IP and proxy IPs
+    const trustedIPs = ['89.151.22.52', '172.64.198.126', '172.71.151.174', '172.71.150.15']; // Your IP and proxy IPs
     const forwardedFor = req.headers['x-forwarded-for'];
     const realIp = req.headers['x-real-ip'];
     const clientIP = req.ip || req.connection.remoteAddress || 
