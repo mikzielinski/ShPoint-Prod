@@ -27,7 +27,7 @@ interface Character {
   structuredAbilities: any[];
 }
 
-type EditorMode = 'characters' | 'mission-cards' | 'sets';
+type EditorMode = 'characters' | 'mission-cards' | 'sets' | 'factions';
 
 const ContentManagementPage: React.FC = () => {
   const { auth } = useAuth();
@@ -51,6 +51,8 @@ const ContentManagementPage: React.FC = () => {
   const [previewMissionCard, setPreviewMissionCard] = useState<any>(null);
   const [editingMissionCard, setEditingMissionCard] = useState<any>(null);
   const [missionCards, setMissionCards] = useState<any[]>([]);
+  const [factions, setFactions] = useState<string[]>([]);
+  const [newFaction, setNewFaction] = useState('');
 
   const loadCharacters = async () => {
     try {
@@ -79,10 +81,21 @@ const ContentManagementPage: React.FC = () => {
     setMissionCards(missionsData);
   };
 
+  const loadFactions = async () => {
+    try {
+      const response = await fetch(api('/api/factions'), { credentials: 'include' });
+      const data = await response.json();
+      setFactions(data.factions || []);
+    } catch (error) {
+      console.error('Błąd ładowania factionów:', error);
+    }
+  };
+
   useEffect(() => {
     loadCharacters();
     loadSets();
     loadMissionCards();
+    loadFactions();
   }, []);
 
   // Kontrola dostępu
@@ -293,6 +306,53 @@ const ContentManagementPage: React.FC = () => {
   const handleCloseMissionCardsPreview = () => {
     setShowMissionCardsPreview(false);
     setPreviewMissionCard(null);
+  };
+
+  // Faction management handlers
+  const handleAddFaction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newFaction.trim()) return;
+
+    try {
+      const response = await fetch(api('/api/factions'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ faction: newFaction.trim() })
+      });
+
+      if (response.ok) {
+        setNewFaction('');
+        loadFactions(); // Reload factions
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Błąd dodawania faction:', error);
+      alert('Błąd dodawania faction');
+    }
+  };
+
+  const handleDeleteFaction = async (faction: string) => {
+    if (!confirm(`Czy na pewno chcesz usunąć faction "${faction}"?`)) return;
+
+    try {
+      const response = await fetch(api(`/api/factions/${encodeURIComponent(faction)}`), {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        loadFactions(); // Reload factions
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Błąd usuwania faction:', error);
+      alert('Błąd usuwania faction');
+    }
   };
 
 
@@ -692,6 +752,8 @@ const ContentManagementPage: React.FC = () => {
         return renderMissionCardsList();
       case 'sets':
         return renderSetsList();
+      case 'factions':
+        return null; // Factions content is rendered separately
       default:
         return null;
     }
@@ -727,7 +789,8 @@ const ContentManagementPage: React.FC = () => {
           {[
             { id: 'characters', label: 'Characters', count: characters.length },
             { id: 'mission-cards', label: 'Mission Cards', count: missionCards.length },
-            { id: 'sets', label: 'Sets/Boxes', count: sets.length }
+            { id: 'sets', label: 'Sets/Boxes', count: sets.length },
+            { id: 'factions', label: 'Factions', count: factions.length }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -904,6 +967,59 @@ const ContentManagementPage: React.FC = () => {
         >
           <MissionCardsPreview mission={previewMissionCard} />
         </Modal>
+      )}
+
+      {/* Factions Management */}
+      {activeMode === 'factions' && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-white">Zarządzanie Factionami</h2>
+          </div>
+
+          {/* Add New Faction */}
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-white mb-4">Dodaj nowy faction</h3>
+            <form onSubmit={handleAddFaction} className="flex gap-4">
+              <input
+                type="text"
+                value={newFaction}
+                onChange={(e) => setNewFaction(e.target.value)}
+                placeholder="Nazwa faction"
+                className="flex-1 px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-blue-500 focus:outline-none"
+                required
+              />
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Dodaj
+              </button>
+            </form>
+          </div>
+
+          {/* Factions List */}
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-white mb-4">Dostępne factiony</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {factions.map((faction) => (
+                <div
+                  key={faction}
+                  className="flex items-center justify-between p-4 bg-gray-700 rounded-lg"
+                >
+                  <span className="text-white font-medium">{faction}</span>
+                  {me?.role === 'ADMIN' && (
+                    <button
+                      onClick={() => handleDeleteFaction(faction)}
+                      className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                    >
+                      Usuń
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

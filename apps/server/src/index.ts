@@ -2392,6 +2392,123 @@ app.get("/api/characters/:id", async (req, res) => {
   }
 });
 
+// ===== FACTION MANAGEMENT API =====
+
+// GET /api/factions — get all available factions
+app.get("/api/factions", async (req, res) => {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const taxoPath = path.join(process.cwd(), 'shared/data/taxo.json');
+    const taxoData = JSON.parse(fs.readFileSync(taxoPath, 'utf8'));
+    
+    res.json({ ok: true, factions: taxoData.knownFactions || [] });
+  } catch (error) {
+    console.error("Error fetching factions:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch factions" });
+  }
+});
+
+// POST /api/factions — add new faction (Admin/Editor only)
+app.post("/api/factions", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN' && user.role !== 'EDITOR') {
+      return res.status(403).json({ ok: false, error: "Insufficient permissions" });
+    }
+    
+    const { faction } = req.body;
+    if (!faction || typeof faction !== 'string' || !faction.trim()) {
+      return res.status(400).json({ ok: false, error: "Faction name is required" });
+    }
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const taxoPath = path.join(process.cwd(), 'shared/data/taxo.json');
+    const taxoData = JSON.parse(fs.readFileSync(taxoPath, 'utf8'));
+    
+    const factionName = faction.trim();
+    
+    // Check if faction already exists
+    if (taxoData.knownFactions.includes(factionName)) {
+      return res.status(400).json({ ok: false, error: "Faction already exists" });
+    }
+    
+    // Add faction to the list
+    taxoData.knownFactions.push(factionName);
+    
+    // Write back to file
+    fs.writeFileSync(taxoPath, JSON.stringify(taxoData, null, 2));
+    
+    // Log audit event
+    await logAuditEvent({
+      userId: user.id,
+      action: 'CREATE' as any,
+      entityType: 'SYSTEM_SETTINGS' as any,
+      entityId: 'faction',
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    res.json({ ok: true, faction: factionName });
+  } catch (error) {
+    console.error("Error adding faction:", error);
+    res.status(500).json({ ok: false, error: "Failed to add faction" });
+  }
+});
+
+// DELETE /api/factions/:faction — remove faction (Admin only)
+app.delete("/api/factions/:faction", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: "Admin permissions required" });
+    }
+    
+    const { faction } = req.params;
+    if (!faction) {
+      return res.status(400).json({ ok: false, error: "Faction name is required" });
+    }
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const taxoPath = path.join(process.cwd(), 'shared/data/taxo.json');
+    const taxoData = JSON.parse(fs.readFileSync(taxoPath, 'utf8'));
+    
+    // Check if faction exists
+    const factionIndex = taxoData.knownFactions.indexOf(faction);
+    if (factionIndex === -1) {
+      return res.status(404).json({ ok: false, error: "Faction not found" });
+    }
+    
+    // Remove faction from the list
+    taxoData.knownFactions.splice(factionIndex, 1);
+    
+    // Write back to file
+    fs.writeFileSync(taxoPath, JSON.stringify(taxoData, null, 2));
+    
+    // Log audit event
+    await logAuditEvent({
+      userId: user.id,
+      action: 'DELETE' as any,
+      entityType: 'SYSTEM_SETTINGS' as any,
+      entityId: 'faction',
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    res.json({ ok: true, faction });
+  } catch (error) {
+    console.error("Error removing faction:", error);
+    res.status(500).json({ ok: false, error: "Failed to remove faction" });
+  }
+});
+
 // ===== SHATTERPOINT STRIKE TEAMS API =====
 
 // GET /api/shatterpoint/strike-teams — get user's strike teams
