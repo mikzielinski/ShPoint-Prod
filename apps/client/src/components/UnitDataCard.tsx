@@ -36,12 +36,158 @@ const GLYPH_MAP: Record<string, string> = {
 
 function renderWithGlyphs(text?: string) {
   if (!text) return null;
+  
+  // First, handle bold and italic tags
+  let processedText = text;
+  
+  // Handle <b> tags
+  const boldMatches: Array<{match: string, content: string, index: number}> = [];
+  const boldRegex = /<b>([^<]+)<\/b>/g;
+  let boldMatch;
+  while ((boldMatch = boldRegex.exec(text)) !== null) {
+    boldMatches.push({
+      match: boldMatch[0],
+      content: boldMatch[1],
+      index: boldMatch.index
+    });
+  }
+  
+  // Handle <i> tags
+  const italicMatches: Array<{match: string, content: string, index: number}> = [];
+  const italicRegex = /<i>([^<]+)<\/i>/g;
+  let italicMatch;
+  while ((italicMatch = italicRegex.exec(text)) !== null) {
+    italicMatches.push({
+      match: italicMatch[0],
+      content: italicMatch[1],
+      index: italicMatch.index
+    });
+  }
+  
+  // Replace bold and italic tags with placeholders
+  boldMatches.forEach((boldMatch, i) => {
+    processedText = processedText.replace(boldMatch.match, `__BOLD_${i}__`);
+  });
+  
+  italicMatches.forEach((italicMatch, i) => {
+    processedText = processedText.replace(italicMatch.match, `__ITALIC_${i}__`);
+  });
+  
+  // Then handle faction tags
+  const factionRegex = /<faction>([^<]+)<\/faction>/g;
+  const factionMatches: Array<{match: string, faction: string, index: number}> = [];
+  let match;
+  while ((match = factionRegex.exec(processedText)) !== null) {
+    factionMatches.push({
+      match: match[0],
+      faction: match[1],
+      index: match.index
+    });
+  }
+  
+  // Replace faction tags with placeholders
+  factionMatches.forEach((factionMatch, i) => {
+    processedText = processedText.replace(factionMatch.match, `__FACTION_${i}__`);
+  });
+  
+  // Then handle unittype tags
+  const unitTypeRegex = /<unittype>([^<]+)<\/unittype>/g;
+  const unitTypeMatches: Array<{match: string, unitType: string, index: number}> = [];
+  let unitTypeMatch;
+  while ((unitTypeMatch = unitTypeRegex.exec(processedText)) !== null) {
+    unitTypeMatches.push({
+      match: unitTypeMatch[0],
+      unitType: unitTypeMatch[1],
+      index: unitTypeMatch.index
+    });
+  }
+  
+  // Replace unittype tags with placeholders
+  unitTypeMatches.forEach((unitTypeMatch, i) => {
+    processedText = processedText.replace(unitTypeMatch.match, `__UNITTYPE_${i}__`);
+  });
+  
+  // Helper function to render text with placeholders
+  function renderTextWithPlaceholders(text: string): React.ReactNode[] {
+    const parts = text.split(/(__BOLD_\d+__|__ITALIC_\d+__|__FACTION_\d+__|__UNITTYPE_\d+__)/);
+    return parts.map((part, index) => {
+      if (part.startsWith('__BOLD_') && part.endsWith('__')) {
+        const boldIndex = parseInt(part.replace('__BOLD_', '').replace('__', ''));
+        const boldMatch = boldMatches[boldIndex];
+        if (boldMatch) {
+          return <strong key={`bold-${boldIndex}-${index}`}>{boldMatch.content}</strong>;
+        }
+      }
+      if (part.startsWith('__ITALIC_') && part.endsWith('__')) {
+        const italicIndex = parseInt(part.replace('__ITALIC_', '').replace('__', ''));
+        const italicMatch = italicMatches[italicIndex];
+        if (italicMatch) {
+          return <em key={`italic-${italicIndex}-${index}`}>{italicMatch.content}</em>;
+        }
+      }
+      if (part.startsWith('__FACTION_') && part.endsWith('__')) {
+        const factionIndex = parseInt(part.replace('__FACTION_', '').replace('__', ''));
+        const factionMatch = factionMatches[factionIndex];
+        if (factionMatch) {
+          return (
+            <span
+              key={`faction-${factionIndex}-${index}`}
+              style={{
+                background: 'rgba(59, 130, 246, 0.2)',
+                color: '#60a5fa',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                margin: '0 2px'
+              }}
+            >
+              {factionMatch.faction}
+            </span>
+          );
+        }
+      }
+      if (part.startsWith('__UNITTYPE_') && part.endsWith('__')) {
+        const unitTypeIndex = parseInt(part.replace('__UNITTYPE_', '').replace('__', ''));
+        const unitTypeMatch = unitTypeMatches[unitTypeIndex];
+        if (unitTypeMatch) {
+          return (
+            <span
+              key={`unittype-${unitTypeIndex}-${index}`}
+              style={{
+                background: 'rgba(16, 185, 129, 0.2)',
+                color: '#34d399',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: '500',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                margin: '0 2px'
+              }}
+            >
+              {unitTypeMatch.unitType}
+            </span>
+          );
+        }
+      }
+      return part;
+    });
+  }
+  
+  // Then handle glyphs
   const re = /\[\[([^[\]]+)\]\]/g;
   const out: React.ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(text))) {
-    if (m.index > last) out.push(text.slice(last, m.index));
+  while ((m = re.exec(processedText))) {
+    if (m.index > last) {
+      const textPart = processedText.slice(last, m.index);
+      // Use helper function to render text with all placeholders
+      const renderedParts = renderTextWithPlaceholders(textPart);
+      out.push(...renderedParts);
+    }
+    
     const token = m[1].trim().toLowerCase();
     const g = GLYPH_MAP[token];
     out.push(
@@ -63,7 +209,14 @@ function renderWithGlyphs(text?: string) {
     );
     last = m.index + m[0].length;
   }
-  if (last < text.length) out.push(text.slice(last));
+  
+  // Handle remaining text
+  if (last < processedText.length) {
+    const remainingText = processedText.slice(last);
+    const renderedParts = renderTextWithPlaceholders(remainingText);
+    out.push(...renderedParts);
+  }
+  
   return out;
 }
 

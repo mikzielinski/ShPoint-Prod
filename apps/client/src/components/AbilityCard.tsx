@@ -44,9 +44,10 @@ function renderTextWithPlaceholders(
   text: string, 
   boldMatches: Array<{match: string, content: string, index: number}>,
   italicMatches: Array<{match: string, content: string, index: number}>,
-  factionMatches: Array<{match: string, faction: string, index: number}>
+  factionMatches: Array<{match: string, faction: string, index: number}>,
+  unitTypeMatches: Array<{match: string, unitType: string, index: number}>
 ): React.ReactNode[] {
-  const parts = text.split(/(__BOLD_\d+__|__ITALIC_\d+__|__FACTION_\d+__)/);
+  const parts = text.split(/(__BOLD_\d+__|__ITALIC_\d+__|__FACTION_\d+__|__UNITTYPE_\d+__)/);
   return parts.map((part, index) => {
     if (part.startsWith('__BOLD_') && part.endsWith('__')) {
       const boldIndex = parseInt(part.replace('__BOLD_', '').replace('__', ''));
@@ -81,6 +82,30 @@ function renderTextWithPlaceholders(
             }}
           >
             {factionMatch.faction}
+          </span>
+        );
+      }
+    }
+    
+    if (part.startsWith('__UNITTYPE_') && part.endsWith('__')) {
+      const unitTypeIndex = parseInt(part.replace('__UNITTYPE_', '').replace('__', ''));
+      const unitTypeMatch = unitTypeMatches[unitTypeIndex];
+      if (unitTypeMatch) {
+        return (
+          <span
+            key={`unittype-${unitTypeIndex}-${index}`}
+            style={{
+              background: 'rgba(16, 185, 129, 0.2)',
+              color: '#34d399',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              fontWeight: '500',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              margin: '0 2px'
+            }}
+          >
+            {unitTypeMatch.unitType}
           </span>
         );
       }
@@ -145,6 +170,23 @@ function renderWithGlyphs(text?: string) {
     processedText = processedText.replace(factionMatch.match, `__FACTION_${i}__`);
   });
   
+  // Then handle unittype tags
+  const unitTypeRegex = /<unittype>([^<]+)<\/unittype>/g;
+  const unitTypeMatches: Array<{match: string, unitType: string, index: number}> = [];
+  let unitTypeMatch;
+  while ((unitTypeMatch = unitTypeRegex.exec(processedText)) !== null) {
+    unitTypeMatches.push({
+      match: unitTypeMatch[0],
+      unitType: unitTypeMatch[1],
+      index: unitTypeMatch.index
+    });
+  }
+  
+  // Replace unittype tags with placeholders
+  unitTypeMatches.forEach((unitTypeMatch, i) => {
+    processedText = processedText.replace(unitTypeMatch.match, `__UNITTYPE_${i}__`);
+  });
+  
   // Then handle glyphs
   const re = /\[\[([^[\]]+)\]\]/g;
   const out: React.ReactNode[] = [];
@@ -154,7 +196,7 @@ function renderWithGlyphs(text?: string) {
     if (m.index > last) {
       const textPart = processedText.slice(last, m.index);
       // Use helper function to render text with all placeholders
-      const renderedParts = renderTextWithPlaceholders(textPart, boldMatches, italicMatches, factionMatches);
+      const renderedParts = renderTextWithPlaceholders(textPart, boldMatches, italicMatches, factionMatches, unitTypeMatches);
       out.push(...renderedParts);
     }
     
@@ -184,7 +226,7 @@ function renderWithGlyphs(text?: string) {
   // Handle remaining text
   if (last < processedText.length) {
     const remainingText = processedText.slice(last);
-    const renderedParts = renderTextWithPlaceholders(remainingText, boldMatches, italicMatches, factionMatches);
+    const renderedParts = renderTextWithPlaceholders(remainingText, boldMatches, italicMatches, factionMatches, unitTypeMatches);
     out.push(...renderedParts);
   }
   
