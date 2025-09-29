@@ -140,6 +140,10 @@ const strictLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Don't count successful requests
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  }
 });
 
 const moderateLimiter = rateLimit({
@@ -148,6 +152,10 @@ const moderateLimiter = rateLimit({
   message: { ok: false, error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  }
 });
 
 const generalLimiter = rateLimit({
@@ -156,6 +164,10 @@ const generalLimiter = rateLimit({
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  }
 });
 
 // 2. Slow Down (progressive delays) - More lenient
@@ -165,6 +177,10 @@ const speedLimiter = slowDown({
   delayMs: () => 200, // Fixed for express-slow-down v2
   maxDelayMs: 10000, // Reduced max delay from 20s to 10s
   skipSuccessfulRequests: true,
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  }
 });
 
 // 3. Brute Force Protection
@@ -193,6 +209,10 @@ const bruteForce = new ExpressBrute(bruteForceStore, {
   lifetime: 24 * 60 * 60, // 24 hours
   refreshTimeoutOnRequest: false,
   skipSuccessfulRequests: true,
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  },
   handleStoreError: (error) => {
     console.warn('Brute force store error:', error.message);
     // Continue with memory store fallback
@@ -216,6 +236,10 @@ const authBruteForce = new ExpressBrute(bruteForceStore, {
   maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
   lifetime: 24 * 60 * 60, // 24 hours
   skipSuccessfulRequests: true,
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  }
 });
 
 // 7. DDoS Detection and Monitoring - Adjusted thresholds
@@ -236,6 +260,13 @@ const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
     // '192.168.1.100',
     // '10.0.0.50'
   ];
+  
+  // Check if user is trusted (bypasses DDoS detection)
+  // @ts-ignore
+  if (req.user && req.user.isTrusted) {
+    console.log('🛡️ Trusted user bypassing DDoS detection:', req.user.email);
+    return next();
+  }
   
   // Emergency unban endpoint - remove this after fixing
   if (req.path === '/unban' && req.method === 'POST') {
@@ -571,9 +602,34 @@ function ensureAuth(req: Request, res: Response, next: NextFunction) {
   console.log('🔍 ensureAuth - cookies:', req.headers.cookie);
   
   // @ts-ignore
-  if (req.user) return next();
+  if (req.user) {
+    // Check if user is trusted (bypasses all security measures)
+    const trustedEmails = [
+      'mikzielinski@gmail.com' // Main developer - bypass all security
+    ];
+    
+    // @ts-ignore
+    if (trustedEmails.includes(req.user.email)) {
+      console.log('🛡️ Trusted user detected, bypassing all security measures:', req.user.email);
+      // @ts-ignore
+      req.user.isTrusted = true;
+    }
+    
+    return next();
+  }
   return res.status(401).json({ ok: false, error: "unauthorized" });
 }
+
+// Middleware to bypass security for trusted users
+function bypassSecurityForTrusted(req: Request, res: Response, next: NextFunction) {
+  // @ts-ignore
+  if (req.user && req.user.isTrusted) {
+    console.log('🛡️ Bypassing security for trusted user:', req.user.email);
+    return next();
+  }
+  return next();
+}
+
 function publicUser(u: any) {
   if (!u) return null;
   return {
