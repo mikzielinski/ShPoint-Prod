@@ -78,7 +78,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     name: '',
     description: '',
     forceCost: 0,
-    damageCost: 0,
+    damageCost: undefined,
     trigger: 'on_activation',
     isAction: false,
     tags: []
@@ -375,7 +375,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         name: '',
         description: '',
         forceCost: 0,
-        damageCost: 0,
+        damageCost: undefined,
         trigger: 'on_activation',
         isAction: false,
         tags: []
@@ -406,7 +406,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       name: '',
       description: '',
       forceCost: 0,
-      damageCost: 0,
+      damageCost: undefined,
       trigger: 'on_activation',
       isAction: false,
       tags: []
@@ -1328,8 +1328,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
               }}>Damage Cost</label>
               <input
                 type="number"
-                value={newAbility.damageCost || 0}
-                onChange={(e) => handleAbilityChange('damageCost', parseInt(e.target.value) || 0)}
+                value={newAbility.damageCost || ''}
+                onChange={(e) => handleAbilityChange('damageCost', parseInt(e.target.value) || undefined)}
                 style={{
                   width: '100%',
                   padding: '8px 12px',
@@ -1339,6 +1339,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
                   color: '#f9fafb'
                 }}
                 min="0"
+                placeholder="0"
               />
             </div>
 
