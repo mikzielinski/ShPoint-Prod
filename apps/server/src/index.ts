@@ -38,6 +38,11 @@ import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import fs from "fs";
+import rateLimit from "express-rate-limit";
+import slowDown from "express-slow-down";
+import ExpressBrute from "express-brute";
+import ExpressBruteRedis from "express-brute-redis";
+import Joi from "joi";
 import { sendInvitationEmail, testEmailConfiguration } from "./email.js";
 import { logAuditEvent, getAuditLogs } from "./audit.js";
 import { setupSwagger } from "./swagger.js";
@@ -78,16 +83,41 @@ function getFrontendUrl(origin?: string): string {
   return originMap[origin] || "https://shpoint.netlify.app";
 }
 
-// Debug log
+// Environment validation
+const requiredEnvVars = [
+  'SESSION_SECRET',
+  'GOOGLE_CLIENT_ID', 
+  'GOOGLE_CLIENT_SECRET',
+  'DATABASE_URL'
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`❌ Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+}
+
+// Validate SESSION_SECRET strength
+const SESSION_SECRET = process.env.SESSION_SECRET!;
+if (SESSION_SECRET.length < 32) {
+  console.error("❌ SESSION_SECRET must be at least 32 characters long");
+  process.exit(1);
+}
+if (SESSION_SECRET === "dev_dev_dev_change_me") {
+  console.error("❌ SESSION_SECRET cannot be the default development value in production");
+  process.exit(1);
+}
+
+// Debug log (secure)
 console.log("🔍 Environment variables:");
 console.log("GOOGLE_CLIENT_ID:", GOOGLE_CLIENT_ID);
-console.log("GOOGLE_CLIENT_SECRET:", GOOGLE_CLIENT_SECRET ? "***SET***" : "NOT SET");
+console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "NOT SET");
 const GOOGLE_CALLBACK_URL =
   process.env.GOOGLE_CALLBACK_URL ?? "https://shpoint.netlify.app/backend-auth/google/callback";
 
 // Debug log for callback URL
 console.log("🔍 GOOGLE_CALLBACK_URL:", GOOGLE_CALLBACK_URL);
-const SESSION_SECRET = process.env.SESSION_SECRET ?? "dev_dev_dev_change_me";
 const ADMIN_EMAILS =
   (process.env.ADMIN_EMAILS ?? "")
     .split(",")
@@ -100,9 +130,166 @@ export const app = express();
 // Trust proxy for Render (needed for secure cookies)
 app.set('trust proxy', 1);
 
+// ===== ADVANCED DDoS PROTECTION =====
+
+// 1. Basic Rate Limiting
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Very strict for auth endpoints
+  message: { ok: false, error: 'Too many authentication attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+const moderateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Moderate for API endpoints
+  message: { ok: false, error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // General limit for all requests
+  message: { ok: false, error: 'Rate limit exceeded, please slow down' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// 2. Slow Down (progressive delays)
+const speedLimiter = slowDown({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  delayAfter: 10, // Allow 10 requests per windowMs without delay
+  delayMs: 500, // Add 500ms delay per request after delayAfter
+  maxDelayMs: 20000, // Maximum delay of 20 seconds
+  skipSuccessfulRequests: true,
+});
+
+// 3. Brute Force Protection
+const bruteForceStore = new ExpressBruteRedis({
+  host: process.env.REDIS_URL || 'localhost',
+  port: process.env.REDIS_PORT || 6379,
+  prefix: 'shpoint:bruteforce:'
+});
+
+const bruteForce = new ExpressBrute(bruteForceStore, {
+  freeRetries: 3, // Number of attempts before rate limiting kicks in
+  minWait: 5 * 60 * 1000, // 5 minutes
+  maxWait: 15 * 60 * 1000, // 15 minutes
+  lifetime: 24 * 60 * 60, // 24 hours
+  refreshTimeoutOnRequest: false,
+  skipSuccessfulRequests: true,
+  handleStoreError: (error) => {
+    console.error('Brute force store error:', error);
+    // Fallback to memory store if Redis fails
+  }
+});
+
+// 4. Request size limiting
+app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
+app.use(express.urlencoded({ limit: '10mb', extended: true })); // Limit URL-encoded payload size
+
+// 5. Apply protection layers
+app.use(generalLimiter); // Apply to all requests first
+app.use(speedLimiter); // Then apply speed limiting
+app.use('/auth/', strictLimiter); // Strict limits for auth
+app.use('/api/', moderateLimiter); // Moderate limits for API
+
+// 6. Brute force protection for specific endpoints
+const authBruteForce = new ExpressBrute(bruteForceStore, {
+  freeRetries: 2,
+  minWait: 10 * 60 * 1000, // 10 minutes
+  maxWait: 60 * 60 * 1000, // 1 hour
+  lifetime: 24 * 60 * 60, // 24 hours
+  skipSuccessfulRequests: true,
+});
+
+// 7. DDoS Detection and Monitoring
+const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
+const IP_THRESHOLD = 100; // Requests per minute
+const IP_BAN_DURATION = 60 * 60 * 1000; // 1 hour
+
+const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const now = new Date();
+  
+  // Clean old entries
+  for (const [key, data] of suspiciousIPs.entries()) {
+    if (now.getTime() - data.lastSeen.getTime() > IP_BAN_DURATION) {
+      suspiciousIPs.delete(key);
+    }
+  }
+  
+  // Check if IP is already banned
+  const ipData = suspiciousIPs.get(ip);
+  if (ipData && now.getTime() - ipData.firstSeen.getTime() < IP_BAN_DURATION) {
+    console.warn(`🚨 Banned IP attempting access: ${ip}`);
+    return res.status(429).json({ 
+      ok: false, 
+      error: 'IP temporarily banned due to suspicious activity' 
+    });
+  }
+  
+  // Track request frequency
+  if (!ipData) {
+    suspiciousIPs.set(ip, { count: 1, firstSeen: now, lastSeen: now });
+  } else {
+    ipData.count++;
+    ipData.lastSeen = now;
+    
+    // Check if IP is making too many requests
+    const timeDiff = now.getTime() - ipData.firstSeen.getTime();
+    const requestsPerMinute = (ipData.count / timeDiff) * 60000;
+    
+    if (requestsPerMinute > IP_THRESHOLD) {
+      console.warn(`🚨 DDoS detected from IP: ${ip}, ${requestsPerMinute.toFixed(2)} req/min`);
+      
+      // Log the attack
+      logAuditEvent({
+        entityType: 'SECURITY',
+        entityId: ip,
+        action: 'DDOS_DETECTED',
+        userId: null,
+        description: `DDoS attack detected from ${ip}: ${requestsPerMinute.toFixed(2)} requests per minute`,
+        changes: {
+          before: null,
+          after: { requestsPerMinute, count: ipData.count, duration: timeDiff }
+        }
+      }).catch(console.error);
+      
+      return res.status(429).json({ 
+        ok: false, 
+        error: 'Rate limit exceeded - suspicious activity detected' 
+      });
+    }
+  }
+  
+  next();
+};
+
+// 8. Apply DDoS detection
+app.use(ddosDetection);
+
 // Setup Swagger documentation (will be called after ensureApiAccess is defined)
 
-app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(helmet({ 
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -548,6 +735,7 @@ app.post("/api/seed", async (req, res) => {
 // start
 app.get(
   "/auth/google",
+  authBruteForce.prevent, // Apply brute force protection
   (req, res, next) => {
     // Store the return URL in session if provided
     console.log('🔍 Google OAuth start - query:', req.query);
@@ -3419,6 +3607,67 @@ app.get("/api/me/tokens", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error("Error fetching user API tokens:", error);
     res.status(500).json({ ok: false, error: "Failed to fetch API tokens" });
+  }
+});
+
+// DDoS monitoring endpoint (admin only)
+app.get("/api/admin/security/ddos", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const now = new Date();
+    const activeThreats = Array.from(suspiciousIPs.entries())
+      .filter(([ip, data]) => {
+        const timeDiff = now.getTime() - data.firstSeen.getTime();
+        const requestsPerMinute = (data.count / timeDiff) * 60000;
+        return requestsPerMinute > IP_THRESHOLD * 0.5; // Show IPs with >50% of threshold
+      })
+      .map(([ip, data]) => {
+        const timeDiff = now.getTime() - data.firstSeen.getTime();
+        const requestsPerMinute = (data.count / timeDiff) * 60000;
+        return {
+          ip,
+          count: data.count,
+          requestsPerMinute: Math.round(requestsPerMinute * 100) / 100,
+          firstSeen: data.firstSeen,
+          lastSeen: data.lastSeen,
+          duration: Math.round(timeDiff / 1000), // seconds
+          isBanned: timeDiff < IP_BAN_DURATION
+        };
+      })
+      .sort((a, b) => b.requestsPerMinute - a.requestsPerMinute);
+
+    res.json({
+      ok: true,
+      stats: {
+        totalTrackedIPs: suspiciousIPs.size,
+        activeThreats: activeThreats.length,
+        threshold: IP_THRESHOLD,
+        banDuration: IP_BAN_DURATION / 1000 / 60 // minutes
+      },
+      threats: activeThreats
+    });
+  } catch (error) {
+    console.error("Error fetching DDoS stats:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch DDoS stats" });
+  }
+});
+
+// Clear banned IPs (admin only)
+app.post("/api/admin/security/ddos/clear", ensureAuth, ensureAdmin, async (req, res) => {
+  try {
+    const { ip } = req.body;
+    
+    if (ip) {
+      // Clear specific IP
+      suspiciousIPs.delete(ip);
+      res.json({ ok: true, message: `Cleared IP: ${ip}` });
+    } else {
+      // Clear all IPs
+      suspiciousIPs.clear();
+      res.json({ ok: true, message: "Cleared all tracked IPs" });
+    }
+  } catch (error) {
+    console.error("Error clearing DDoS data:", error);
+    res.status(500).json({ ok: false, error: "Failed to clear DDoS data" });
   }
 });
 
