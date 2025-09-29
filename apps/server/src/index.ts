@@ -231,6 +231,7 @@ const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
   const trustedIPs = [
     '127.0.0.1',
     '::1',
+    '89.151.22.52', // User's IP - added to prevent accidental bans
     // Add your trusted IPs here if needed
     // '192.168.1.100',
     // '10.0.0.50'
