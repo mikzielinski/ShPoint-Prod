@@ -630,6 +630,72 @@ function bypassSecurityForTrusted(req: Request, res: Response, next: NextFunctio
   return next();
 }
 
+// Function to synchronize characters_unified.json with individual data.json files
+async function syncCharactersUnified() {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load current characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      console.warn('⚠️ characters_unified.json not found, skipping sync');
+      return;
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    console.log(`🔄 Syncing ${unifiedData.length} characters in unified file...`);
+    
+    let updatedCount = 0;
+    
+    // Update each character with data from individual data.json files
+    for (const char of unifiedData) {
+      try {
+        let dataPath = path.join(process.cwd(), `characters_assets/${char.id}/data.json`);
+        if (!fs.existsSync(dataPath)) {
+          dataPath = path.join(process.cwd(), `../client/characters_assets/${char.id}/data.json`);
+        }
+        
+        if (fs.existsSync(dataPath)) {
+          const individualData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          
+          // Update unified data with individual data (prioritize individual data)
+          const updatedChar = {
+            ...char,
+            ...individualData,
+            // Keep unified-specific fields
+            id: char.id,
+            // Ensure arrays are properly handled
+            factions: individualData.factions || char.factions || [],
+            period: individualData.period || char.period || [],
+            tags: individualData.tags || char.tags || []
+          };
+          
+          // Update the character in unified array
+          const charIndex = unifiedData.findIndex((c: any) => c.id === char.id);
+          if (charIndex !== -1) {
+            unifiedData[charIndex] = updatedChar;
+            updatedCount++;
+          }
+        }
+      } catch (error) {
+        console.warn(`⚠️ Failed to sync character ${char.id}:`, error);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    console.log(`✅ Synchronized ${updatedCount} characters in unified file`);
+    
+  } catch (error) {
+    console.error('❌ Failed to sync characters_unified.json:', error);
+  }
+}
+
 function publicUser(u: any) {
   if (!u) return null;
   return {
@@ -2302,6 +2368,10 @@ app.put("/backend-api/characters/:id", ensureAuth, async (req, res) => {
     });
     
     console.log('Character updated successfully:', id);
+    
+    // Synchronize characters_unified.json with updated data
+    await syncCharactersUnified();
+    
     res.json({ ok: true, character: updatedData });
     
   } catch (error) {
@@ -2346,6 +2416,9 @@ app.put("/backend-api/characters/:id/stance", ensureAuth, async (req, res) => {
     
     fs.writeFileSync(stancePath, JSON.stringify(stanceData, null, 2));
     console.log('Updated stance file for character:', characterId);
+    
+    // Synchronize characters_unified.json after stance update
+    await syncCharactersUnified();
     
     res.json({ 
       ok: true, 
@@ -2395,6 +2468,9 @@ app.put("/api/characters/:id/stance", ensureAuth, async (req, res) => {
     fs.writeFileSync(stancePath, JSON.stringify(stanceData, null, 2));
     console.log('Updated stance file for character:', characterId);
     
+    // Synchronize characters_unified.json after stance update
+    await syncCharactersUnified();
+    
     res.json({ 
       ok: true, 
       message: 'Stance updated successfully',
@@ -2403,6 +2479,25 @@ app.put("/api/characters/:id/stance", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error('Error updating stance:', error);
     res.status(500).json({ ok: false, error: 'Failed to update stance' });
+  }
+});
+
+// POST /api/admin/sync-characters — manually sync characters_unified.json (Admin only)
+app.post("/api/admin/sync-characters", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Manual character sync requested by:', user.email);
+    await syncCharactersUnified();
+    
+    res.json({ ok: true, message: 'Characters synchronized successfully' });
+  } catch (error) {
+    console.error('Error during manual sync:', error);
+    res.status(500).json({ ok: false, error: 'Failed to sync characters' });
   }
 });
 

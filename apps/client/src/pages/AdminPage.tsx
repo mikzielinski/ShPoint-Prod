@@ -297,6 +297,30 @@ export default function AdminPage() {
     }
   };
 
+  const handleSyncCharacters = async () => {
+    setError(null);
+    setOk(null);
+
+    try {
+      const res = await fetch(api("/api/admin/sync-characters"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to sync characters");
+      }
+
+      setOk("Characters synchronized successfully!");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setTimeout(() => setOk(null), 3000);
+    }
+  };
+
   const handleSaveGoogleAvatar = async (u: AdminUser) => {
     if (!u.image) {
       setError("User doesn't have a Google image to save");
@@ -484,6 +508,46 @@ export default function AdminPage() {
           {/* Health Check Section */}
           <section className="card">
             <HealthCheck />
+          </section>
+
+          {/* Character Synchronization Section */}
+          <section className="card">
+            <h3 style={{ color: '#f9fafb', marginBottom: '20px' }}>Character Data Management</h3>
+            <div style={{ 
+              background: '#1f2937', 
+              padding: '20px', 
+              borderRadius: '8px',
+              border: '1px solid #374151',
+              marginBottom: '20px'
+            }}>
+              <h4 style={{ color: '#f9fafb', margin: '0 0 15px 0' }}>Synchronize Character Data</h4>
+              <div style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.6', marginBottom: '15px' }}>
+                <p>This will synchronize the <code style={{ background: '#111827', padding: '2px 6px', borderRadius: '4px' }}>characters_unified.json</code> file with all individual character data files.</p>
+                <p><strong>Use this when:</strong></p>
+                <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
+                  <li>Character data appears outdated in the library</li>
+                  <li>After bulk character edits</li>
+                  <li>When individual character data doesn't match the unified file</li>
+                </ul>
+              </div>
+              <button
+                onClick={handleSyncCharacters}
+                style={{
+                  background: '#059669',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = '#047857'}
+                onMouseOut={(e) => e.currentTarget.style.background = '#059669'}
+              >
+                🔄 Synchronize Characters
+              </button>
+            </div>
           </section>
         </>
       )}
