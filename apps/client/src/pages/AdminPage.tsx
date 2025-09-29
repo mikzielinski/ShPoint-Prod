@@ -216,6 +216,43 @@ export default function AdminPage() {
     }
   };
 
+  const handleGenerateApiToken = async (u: AdminUser) => {
+    if (!canManage) return;
+    
+    const scopes = prompt(`Enter custom scopes for ${u.email} (comma-separated, or leave empty for default):`);
+    const expiresInDays = prompt(`Token expiration in days (default: 365):`, '365');
+    
+    try {
+      setSavingId(u.id);
+      const response = await apiFetch(api(`/api/admin/users/${u.id}/generate-token`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scopes: scopes ? scopes.split(',').map(s => s.trim()) : undefined,
+          expiresInDays: expiresInDays ? parseInt(expiresInDays) : 365
+        })
+      });
+      
+      if (response.ok) {
+        const tokenData = response.token;
+        const tokenText = `API Token generated for ${u.email}:\n\nToken: ${tokenData.token}\nScopes: ${tokenData.scopes.join(', ')}\nExpires: ${new Date(tokenData.expiresAt).toLocaleDateString()}\n\nCopy this token - it won't be shown again!`;
+        
+        // Copy token to clipboard
+        navigator.clipboard.writeText(tokenData.token);
+        
+        alert(tokenText);
+        setOk(`API token generated for ${u.email}`);
+      } else {
+        setError(response.error || 'Failed to generate API token');
+      }
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to generate API token");
+    } finally {
+      setSavingId(null);
+      setTimeout(() => setOk(null), 3000);
+    }
+  };
+
   const handleUnbanUser = async (u: AdminUser) => {
     if (!canManage) return;
 
@@ -779,6 +816,20 @@ export default function AdminPage() {
                         >
                           Set API_USER
                         </button>
+                        
+                        {/* Generate API Token button for API_USER */}
+                        {u.role === "API_USER" && (
+                          <button
+                            className="dropdown-item"
+                            onClick={() => {
+                              handleGenerateApiToken(u);
+                              setOpenDropdown(null);
+                            }}
+                            style={{ color: "#10b981" }}
+                          >
+                            Generate API Token
+                          </button>
+                        )}
                         
                         {/* Separator */}
                         <div style={{ 

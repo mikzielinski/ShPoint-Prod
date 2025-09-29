@@ -37,6 +37,14 @@
   status = 200
   force = true
 
+# User profile API proxy
+[[redirects]]
+  from = "/api/user/*"
+  to = "https://shpoint-prod.onrender.com/api/user/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
 # Google Search Console verification file - must be served directly
 [[redirects]]
   from = "/google29ee34408b7b694e.html"

@@ -16,6 +16,16 @@ declare global {
       username: string | null;
       invitationsLimit: number;
     }
+    interface Request {
+      apiToken?: {
+        id: string;
+        token: string;
+        scopes: string[];
+        expiresAt: Date;
+        userId: string;
+        user: User;
+      };
+    }
   }
 }
 import cors from "cors";
@@ -267,6 +277,63 @@ passport.use(
 );
 
 // ===== Helpers
+
+// Middleware to authenticate Bearer token
+function ensureBearerAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ ok: false, error: 'Bearer token required' });
+  }
+  
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  
+  // Find token in database
+  prisma.apiToken.findFirst({
+    where: {
+      token,
+      isActive: true,
+      expiresAt: { gt: new Date() }
+    },
+    include: {
+      user: true
+    }
+  }).then(apiToken => {
+    if (!apiToken) {
+      return res.status(401).json({ ok: false, error: 'Invalid or expired token' });
+    }
+    
+    // Attach user to request
+    req.user = apiToken.user;
+    req.apiToken = apiToken;
+    next();
+  }).catch(error => {
+    console.error('Bearer auth error:', error);
+    res.status(500).json({ ok: false, error: 'Authentication error' });
+  });
+}
+
+// Middleware to check API scopes
+function requireScope(requiredScopes: string[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.apiToken) {
+      return res.status(401).json({ ok: false, error: 'API token required' });
+    }
+    
+    const userScopes = req.apiToken.scopes || [];
+    const hasRequiredScope = requiredScopes.some(scope => userScopes.includes(scope));
+    
+    if (!hasRequiredScope) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: `Insufficient permissions. Required: ${requiredScopes.join(' or ')}, Available: ${userScopes.join(', ')}` 
+      });
+    }
+    
+    next();
+  };
+}
+
 function ensureAuth(req: Request, res: Response, next: NextFunction) {
   // @ts-ignore
   console.log('🔍 ensureAuth - req.user:', req.user);
@@ -3051,6 +3118,307 @@ app.post("/api/user/invitations", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error("Error sending invitation:", error);
     res.status(500).json({ ok: false, error: "Failed to send invitation" });
+  }
+});
+
+// Generate API token for API User (admin only)
+app.post("/api/admin/users/:id/generate-token", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (!user || user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin access required' });
+    }
+
+    const { id } = req.params;
+    const { scopes, expiresInDays = 365 } = req.body;
+
+    // Find the user
+    const targetUser = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!targetUser) {
+      return res.status(404).json({ ok: false, error: 'User not found' });
+    }
+
+    if (targetUser.role !== 'API_USER') {
+      return res.status(400).json({ ok: false, error: 'User must have API_USER role' });
+    }
+
+    // Generate token
+    const token = require('crypto').randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + (expiresInDays * 24 * 60 * 60 * 1000));
+
+    // Save token to database
+    const apiToken = await prisma.apiToken.create({
+      data: {
+        token,
+        userId: targetUser.id,
+        scopes: scopes || ['cards:read', 'missions:read', 'sets:read'],
+        expiresAt,
+        createdBy: user.id
+      }
+    });
+
+    // Log the action
+    await logAuditEvent({
+      entityType: 'API_TOKEN',
+      entityId: apiToken.id,
+      action: 'CREATE',
+      userId: user.id,
+      description: `API token generated for ${targetUser.email} by ${user.email}`,
+      changes: {
+        before: null,
+        after: {
+          scopes: apiToken.scopes,
+          expiresAt: apiToken.expiresAt
+        }
+      }
+    });
+
+    res.json({
+      ok: true,
+      token: {
+        id: apiToken.id,
+        token: apiToken.token,
+        scopes: apiToken.scopes,
+        expiresAt: apiToken.expiresAt,
+        createdAt: apiToken.createdAt
+      }
+    });
+  } catch (error) {
+    console.error("Error generating API token:", error);
+    res.status(500).json({ ok: false, error: "Failed to generate API token" });
+  }
+});
+
+// Get API tokens for a user (admin only)
+app.get("/api/admin/users/:id/tokens", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (!user || user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin access required' });
+    }
+
+    const { id } = req.params;
+
+    const tokens = await prisma.apiToken.findMany({
+      where: { userId: id },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        token: true,
+        scopes: true,
+        expiresAt: true,
+        createdAt: true,
+        isActive: true
+      }
+    });
+
+    res.json({ ok: true, tokens });
+  } catch (error) {
+    console.error("Error fetching API tokens:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch API tokens" });
+  }
+});
+
+// Revoke API token (admin only)
+app.delete("/api/admin/tokens/:tokenId", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (!user || user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin access required' });
+    }
+
+    const { tokenId } = req.params;
+
+    const token = await prisma.apiToken.findUnique({
+      where: { id: tokenId },
+      include: { user: true }
+    });
+
+    if (!token) {
+      return res.status(404).json({ ok: false, error: 'Token not found' });
+    }
+
+    await prisma.apiToken.update({
+      where: { id: tokenId },
+      data: { isActive: false }
+    });
+
+    // Log the action
+    await logAuditEvent({
+      entityType: 'API_TOKEN',
+      entityId: tokenId,
+      action: 'DELETE',
+      userId: user.id,
+      description: `API token revoked for ${token.user.email} by ${user.email}`,
+      changes: {
+        before: { isActive: true },
+        after: { isActive: false }
+      }
+    });
+
+    res.json({ ok: true, message: 'Token revoked successfully' });
+  } catch (error) {
+    console.error("Error revoking API token:", error);
+    res.status(500).json({ ok: false, error: "Failed to revoke API token" });
+  }
+});
+
+// ===== API ENDPOINTS WITH BEARER AUTHENTICATION =====
+
+// GET /api/v1/characters — get all characters (Bearer auth)
+app.get("/api/v1/characters", ensureBearerAuth, requireScope(['cards:read']), async (req, res) => {
+  try {
+    const characters = await getCharacters();
+    res.json({ ok: true, items: characters });
+  } catch (error) {
+    console.error("Error fetching characters:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch characters" });
+  }
+});
+
+// GET /api/v1/characters/:id — get specific character (Bearer auth)
+app.get("/api/v1/characters/:id", ensureBearerAuth, requireScope(['cards:read']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const character = await getCharacter(id);
+    if (!character) {
+      return res.status(404).json({ ok: false, error: "Character not found" });
+    }
+    res.json({ ok: true, character });
+  } catch (error) {
+    console.error("Error fetching character:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch character" });
+  }
+});
+
+// GET /api/v1/missions — get all missions (Bearer auth)
+app.get("/api/v1/missions", ensureBearerAuth, requireScope(['missions:read']), async (req, res) => {
+  try {
+    const missions = await getMissions();
+    res.json({ ok: true, items: missions });
+  } catch (error) {
+    console.error("Error fetching missions:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch missions" });
+  }
+});
+
+// GET /api/v1/sets — get all sets (Bearer auth)
+app.get("/api/v1/sets", ensureBearerAuth, requireScope(['sets:read']), async (req, res) => {
+  try {
+    const sets = await getSets();
+    res.json({ ok: true, items: sets });
+  } catch (error) {
+    console.error("Error fetching sets:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch sets" });
+  }
+});
+
+// POST /api/v1/characters — create character (Bearer auth, content:write)
+app.post("/api/v1/characters", ensureBearerAuth, requireScope(['content:write']), async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    console.log('POST /api/v1/characters called by:', user?.email, 'Role:', user?.role);
+    
+    if (!['EDITOR', 'ADMIN'].includes(user.role)) {
+      return res.status(403).json({ ok: false, error: 'Editor or Admin role required' });
+    }
+
+    const characterData = req.body;
+    const result = await createCharacter(characterData, user);
+    res.json({ ok: true, character: result });
+  } catch (error) {
+    console.error("Error creating character:", error);
+    res.status(500).json({ ok: false, error: "Failed to create character" });
+  }
+});
+
+// PUT /api/v1/characters/:id — update character (Bearer auth, content:write)
+app.put("/api/v1/characters/:id", ensureBearerAuth, requireScope(['content:write']), async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    console.log('PUT /api/v1/characters/:id called by:', user?.email, 'Role:', user?.role);
+    
+    if (!['EDITOR', 'ADMIN'].includes(user.role)) {
+      return res.status(403).json({ ok: false, error: 'Editor or Admin role required' });
+    }
+
+    const { id } = req.params;
+    const characterData = req.body;
+    const result = await updateCharacter(id, characterData, user);
+    res.json({ ok: true, character: result });
+  } catch (error) {
+    console.error("Error updating character:", error);
+    res.status(500).json({ ok: false, error: "Failed to update character" });
+  }
+});
+
+// GET /api/v1/users — get users (Bearer auth, users:read)
+app.get("/api/v1/users", ensureBearerAuth, requireScope(['users:read']), async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (!['ADMIN'].includes(user.role)) {
+      return res.status(403).json({ ok: false, error: 'Admin role required' });
+    }
+
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        username: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        lastLoginAt: true
+      }
+    });
+    
+    res.json({ ok: true, users });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch users" });
+  }
+});
+
+// Get current user's API tokens
+app.get("/api/me/tokens", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    
+    if (user.role !== 'API_USER') {
+      return res.status(403).json({ ok: false, error: 'API_USER role required' });
+    }
+
+    const tokens = await prisma.apiToken.findMany({
+      where: { 
+        userId: user.id,
+        isActive: true,
+        expiresAt: { gt: new Date() }
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        token: true,
+        scopes: true,
+        expiresAt: true,
+        createdAt: true
+      }
+    });
+
+    res.json({ ok: true, tokens });
+  } catch (error) {
+    console.error("Error fetching user API tokens:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch API tokens" });
   }
 });
 
