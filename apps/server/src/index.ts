@@ -2501,17 +2501,42 @@ app.post("/api/admin/sync-characters", ensureAuth, async (req, res) => {
   }
 });
 
+// GET /api/debug/check-ip — check what IP the server sees
+app.get("/api/debug/check-ip", async (req, res) => {
+  const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
+  res.json({ 
+    ok: true, 
+    ip: clientIP,
+    details: {
+      req_ip: req.ip,
+      connection_remoteAddress: req.connection.remoteAddress,
+      x_forwarded_for: req.headers['x-forwarded-for'],
+      x_real_ip: req.headers['x-real-ip']
+    }
+  });
+});
+
 // POST /api/debug/sync-characters — debug sync for trusted IPs only
 app.post("/api/debug/sync-characters", async (req, res) => {
   try {
     const trustedIPs = ['89.151.22.52']; // Your IP
-    const clientIP = req.ip || req.connection.remoteAddress;
+    const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
+    
+    console.log('🔍 Debug sync request - IP details:', {
+      req_ip: req.ip,
+      connection_remoteAddress: req.connection.remoteAddress,
+      x_forwarded_for: req.headers['x-forwarded-for'],
+      x_real_ip: req.headers['x-real-ip'],
+      clientIP: clientIP,
+      trustedIPs: trustedIPs
+    });
     
     if (!trustedIPs.includes(clientIP)) {
+      console.log('❌ Access denied for IP:', clientIP);
       return res.status(403).json({ ok: false, error: 'Access denied' });
     }
     
-    console.log('Debug character sync requested from trusted IP:', clientIP);
+    console.log('✅ Debug character sync requested from trusted IP:', clientIP);
     await syncCharactersUnified();
     
     res.json({ ok: true, message: 'Characters synchronized successfully via debug endpoint' });
