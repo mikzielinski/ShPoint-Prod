@@ -132,10 +132,10 @@ app.set('trust proxy', 1);
 
 // ===== ADVANCED DDoS PROTECTION =====
 
-// 1. Basic Rate Limiting
+// 1. Basic Rate Limiting - Adjusted for normal users
 const strictLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // Very strict for auth endpoints
+  max: 10, // Allow 10 auth attempts per 15 minutes (was 3)
   message: { ok: false, error: 'Too many authentication attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -144,7 +144,7 @@ const strictLimiter = rateLimit({
 
 const moderateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Moderate for API endpoints
+  max: 100, // Increased from 50 to 100 for API endpoints
   message: { ok: false, error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -152,18 +152,18 @@ const moderateLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // General limit for all requests
+  max: 500, // Increased from 200 to 500 for general requests
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// 2. Slow Down (progressive delays)
+// 2. Slow Down (progressive delays) - More lenient
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 10, // Allow 10 requests per windowMs without delay
-  delayMs: 500, // Add 500ms delay per request after delayAfter
-  maxDelayMs: 20000, // Maximum delay of 20 seconds
+  delayAfter: 20, // Allow 20 requests per windowMs without delay (was 10)
+  delayMs: 200, // Reduced delay from 500ms to 200ms
+  maxDelayMs: 10000, // Reduced max delay from 20s to 10s
   skipSuccessfulRequests: true,
 });
 
@@ -175,9 +175,9 @@ const bruteForceStore = new ExpressBruteRedis({
 });
 
 const bruteForce = new ExpressBrute(bruteForceStore, {
-  freeRetries: 3, // Number of attempts before rate limiting kicks in
-  minWait: 5 * 60 * 1000, // 5 minutes
-  maxWait: 15 * 60 * 1000, // 15 minutes
+  freeRetries: 5, // Increased from 3 to 5 attempts
+  minWait: 2 * 60 * 1000, // Reduced from 5 minutes to 2 minutes
+  maxWait: 10 * 60 * 1000, // Reduced from 15 minutes to 10 minutes
   lifetime: 24 * 60 * 60, // 24 hours
   refreshTimeoutOnRequest: false,
   skipSuccessfulRequests: true,
@@ -197,23 +197,36 @@ app.use(speedLimiter); // Then apply speed limiting
 app.use('/auth/', strictLimiter); // Strict limits for auth
 app.use('/api/', moderateLimiter); // Moderate limits for API
 
-// 6. Brute force protection for specific endpoints
+// 6. Brute force protection for specific endpoints - More lenient
 const authBruteForce = new ExpressBrute(bruteForceStore, {
-  freeRetries: 2,
-  minWait: 10 * 60 * 1000, // 10 minutes
-  maxWait: 60 * 60 * 1000, // 1 hour
+  freeRetries: 5, // Increased from 2 to 5
+  minWait: 5 * 60 * 1000, // Reduced from 10 minutes to 5 minutes
+  maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
   lifetime: 24 * 60 * 60, // 24 hours
   skipSuccessfulRequests: true,
 });
 
-// 7. DDoS Detection and Monitoring
+// 7. DDoS Detection and Monitoring - Adjusted thresholds
 const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
-const IP_THRESHOLD = 100; // Requests per minute
-const IP_BAN_DURATION = 60 * 60 * 1000; // 1 hour
+const IP_THRESHOLD = 200; // Increased from 100 to 200 requests per minute
+const IP_BAN_DURATION = 30 * 60 * 1000; // Reduced from 1 hour to 30 minutes
 
 const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const now = new Date();
+  
+  // Whitelist for trusted IPs (optional - add your office/home IPs here)
+  const trustedIPs = [
+    '127.0.0.1',
+    '::1',
+    // Add your trusted IPs here if needed
+    // '192.168.1.100',
+    // '10.0.0.50'
+  ];
+  
+  if (trustedIPs.includes(ip)) {
+    return next(); // Skip DDoS detection for trusted IPs
+  }
   
   // Clean old entries
   for (const [key, data] of suspiciousIPs.entries()) {
@@ -269,8 +282,17 @@ const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// 8. Apply DDoS detection
-app.use(ddosDetection);
+// 8. Apply DDoS detection (with exceptions)
+app.use((req, res, next) => {
+  // Skip DDoS detection for static files and health checks
+  if (req.path.startsWith('/characters/') || 
+      req.path.startsWith('/public/') || 
+      req.path === '/health' ||
+      req.path === '/favicon.ico') {
+    return next();
+  }
+  ddosDetection(req, res, next);
+});
 
 // Setup Swagger documentation (will be called after ensureApiAccess is defined)
 
