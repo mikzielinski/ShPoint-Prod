@@ -514,7 +514,7 @@ function ensureBearerAuth(req: Request, res: Response, next: NextFunction) {
     
     // Attach user to request
     req.user = apiToken.user;
-    req.apiToken = apiToken;
+    (req as any).apiToken = apiToken;
     next();
   }).catch(error => {
     console.error('Bearer auth error:', error);
@@ -3368,7 +3368,7 @@ app.post("/api/admin/users/:id/generate-token", ensureAuth, async (req, res) => 
         userId: targetUser.id,
         scopes: scopes || ['cards:read', 'missions:read', 'sets:read'],
         expiresAt
-      }
+      } as any
     });
 
     // Log the action
@@ -3381,7 +3381,7 @@ app.post("/api/admin/users/:id/generate-token", ensureAuth, async (req, res) => 
       changes: {
         before: null,
         after: {
-          scopes: apiToken.scopes,
+          scopes: (apiToken as any).scopes,
           expiresAt: apiToken.expiresAt
         }
       }
@@ -3392,7 +3392,7 @@ app.post("/api/admin/users/:id/generate-token", ensureAuth, async (req, res) => 
       token: {
         id: apiToken.id,
         token: apiToken.token,
-        scopes: apiToken.scopes,
+        scopes: (apiToken as any).scopes,
         expiresAt: apiToken.expiresAt,
         createdAt: apiToken.createdAt
       }
@@ -3424,7 +3424,7 @@ app.get("/api/admin/users/:id/tokens", ensureAuth, async (req, res) => {
         expiresAt: true,
         createdAt: true,
         isActive: true
-      }
+      } as any
     });
 
     res.json({ ok: true, tokens });
@@ -3619,7 +3619,7 @@ app.get("/api/me/tokens", ensureAuth, async (req, res) => {
         scopes: true,
         expiresAt: true,
         createdAt: true
-      }
+      } as any
     });
 
     res.json({ ok: true, tokens });
