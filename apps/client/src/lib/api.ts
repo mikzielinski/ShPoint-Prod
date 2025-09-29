@@ -1,5 +1,8 @@
 // src/lib/api.ts
-import { API_BASE } from './env';
+import { API_BASE, api } from './env';
+
+// Re-export api function for backward compatibility
+export { api };
 
 type Json = Record<string, unknown> | unknown[];
 
