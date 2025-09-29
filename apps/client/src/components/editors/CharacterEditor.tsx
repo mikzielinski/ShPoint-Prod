@@ -154,14 +154,14 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     d: "\u0064", // failure
     e: "\u0065", // block
     f: "\u0066", // defense expertise
-    g: "\u0078", // advance
+    x: "\u0078", // advance
     h: "\u0068", // dash
     i: "\u0069", // reactive
     j: "\u006A", // active
     k: "\u006B", // tactic
     l: "\u006C", // innate
     m: "\u006D", // identify
-    n: "\u006E", // ranged
+    g: "\u0067", // ranged (correct)
     o: "\u006F", // melee
     p: "\u0070", // shove
     q: "\u0071", // damage
@@ -179,8 +179,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     { symbol: 'a', name: 'Strike', description: 'Strike action', unicode: ICON.a },
     { symbol: 'e', name: 'Block', description: 'Block result', unicode: ICON.e },
     { symbol: '3', name: 'Hunker', description: 'Hunker action', unicode: ICON["3"] },
-    { symbol: 'n', name: 'Ranged', description: 'Ranged attack', unicode: ICON.n },
-    { symbol: 'n', name: 'Range', description: 'Range', unicode: ICON.n },
+    { symbol: 'g', name: 'Ranged', description: 'Ranged attack', unicode: ICON.g },
+    { symbol: 'g', name: 'Range', description: 'Range', unicode: ICON.g },
     { symbol: 'v', name: 'Force', description: 'Force point', unicode: ICON.v },
     { symbol: 'c', name: 'Attack Expertise', description: 'Attack expertise die', unicode: ICON.c },
     { symbol: 'f', name: 'Defense Expertise', description: 'Defense expertise die', unicode: ICON.f },
@@ -198,7 +198,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     { symbol: '5', name: 'Strained', description: 'Strained condition', unicode: ICON["5"] },
     { symbol: '9', name: 'Disarm', description: 'Disarm condition', unicode: ICON["9"] },
     { symbol: 'u', name: 'Climb', description: 'Climb action', unicode: ICON.u },
-    { symbol: 'g', name: 'Advance', description: 'Advance action', unicode: ICON.g },
+    { symbol: 'x', name: 'Advance', description: 'Advance action', unicode: ICON.x },
     { symbol: 'k', name: 'Tactic', description: 'Tactic action', unicode: ICON.k },
     { symbol: 'l', name: 'Innate', description: 'Innate ability', unicode: ICON.l },
     { symbol: 'i', name: 'Reactive', description: 'Reactive ability', unicode: ICON.i },
@@ -263,8 +263,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       'identify': "\u006D", // m - sp-identify
       'strike': "\u0061", // a - sp-strike
       'hunker': "\u0033", // 3 - sp-hunker
-      'ranged': "\u006E", // n - sp-ranged
-      'range': "\u006E", // n - sp-range
+      'ranged': "\u0067", // g - sp-ranged
+      'range': "\u0067", // g - sp-range
       'attack-expertise': "\u0063", // c - sp-attack-expertise
       'defense-expertise': "\u0066", // f - sp-defense-expertise
       'reposition': "\u0073", // s - sp-reposition
