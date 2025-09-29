@@ -17,11 +17,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showFactions, setShowFactions] = useState(false);
+  const [showUnitTypes, setShowUnitTypes] = useState(false);
   const [showSymbols, setShowSymbols] = useState(false);
 
   const availableFactions = [
     'Galactic Empire', 'Rebel Alliance', 'Separatist Alliance', 
     'Republic', 'Mandalorian', 'Crimson Dawn', 'Spy'
+  ];
+
+  const availableUnitTypes = [
+    'Primary', 'Secondary', 'Support'
   ];
 
   const insertText = useCallback((before: string, after: string = '') => {
@@ -48,6 +53,11 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const insertFaction = (faction: string) => {
     insertText(`<faction>${faction}</faction>`);
     setShowFactions(false);
+  };
+
+  const insertUnitType = (unitType: string) => {
+    insertText(`<unittype>${unitType}</unittype>`);
+    setShowUnitTypes(false);
   };
 
   const insertSymbol = (symbol: { name: string; unicode: string }) => {
@@ -189,6 +199,68 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           )}
         </div>
 
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            onClick={() => setShowUnitTypes(!showUnitTypes)}
+            style={{
+              background: '#4b5563',
+              border: '1px solid #6b7280',
+              borderRadius: '4px',
+              color: '#f9fafb',
+              padding: '4px 8px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Unit Type
+          </button>
+          
+          {showUnitTypes && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              background: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '6px',
+              padding: '8px',
+              zIndex: 1000,
+              minWidth: '150px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+            }}>
+              <div style={{
+                fontSize: '12px',
+                color: '#9ca3af',
+                marginBottom: '8px'
+              }}>
+                Click to insert unit type:
+              </div>
+              {availableUnitTypes.map(unitType => (
+                <button
+                  key={unitType}
+                  type="button"
+                  onClick={() => insertUnitType(unitType)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f9fafb',
+                    padding: '4px 8px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    borderRadius: '4px',
+                    fontSize: '14px'
+                  }}
+                >
+                  {unitType}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
 
       <textarea
@@ -261,6 +333,26 @@ const renderPreview = (text: string): React.ReactNode => {
           }}
         >
           {faction}
+        </span>
+      );
+    }
+    
+    if (part.startsWith('<unittype>') && part.endsWith('</unittype>')) {
+      const unitType = part.slice(10, -11);
+      return (
+        <span
+          key={index}
+          style={{
+            background: 'rgba(16, 185, 129, 0.2)',
+            color: '#34d399',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            fontWeight: '500',
+            border: '1px solid rgba(16, 185, 129, 0.3)'
+          }}
+        >
+          {unitType}
         </span>
       );
     }
