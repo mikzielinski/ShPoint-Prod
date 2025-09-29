@@ -236,6 +236,13 @@ const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
     // '10.0.0.50'
   ];
   
+  // Emergency unban endpoint - remove this after fixing
+  if (req.path === '/unban' && req.method === 'POST') {
+    suspiciousIPs.clear();
+    console.log('🚨 Emergency unban executed - all IPs cleared');
+    return res.json({ ok: true, message: 'All IPs unbanned' });
+  }
+  
   if (trustedIPs.includes(ip)) {
     return next(); // Skip DDoS detection for trusted IPs
   }
