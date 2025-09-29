@@ -130,6 +130,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     { value: 'end_of_struggle', label: 'End of Struggle' },
     { value: 'start_of_game', label: 'Start of Game' },
     { value: 'end_of_game', label: 'End of Game' },
+    { value: 'gain_control_over_point', label: 'Gain control over point' },
+    { value: 'lose_control_over_point', label: 'Lose control over point' },
     { value: 'passive', label: 'Passive' },
     { value: 'constant', label: 'Constant' }
   ];
@@ -1325,7 +1327,6 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
               value={newAbility.description}
               onChange={(value) => handleAbilityChange('description', value)}
               placeholder="Ability description (use formatting tools above)"
-              availableFactions={availableFactions}
               gameSymbols={gameSymbols}
               onInsertSymbol={insertGameSymbol}
             />
