@@ -162,17 +162,29 @@ const generalLimiter = rateLimit({
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 20, // Allow 20 requests per windowMs without delay (was 10)
-  delayMs: 200, // Reduced delay from 500ms to 200ms
+  delayMs: () => 200, // Fixed for express-slow-down v2
   maxDelayMs: 10000, // Reduced max delay from 20s to 10s
   skipSuccessfulRequests: true,
 });
 
 // 3. Brute Force Protection
-const bruteForceStore = new ExpressBruteRedis({
-  host: process.env.REDIS_URL || 'localhost',
-  port: process.env.REDIS_PORT || 6379,
-  prefix: 'shpoint:bruteforce:'
-});
+let bruteForceStore;
+try {
+  // Check if Redis is available
+  if (process.env.REDIS_URL && process.env.REDIS_URL !== 'localhost') {
+    bruteForceStore = new ExpressBruteRedis({
+      host: process.env.REDIS_URL,
+      port: process.env.REDIS_PORT || 6379,
+      prefix: 'shpoint:bruteforce:'
+    });
+    console.log('✅ Redis brute force protection enabled');
+  } else {
+    throw new Error('Redis not configured');
+  }
+} catch (error) {
+  console.warn('⚠️ Redis not available, using memory store for brute force protection');
+  bruteForceStore = new ExpressBrute.MemoryStore();
+}
 
 const bruteForce = new ExpressBrute(bruteForceStore, {
   freeRetries: 5, // Increased from 3 to 5 attempts
@@ -182,8 +194,8 @@ const bruteForce = new ExpressBrute(bruteForceStore, {
   refreshTimeoutOnRequest: false,
   skipSuccessfulRequests: true,
   handleStoreError: (error) => {
-    console.error('Brute force store error:', error);
-    // Fallback to memory store if Redis fails
+    console.warn('Brute force store error:', error.message);
+    // Continue with memory store fallback
   }
 });
 
