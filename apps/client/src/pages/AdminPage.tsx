@@ -6,6 +6,7 @@ import HealthCheck from "../components/HealthCheck";
 import AvatarManager from "../components/AvatarManager";
 import ApiDocumentation from "../components/ApiDocumentation";
 import AuditLogs from "../components/AuditLogs";
+import SecurityManager from "../components/SecurityManager";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -76,7 +77,8 @@ export default function AdminPage() {
   const [sectionsExpanded, setSectionsExpanded] = useState({
     invitations: true,
     users: true,
-    invitationSettings: true
+    invitationSettings: true,
+    security: true
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -742,7 +744,7 @@ export default function AdminPage() {
                 </div>
 
                 <div className="table__cell">
-                  <div className="dropdown-container" style={{ position: "relative", display: "inline-block" }}>
+                  <div className="dropdown-container" style={{ position: "relative", display: "inline-block", overflow: "visible" }}>
                     <button
                       className="btn btn-sm btn-chip"
                       disabled={!canManage || savingId === u.id}
@@ -766,13 +768,16 @@ export default function AdminPage() {
                       <div
                         className="dropdown-menu"
                         style={{
-                          position: "fixed",
+                          position: "absolute",
+                          top: "100%",
+                          left: "0",
                           zIndex: 99999,
                           backgroundColor: "#1f2937",
                           border: "1px solid #374151",
                           borderRadius: "8px",
                           boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
-                          minWidth: "140px"
+                          minWidth: "140px",
+                          marginTop: "4px"
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -1151,6 +1156,38 @@ export default function AdminPage() {
         {sectionsExpanded.invitationSettings && (
           <div style={{ padding: "24px" }}>
             <AdminInvitationSettings />
+          </div>
+        )}
+      </section>
+      )}
+
+      {/* Security Manager Section */}
+      {activeTab === 'settings' && (
+        <section className="card" style={{ marginTop: "24px" }}>
+        <div className="card-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="btn btn-sm btn--outline"
+              onClick={() => toggleSection('security')}
+              style={{ 
+                minWidth: "32px", 
+                height: "32px", 
+                padding: "0", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                fontSize: "16px"
+              }}
+            >
+              {sectionsExpanded.security ? "▼" : "▶"}
+            </button>
+            <h2>Security Management</h2>
+          </div>
+        </div>
+        
+        {sectionsExpanded.security && (
+          <div style={{ padding: "24px" }}>
+            <SecurityManager />
           </div>
         )}
       </section>
