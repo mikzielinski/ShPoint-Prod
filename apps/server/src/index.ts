@@ -2501,6 +2501,26 @@ app.post("/api/admin/sync-characters", ensureAuth, async (req, res) => {
   }
 });
 
+// POST /api/debug/sync-characters — debug sync for trusted IPs only
+app.post("/api/debug/sync-characters", async (req, res) => {
+  try {
+    const trustedIPs = ['89.151.22.52']; // Your IP
+    const clientIP = req.ip || req.connection.remoteAddress;
+    
+    if (!trustedIPs.includes(clientIP)) {
+      return res.status(403).json({ ok: false, error: 'Access denied' });
+    }
+    
+    console.log('Debug character sync requested from trusted IP:', clientIP);
+    await syncCharactersUnified();
+    
+    res.json({ ok: true, message: 'Characters synchronized successfully via debug endpoint' });
+  } catch (error) {
+    console.error('Error during debug sync:', error);
+    res.status(500).json({ ok: false, error: 'Failed to sync characters' });
+  }
+});
+
 // GET /api/characters/:id — get individual character details
 app.get("/api/characters/:id", async (req, res) => {
   try {
