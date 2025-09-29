@@ -1611,25 +1611,6 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         />
       )}
       
-      {/* Debug info */}
-      {showStanceEditor && (
-        <div style={{
-          position: 'fixed',
-          top: '10px',
-          right: '10px',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '10px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          zIndex: 9999
-        }}>
-          <div>showStanceEditor: {showStanceEditor ? 'true' : 'false'}</div>
-          <div>stanceData: {stanceData ? 'loaded' : 'null'}</div>
-          <div>stanceData.sides: {stanceData?.sides?.length || 0}</div>
-          <div>stanceData.sides[0].tree: {stanceData?.sides?.[0]?.tree ? 'exists' : 'missing'}</div>
-        </div>
-      )}
     </div>
   );
 };
