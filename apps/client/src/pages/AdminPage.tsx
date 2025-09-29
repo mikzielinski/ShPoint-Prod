@@ -7,9 +7,10 @@ import AvatarManager from "../components/AvatarManager";
 import ApiDocumentation from "../components/ApiDocumentation";
 import AuditLogs from "../components/AuditLogs";
 import SecurityManager from "../components/SecurityManager";
+import DataConverter from "../components/DataConverter";
 import "../styles/admin.css";
 
-type Role = "USER" | "EDITOR" | "ADMIN";
+type Role = "USER" | "EDITOR" | "ADMIN" | "API_USER";
 
 type AdminUser = {
   id: string;
@@ -83,7 +84,7 @@ export default function AdminPage() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'api' | 'audit' | 'api-users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'invitations' | 'settings' | 'data-tools' | 'api' | 'audit' | 'api-users'>('overview');
 
   const canManage = auth.status === "authenticated" && auth.user?.role === "ADMIN";
   const myId = auth.status === "authenticated" ? auth.user?.id : null;
@@ -472,6 +473,7 @@ export default function AdminPage() {
           { id: 'users', label: 'Users', icon: '👥' },
           { id: 'invitations', label: 'Invitations', icon: '📧' },
           { id: 'settings', label: 'Settings', icon: '⚙️' },
+          { id: 'data-tools', label: 'Data Tools', icon: '🔧' },
           { id: 'api', label: 'API Docs', icon: '📚' },
           { id: 'audit', label: 'Audit Logs', icon: '📋' },
           { id: 'api-users', label: 'API Users', icon: '🔑' }
@@ -1223,6 +1225,13 @@ export default function AdminPage() {
           </div>
         )}
       </section>
+      )}
+
+      {/* Data Tools Section */}
+      {activeTab === 'data-tools' && (
+        <section className="card">
+          <DataConverter />
+        </section>
       )}
 
       {/* Security Manager Section */}

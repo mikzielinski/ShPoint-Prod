@@ -91,6 +91,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
   const [editingAbility, setEditingAbility] = useState<Ability | null>(null);
   const [showStanceEditor, setShowStanceEditor] = useState(false);
   const [stanceData, setStanceData] = useState<any>(null);
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const availableFactions = [
@@ -477,12 +479,92 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     }));
   };
 
-  const handleSave = () => {
+  // Auto-save function
+  const autoSave = async (data: Character) => {
+    if (!data.name.trim() || !data.id) return;
+    
+    try {
+      const response = await fetch(api(`/api/characters/${data.id}`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      });
+      
+      if (response.ok) {
+        setLastSaved(new Date());
+        console.log('💾 Auto-saved character:', data.name);
+      }
+    } catch (error) {
+      console.error('❌ Auto-save failed:', error);
+    }
+  };
+
+  // Debounced auto-save effect
+  useEffect(() => {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+    
+    if (formData.id && formData.name.trim()) {
+      const timeout = setTimeout(() => {
+        autoSave(formData);
+      }, 2000); // Auto-save after 2 seconds of inactivity
+      
+      setAutoSaveTimeout(timeout);
+    }
+    
+    return () => {
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+    };
+  }, [formData]);
+
+  const handleSave = async () => {
     if (!formData.name.trim()) {
       alert('Character name is required');
       return;
     }
-    onSave(formData);
+    
+    try {
+      // Manual save to backend
+      const method = character ? 'PUT' : 'POST';
+      const url = character ? api(`/api/characters/${formData.id}`) : api('/api/characters');
+      
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save character');
+      }
+      
+      const result = await response.json();
+      console.log('✅ Character saved successfully:', result);
+      
+      // Update formData with response data
+      if (result.character) {
+        setFormData(result.character);
+      }
+      
+      setLastSaved(new Date());
+      
+      // Call parent onSave
+      onSave(formData);
+      
+    } catch (error) {
+      console.error('❌ Save failed:', error);
+      alert(`Save failed: ${error.message}`);
+    }
   };
 
   const handleStanceSave = async (stance: any) => {
@@ -1685,28 +1767,43 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         display: 'flex',
         gap: '16px'
       }}>
-        <button
-          onClick={handleSave}
-          style={{
-            padding: '12px 24px',
-            background: '#16a34a',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'background 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#15803d';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = '#16a34a';
-          }}
-        >
-          {character ? 'Save Changes' : 'Add Character'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={handleSave}
+            style={{
+              padding: '12px 24px',
+              background: '#16a34a',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'background 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#15803d';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#16a34a';
+            }}
+          >
+            {character ? 'Save Changes' : 'Add Character'}
+          </button>
+          
+          {lastSaved && (
+            <div style={{
+              fontSize: '12px',
+              color: '#6b7280',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <span>💾</span>
+              <span>Last saved: {lastSaved.toLocaleTimeString()}</span>
+            </div>
+          )}
+        </div>
         
         <button
           onClick={onCancel}

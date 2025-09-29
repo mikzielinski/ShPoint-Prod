@@ -2521,6 +2521,405 @@ app.post("/api/debug/sync-characters", async (req, res) => {
   }
 });
 
+// ===== DATA CONVERSION TOOLS =====
+
+// POST /api/admin/convert-legacy-abilities — convert old ability format to new structured format
+app.post("/api/admin/convert-legacy-abilities", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Converting legacy abilities to structured format...');
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let convertedCount = 0;
+    const errors: string[] = [];
+    
+    for (const char of unifiedData) {
+      try {
+        if (char.abilities && Array.isArray(char.abilities)) {
+          const structuredAbilities = char.abilities.map((ability: any, index: number) => {
+            // If already structured, skip
+            if (ability.id && ability.type && ability.symbol) {
+              return ability;
+            }
+            
+            // Convert legacy format
+            const structuredAbility = {
+              id: ability.id || `${char.id}-ability-${index}`,
+              type: ability.type || 'Active',
+              symbol: ability.symbol || '↻',
+              name: ability.title || ability.name || `Ability ${index + 1}`,
+              description: ability.text || ability.description || '',
+              forceCost: ability.forceCost || 0,
+              damageCost: ability.damageCost || undefined,
+              trigger: ability.trigger || 'on_activation',
+              isAction: ability.isAction || false,
+              tags: ability.tags || []
+            };
+            
+            return structuredAbility;
+          });
+          
+          char.structuredAbilities = structuredAbilities;
+          convertedCount++;
+        }
+      } catch (error) {
+        errors.push(`Failed to convert abilities for ${char.id}: ${error}`);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    
+    // Sync individual files
+    await syncCharactersUnified();
+    
+    res.json({ 
+      ok: true, 
+      message: 'Legacy abilities converted successfully',
+      convertedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error converting legacy abilities:', error);
+    res.status(500).json({ ok: false, error: 'Failed to convert legacy abilities' });
+  }
+});
+
+// POST /api/admin/fix-missing-factions — add missing faction data
+app.post("/api/admin/fix-missing-factions", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Fixing missing faction data...');
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let fixedCount = 0;
+    const errors: string[] = [];
+    
+    // Faction mapping based on character names and context
+    const factionMap: { [key: string]: string[] } = {
+      'rebel': ['Rebel Alliance'],
+      'empire': ['Galactic Empire'],
+      'republic': ['Galactic Republic'],
+      'separatist': ['Separatist'],
+      'mandalorian': ['Mandalorian'],
+      'jedi': ['Jedi'],
+      'sith': ['Sith'],
+      'clone': ['Clone Trooper'],
+      'droid': ['Droid'],
+      'bounty': ['Bounty Hunter'],
+      'scoundrel': ['Scoundrel'],
+      'spy': ['Spy'],
+      'trooper': ['Troopers'],
+      'scout': ['Scout']
+    };
+    
+    for (const char of unifiedData) {
+      try {
+        if (!char.factions || char.factions.length === 0 || char.factions.includes(null)) {
+          const name = char.name?.toLowerCase() || '';
+          const id = char.id?.toLowerCase() || '';
+          
+          let detectedFactions: string[] = [];
+          
+          // Check name and id for faction keywords
+          for (const [keyword, factions] of Object.entries(factionMap)) {
+            if (name.includes(keyword) || id.includes(keyword)) {
+              detectedFactions.push(...factions);
+            }
+          }
+          
+          // Special cases
+          if (name.includes('cassian') || name.includes('jyn') || name.includes('baze') || name.includes('chirrut') || name.includes('bodhi')) {
+            detectedFactions.push('Rebel Alliance');
+          }
+          
+          if (detectedFactions.length > 0) {
+            char.factions = [...new Set(detectedFactions)]; // Remove duplicates
+            fixedCount++;
+          }
+        }
+      } catch (error) {
+        errors.push(`Failed to fix factions for ${char.id}: ${error}`);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    
+    // Sync individual files
+    await syncCharactersUnified();
+    
+    res.json({ 
+      ok: true, 
+      message: 'Missing factions fixed successfully',
+      convertedCount: fixedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error fixing missing factions:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fix missing factions' });
+  }
+});
+
+// POST /api/admin/fix-missing-set-codes — add missing set_code data
+app.post("/api/admin/fix-missing-set-codes", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Fixing missing set_code data...');
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let fixedCount = 0;
+    const errors: string[] = [];
+    
+    for (const char of unifiedData) {
+      try {
+        if (!char.set_code || char.set_code === null) {
+          // Try to determine set code from character name/context
+          const name = char.name?.toLowerCase() || '';
+          
+          if (name.includes('cassian') || name.includes('jyn') || name.includes('baze') || name.includes('chirrut') || name.includes('bodhi') || name.includes('k-2so')) {
+            char.set_code = 'SWP24'; // Rogue One set
+            fixedCount++;
+          } else if (name.includes('rebel') && (name.includes('commando') || name.includes('pathfinder'))) {
+            char.set_code = 'SWP24'; // Rogue One set
+            fixedCount++;
+          }
+          // Add more set code mappings as needed
+        }
+      } catch (error) {
+        errors.push(`Failed to fix set_code for ${char.id}: ${error}`);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    
+    // Sync individual files
+    await syncCharactersUnified();
+    
+    res.json({ 
+      ok: true, 
+      message: 'Missing set codes fixed successfully',
+      convertedCount: fixedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error fixing missing set codes:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fix missing set codes' });
+  }
+});
+
+// POST /api/admin/normalize-unit-types — normalize unit_type format
+app.post("/api/admin/normalize-unit-types", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Normalizing unit_type format...');
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let normalizedCount = 0;
+    const errors: string[] = [];
+    
+    for (const char of unifiedData) {
+      try {
+        if (char.unit_type) {
+          // Convert string to array if needed
+          if (typeof char.unit_type === 'string') {
+            char.unit_type = [char.unit_type];
+            normalizedCount++;
+          } else if (Array.isArray(char.unit_type) && char.unit_type.length === 0) {
+            // Set default if empty array
+            char.unit_type = ['Primary'];
+            normalizedCount++;
+          }
+        } else {
+          // Set default if missing
+          char.unit_type = ['Primary'];
+          normalizedCount++;
+        }
+      } catch (error) {
+        errors.push(`Failed to normalize unit_type for ${char.id}: ${error}`);
+      }
+    }
+    
+    // Write updated unified file
+    fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
+    
+    // Sync individual files
+    await syncCharactersUnified();
+    
+    res.json({ 
+      ok: true, 
+      message: 'Unit types normalized successfully',
+      convertedCount: normalizedCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error normalizing unit types:', error);
+    res.status(500).json({ ok: false, error: 'Failed to normalize unit types' });
+  }
+});
+
+// POST /api/admin/add-missing-stance-files — create missing stance.json files
+app.post("/api/admin/add-missing-stance-files", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Adding missing stance files...');
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Load characters_unified.json
+    let unifiedPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+    if (!fs.existsSync(unifiedPath)) {
+      unifiedPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    }
+    
+    if (!fs.existsSync(unifiedPath)) {
+      return res.status(404).json({ ok: false, error: 'characters_unified.json not found' });
+    }
+    
+    const unifiedData = JSON.parse(fs.readFileSync(unifiedPath, 'utf8'));
+    let createdCount = 0;
+    const errors: string[] = [];
+    
+    for (const char of unifiedData) {
+      try {
+        let stancePath = path.join(process.cwd(), `characters_assets/${char.id}/stance.json`);
+        if (!fs.existsSync(stancePath)) {
+          stancePath = path.join(process.cwd(), `../client/characters_assets/${char.id}/stance.json`);
+        }
+        
+        if (!fs.existsSync(stancePath)) {
+          // Create directory if it doesn't exist
+          const stanceDir = path.dirname(stancePath);
+          if (!fs.existsSync(stanceDir)) {
+            fs.mkdirSync(stanceDir, { recursive: true });
+          }
+          
+          // Create basic stance data
+          const basicStance = {
+            sides: [
+              {
+                name: "Side A",
+                dice: [4, 3], // Default dice values
+                expertise: [1, 2], // Default expertise values
+                tree: {
+                  nodes: [
+                    { id: "start", x: 100, y: 50, type: "start" },
+                    { id: "attack1", x: 200, y: 50, type: "attack" },
+                    { id: "attack2", x: 300, y: 50, type: "attack" }
+                  ],
+                  edges: [
+                    { from: "start", to: "attack1" },
+                    { from: "attack1", to: "attack2" }
+                  ]
+                }
+              }
+            ]
+          };
+          
+          fs.writeFileSync(stancePath, JSON.stringify(basicStance, null, 2));
+          createdCount++;
+        }
+      } catch (error) {
+        errors.push(`Failed to create stance file for ${char.id}: ${error}`);
+      }
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: 'Missing stance files created successfully',
+      convertedCount: createdCount,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error creating missing stance files:', error);
+    res.status(500).json({ ok: false, error: 'Failed to create missing stance files' });
+  }
+});
+
 // GET /api/characters/:id — get individual character details
 app.get("/api/characters/:id", async (req, res) => {
   try {
