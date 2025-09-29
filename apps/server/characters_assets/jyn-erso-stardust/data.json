@@ -8,7 +8,8 @@
   "unit_type": "Primary",
   "stamina": 9,
   "durability": 3,
-  "factions": null,
+  "factions": ["Rebel Alliance"],
+  "set_code": "SWP24",
   "abilities": [
     {
       "title": "This is a Rebellion, isn't it?",
