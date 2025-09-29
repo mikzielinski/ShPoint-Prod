@@ -393,6 +393,8 @@ enum EntityType {
   CUSTOM_CARD
   COLLECTION
   SYSTEM_SETTINGS
+  SECURITY
+  API_TOKEN
 }
 
 enum AuditAction {
@@ -407,12 +409,14 @@ enum AuditAction {
   UNPUBLISH
   SHARE
   UNSHARE
+  DDOS_DETECTED
 }
 
 model ApiToken {
   id          String   @id @default(cuid())
   name        String   // User-friendly name for the token
   token       String   @unique // The actual bearer token
+  scopes      String[] // Array of permission scopes
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   isActive    Boolean  @default(true)
