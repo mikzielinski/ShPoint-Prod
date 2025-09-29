@@ -2503,7 +2503,12 @@ app.post("/api/admin/sync-characters", ensureAuth, async (req, res) => {
 
 // GET /api/debug/check-ip — check what IP the server sees
 app.get("/api/debug/check-ip", async (req, res) => {
-  const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
+  const forwardedFor = req.headers['x-forwarded-for'];
+  const realIp = req.headers['x-real-ip'];
+  const clientIP = req.ip || req.connection.remoteAddress || 
+    (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor) ||
+    (Array.isArray(realIp) ? realIp[0] : realIp);
+  
   res.json({ 
     ok: true, 
     ip: clientIP,
@@ -2520,7 +2525,11 @@ app.get("/api/debug/check-ip", async (req, res) => {
 app.post("/api/debug/sync-characters", async (req, res) => {
   try {
     const trustedIPs = ['89.151.22.52']; // Your IP
-    const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || req.headers['x-real-ip'];
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const realIp = req.headers['x-real-ip'];
+    const clientIP = req.ip || req.connection.remoteAddress || 
+      (Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor) ||
+      (Array.isArray(realIp) ? realIp[0] : realIp);
     
     console.log('🔍 Debug sync request - IP details:', {
       req_ip: req.ip,
