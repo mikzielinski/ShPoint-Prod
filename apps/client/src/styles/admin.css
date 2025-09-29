@@ -214,6 +214,7 @@
 /* Make sure dropdown menu is above everything */
 .dropdown-menu {
   z-index: 99999 !important;
+  position: fixed !important;
 }
 
 /* Ensure main containers allow overflow */
