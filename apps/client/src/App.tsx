@@ -12,6 +12,8 @@ import StancePreview from "./components/StancePreview";
 import UsersPage from "./pages/UsersPage";
 import LoginPage from "./pages/LoginPage";
 import AdminPage from "./pages/AdminPage";
+import { CharacterEditor } from "./components/editors/CharacterEditor";
+import { StanceEditor } from "./components/editors/StanceEditor";
 
 import RequireAuth from "./routers/RequireAuth";
 import { useAuth } from "./auth/AuthContext";
@@ -259,14 +261,132 @@ function AdminUiPage() {
   );
 }
 function EditorPage() {
+  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
+  const [characters, setCharacters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
+
+  // Load characters
+  useEffect(() => {
+    const loadCharacters = async () => {
+      try {
+        const response = await fetch("/api/characters", { credentials: "include" });
+        const data = await response.json();
+        setCharacters(data.items || []);
+      } catch (error) {
+        console.error("Failed to load characters:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCharacters();
+  }, []);
+
+  const handleSaveCharacter = async (character: any) => {
+    try {
+      const response = await fetch(`/api/characters/${character.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(character),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save character: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Character saved successfully:", result);
+      
+      // Update local state
+      setCharacters(prev => 
+        prev.map(c => c.id === character.id ? { ...c, ...character } : c)
+      );
+      
+      setShowEditor(false);
+      setSelectedCharacter(null);
+      alert("Character saved successfully!");
+    } catch (error) {
+      console.error("Error saving character:", error);
+      alert("Failed to save character: " + (error as Error).message);
+    }
+  };
+
+  const handleEditCharacter = (character: any) => {
+    setSelectedCharacter(character);
+    setShowEditor(true);
+  };
+
+  if (showEditor) {
+    return (
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+        <CharacterEditor
+          character={selectedCharacter}
+          onSave={handleSaveCharacter}
+          onCancel={() => {
+            setShowEditor(false);
+            setSelectedCharacter(null);
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
       <div className="card">
         <div className="card__header">
-          <h2 className="card__title">Editor</h2>
-          <p className="card__subtitle">Tu powstanie edytor kart (dostęp: EDITOR/ADMIN).</p>
+          <h2 className="card__title">Character Editor</h2>
+          <p className="card__subtitle">Edit character data and abilities (EDITOR/ADMIN access).</p>
         </div>
-        <div className="card__content">Wkrótce…</div>
+        <div className="card__content">
+          {loading ? (
+            <p>Loading characters...</p>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+              {characters.map((character) => (
+                <div
+                  key={character.id}
+                  style={{
+                    border: "1px solid #374151",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    background: "#1f2937",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleEditCharacter(character)}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <img
+                      src={character.portrait || character.image || "https://picsum.photos/seed/placeholder/60/60"}
+                      alt={character.name}
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "8px",
+                        objectFit: "cover",
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://picsum.photos/seed/placeholder/60/60";
+                      }}
+                    />
+                    <div>
+                      <h3 style={{ margin: 0, color: "#f9fafb", fontSize: "16px" }}>{character.name}</h3>
+                      <p style={{ margin: "4px 0 0 0", color: "#9ca3af", fontSize: "14px" }}>
+                        {character.role || character.unit_type} • {character.faction || "Unknown"}
+                      </p>
+                      <p style={{ margin: "2px 0 0 0", color: "#6b7280", fontSize: "12px" }}>
+                        ID: {character.id}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

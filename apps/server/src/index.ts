@@ -1213,6 +1213,32 @@ app.get("/characters/:id/data.json", async (req, res) => {
   }
 });
 
+// GET /characters/:id/portrait.png — portret postaci
+app.get("/characters/:id/portrait.png", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Try production path first, then fallback to development path
+    let portraitPath = path.join(process.cwd(), `characters_assets/${id}/portrait.png`);
+    if (!fs.existsSync(portraitPath)) {
+      portraitPath = path.join(process.cwd(), `../client/characters_assets/${id}/portrait.png`);
+    }
+    
+    if (!fs.existsSync(portraitPath)) {
+      return res.status(404).json({ ok: false, error: "Character portrait not found" });
+    }
+    
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+    res.sendFile(portraitPath);
+  } catch (error) {
+    console.error(`Error loading character portrait for ${req.params.id}:`, error);
+    res.status(500).json({ ok: false, error: "Failed to load character portrait" });
+  }
+});
+
 // GET /characters/:id/stance.json — dane stance postaci
 app.get("/characters/:id/stance.json", async (req, res) => {
   try {

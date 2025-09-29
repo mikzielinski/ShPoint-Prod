@@ -1,0 +1,121 @@
+{
+  "sides": [
+    {
+      "id": "A",
+      "name": "Tactical Strike",
+      "attack": {
+        "melee": {
+          "dice": 6,
+          "range": 2,
+          "defense": 5,
+          "expertise": [
+            {
+              "value": "1-2",
+              "effects": ["a", "q"]
+            },
+            {
+              "value": "3-4",
+              "effects": ["a", "a"]
+            },
+            {
+              "value": "5+",
+              "effects": ["b", "a", "a"]
+            }
+          ]
+        },
+        "ranged": {
+          "dice": 5,
+          "range": 4,
+          "defense": 5,
+          "expertise": [
+            {
+              "value": "1-2",
+              "effects": ["a", "q"]
+            },
+            {
+              "value": "3-4",
+              "effects": ["a", "a"]
+            },
+            {
+              "value": "5+",
+              "effects": ["b", "a"]
+            }
+          ]
+        }
+      },
+      "defense": {
+        "expertise": [
+          {
+            "value": "1-2",
+            "effects": ["e"]
+          },
+          {
+            "value": "3-4",
+            "effects": ["e", "q"]
+          },
+          {
+            "value": "5+",
+            "effects": ["e", "e", "q"]
+          }
+        ]
+      },
+      "tree": {
+        "layout": {
+          "rows": 3,
+          "cols": 6
+        },
+        "nodes": {
+          "N1": {
+            "row": 1,
+            "col": 1,
+            "effects": ["q", "q"]
+          },
+          "N2": {
+            "row": 1,
+            "col": 2,
+            "effects": ["q", "q"]
+          },
+          "N3": {
+            "row": 1,
+            "col": 3,
+            "effects": ["p"]
+          },
+          "N4": {
+            "row": 2,
+            "col": 4,
+            "effects": ["r", "q"]
+          },
+          "N5": {
+            "row": 2,
+            "col": 5,
+            "effects": ["s"]
+          },
+          "N6": {
+            "row": 3,
+            "col": 1,
+            "effects": ["[5]", "q"]
+          },
+          "N7": {
+            "row": 3,
+            "col": 2,
+            "effects": ["[6]", "q"]
+          },
+          "N8": {
+            "row": 3,
+            "col": 3,
+            "effects": ["a", "[7]"]
+          }
+        },
+        "edges": [
+          ["N1", "N2"],
+          ["N2", "N3"],
+          ["N3", "N4"],
+          ["N4", "N5"],
+          ["N6", "N7"],
+          ["N7", "N8"],
+          ["N8", "N4"]
+        ]
+      }
+    }
+  ]
+}

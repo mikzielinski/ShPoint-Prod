@@ -1,29 +1,69 @@
 {
   "id": "captain-cassian-andor",
-  "url": "https://shatterpointdb.com/characters/captain-cassian-andor",
   "name": "Captain Cassian Andor",
-  "portrait": "https://shatterpointdb.com/media/rf2nfiy1/shatterpoint-captain-cassian-andor-character.png?height=600&v=1db8e87edb93a30",
+  "unit_type": "Primary",
   "squad_points": 9,
   "force": 2,
-  "unit_type": "Primary",
   "stamina": 10,
   "durability": 3,
-  "factions": null,
+  "factions": ["Rebel Alliance", "Spy"],
+  "period": ["The Reign of the Empire"],
+  "set_code": "SWP24",
+  "portrait": "/characters/captain-cassian-andor/portrait.png",
   "abilities": [
     {
-      "title": "We need to blend in",
-      "text": "Choose another allied Rebel Alliance Unit. One character in this Unit and one character in the chosen Unit may . Then, if the chosen Unit is Spy , this Unit and the chosen Unit gain . This town is ready to blow When a player claims a Struggle Card, this Unit may use this ability. Roll 3 Attack Dice. Each enemy Unit that is contesting one or more Active objectives suffers for each [hit] and [expertise] result in the roll. We've all done terrible things When a character in this Unit makes a attack as part of a combat action, if the defender is Engaged with one or more allied characters in Units that are not Wounded, it may add 3 dice to its attack roll. If it does, choose one of those Engaged allied characters. The chosen character suffers . Make ten men feel like a hundred Once per Turn, when an allied Unit becomes Wounded, after the effect is resolved, choose another allied Unit. One character in the chosen Unit may . If the chosen Unit is a Spy , that character may instead . Additionally, when an allied Rebel Alliance Unit is chosen to activate with a Shatterpoint Card, characters in that Unit have Impact [2] and Sharpshooter [2] until the end of the Turn."
+      "id": "we-need-to-blend-in-0",
+      "type": "Tactic",
+      "symbol": "k",
+      "name": "We need to blend in",
+      "description": "Choose another allied <faction>Rebel Alliance</faction> Unit. One character in this Unit and one character in the chosen Unit may <glyph>dash</glyph>. Then, if the chosen Unit is <faction>Spy</faction>, this Unit and the chosen Unit gain <glyph>hunker</glyph>.",
+      "forceCost": 0,
+      "trigger": "always",
+      "isAction": false,
+      "tags": ["Movement", "Tactic"]
     },
     {
+      "id": "this-town-is-ready-to-blow-1",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "This town is ready to blow",
+      "description": "When a player claims a Struggle Card, this Unit may use this ability. Roll 3 Attack Dice. Each enemy Unit that is contesting one or more Active objectives suffers <glyph>damage</glyph> for each <glyph>hit</glyph> and <glyph>expertise</glyph> result in the roll.",
+      "forceCost": 1,
+      "trigger": "when_struggle_claimed",
+      "isAction": false,
+      "tags": ["Combat", "Reactive"]
+    },
+    {
+      "id": "weve-all-done-terrible-things-2",
+      "type": "Innate",
+      "symbol": "l",
+      "name": "We've all done terrible things",
+      "description": "When a character in this Unit makes a <glyph>melee_attack</glyph> attack as part of a combat action, if the defender is Engaged with one or more allied characters in Units that are not Wounded, it may add 3 dice to its attack roll. If it does, choose one of those Engaged allied characters. The chosen character suffers <glyph>damage</glyph>.",
+      "forceCost": 0,
+      "trigger": "when_making_melee_attack",
+      "isAction": false,
+      "tags": ["Combat", "Conditional"]
+    },
+    {
+      "id": "make-ten-men-feel-like-a-hundred-3",
+      "type": "Reactive",
+      "symbol": "i",
+      "name": "Make ten men feel like a hundred",
+      "description": "Once per Turn, when an allied Unit becomes Wounded, after the effect is resolved, choose another allied Unit. One character in the chosen Unit may <glyph>dash</glyph>. If the chosen Unit is a <faction>Spy</faction>, that character may instead <glyph>advance</glyph>. Additionally, when an allied <faction>Rebel Alliance</faction> Unit is chosen to activate with a Shatterpoint Card, characters in that Unit have Impact [2] and Sharpshooter [2] until the end of the Turn.",
+      "forceCost": 1,
+      "trigger": "when_allied_wounded",
+      "isAction": false,
+      "tags": ["Support", "Conditional"]
+    }
+  ],
+  "legacyAbilities": [
+    {
       "title": "Rebel Alliance",
-      "text": "Choose another allied  Unit. One character in this Unit and one character in the chosen Unit may . Then, if the chosen Unit is Spy , this Unit and the chosen Unit gain ."
+      "text": "Choose another allied Rebel Alliance Unit. One character in this Unit and one character in the chosen Unit may dash. Then, if the chosen Unit is Spy, this Unit and the chosen Unit gain hunker."
     },
     {
       "title": "Spy",
-      "text": "Once per Turn, when an allied Unit becomes Wounded, after the effect is resolved, choose another allied Unit. One character in the chosen Unit may . If the chosen Unit is a  , that character may instead ."
+      "text": "Once per Turn, when an allied Unit becomes Wounded, after the effect is resolved, choose another allied Unit. One character in the chosen Unit may dash. If the chosen Unit is a Spy, that character may instead advance."
     }
-  ],
-  "source": {
-    "scraped_at": 1755896997
-  }
+  ]
 }
