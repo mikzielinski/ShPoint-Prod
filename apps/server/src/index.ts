@@ -281,10 +281,6 @@ const bruteForce = new ExpressBrute(bruteForceStore, {
   maxWait: 10 * 60 * 1000, // Reduced from 15 minutes to 10 minutes
   lifetime: 24 * 60 * 60, // 24 hours
   refreshTimeoutOnRequest: false,
-  skip: (req) => {
-    // @ts-ignore
-    return req.user && req.user.isTrusted;
-  },
   handleStoreError: (error) => {
     console.warn('Brute force store error:', error.message);
     // Continue with memory store fallback
@@ -307,10 +303,6 @@ const authBruteForce = new ExpressBrute(bruteForceStore, {
   minWait: 5 * 60 * 1000, // Reduced from 10 minutes to 5 minutes
   maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
   lifetime: 24 * 60 * 60, // 24 hours
-  skip: (req) => {
-    // @ts-ignore
-    return req.user && req.user.isTrusted;
-  }
 });
 
 // 7. DDoS Detection and Monitoring - Adjusted thresholds
