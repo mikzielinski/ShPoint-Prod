@@ -148,13 +148,6 @@ export default function NavBar() {
             </NavLink>
           )}
 
-          {/* zawsze dostępne narzędzia (jeśli chcesz – obłóż RequireAuth w routes) */}
-          <NavLink
-            to="/users"
-            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
-          >
-            Users
-          </NavLink>
         </nav>
 
         {/* actions (theme + auth) */}
