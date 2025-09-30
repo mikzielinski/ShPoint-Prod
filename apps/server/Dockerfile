@@ -9,9 +9,10 @@ RUN npm install
 # Copy server source code
 COPY . .
 
-# Copy character data from client (relative to build context) - v1.2.7
-COPY ../client/characters_assets_backup ./characters_assets
-COPY ../client/public/images/sets ./public/images/sets
+# Copy character data from client (relative to build context) - v1.2.8
+# Note: These files are copied during deployment, not in Docker build
+# COPY ../client/characters_assets_backup ./characters_assets
+# COPY ../client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
 RUN npx prisma generate

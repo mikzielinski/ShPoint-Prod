@@ -838,9 +838,9 @@ export default function AdminPage() {
                       <div
                         className="dropdown-menu"
                         style={{
-                          position: "absolute",
-                          top: "100%",
-                          left: "0",
+                          position: "fixed",
+                          top: "auto",
+                          left: "auto",
                           zIndex: 99999,
                           backgroundColor: "#1f2937",
                           border: "1px solid #374151",
