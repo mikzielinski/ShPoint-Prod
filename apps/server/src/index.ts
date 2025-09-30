@@ -321,19 +321,25 @@ const authBruteForce = new ExpressBrute(bruteForceStore, {
   minWait: 5 * 60 * 1000, // Reduced from 10 minutes to 5 minutes
   maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
   lifetime: 24 * 60 * 60, // 24 hours
-  skip: (req) => {
-    // Skip brute force protection for Netlify CDN IPs
-    const netlifyIPs = [
-      '104.23.209.126', // Current Netlify IP
-      '104.23.208.126',
-      '104.23.210.126',
-      '104.23.211.126'
-    ];
-    return netlifyIPs.includes(req.ip);
-  }
 });
 
-// 7. DDoS Detection and Monitoring - Adjusted thresholds
+// 7. Netlify CDN IP whitelist middleware
+const netlifyIPs = [
+  '104.23.209.126',
+  '104.23.208.126', 
+  '104.23.210.126',
+  '104.23.211.126'
+];
+
+app.use('/auth/', (req, res, next) => {
+  // Skip brute force protection for Netlify CDN IPs
+  if (netlifyIPs.includes(req.ip)) {
+    return next();
+  }
+  return authBruteForce.prevent(req, res, next);
+});
+
+// 8. DDoS Detection and Monitoring - Adjusted thresholds
 const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
 const IP_THRESHOLD = 200; // Increased from 100 to 200 requests per minute
 const IP_BAN_DURATION = 30 * 60 * 1000; // Reduced from 1 hour to 30 minutes
@@ -995,8 +1001,6 @@ app.post("/api/seed", async (req, res) => {
 // start
 app.get(
   "/auth/google",
-  // @ts-ignore
-  authBruteForce.prevent, // Apply brute force protection
   (req, res, next) => {
     // Store the return URL in session if provided
     console.log('🔍 Google OAuth start - query:', req.query);
