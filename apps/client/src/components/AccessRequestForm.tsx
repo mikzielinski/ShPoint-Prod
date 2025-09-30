@@ -60,12 +60,12 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
     return (
       <div style={{
         padding: compact ? '16px' : '24px',
-        backgroundColor: '#d4edda',
-        border: '1px solid #c3e6cb',
+        backgroundColor: '#1e293b',
+        border: '1px solid #334155',
         borderRadius: '8px',
-        color: '#155724'
+        color: '#e2e8f0'
       }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: compact ? '16px' : '18px' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: compact ? '16px' : '18px', color: '#10b981' }}>
           ✅ Request Submitted Successfully!
         </h3>
         <p style={{ margin: 0, fontSize: compact ? '14px' : '16px' }}>
@@ -78,14 +78,14 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
   return (
     <form onSubmit={handleSubmit} style={{
       padding: compact ? '16px' : '24px',
-      backgroundColor: '#f8f9fa',
-      border: '1px solid #dee2e6',
+      backgroundColor: '#1e293b',
+      border: '1px solid #334155',
       borderRadius: '8px'
     }}>
       <h3 style={{ 
         margin: '0 0 16px 0', 
         fontSize: compact ? '16px' : '18px',
-        color: '#333'
+        color: '#e2e8f0'
       }}>
         Request Access to ShPoint
       </h3>
@@ -95,7 +95,9 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           display: 'block', 
           marginBottom: '4px', 
           fontWeight: 'bold',
-          fontSize: compact ? '14px' : '16px'
+          fontSize: compact ? '14px' : '16px',
+          color: '#e2e8f0',
+          color: '#e2e8f0'
         }}>
           Gmail Address *
         </label>
@@ -109,14 +111,16 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           style={{
             width: '100%',
             padding: '8px 12px',
-            border: '1px solid #ced4da',
+            border: '1px solid #475569',
             borderRadius: '4px',
             fontSize: compact ? '14px' : '16px',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            backgroundColor: '#334155',
+            color: '#e2e8f0'
           }}
         />
         <small style={{ 
-          color: '#6c757d', 
+          color: '#cbd5e1', 
           fontSize: compact ? '12px' : '14px',
           display: 'block',
           marginTop: '4px'
@@ -130,7 +134,8 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           display: 'block', 
           marginBottom: '4px', 
           fontWeight: 'bold',
-          fontSize: compact ? '14px' : '16px'
+          fontSize: compact ? '14px' : '16px',
+          color: '#e2e8f0'
         }}>
           Name (Optional)
         </label>
@@ -143,7 +148,9 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           style={{
             width: '100%',
             padding: '8px 12px',
-            border: '1px solid #ced4da',
+            border: '1px solid #475569',
+            backgroundColor: '#334155',
+            color: '#e2e8f0',
             borderRadius: '4px',
             fontSize: compact ? '14px' : '16px',
             boxSizing: 'border-box'
@@ -156,7 +163,8 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           display: 'block', 
           marginBottom: '4px', 
           fontWeight: 'bold',
-          fontSize: compact ? '14px' : '16px'
+          fontSize: compact ? '14px' : '16px',
+          color: '#e2e8f0'
         }}>
           Message (Optional)
         </label>
@@ -169,7 +177,9 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           style={{
             width: '100%',
             padding: '8px 12px',
-            border: '1px solid #ced4da',
+            border: '1px solid #475569',
+            backgroundColor: '#334155',
+            color: '#e2e8f0',
             borderRadius: '4px',
             fontSize: compact ? '14px' : '16px',
             resize: 'vertical',
@@ -179,8 +189,8 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
       </div>
 
       <div style={{
-        backgroundColor: '#fff3cd',
-        border: '1px solid #ffeaa7',
+        backgroundColor: '#1e293b',
+        border: '1px solid #334155',
         borderRadius: '4px',
         padding: '12px',
         marginBottom: '16px'
@@ -188,7 +198,7 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
         <p style={{ 
           margin: 0, 
           fontSize: compact ? '12px' : '14px',
-          color: '#856404'
+          color: '#e2e8f0'
         }}>
           <strong>Note:</strong> We don't know when your request will be approved. 
           You'll receive an email notification once it's reviewed. Make sure to use a Gmail address.
