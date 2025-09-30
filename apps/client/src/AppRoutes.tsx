@@ -25,9 +25,9 @@ import CharacterModal from "./components/CharacterModal";
 import AvatarManager from "./components/AvatarManager";
 import Modal from "./components/Modal";
 import UserInvitationModal from "./components/UserInvitationModal";
-import "./components/NavBar.css";
+import NavBar from "./components/NavBar";
 
-/* ===== NavBar (w tym pliku dla prostoty) ===== */
+/* ===== Auth hook for user status checks ===== */
 type MeResponse =
   | { user: { id: string; email?: string; name?: string; username?: string | null; role?: string; status?: string; image?: string | null; avatarUrl?: string | null; suspendedUntil?: string | null } }
   | { user?: undefined };
@@ -60,166 +60,6 @@ function useAuthMe() {
   }, []);
   
   return { data, loading, refetch };
-}
-
-function RoleChip({ role }: { role?: string }) {
-  const cls =
-    role === "ADMIN" ? "nb-role r-admin"
-      : role === "EDITOR" ? "nb-role r-editor"
-      : "nb-role r-user";
-  return <span className={cls}>{role ?? "USER"}</span>;
-}
-
-function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; onInviteClick?: () => void }) {
-  const { data, loading, refetch } = useAuthMe();
-  const me = data?.user;
-
-  const initials = useMemo(() => {
-    // For initials, prefer name over username to get proper initials like "MZ" from "Mikolaj Zieliński"
-    const n = me?.name || me?.username || me?.email || "User";
-    const p = n.split(" ");
-    return (p.length > 1 ? p[0][0] + p[1][0] : n.slice(0, 2)).toUpperCase();
-  }, [me?.name, me?.username, me?.email]);
-
-  const gotoLogin = () => (window.location.href = api("/auth/google"));
-  const doLogout = async () => { await fetch(api("/auth/logout"), { method: "POST", credentials: "include" }); location.href = "/"; };
-
-  return (
-    <nav className="nb-root">
-      <div className="nb-inner">
-        <NavLink to="/" className="nb-brand">
-          <div className="nb-brand-dot"></div>
-          <span className="nb-brand-name">ShPoint</span>
-        </NavLink>
-        <div className="nb-nav">
-          <NavLink to="/" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>News</NavLink>
-          <NavLink to="/play" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Play</NavLink>
-          <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
-          <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
-          <NavLink to="/faq" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>FAQ</NavLink>
-          {me && (
-            <>
-              {/* Only show these links if user is not suspended */}
-              {me.status !== 'SUSPENDED' && (
-                <>
-                  <NavLink to="/my-collection" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>My Collection</NavLink>
-                </>
-              )}
-              {(me.role === "ADMIN" || me.role === "EDITOR") && me.status !== 'SUSPENDED' && (
-                <NavLink to="/content-management" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Manage Content</NavLink>
-              )}
-              {me.role === "ADMIN" && me.status !== 'SUSPENDED' && (
-                <NavLink to="/admin" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Admin</NavLink>
-              )}
-            </>
-          )}
-        </div>
-        <div className="nb-actions">
-            {!loading && !me && (
-            <button className="nb-btn" onClick={gotoLogin}>Sign in</button>
-            )}
-              {loading ? (
-            <span className="nb-guest">...</span>
-              ) : me ? (
-                <>
-                  <div 
-                    style={{ 
-                      display: "flex", 
-                      alignItems: "center", 
-                      gap: "8px", 
-                      cursor: "pointer",
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      transition: "background-color 0.2s"
-                    }}
-                    onClick={onAvatarClick}
-                    onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = "#374151"}
-                    onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = "transparent"}
-                  >
-                    {(me.avatarUrl || me.image) ? (
-                      <img 
-                        className="nb-btn-icon" 
-                        src={me.avatarUrl || me.image || undefined} 
-                        alt="avatar" 
-                        style={{
-                          borderRadius: "50%", 
-                          width: "32px", 
-                          height: "32px",
-                          objectFit: "cover"
-                        }}
-                           onError={(e) => {
-                             const target = e.target as HTMLImageElement;
-                             console.log("Avatar load error:", target.src);
-                             // Hide the broken image and show initials
-                             target.style.display = "none";
-                             (target.nextElementSibling as HTMLElement).style.display = "flex";
-                           }}
-                           onLoad={async (e) => {
-                             const target = e.target as HTMLImageElement;
-                             console.log("Avatar loaded successfully:", target.src);
-                             
-                             // If this is Google image and user doesn't have custom avatarUrl, save it as backup
-                             if (me.image && target.src === me.image && !me.avatarUrl) {
-                            try {
-                              await fetch(api("/api/user/save-google-avatar"), {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                credentials: "include",
-                                body: JSON.stringify({ imageUrl: me.image })
-                              });
-                              console.log("Google avatar saved as backup");
-                              // Refresh user data to get updated avatarUrl
-                              refetch();
-                            } catch (error) {
-                              console.error("Failed to save Google avatar:", error);
-                            }
-                          }
-                        }}
-                      />
-                    ) : null}
-                    <div 
-                      className="nb-btn-icon" 
-                      style={{
-                        borderRadius: "50%", 
-                        width: "32px", 
-                        height: "32px",
-                        fontSize: 12, 
-                        fontWeight: 600, 
-                        background: "#374151",
-                        display: (me.avatarUrl || me.image) ? "none" : "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}
-                    >
-                      {initials}
-                    </div>
-                    <span className="nb-user">{me.username ?? me.name ?? me.email ?? "User"}</span>
-                    <RoleChip role={me.role} />
-                  </div>
-                  {/* Show invitation button only for non-suspended users */}
-                  {me.status !== 'SUSPENDED' && (
-                    <button 
-                      className="nb-btn" 
-                      onClick={onInviteClick}
-                      style={{
-                        background: 'linear-gradient(135deg, #10b981, #059669)',
-                        color: 'white',
-                        border: 'none',
-                        marginRight: '8px'
-                      }}
-                    >
-                      📧 Invite
-                    </button>
-                  )}
-                  <button className="nb-btn" onClick={doLogout}>Sign out</button>
-                </>
-          ) : (
-            <span className="nb-guest">Guest</span>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
 }
 
 /* ====== Characters (galeria) ====== */
@@ -1012,10 +852,7 @@ export default function AppRoutes() {
 
   return (
     <>
-      <NavBar 
-        onAvatarClick={() => setShowAvatarModal(true)} 
-        onInviteClick={() => setShowInvitationModal(true)} 
-      />
+      <NavBar />
       <Routes>
         <Route path="/" element={<HomePage/>}/>
         <Route path="/builder" element={
