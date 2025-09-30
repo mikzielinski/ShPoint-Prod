@@ -54,7 +54,7 @@ export default function NavBar() {
     <header className="nb-root">
       <div className="nb-inner">
         {/* logo / brand */}
-        <button className="nb-brand" onClick={() => navigate("/builder")} aria-label="Go home">
+        <button className="nb-brand" onClick={() => navigate("/")} aria-label="Go home">
           <ShPointLogo size={28} showText={true} />
         </button>
 
@@ -67,16 +67,28 @@ export default function NavBar() {
             News
           </NavLink>
           <NavLink
-            to="/builder"
+            to="/library"
             className={({ isActive }) => cx("nb-link", isActive && "is-active")}
           >
-            Builder
+            Library
           </NavLink>
           <NavLink
             to="/play"
             className={({ isActive }) => cx("nb-link", isActive && "is-active")}
           >
             Play
+          </NavLink>
+          <NavLink
+            to="/strike-teams"
+            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+          >
+            Strike Teams
+          </NavLink>
+          <NavLink
+            to="/faq"
+            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+          >
+            FAQ
           </NavLink>
 
           {user && (
@@ -184,11 +196,17 @@ export default function NavBar() {
         <NavLink to="/" className="nb-drawer-link">
           News
         </NavLink>
-        <NavLink to="/builder" className="nb-drawer-link">
-          Builder
+        <NavLink to="/library" className="nb-drawer-link">
+          Library
         </NavLink>
         <NavLink to="/play" className="nb-drawer-link">
           Play
+        </NavLink>
+        <NavLink to="/strike-teams" className="nb-drawer-link">
+          Strike Teams
+        </NavLink>
+        <NavLink to="/faq" className="nb-drawer-link">
+          FAQ
         </NavLink>
         {user && (
           <NavLink to="/my-collection" className="nb-drawer-link">
