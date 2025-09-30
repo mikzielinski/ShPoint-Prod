@@ -33,6 +33,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import { SessionData } from "express-session";
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { PrismaClient } from "@prisma/client";
@@ -116,8 +117,7 @@ import {
   createApiToken,
   updateApiToken,
   deleteApiToken,
-  authenticateApiToken,
-  requireScope
+  authenticateApiToken
 } from "./api-tokens-api.js";
 
 const prisma = new PrismaClient();
@@ -281,7 +281,6 @@ const bruteForce = new ExpressBrute(bruteForceStore, {
   maxWait: 10 * 60 * 1000, // Reduced from 15 minutes to 10 minutes
   lifetime: 24 * 60 * 60, // 24 hours
   refreshTimeoutOnRequest: false,
-  skipSuccessfulRequests: true,
   skip: (req) => {
     // @ts-ignore
     return req.user && req.user.isTrusted;
@@ -308,7 +307,6 @@ const authBruteForce = new ExpressBrute(bruteForceStore, {
   minWait: 5 * 60 * 1000, // Reduced from 10 minutes to 5 minutes
   maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
   lifetime: 24 * 60 * 60, // 24 hours
-  skipSuccessfulRequests: true,
   skip: (req) => {
     // @ts-ignore
     return req.user && req.user.isTrusted;
@@ -670,7 +668,9 @@ function requireScope(requiredScopes: string[]) {
 function ensureAuth(req: Request, res: Response, next: NextFunction) {
   // @ts-ignore
   console.log('🔍 ensureAuth - req.user:', req.user);
+  // @ts-ignore
   console.log('🔍 ensureAuth - req.session:', req.session?.id);
+  // @ts-ignore
   console.log('🔍 ensureAuth - req.session.passport:', (req.session as any)?.passport);
   console.log('🔍 ensureAuth - cookies:', req.headers.cookie);
   
@@ -978,6 +978,7 @@ app.get(
     console.log('🔍 Google OAuth start - query:', req.query);
     console.log('🔍 Google OAuth start - returnTo:', req.query.returnTo);
     if (req.query.returnTo) {
+      // @ts-ignore
       (req.session as any).returnTo = req.query.returnTo as string;
       console.log('🔍 Google OAuth start - stored returnTo in session:', req.query.returnTo);
     }
@@ -1001,6 +1002,7 @@ app.get(
   async (req, res) => {
     // express-session automatically handles session management with Passport
     console.log('🔍 Google OAuth callback - user:', req.user?.email);
+    // @ts-ignore
     console.log('🔍 Google OAuth callback - session:', req.session?.id);
     console.log('🔍 Google OAuth callback - cookies:', req.headers.cookie);
     console.log('🔍 Google OAuth callback - origin:', req.get('origin'));
@@ -1019,10 +1021,13 @@ app.get(
     }
     
     // Zapisuj sesję przed redirectem - ważne dla Safari
+    // @ts-ignore
     req.session.save(() => {
       // Check if there's a return URL in the session, otherwise default to home page
+      // @ts-ignore
       const returnUrl = (req.session as any).returnTo || '/';
       const frontendUrl = getFrontendUrl(req.get('origin'));
+      // @ts-ignore
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
       console.log('🔍 Google OAuth callback - final returnUrl:', returnUrl);
       console.log('🔍 Google OAuth callback - frontend URL:', frontendUrl);
@@ -1053,6 +1058,7 @@ app.post("/auth/logout", (req, res, next) => {
   req.logout?.((err) => {
     if (err) return next(err);
     // express-session: destroy session
+    // @ts-ignore
     req.session.destroy((err) => {
       if (err) return next(err);
       res.clearCookie('connect.sid'); // Clear the session cookie
@@ -1110,14 +1116,18 @@ async function updateUserStatusIfNeeded(req: Request, res: Response, next: NextF
 app.get("/api/debug-session", (req, res) => {
   console.log('🔍 Debug session endpoint called');
   console.log('🔍 req.user:', req.user);
+  // @ts-ignore
   console.log('🔍 req.session:', req.session?.id);
+  // @ts-ignore
   console.log('🔍 req.session.passport:', (req.session as any)?.passport);
   console.log('🔍 cookies:', req.headers.cookie);
   
   res.json({ 
     ok: true, 
     user: req.user || null,
+    // @ts-ignore
     sessionId: req.session?.id || null,
+    // @ts-ignore
     passport: (req.session as any)?.passport || null,
     cookies: req.headers.cookie || null
   });
@@ -5929,19 +5939,19 @@ const authenticateUserOrToken = async (req: Request, res: Response, next: NextFu
 };
 
 // Characters API v2
-app.get("/api/v2/characters", authenticateUserOrToken, requireScope('read:characters'), getCharacters);
-app.get("/api/v2/characters/:id", authenticateUserOrToken, requireScope('read:characters'), getCharacterById);
-app.get("/api/v2/characters/:id/abilities", authenticateUserOrToken, requireScope('read:characters'), getCharacterAbilities);
-app.get("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope('read:characters'), getCharacterStance);
-app.post("/api/v2/characters", authenticateUserOrToken, requireScope('write:characters'), createCharacter);
-app.put("/api/v2/characters/:id", authenticateUserOrToken, requireScope('write:characters'), updateCharacter);
-app.delete("/api/v2/characters/:id", authenticateUserOrToken, requireScope('write:characters'), deleteCharacter);
+app.get("/api/v2/characters", authenticateUserOrToken, requireScope(['read:characters']), getCharacters);
+app.get("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['read:characters']), getCharacterById);
+app.get("/api/v2/characters/:id/abilities", authenticateUserOrToken, requireScope(['read:characters']), getCharacterAbilities);
+app.get("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope(['read:characters']), getCharacterStance);
+app.post("/api/v2/characters", authenticateUserOrToken, requireScope(['write:characters']), createCharacter);
+app.put("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['write:characters']), updateCharacter);
+app.delete("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['write:characters']), deleteCharacter);
 
 // Sets API v2
-app.get("/api/v2/sets", authenticateUserOrToken, requireScope('read:sets'), getSets);
+app.get("/api/v2/sets", authenticateUserOrToken, requireScope(['read:sets']), getSets);
 
 // Missions API v2
-app.get("/api/v2/missions", authenticateUserOrToken, requireScope('read:missions'), getMissions);
+app.get("/api/v2/missions", authenticateUserOrToken, requireScope(['read:missions']), getMissions);
 
 // ===== COMMENTS API =====
 app.get("/api/v2/comments", getComments);
@@ -5972,10 +5982,10 @@ app.delete("/api/v2/scheduled-games/:id/reminders/:reminderId", ensureAuth, addU
 app.get("/api/v2/scheduled-games/:id/calendar", ensureAuth, addUserToRequest, generateCalendarEvent);
 
 // ===== GAME RESULTS API =====
-app.get("/api/v2/game-results", authenticateUserOrToken, requireScope('read:game-results'), getGameResults);
-app.post("/api/v2/game-results", authenticateUserOrToken, requireScope('write:game-results'), createGameResult);
-app.put("/api/v2/game-results/:id", authenticateUserOrToken, requireScope('write:game-results'), updateGameResult);
-app.delete("/api/v2/game-results/:id", authenticateUserOrToken, requireScope('delete:game-results'), deleteGameResult);
+app.get("/api/v2/game-results", authenticateUserOrToken, requireScope(['read:game-results']), getGameResults);
+app.post("/api/v2/game-results", authenticateUserOrToken, requireScope(['write:game-results']), createGameResult);
+app.put("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['write:game-results']), updateGameResult);
+app.delete("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['delete:game-results']), deleteGameResult);
 app.get("/api/v2/players/:playerId/stats", ensureAuth, addUserToRequest, getPlayerStats);
 
 // ===== DICE ROLLS AND NODE ACTIVATION API =====
