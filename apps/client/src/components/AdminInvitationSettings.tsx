@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/env';
+import AccessRequestsPanel from './AccessRequestsPanel';
 
 type InvitationLimits = {
   admin: number;
@@ -18,6 +19,7 @@ export default function AdminInvitationSettings() {
   const [testingEmail, setTestingEmail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'limits' | 'requests'>('limits');
 
   useEffect(() => {
     loadLimits();
@@ -166,16 +168,70 @@ export default function AdminInvitationSettings() {
           alignItems: 'center',
           gap: '8px'
         }}>
-          ⚙️ Invitation Limits
+          ⚙️ Admin Invitation Settings
         </h3>
         <p style={{
           fontSize: '14px',
           color: '#94a3b8',
           margin: 0
         }}>
-          Set maximum invitations each role can send
+          Manage invitation limits and access requests
         </p>
       </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '24px',
+        borderBottom: '1px solid #334155'
+      }}>
+        <button
+          onClick={() => setActiveTab('limits')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'limits' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'limits' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Invitation Limits
+        </button>
+        <button
+          onClick={() => setActiveTab('requests')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'requests' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'requests' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Invitation Requests
+        </button>
+      </div>
+
+      {activeTab === 'limits' && (
+        <>
+          <div style={{ marginBottom: '20px' }}>
+            <h4 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#f8fafc',
+              margin: '0 0 8px'
+            }}>
+              Set maximum invitations each role can send
+            </h4>
+          </div>
 
       {/* Limits Form */}
       <div style={{ marginBottom: '20px' }}>
@@ -392,6 +448,12 @@ export default function AdminInvitationSettings() {
           <li>Limits are enforced in real-time</li>
         </ul>
       </div>
+        </>
+      )}
+
+      {activeTab === 'requests' && (
+        <AccessRequestsPanel user={{ role: 'ADMIN' }} />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { api } from "../lib/env";
+import ShPointLogo from '../components/ShPointLogo';
 
 export default function UnauthorizedPage() {
   return (
@@ -23,17 +24,27 @@ export default function UnauthorizedPage() {
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(10px)'
       }}>
+        {/* Logo */}
+        <div style={{
+          margin: '0 auto 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <ShPointLogo size={60} showText={true} />
+        </div>
+        
         {/* Icon */}
         <div style={{
-          width: '80px',
-          height: '80px',
-          margin: '0 auto 24px',
+          width: '60px',
+          height: '60px',
+          margin: '0 auto 16px',
           background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '32px'
+          fontSize: '24px'
         }}>
           🚫
         </div>
@@ -167,6 +178,31 @@ export default function UnauthorizedPage() {
             }}
           >
             Go Home
+          </button>
+          
+          <button
+            onClick={() => window.location.href = '/faq'}
+            style={{
+              background: 'transparent',
+              color: '#cbd5e1',
+              border: '1px solid rgba(71, 85, 105, 0.5)',
+              borderRadius: '12px',
+              padding: '14px 24px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(71, 85, 105, 0.2)';
+              e.target.style.borderColor = 'rgba(71, 85, 105, 0.8)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'transparent';
+              e.target.style.borderColor = 'rgba(71, 85, 105, 0.5)';
+            }}
+          >
+            FAQ & Help
           </button>
         </div>
 

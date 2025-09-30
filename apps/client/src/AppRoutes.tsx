@@ -17,6 +17,8 @@ import PlayPage from "./pages/PlayPage";
 import HeroVsHeroPage from "./pages/HeroVsHeroPage";
 import StrikeTeamVsStrikeTeamPage from "./pages/StrikeTeamVsStrikeTeamPage";
 import BattlePage from "./pages/BattlePage";
+import FAQPage from "./pages/FAQPage";
+import UserProfile from "./components/UserProfile";
 import SquadBuilder from "./components/SquadBuilder";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
@@ -94,6 +96,7 @@ function NavBar({ onAvatarClick, onInviteClick }: { onAvatarClick?: () => void; 
           <NavLink to="/play" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Play</NavLink>
           <NavLink to="/library" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Library</NavLink>
           <NavLink to="/strike-teams" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>Strike Teams</NavLink>
+          <NavLink to="/faq" className={({isActive}) => `nb-link ${isActive ? "is-active" : ""}`}>FAQ</NavLink>
           {me && (
             <>
               {/* Only show these links if user is not suspended */}
@@ -1034,6 +1037,8 @@ export default function AppRoutes() {
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
         <Route path="/content-management" element={<ContentManagementPage/>}/>
+        <Route path="/faq" element={<FAQPage/>}/>
+        <Route path="/user" element={<UserProfile/>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
         <Route path="/banned" element={<BannedPage/>}/>
       </Routes>

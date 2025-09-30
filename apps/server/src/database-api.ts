@@ -170,9 +170,21 @@ export async function getCharacterStance(req: Request, res: Response) {
   try {
     const { id } = req.params;
 
-    const stance = await prisma.characterStance.findUnique({
+    // First find the character by slug
+    const character = await prisma.character.findUnique({
+      where: { slug: id }
+    });
+
+    if (!character) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Character not found' 
+      });
+    }
+
+    const stance = await prisma.characterStance.findFirst({
       where: { 
-        character: { slug: id }
+        characterId: character.id
       }
     });
 

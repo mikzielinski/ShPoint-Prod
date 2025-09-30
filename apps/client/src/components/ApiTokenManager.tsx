@@ -1,347 +1,526 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
-
-async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { credentials: "include", ...init });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
 
 interface ApiToken {
   id: string;
+  name: string;
   token: string;
-  scopes: string[];
-  expiresAt: string;
-  createdAt: string;
   isActive: boolean;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  scopes: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export default function ApiTokenManager() {
+interface ApiTokenManagerProps {
+  onClose?: () => void;
+}
+
+export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
+  const { me } = useAuth();
   const [tokens, setTokens] = useState<ApiToken[]>([]);
+  const [availableScopes, setAvailableScopes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newToken, setNewToken] = useState({
+    name: '',
+    expiresInDays: '',
+    scopes: [] as string[]
+  });
+  const [createdToken, setCreatedToken] = useState<ApiToken | null>(null);
 
-  // Load user's API tokens
-  const loadTokens = async () => {
+  useEffect(() => {
+    fetchTokens();
+  }, []);
+
+  const fetchTokens = async () => {
     try {
       setLoading(true);
-      const response = await apiFetch(api('/api/me/tokens'));
-      if (response.ok) {
-        setTokens(response.tokens || []);
-      } else {
-        setError(response.error || 'Failed to load API tokens');
+      const response = await fetch(`${api}/api/v2/api-tokens`, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch tokens');
       }
-    } catch (e: any) {
-      setError(e?.message ?? 'Failed to load API tokens');
+      
+      const data = await response.json();
+      if (data.ok) {
+        setTokens(data.tokens);
+        setAvailableScopes(data.availableScopes || []);
+      } else {
+        throw new Error(data.error || 'Failed to fetch tokens');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch tokens');
     } finally {
       setLoading(false);
     }
   };
 
-  // Copy token to clipboard
-  const copyToken = async (token: string) => {
+  const createToken = async () => {
     try {
-      await navigator.clipboard.writeText(token);
-      setSuccess('Token copied to clipboard!');
-      setTimeout(() => setSuccess(null), 3000);
-    } catch (e) {
-      setError('Failed to copy token to clipboard');
+      if (!newToken.name.trim()) {
+        setError('Token name is required');
+        return;
+      }
+
+      const response = await fetch(`${api}/api/v2/api-tokens`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: newToken.name.trim(),
+          expiresInDays: newToken.expiresInDays ? parseInt(newToken.expiresInDays) : null,
+          scopes: newToken.scopes
+        })
+      });
+
+      const data = await response.json();
+      if (data.ok) {
+        setCreatedToken(data.token);
+        setSuccess('Token created successfully! Copy it now - it will not be shown again.');
+        setNewToken({ name: '', expiresInDays: '', scopes: [] });
+        setShowCreateForm(false);
+        fetchTokens();
+      } else {
+        throw new Error(data.error || 'Failed to create token');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create token');
     }
   };
 
-  // Delete token
+  const toggleToken = async (tokenId: string, isActive: boolean) => {
+    try {
+      const response = await fetch(`${api}/api/v2/api-tokens/${tokenId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ isActive })
+      });
+
+      const data = await response.json();
+      if (data.ok) {
+        setSuccess(`Token ${isActive ? 'activated' : 'deactivated'} successfully`);
+        fetchTokens();
+      } else {
+        throw new Error(data.error || 'Failed to update token');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update token');
+    }
+  };
+
   const deleteToken = async (tokenId: string) => {
     if (!confirm('Are you sure you want to delete this token? This action cannot be undone.')) {
       return;
     }
 
     try {
-      const response = await apiFetch(api(`/api/admin/tokens/${tokenId}`), {
-        method: 'DELETE'
+      const response = await fetch(`${api}/api/v2/api-tokens/${tokenId}`, {
+        method: 'DELETE',
+        credentials: 'include'
       });
-      if (response.ok) {
+
+      const data = await response.json();
+      if (data.ok) {
         setSuccess('Token deleted successfully');
-        loadTokens();
+        fetchTokens();
       } else {
-        setError(response.error || 'Failed to delete token');
+        throw new Error(data.error || 'Failed to delete token');
       }
-    } catch (e: any) {
-      setError(e?.message ?? 'Failed to delete token');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete token');
     }
   };
 
-  useEffect(() => {
-    loadTokens();
-  }, []);
+  const copyToken = (token: string) => {
+    navigator.clipboard.writeText(token);
+    setSuccess('Token copied to clipboard!');
+  };
+
+  const toggleScope = (scope: string) => {
+    setNewToken(prev => ({
+      ...prev,
+      scopes: prev.scopes.includes(scope)
+        ? prev.scopes.filter(s => s !== scope)
+        : [...prev.scopes, scope]
+    }));
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   if (loading) {
     return (
-      <div className="card">
-        <div className="card__content">
-          <p>Loading API tokens...</p>
-        </div>
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <p style={{ color: '#9ca3af' }}>Loading API tokens...</p>
       </div>
     );
   }
 
   return (
-    <div className="api-token-manager">
+    <div style={{ padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ color: '#f9fafb', margin: 0 }}>API Tokens</h3>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          style={{
+            background: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          Create New Token
+        </button>
+      </div>
+
       {error && (
-        <div className="alert alert--error" style={{ marginBottom: '16px' }}>
+        <div style={{
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          padding: '12px',
+          borderRadius: '6px',
+          marginBottom: '16px'
+        }}>
           {error}
         </div>
       )}
+
       {success && (
-        <div className="alert alert--success" style={{ marginBottom: '16px' }}>
+        <div style={{
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          color: '#16a34a',
+          padding: '12px',
+          borderRadius: '6px',
+          marginBottom: '16px'
+        }}>
           {success}
         </div>
       )}
 
-      <div className="card">
-        <div className="card__header">
-          <h3 className="card__title">🔑 API Tokens</h3>
-          <p className="card__subtitle">Manage your API access tokens</p>
+      {createdToken && (
+        <div style={{
+          background: '#1f2937',
+          border: '2px solid #3b82f6',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '20px'
+        }}>
+          <h4 style={{ color: '#f9fafb', margin: '0 0 12px 0' }}>New Token Created!</h4>
+          <p style={{ color: '#d1d5db', margin: '0 0 12px 0', fontSize: '14px' }}>
+            Copy this token now - it will not be shown again:
+          </p>
+          <div style={{
+            background: '#374151',
+            padding: '12px',
+            borderRadius: '6px',
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            color: '#f9fafb',
+            wordBreak: 'break-all',
+            marginBottom: '12px'
+          }}>
+            {createdToken.token}
+          </div>
+          <button
+            onClick={() => copyToken(createdToken.token)}
+            style={{
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              marginRight: '8px'
+            }}
+          >
+            Copy Token
+          </button>
+          <button
+            onClick={() => setCreatedToken(null)}
+            style={{
+              background: '#6b7280',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            Close
+          </button>
         </div>
-        <div className="card__content">
-          {tokens.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px' }}>
-              <p style={{ color: '#9ca3af', marginBottom: '16px' }}>
-                No API tokens found. Contact an administrator to generate tokens for you.
-              </p>
-            </div>
-          ) : (
-            <div className="tokens-list">
-              {tokens.map((token) => (
-                <div key={token.id} className="token-item">
-                  <div className="token-info">
-                    <div className="token-header">
-                      <h4>Token {token.id.slice(-8)}</h4>
-                      <div className="token-status">
-                        {token.isActive ? (
-                          <span className="status-badge status-active">Active</span>
-                        ) : (
-                          <span className="status-badge status-inactive">Inactive</span>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="token-details">
-                      <div className="detail-row">
-                        <span className="detail-label">Scopes:</span>
-                        <div className="scopes-list">
-                          {token.scopes.map((scope, index) => (
-                            <span key={index} className="scope-badge">
-                              {scope}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="detail-row">
-                        <span className="detail-label">Created:</span>
-                        <span>{new Date(token.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      
-                      <div className="detail-row">
-                        <span className="detail-label">Expires:</span>
-                        <span>{new Date(token.expiresAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="token-actions">
-                    <button
-                      className="btn btn--secondary btn--small"
-                      onClick={() => copyToken(token.token)}
-                    >
-                      Copy Token
-                    </button>
-                    <button
-                      className="btn btn--danger btn--small"
-                      onClick={() => deleteToken(token.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+      )}
+
+      {showCreateForm && (
+        <div style={{
+          background: '#374151',
+          padding: '20px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: '1px solid #4b5563'
+        }}>
+          <h4 style={{ color: '#f9fafb', margin: '0 0 16px 0' }}>Create New API Token</h4>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', color: '#d1d5db', marginBottom: '8px', fontSize: '14px' }}>
+              Token Name
+            </label>
+            <input
+              type="text"
+              value={newToken.name}
+              onChange={(e) => setNewToken(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="e.g., My App Token"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                background: '#1f2937',
+                border: '1px solid #4b5563',
+                borderRadius: '6px',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', color: '#d1d5db', marginBottom: '8px', fontSize: '14px' }}>
+              Expires In (days, optional)
+            </label>
+            <input
+              type="number"
+              value={newToken.expiresInDays}
+              onChange={(e) => setNewToken(prev => ({ ...prev, expiresInDays: e.target.value }))}
+              placeholder="Leave empty for no expiration"
+              min="1"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                background: '#1f2937',
+                border: '1px solid #4b5563',
+                borderRadius: '6px',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', color: '#d1d5db', marginBottom: '8px', fontSize: '14px' }}>
+              Scopes (permissions)
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
+              {availableScopes.map(scope => (
+                <label key={scope} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={newToken.scopes.includes(scope)}
+                    onChange={() => toggleScope(scope)}
+                    style={{ marginRight: '8px' }}
+                  />
+                  <span style={{ color: '#d1d5db', fontSize: '14px' }}>{scope}</span>
+                </label>
               ))}
             </div>
-          )}
+            {newToken.scopes.length === 0 && (
+              <p style={{ color: '#9ca3af', fontSize: '12px', margin: '8px 0 0 0' }}>
+                No scopes selected - token will have all available permissions for your role
+              </p>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={createToken}
+              style={{
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Create Token
+            </button>
+            <button
+              onClick={() => {
+                setShowCreateForm(false);
+                setNewToken({ name: '', expiresInDays: '', scopes: [] });
+              }}
+              style={{
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
+      )}
+
+      <div style={{ marginBottom: '16px' }}>
+        <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
+          API tokens allow you to authenticate with the ShPoint API. Use them in the Authorization header: 
+          <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px', margin: '0 4px' }}>
+            Bearer YOUR_TOKEN_HERE
+          </code>
+        </p>
       </div>
 
-      <style jsx>{`
-        .api-token-manager {
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 16px;
-        }
-
-        .tokens-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .token-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          padding: 16px;
-          background: #1f2937;
-          border: 1px solid #374151;
-          border-radius: 8px;
-          gap: 16px;
-        }
-
-        .token-info {
-          flex: 1;
-        }
-
-        .token-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
-
-        .token-header h4 {
-          margin: 0;
-          color: #f9fafb;
-          font-size: 16px;
-          font-weight: 600;
-        }
-
-        .token-status {
-          display: flex;
-          align-items: center;
-        }
-
-        .status-badge {
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-        }
-
-        .status-active {
-          background: #065f46;
-          color: #a7f3d0;
-        }
-
-        .status-inactive {
-          background: #7f1d1d;
-          color: #fecaca;
-        }
-
-        .token-details {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .detail-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .detail-label {
-          color: #9ca3af;
-          font-size: 14px;
-          font-weight: 500;
-          min-width: 80px;
-        }
-
-        .scopes-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 4px;
-        }
-
-        .scope-badge {
-          padding: 2px 6px;
-          background: #374151;
-          color: #d1d5db;
-          border-radius: 3px;
-          font-size: 12px;
-          font-family: monospace;
-        }
-
-        .token-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 8px 16px;
-          border-radius: 4px;
-          font-size: 14px;
-          font-weight: 500;
-          text-decoration: none;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .btn--small {
-          padding: 6px 12px;
-          font-size: 12px;
-        }
-
-        .btn--secondary {
-          background: #6b7280;
-          color: white;
-        }
-
-        .btn--secondary:hover {
-          background: #4b5563;
-        }
-
-        .btn--danger {
-          background: #ef4444;
-          color: white;
-        }
-
-        .btn--danger:hover {
-          background: #dc2626;
-        }
-
-        .alert {
-          padding: 12px 16px;
-          border-radius: 4px;
-          margin-bottom: 16px;
-        }
-
-        .alert--error {
-          background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
-        }
-
-        .alert--success {
-          background: #f0fdf4;
-          color: #16a34a;
-          border: 1px solid #bbf7d0;
-        }
-
-        @media (max-width: 768px) {
-          .token-item {
-            flex-direction: column;
-            align-items: stretch;
-          }
-
-          .token-actions {
-            flex-direction: row;
-            justify-content: space-between;
-          }
-        }
-      `}</style>
+      {tokens.length === 0 ? (
+        <div style={{
+          background: '#374151',
+          padding: '20px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          border: '1px solid #4b5563'
+        }}>
+          <p style={{ color: '#9ca3af', margin: 0 }}>
+            No API tokens created yet. Create your first token to start using the API.
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {tokens.map(token => (
+            <div
+              key={token.id}
+              style={{
+                background: '#374151',
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1px solid #4b5563'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div>
+                  <h4 style={{ color: '#f9fafb', margin: '0 0 4px 0', fontSize: '16px' }}>
+                    {token.name}
+                  </h4>
+                  <p style={{ color: '#9ca3af', margin: 0, fontSize: '12px', fontFamily: 'monospace' }}>
+                    {token.token}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => toggleToken(token.id, !token.isActive)}
+                    style={{
+                      background: token.isActive ? '#dc2626' : '#16a34a',
+                      color: 'white',
+                      border: 'none',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    {token.isActive ? 'Deactivate' : 'Activate'}
+                  </button>
+                  <button
+                    onClick={() => deleteToken(token.id)}
+                    style={{
+                      background: '#dc2626',
+                      color: 'white',
+                      border: 'none',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', fontSize: '12px' }}>
+                <div>
+                  <span style={{ color: '#9ca3af' }}>Status:</span>
+                  <span style={{ color: token.isActive ? '#16a34a' : '#dc2626', marginLeft: '4px' }}>
+                    {token.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div>
+                  <span style={{ color: '#9ca3af' }}>Created:</span>
+                  <span style={{ color: '#d1d5db', marginLeft: '4px' }}>
+                    {formatDate(token.createdAt)}
+                  </span>
+                </div>
+                {token.lastUsedAt && (
+                  <div>
+                    <span style={{ color: '#9ca3af' }}>Last Used:</span>
+                    <span style={{ color: '#d1d5db', marginLeft: '4px' }}>
+                      {formatDate(token.lastUsedAt)}
+                    </span>
+                  </div>
+                )}
+                {token.expiresAt && (
+                  <div>
+                    <span style={{ color: '#9ca3af' }}>Expires:</span>
+                    <span style={{ color: '#d1d5db', marginLeft: '4px' }}>
+                      {formatDate(token.expiresAt)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              {token.scopes.length > 0 && (
+                <div style={{ marginTop: '12px' }}>
+                  <span style={{ color: '#9ca3af', fontSize: '12px' }}>Scopes:</span>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                    {token.scopes.map(scope => (
+                      <span
+                        key={scope}
+                        style={{
+                          background: '#1f2937',
+                          color: '#d1d5db',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '11px'
+                        }}
+                      >
+                        {scope}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import Modal from '../components/Modal';
 import NewsEditor from '../components/editors/NewsEditor';
 import NewsPreview from '../components/NewsPreview';
 import ShPointLogo from '../components/ShPointLogo';
+import AccessRequestForm from '../components/AccessRequestForm';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -753,6 +754,34 @@ const HomePage: React.FC = () => {
           </div>
         )}
 
+        {/* Access Request Form - Only show for non-authenticated users */}
+        {!me && (
+          <div style={{
+            background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid #374151',
+            marginBottom: '32px'
+          }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#f9fafb',
+              margin: '0 0 16px 0'
+            }}>
+              Request Access to ShPoint
+            </h2>
+            <p style={{
+              color: '#d1d5db',
+              margin: '0 0 24px 0',
+              fontSize: '16px'
+            }}>
+              Don't have access yet? Request an invitation to join the ShPoint community!
+            </p>
+            <AccessRequestForm compact={true} />
+          </div>
+        )}
+
         {/* Recent Updates */}
         <div style={{
           background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
@@ -1024,9 +1053,21 @@ const HomePage: React.FC = () => {
           <p>
             ShPoint News - Star Wars: Shatterpoint Updates
           </p>
-          <p style={{ marginTop: '8px', fontSize: '12px' }}>
-            Built with ❤️ for the Shatterpoint community
-          </p>
+          <div style={{ marginTop: '8px', fontSize: '12px' }}>
+            <a 
+              href="/faq" 
+              style={{ 
+                color: '#6b7280', 
+                textDecoration: 'none',
+                marginRight: '16px'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+              onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+            >
+              FAQ & Help
+            </a>
+            <span>Built with ❤️ for the Shatterpoint community</span>
+          </div>
         </div>
       </div>
 

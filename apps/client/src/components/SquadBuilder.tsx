@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { api, API_BASE } from "../lib/env";
+import GameResultLogger from "./GameResultLogger";
 
 /**
  * Minimalny model karty – robimy mapowanie defensywne,
@@ -370,6 +371,11 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
   const [teamDescription, setTeamDescription] = useState<string>("");
   const [squad1Name, setSquad1Name] = useState<string>("Squad 1");
   const [squad2Name, setSquad2Name] = useState<string>("Squad 2");
+  
+  // Tryb Strike Team vs Strike Team
+  const [vsMode, setVsMode] = useState<boolean>(false);
+  const [showGameLogger, setShowGameLogger] = useState<boolean>(false);
+  const [opponentTeam, setOpponentTeam] = useState<any>(null);
 
   useEffect(() => {
     let alive = true;
@@ -1093,6 +1099,64 @@ export default function SquadBuilder({ characterCollections = [], onSave }: Squa
         >
           💾 Save Strike Team
         </button>
+        
+        {/* Tryb Strike Team vs Strike Team */}
+        <button
+          onClick={() => setVsMode(!vsMode)}
+          style={{
+            width: "100%",
+            padding: "12px",
+            backgroundColor: vsMode ? "#28a745" : "#6c757d",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: "bold",
+            marginBottom: "12px",
+            transition: "all 0.2s ease"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          {vsMode ? "⚔️ VS Mode ON" : "⚔️ Enable VS Mode"}
+        </button>
+        
+        {/* Przycisk do logowania wyników gier */}
+        {vsMode && (
+          <button
+            onClick={() => setShowGameLogger(true)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "bold",
+              marginBottom: "12px",
+              transition: "all 0.2s ease"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.2)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            📊 Log Game Result
+          </button>
+        )}
       </aside>
 
       {/* PRAWA KOLUMNA – katalog kart */}

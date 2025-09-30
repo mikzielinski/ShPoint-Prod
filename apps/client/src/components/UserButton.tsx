@@ -69,6 +69,13 @@ export const UserButton: React.FC = () => {
           >
             Mój profil
           </a>
+          <a
+            href="/faq"
+            className="block px-3 py-2 text-sm hover:bg-gray-50"
+            onClick={() => setOpen(false)}
+          >
+            FAQ & Help
+          </a>
           <button
             className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
             onClick={async () => {

@@ -57,6 +57,68 @@ import {
   getSets,
   getMissions
 } from "./database-api.js";
+import { 
+  getComments, 
+  createComment, 
+  updateComment, 
+  deleteComment, 
+  likeComment 
+} from "./comments-api.js";
+import { 
+  getInboxMessages, 
+  markMessageAsRead, 
+  markAllMessagesAsRead, 
+  deleteMessage 
+} from "./inbox-api.js";
+import { 
+  getChallenges, 
+  createChallenge, 
+  respondToChallenge, 
+  cancelChallenge, 
+  getAvailablePlayers 
+} from "./challenges-api.js";
+import { 
+  getScheduledGames, 
+  createScheduledGame, 
+  updateScheduledGame, 
+  addGameReminder, 
+  removeGameReminder, 
+  generateCalendarEvent 
+} from "./scheduled-games-api.js";
+import { 
+  getGameResults, 
+  createGameResult, 
+  updateGameResult, 
+  deleteGameResult, 
+  getPlayerStats 
+} from "./game-results-api.js";
+import { 
+  logDiceRoll, 
+  getDiceRolls, 
+  logNodeActivation, 
+  getNodeActivations, 
+  updateNodeActivation, 
+  deleteNodeActivation 
+} from "./dice-and-nodes-api.js";
+import { 
+  exportGameLog, 
+  exportGameLogByTurn 
+} from "./game-export-api.js";
+import { 
+  createAccessRequest, 
+  getAccessRequests, 
+  updateAccessRequest, 
+  deleteAccessRequest, 
+  inviteUserFromRequest 
+} from "./access-requests-api.js";
+import {
+  getUserApiTokens,
+  createApiToken,
+  updateApiToken,
+  deleteApiToken,
+  authenticateApiToken,
+  requireScope
+} from "./api-tokens-api.js";
 
 const prisma = new PrismaClient();
 
@@ -1006,28 +1068,35 @@ async function updateUserStatusIfNeeded(req: Request, res: Response, next: NextF
   try {
     // @ts-ignore
     const user = req.user;
-    if (user && user.status === 'SUSPENDED' && user.suspendedUntil) {
-      const now = new Date();
-      const suspendedUntil = new Date(user.suspendedUntil);
+    if (user && user.id) {
+      // Get full user object from database
+      const fullUser = await prisma.user.findUnique({
+        where: { id: user.id }
+      });
       
-      // If suspension has ended, update user status
-      if (now >= suspendedUntil) {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { 
-            status: 'ACTIVE',
-            suspendedUntil: null,
-            suspendedReason: null,
-            suspendedBy: null,
-            suspendedAt: null
-          }
-        });
+      if (fullUser && fullUser.status === 'SUSPENDED' && fullUser.suspendedUntil) {
+        const now = new Date();
+        const suspendedUntil = new Date(fullUser.suspendedUntil);
         
-        // Update the user object in the request
-        // @ts-ignore
-        req.user = await prisma.user.findUnique({
-          where: { id: user.id }
-        });
+        // If suspension has ended, update user status
+        if (now >= suspendedUntil) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { 
+              status: 'ACTIVE',
+              suspendedUntil: null,
+              suspendedReason: null,
+              suspendedBy: null,
+              suspendedAt: null
+            }
+          });
+          
+          // Update the user object in the request
+          // @ts-ignore
+          req.user = await prisma.user.findUnique({
+            where: { id: user.id }
+          });
+        }
       }
     }
     next();
@@ -4161,18 +4230,27 @@ app.get("/api/user/invitations", ensureAuth, async (req, res) => {
       return res.status(401).json({ ok: false, error: 'User not authenticated' });
     }
     
+    // Get full user object from database
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    });
+    
+    if (!fullUser) {
+      return res.status(404).json({ ok: false, error: 'User not found' });
+    }
+    
     // Get current invitation count
     const invitationsSent = await prisma.allowedEmail.count({
       where: { invitedBy: user.id }
     });
     
     // Get remaining invitations
-    const remainingInvitations = Math.max(0, user.invitationsLimit - invitationsSent);
+    const remainingInvitations = Math.max(0, fullUser.invitationsLimit - invitationsSent);
     
     res.json({ 
       ok: true, 
       invitationsSent,
-      invitationsLimit: user.invitationsLimit,
+      invitationsLimit: fullUser.invitationsLimit,
       remainingInvitations
     });
   } catch (error) {
@@ -4192,8 +4270,17 @@ app.post("/api/user/invitations", ensureAuth, async (req, res) => {
       return res.status(401).json({ ok: false, error: 'User not authenticated' });
     }
     
+    // Get full user object from database
+    const fullUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    });
+    
+    if (!fullUser) {
+      return res.status(404).json({ ok: false, error: 'User not found' });
+    }
+    
     // Check if user is suspended
-    if (user.status === 'SUSPENDED') {
+    if (fullUser.status === 'SUSPENDED') {
       return res.status(403).json({ ok: false, error: "Suspended users cannot send invitations" });
     }
     
@@ -4206,7 +4293,7 @@ app.post("/api/user/invitations", ensureAuth, async (req, res) => {
       where: { invitedBy: user.id }
     });
     
-    if (invitationsSent >= user.invitationsLimit) {
+    if (invitationsSent >= fullUser.invitationsLimit) {
       return res.status(403).json({ ok: false, error: 'Invitation limit reached' });
     }
     
@@ -4233,8 +4320,8 @@ app.post("/api/user/invitations", ensureAuth, async (req, res) => {
     // Send invitation email
     const emailResult = await sendInvitationEmail(
       email.toLowerCase(),
-      user.username || user.name || user.email,
-      user.email,
+      fullUser.username || fullUser.name || fullUser.email,
+      fullUser.email,
       role
     );
     
@@ -5806,8 +5893,9 @@ app.get("/api/debug/audit-logs", async (req, res) => {
 // Middleware to add user to request
 const addUserToRequest = (req: Request, res: Response, next: NextFunction) => {
   if (req.user) {
-    // Add user info to request for database API
-    (req as any).user = {
+    // Add user info to request for database API - keep original user object
+    // but add it to a separate property for database API functions
+    (req as any).dbUser = {
       id: req.user.id,
       email: req.user.email,
       role: req.user.role
@@ -5816,17 +5904,101 @@ const addUserToRequest = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// Middleware to authenticate either session or API token
+const authenticateUserOrToken = async (req: Request, res: Response, next: NextFunction) => {
+  // First try API token authentication
+  await authenticateApiToken(req, res, (err?: any) => {
+    if (err) return next(err);
+    
+    // If API token auth succeeded, continue
+    if ((req as any).dbUser) {
+      return next();
+    }
+    
+    // Otherwise, try session authentication
+    if (req.user) {
+      (req as any).dbUser = {
+        id: req.user.id,
+        email: req.user.email,
+        role: req.user.role
+      };
+    }
+    
+    next();
+  });
+};
+
 // Characters API v2
-app.get("/api/v2/characters", getCharacters);
-app.get("/api/v2/characters/:id", getCharacterById);
-app.get("/api/v2/characters/:id/abilities", getCharacterAbilities);
-app.get("/api/v2/characters/:id/stance", getCharacterStance);
-app.post("/api/v2/characters", ensureAuth, addUserToRequest, createCharacter);
-app.put("/api/v2/characters/:id", ensureAuth, addUserToRequest, updateCharacter);
-app.delete("/api/v2/characters/:id", ensureAuth, addUserToRequest, deleteCharacter);
+app.get("/api/v2/characters", authenticateUserOrToken, requireScope('read:characters'), getCharacters);
+app.get("/api/v2/characters/:id", authenticateUserOrToken, requireScope('read:characters'), getCharacterById);
+app.get("/api/v2/characters/:id/abilities", authenticateUserOrToken, requireScope('read:characters'), getCharacterAbilities);
+app.get("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope('read:characters'), getCharacterStance);
+app.post("/api/v2/characters", authenticateUserOrToken, requireScope('write:characters'), createCharacter);
+app.put("/api/v2/characters/:id", authenticateUserOrToken, requireScope('write:characters'), updateCharacter);
+app.delete("/api/v2/characters/:id", authenticateUserOrToken, requireScope('write:characters'), deleteCharacter);
 
 // Sets API v2
-app.get("/api/v2/sets", getSets);
+app.get("/api/v2/sets", authenticateUserOrToken, requireScope('read:sets'), getSets);
 
 // Missions API v2
-app.get("/api/v2/missions", getMissions);
+app.get("/api/v2/missions", authenticateUserOrToken, requireScope('read:missions'), getMissions);
+
+// ===== COMMENTS API =====
+app.get("/api/v2/comments", getComments);
+app.post("/api/v2/comments", ensureAuth, addUserToRequest, createComment);
+app.put("/api/v2/comments/:id", ensureAuth, addUserToRequest, updateComment);
+app.delete("/api/v2/comments/:id", ensureAuth, addUserToRequest, deleteComment);
+app.post("/api/v2/comments/:id/like", ensureAuth, addUserToRequest, likeComment);
+
+// ===== INBOX API =====
+app.get("/api/v2/inbox", ensureAuth, addUserToRequest, getInboxMessages);
+app.put("/api/v2/inbox/messages/:id/read", ensureAuth, addUserToRequest, markMessageAsRead);
+app.put("/api/v2/inbox/messages/read-all", ensureAuth, addUserToRequest, markAllMessagesAsRead);
+app.delete("/api/v2/inbox/messages/:id", ensureAuth, addUserToRequest, deleteMessage);
+
+// ===== CHALLENGES API =====
+app.get("/api/v2/challenges", ensureAuth, addUserToRequest, getChallenges);
+app.post("/api/v2/challenges", ensureAuth, addUserToRequest, createChallenge);
+app.put("/api/v2/challenges/:id/respond", ensureAuth, addUserToRequest, respondToChallenge);
+app.put("/api/v2/challenges/:id/cancel", ensureAuth, addUserToRequest, cancelChallenge);
+app.get("/api/v2/players/available", ensureAuth, addUserToRequest, getAvailablePlayers);
+
+// ===== SCHEDULED GAMES API =====
+app.get("/api/v2/scheduled-games", ensureAuth, addUserToRequest, getScheduledGames);
+app.post("/api/v2/scheduled-games", ensureAuth, addUserToRequest, createScheduledGame);
+app.put("/api/v2/scheduled-games/:id", ensureAuth, addUserToRequest, updateScheduledGame);
+app.post("/api/v2/scheduled-games/:id/reminders", ensureAuth, addUserToRequest, addGameReminder);
+app.delete("/api/v2/scheduled-games/:id/reminders/:reminderId", ensureAuth, addUserToRequest, removeGameReminder);
+app.get("/api/v2/scheduled-games/:id/calendar", ensureAuth, addUserToRequest, generateCalendarEvent);
+
+// ===== GAME RESULTS API =====
+app.get("/api/v2/game-results", authenticateUserOrToken, requireScope('read:game-results'), getGameResults);
+app.post("/api/v2/game-results", authenticateUserOrToken, requireScope('write:game-results'), createGameResult);
+app.put("/api/v2/game-results/:id", authenticateUserOrToken, requireScope('write:game-results'), updateGameResult);
+app.delete("/api/v2/game-results/:id", authenticateUserOrToken, requireScope('delete:game-results'), deleteGameResult);
+app.get("/api/v2/players/:playerId/stats", ensureAuth, addUserToRequest, getPlayerStats);
+
+// ===== DICE ROLLS AND NODE ACTIVATION API =====
+app.post("/api/v2/dice-rolls", ensureAuth, addUserToRequest, logDiceRoll);
+app.get("/api/v2/dice-rolls", ensureAuth, addUserToRequest, getDiceRolls);
+app.post("/api/v2/node-activations", ensureAuth, addUserToRequest, logNodeActivation);
+app.get("/api/v2/node-activations", ensureAuth, addUserToRequest, getNodeActivations);
+app.put("/api/v2/node-activations/:id", ensureAuth, addUserToRequest, updateNodeActivation);
+app.delete("/api/v2/node-activations/:id", ensureAuth, addUserToRequest, deleteNodeActivation);
+
+// ===== GAME EXPORT API =====
+app.get("/api/v2/game-sessions/:gameSessionId/export", ensureAuth, addUserToRequest, exportGameLog);
+app.get("/api/v2/game-sessions/:gameSessionId/turns/:turn/export", ensureAuth, addUserToRequest, exportGameLogByTurn);
+
+// ===== ACCESS REQUESTS API =====
+app.post("/api/v2/access-requests", createAccessRequest);
+app.get("/api/v2/access-requests", ensureAuth, addUserToRequest, getAccessRequests);
+app.put("/api/v2/access-requests/:id", ensureAuth, addUserToRequest, updateAccessRequest);
+app.delete("/api/v2/access-requests/:id", ensureAuth, addUserToRequest, deleteAccessRequest);
+app.post("/api/v2/access-requests/:id/invite", ensureAuth, addUserToRequest, inviteUserFromRequest);
+
+// API Tokens endpoints
+app.get("/api/v2/api-tokens", ensureAuth, addUserToRequest, getUserApiTokens);
+app.post("/api/v2/api-tokens", ensureAuth, addUserToRequest, createApiToken);
+app.put("/api/v2/api-tokens/:id", ensureAuth, addUserToRequest, updateApiToken);
+app.delete("/api/v2/api-tokens/:id", ensureAuth, addUserToRequest, deleteApiToken);

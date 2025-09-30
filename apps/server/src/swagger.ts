@@ -30,13 +30,28 @@ const options = {
           type: 'apiKey',
           in: 'cookie',
           name: 'connect.sid',
-          description: 'Session cookie authentication'
+          description: 'Session cookie authentication (Google OAuth)'
         },
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT',
-          description: 'Bearer token authentication for API users'
+          bearerFormat: 'API Token',
+          description: 'API token authentication. Get your token from User Profile > API Tokens'
+        },
+        googleOAuth: {
+          type: 'oauth2',
+          flows: {
+            authorizationCode: {
+              authorizationUrl: '/auth/google',
+              tokenUrl: '/auth/google/callback',
+              scopes: {
+                'openid': 'OpenID Connect',
+                'email': 'Access to email address',
+                'profile': 'Access to basic profile information'
+              }
+            }
+          },
+          description: 'Google OAuth 2.0 authentication'
         }
       },
       schemas: {

@@ -8,6 +8,7 @@ import ApiDocumentation from "../components/ApiDocumentation";
 import AuditLogs from "../components/AuditLogs";
 import SecurityManager from "../components/SecurityManager";
 import DataConverter from "../components/DataConverter";
+import ShPointLogo from "../components/ShPointLogo";
 import "../styles/admin.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN" | "API_USER";
@@ -454,7 +455,10 @@ export default function AdminPage() {
   return (
     <main className="admin-page">
       <header className="page-head">
-        <h1>Admin Panel</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+          <ShPointLogo size={40} showText={false} />
+          <h1>Admin Panel</h1>
+        </div>
         <p>Manage users, invitations, and system settings.</p>
       </header>
 

@@ -11,6 +11,7 @@ import { missionsData } from '../data/missions';
 import { api } from '../lib/env';
 import MissionCardsEditor from '../components/editors/MissionCardsEditor';
 import MissionCardsPreview from '../components/MissionCardsPreview';
+import ShPointLogo from '../components/ShPointLogo';
 
 interface Character {
   id: string;
@@ -770,15 +771,18 @@ const ContentManagementPage: React.FC = () => {
         alignItems: 'center',
         gap: '12px'
       }}>
-        <h1 style={{
-          fontSize: '18px',
-          fontWeight: '700',
-          color: '#e5e7eb',
-          margin: 0,
-          letterSpacing: '0.3px'
-        }}>
-          Content Management
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <ShPointLogo size={32} showText={false} />
+          <h1 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            color: '#e5e7eb',
+            margin: 0,
+            letterSpacing: '0.3px'
+          }}>
+            Content Management
+          </h1>
+        </div>
         
         {/* Tabs aligned with NavBar links */}
         <div style={{

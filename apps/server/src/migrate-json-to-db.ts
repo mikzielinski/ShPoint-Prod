@@ -1,14 +1,14 @@
 #!/usr/bin/env tsx
 
 /**
- * 🚀 Skrypt migracji danych z JSON do bazy danych PostgreSQL
+ * Database migration script from JSON to PostgreSQL
  * 
- * Migruje:
- * - Postacie z characters_assets/*/data.json i stance.json
- * - Sety z sets.ts
- * - Misje z missions.ts
+ * Migrates:
+ * - Characters from characters_assets data.json and stance.json
+ * - Sets from sets.ts
+ * - Missions from missions.ts
  * 
- * Zoptymalizowane dla szybkiego ładowania z indeksami i relacjami
+ * Optimized for fast loading with indexes and relations
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -289,7 +289,7 @@ async function migrateSets() {
             await prisma.setCharacter.create({
               data: {
                 setId: set.id,
-                role: charData.role.toUpperCase() as any,
+                role: charData.role.toUpperCase() === 'SUPPORTING' ? 'SUPPORT' : charData.role.toUpperCase() as any,
                 name: charData.name
               }
             });
