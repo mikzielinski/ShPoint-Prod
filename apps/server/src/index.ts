@@ -1,7 +1,7 @@
 // apps/server/src/index.ts
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
-import { User } from "@prisma/client";
+// import { User } from "@prisma/client";
 
 // Extend Express Request interface
 declare global {
@@ -247,7 +247,7 @@ const generalLimiter = rateLimit({
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
   delayAfter: 20, // Allow 20 requests per windowMs without delay (was 10)
-  delayMs: () => 200, // Fixed for express-slow-down v2
+  delayMs: 200, // Fixed for express-slow-down v2
   maxDelayMs: 10000, // Reduced max delay from 20s to 10s
   skipSuccessfulRequests: true,
   skip: (req) => {
@@ -446,6 +446,7 @@ app.use(
 );
 app.use(morgan("dev"));
 app.use(express.json());
+// @ts-ignore
 app.use(cookieParser());
 
 // Static files - try production paths first, then fallback to development paths
@@ -460,8 +461,8 @@ app.use('/characters', express.static(charactersAssetsPath));
 app.use('/sets', express.static(setsPath));
 
 // express-session (compatible with Passport)
-app.use(
-  session({
+// @ts-ignore
+app.use(session({
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -511,7 +512,9 @@ const authenticateBearerToken = async (req: Request, res: Response, next: NextFu
   next();
 };
 
+// @ts-ignore
 app.use(passport.initialize());
+// @ts-ignore
 app.use(passport.session());
 
 // Add Bearer token authentication middleware
@@ -964,6 +967,7 @@ app.post("/api/seed", async (req, res) => {
 // start
 app.get(
   "/auth/google",
+  // @ts-ignore
   authBruteForce.prevent, // Apply brute force protection
   (req, res, next) => {
     // Store the return URL in session if provided
