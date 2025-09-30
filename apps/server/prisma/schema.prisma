@@ -40,7 +40,6 @@ model User {
   customCardShares     CustomCardShare[]
   customCardCollections CustomCardCollection[]
   auditLogs            AuditLog[]
-  apiTokens            ApiToken[]
   // Nowe relacje dla Shatterpoint
   createdCharacters    Character[] @relation("CharacterCreatedBy")
   updatedCharacters    Character[] @relation("CharacterUpdatedBy")
@@ -478,23 +477,6 @@ enum AuditAction {
   SHARE
   UNSHARE
   DDOS_DETECTED
-}
-
-model ApiToken {
-  id          String   @id @default(cuid())
-  name        String   // User-friendly name for the token
-  token       String   @unique // The actual bearer token
-  scopes      String[] // Array of permission scopes
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  isActive    Boolean  @default(true)
-  lastUsedAt  DateTime?
-  createdAt   DateTime @default(now())
-  expiresAt   DateTime? // Optional expiration date
-  
-  @@index([userId])
-  @@index([token])
-  @@index([isActive])
 }
 
 // ===== SHATTERPOINT GAME DATA MODELS =====
