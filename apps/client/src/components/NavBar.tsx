@@ -37,11 +37,16 @@ function ThemeToggle() {
 }
 
 export default function NavBar() {
-  const { user, doLogin, doLogout } = useAuth();
+  const { auth, googleLoginHref, doLogout } = useAuth();
   const { unreadCount } = useUnreadMessages();
+  const user = auth.status === 'authenticated' ? auth.user : null;
   const role = (user?.role || "USER") as Role;
   const isAdmin = role === "ADMIN";
   const isEditor = role === "EDITOR" || isAdmin;
+  
+  const doLogin = () => {
+    window.location.href = googleLoginHref;
+  };
 
   const loc = useLocation();
   const navigate = useNavigate();
