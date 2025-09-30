@@ -321,6 +321,16 @@ const authBruteForce = new ExpressBrute(bruteForceStore, {
   minWait: 5 * 60 * 1000, // Reduced from 10 minutes to 5 minutes
   maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
   lifetime: 24 * 60 * 60, // 24 hours
+  skip: (req) => {
+    // Skip brute force protection for Netlify CDN IPs
+    const netlifyIPs = [
+      '104.23.209.126', // Current Netlify IP
+      '104.23.208.126',
+      '104.23.210.126',
+      '104.23.211.126'
+    ];
+    return netlifyIPs.includes(req.ip);
+  }
 });
 
 // 7. DDoS Detection and Monitoring - Adjusted thresholds
