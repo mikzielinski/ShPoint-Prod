@@ -2,7 +2,10 @@ FROM node:20-alpine
 WORKDIR /app
 # Force cache bust - v1.2.9
 
-    # OpenSSL 1.1 compatibility not needed for newer Prisma versions
+    # Install OpenSSL 1.1 for Prisma compatibility
+    RUN apk add --no-cache openssl-dev libssl3 && \
+        ln -sf /usr/lib/libssl.so.3 /usr/lib/libssl.so.1.1 && \
+        ln -sf /usr/lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1
 
 # Copy package files and install dependencies
 COPY package*.json ./
