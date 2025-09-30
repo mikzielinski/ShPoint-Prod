@@ -1,28 +1,350 @@
 {
   "id": "rebel-commandos",
-  "url": "https://shatterpointdb.com/characters/rebel-commandos",
+  "pc": 4,
+  "sp": null,
+  "era": [
+    "Galactic Civil War",
+    "The New Republic"
+  ],
   "name": "Rebel Commandos",
-  "portrait": "https://shatterpointdb.com/media/avhlwurm/shatterpoint-rebel-commandos-unit-card.png?height=600&v=1da9c11a64a8690",
-  "squad_points": 4,
+  "role": "Support",
+  "tags": [],
   "force": 0,
-  "unit_type": "Support",
+  "image": "https://shatterpointdb.com/media/avhlwurm/shatterpoint-rebel-commandos-unit-card.png?height=600&v=1da9c11a64a8690",
+  "period": [
+    "Galactic Civil War"
+  ],
+  "faction": "Unknown",
   "stamina": 8,
-  "durability": 2,
-  "factions": null,
+  "factions": [
+    "Rebel Alliance",
+    "Scout",
+    "Troopers"
+  ],
+  "portrait": "https://shpoint-prod.onrender.com/characters/rebel-commandos/portrait.png",
   "abilities": [
     {
-      "title": "Commando Doctrines",
-      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and gains . Coordinated Fire: When a character in another allied Rebel Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers . Camouflage At the end of the Setup, this Unit may gain . Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's Primary Unit , instead of the normal 1."
+      "id": "each-0",
+      "name": "Each",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "l",
+      "trigger": "always",
+      "isAction": false,
+      "forceCost": 0,
+      "description": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and gains ."
     },
     {
-      "title": "Rebel Alliance",
-      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers ."
+      "id": "coordinated-fire-1",
+      "name": "Coordinated Fire",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "Coordinated Fire: When a character in another allied"
     },
     {
-      "title": "Primary Unit",
-      "text": "When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's  , instead of the normal 1."
+      "id": "alliance-unit-2",
+      "name": "Alliance Unit",
+      "tags": [],
+      "type": "Active",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "id": "camouflage-at-3",
+      "name": "Camouflage At",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "l",
+      "trigger": "always",
+      "isAction": false,
+      "forceCost": 0,
+      "description": "Camouflage At the end of the Setup, this Unit may gain ."
+    },
+    {
+      "id": "infiltration-when-4",
+      "name": "Infiltration When",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's"
+    },
+    {
+      "id": "primary-unit-5",
+      "name": "Primary Unit",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "l",
+      "trigger": "always",
+      "isAction": false,
+      "forceCost": 0,
+      "description": "Primary Unit , instead of the normal 1."
+    },
+    {
+      "id": "when-6",
+      "name": "When",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "id": "when-7",
+      "name": "When",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's  , instead of the normal 1."
     }
   ],
+  "unit_type": [
+    "Support"
+  ],
+  "boxSetCode": "SWP35",
+  "durability": 2,
+  "point_cost": 4,
+  "squad_points": 4,
+  "characterNames": "Rebel Commandos",
+  "legacyAbilities": [
+    {
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and gains . Coordinated Fire: When a character in another allied Rebel Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers . Camouflage At the end of the Setup, this Unit may gain . Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's Primary Unit , instead of the normal 1.",
+      "title": "Commando Doctrines"
+    },
+    {
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers .",
+      "title": "Rebel Alliance"
+    },
+    {
+      "text": "When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's  , instead of the normal 1.",
+      "title": "Primary Unit"
+    }
+  ],
+  "structuredAbilities": [
+    {
+      "id": "commando-doctrines-1759180322676",
+      "name": "Commando Doctrines",
+      "tags": [],
+      "type": "Active",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 1,
+      "damageCost": 0,
+      "description": "Each character in this Unit may [[dash]]. If one or more characters end this movement within [[ranged]] 4 of an enemy character, this Unit immediately makes a focus action and gains [[hunker]]."
+    },
+    {
+      "id": "coordinated-fire-1759180425898",
+      "name": "Coordinated Fire",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 0,
+      "damageCost": 1,
+      "description": "When a character in another allied <faction>Rebel Alliance</faction> Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within [[ranged]] 5 of a character in this Unit, the target Unit suffers [[damage]]."
+    },
+    {
+      "id": "camouflage-1759180486397",
+      "name": "Camouflage",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "j",
+      "trigger": "start_of_game",
+      "isAction": false,
+      "forceCost": 0,
+      "damageCost": 0,
+      "description": "At the end of the Setup, this Unit may gain [[hunker]]."
+    },
+    {
+      "id": "infiltration-1759180560643",
+      "name": "Infiltration",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 0,
+      "damageCost": 0,
+      "description": "When deploying characters in this Unit, characters may be placed within [[ranged]] 3 of the first placed character from that squad's <unittype>Primary</unittype> Unit, instead of the normal [[ranged]] 1."
+    }
+  ],
+  "number_of_characters": 2
+}
+      "type": "Innate",
+      "symbol": "l",
+      "trigger": "always",
+      "isAction": false,
+      "forceCost": 0,
+      "description": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and gains ."
+    },
+    {
+      "id": "coordinated-fire-1",
+      "name": "Coordinated Fire",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "Coordinated Fire: When a character in another allied"
+    },
+    {
+      "id": "alliance-unit-2",
+      "name": "Alliance Unit",
+      "tags": [],
+      "type": "Active",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "id": "camouflage-at-3",
+      "name": "Camouflage At",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "l",
+      "trigger": "always",
+      "isAction": false,
+      "forceCost": 0,
+      "description": "Camouflage At the end of the Setup, this Unit may gain ."
+    },
+    {
+      "id": "infiltration-when-4",
+      "name": "Infiltration When",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's"
+    },
+    {
+      "id": "primary-unit-5",
+      "name": "Primary Unit",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "l",
+      "trigger": "always",
+      "isAction": false,
+      "forceCost": 0,
+      "description": "Primary Unit , instead of the normal 1."
+    },
+    {
+      "id": "when-6",
+      "name": "When",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers ."
+    },
+    {
+      "id": "when-7",
+      "name": "When",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "i",
+      "trigger": "after_attack_targeting_unit",
+      "isAction": false,
+      "forceCost": 1,
+      "description": "When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's  , instead of the normal 1."
+    }
+  ],
+  "unit_type": [
+    "Support"
+  ],
+  "boxSetCode": "SWP35",
+  "durability": 2,
+  "point_cost": 4,
+  "squad_points": 4,
+  "characterNames": "Rebel Commandos",
+  "legacyAbilities": [
+    {
+      "text": "Each character in this Unit may . If one or more characters end this movement within 4 of an enemy character, this Unit immediately makes a focus action and gains . Coordinated Fire: When a character in another allied Rebel Alliance Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers . Camouflage At the end of the Setup, this Unit may gain . Infiltration When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's Primary Unit , instead of the normal 1.",
+      "title": "Commando Doctrines"
+    },
+    {
+      "text": "When a character in another allied  Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within 5 of a character in this Unit, the target Unit suffers .",
+      "title": "Rebel Alliance"
+    },
+    {
+      "text": "When deploying characters in this Unit, characters may be placed within 3 of the first placed character from that squad's  , instead of the normal 1.",
+      "title": "Primary Unit"
+    }
+  ],
+  "structuredAbilities": [
+    {
+      "id": "commando-doctrines-1759180322676",
+      "name": "Commando Doctrines",
+      "tags": [],
+      "type": "Active",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 1,
+      "damageCost": 0,
+      "description": "Each character in this Unit may [[dash]]. If one or more characters end this movement within [[ranged]] 4 of an enemy character, this Unit immediately makes a focus action and gains [[hunker]]."
+    },
+    {
+      "id": "coordinated-fire-1759180425898",
+      "name": "Coordinated Fire",
+      "tags": [],
+      "type": "Reactive",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 0,
+      "damageCost": 1,
+      "description": "When a character in another allied <faction>Rebel Alliance</faction> Unit makes an attack as part of a combat action, before dice are rolled, this Unit may use this ability. If the target character is within [[ranged]] 5 of a character in this Unit, the target Unit suffers [[damage]]."
+    },
+    {
+      "id": "camouflage-1759180486397",
+      "name": "Camouflage",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "j",
+      "trigger": "start_of_game",
+      "isAction": false,
+      "forceCost": 0,
+      "damageCost": 0,
+      "description": "At the end of the Setup, this Unit may gain [[hunker]]."
+    },
+    {
+      "id": "infiltration-1759180560643",
+      "name": "Infiltration",
+      "tags": [],
+      "type": "Innate",
+      "symbol": "j",
+      "trigger": "on_activation",
+      "isAction": false,
+      "forceCost": 0,
+      "damageCost": 0,
+      "description": "When deploying characters in this Unit, characters may be placed within [[ranged]] 3 of the first placed character from that squad's <unittype>Primary</unittype> Unit, instead of the normal [[ranged]] 1."
+    }
+  ],
+  "number_of_characters": 2
+}
   "source": {
     "scraped_at": 1755897067
   }

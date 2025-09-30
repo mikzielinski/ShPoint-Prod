@@ -41,6 +41,9 @@ model User {
   customCardCollections CustomCardCollection[]
   auditLogs            AuditLog[]
   apiTokens            ApiToken[]
+  // Nowe relacje dla Shatterpoint
+  createdCharacters    Character[] @relation("CharacterCreatedBy")
+  updatedCharacters    Character[] @relation("CharacterUpdatedBy")
 
   @@index([createdAt])
   @@index([email])
@@ -146,6 +149,7 @@ model CharacterCollection {
   deaths      Int      @default(0)
   kills       Int      @default(0)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@unique([userId, characterId])
   @@index([userId])
@@ -168,6 +172,7 @@ model SetCollection {
   isSold     Boolean  @default(false)
   isWishlist Boolean  @default(false)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  set        Set      @relation(fields: [setId], references: [id], onDelete: Cascade)
 
   @@unique([userId, setId])
   @@index([userId])
@@ -191,6 +196,7 @@ model MissionCollection {
   isOwned     Boolean   @default(false)
   isWishlist  Boolean   @default(false)
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission     Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
 
   @@unique([userId, missionId])
   @@index([userId])
@@ -232,6 +238,7 @@ model StrikeTeamCharacter {
   characterName String?
   unitCount     Int           @default(1)
   strikeTeam    StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
+  character     Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@unique([strikeTeamId, characterId])
   @@index([strikeTeamId])
@@ -427,4 +434,237 @@ model ApiToken {
   @@index([userId])
   @@index([token])
   @@index([isActive])
+}
+
+// ===== SHATTERPOINT GAME DATA MODELS =====
+
+model Character {
+  id                String   @id @default(cuid())
+  name              String
+  slug              String   @unique
+  faction           String
+  unitType          String   // Primary, Secondary, Support
+  squadPoints       Int
+  stamina           Int
+  durability        Int
+  force             Int?
+  hanker            Int?
+  boxSetCode        String?
+  characterNames    String
+  numberOfCharacters Int     @default(1)
+  
+  // Era i okresy
+  era               String[]
+  period            String[]
+  tags              String[]
+  factions          String[]
+  
+  // Obrazy - zoptymalizowane dla szybkiego ładowania
+  portraitUrl       String?
+  imageUrl          String?
+  
+  // Relacje - eager loading optimization
+  abilities         CharacterAbility[]
+  stances           CharacterStance[]
+  characterCollections CharacterCollection[]
+  strikeTeamCharacters StrikeTeamCharacter[]
+  setCharacters     SetCharacter[]
+  
+  // Metadata z wersjonowaniem
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdBy         String?  // ID użytkownika który dodał
+  updatedBy         String?  // ID użytkownika który ostatnio edytował
+  version           Int      @default(1)
+  isActive          Boolean  @default(true)
+  
+  // Relacje do User
+  createdByUser     User?    @relation("CharacterCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser     User?    @relation("CharacterUpdatedBy", fields: [updatedBy], references: [id])
+  
+  // Indeksy dla szybkiego wyszukiwania
+  @@index([faction])
+  @@index([unitType])
+  @@index([boxSetCode])
+  @@index([isActive])
+  @@index([name])
+  @@index([squadPoints])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model CharacterAbility {
+  id            String   @id @default(cuid())
+  characterId   String
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  name          String
+  type          String   // Active, Reactive, Innate
+  symbol        String
+  trigger       String
+  isAction      Boolean  @default(false)
+  forceCost     Int      @default(0)
+  damageCost    Int      @default(0)
+  description   String
+  tags          String[]
+  
+  // Legacy support dla kompatybilności
+  legacyText    String?
+  legacyTitle   String?
+  
+  // Metadata
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Indeksy dla szybkiego ładowania
+  @@index([characterId])
+  @@index([type])
+  @@index([order])
+  @@index([characterId, order]) // Composite index dla sortowania
+}
+
+model CharacterStance {
+  id            String   @id @default(cuid())
+  characterId   String
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  // Dice data - zoptymalizowane dla szybkiego dostępu
+  attackDice    Int
+  defenseDice   Int
+  
+  // Expertise
+  meleeExpertise Int
+  rangedExpertise Int
+  
+  // Tree structure - JSON z optymalizacją
+  tree          Json     // Array of arrays representing stance tree
+  // Przykład: [["start"], ["melee_attack", "ranged_attack"], ["damage", "damage"]]
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Indeksy
+  @@index([characterId])
+  @@unique([characterId]) // Jeden stance per character
+}
+
+model Set {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique // SWP01, SWP03, etc.
+  type          SetType
+  description   String?
+  productUrl    String?
+  imageUrl      String?
+  
+  // Relacje
+  characters    SetCharacter[]
+  setCollections SetCollection[]
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean  @default(true)
+  
+  // Indeksy dla szybkiego wyszukiwania
+  @@index([code])
+  @@index([type])
+  @@index([isActive])
+  @@index([name])
+}
+
+model SetCharacter {
+  id            String   @id @default(cuid())
+  setId         String
+  set           Set      @relation(fields: [setId], references: [id], onDelete: Cascade)
+  characterId   String?  // Może być null jeśli postać nie istnieje jeszcze
+  character     Character? @relation(fields: [characterId], references: [id])
+  
+  role          CharacterRole // Primary, Secondary, Supporting
+  name          String        // Nazwa postaci w kontekście setu
+  
+  // Indeksy
+  @@unique([setId, characterId])
+  @@index([setId])
+  @@index([characterId])
+  @@index([role])
+}
+
+model Mission {
+  id            String   @id @default(cuid())
+  name          String
+  source        String   // official, custom
+  setCode       String?
+  description   String?
+  thumbnailUrl  String?
+  
+  // Map data - zoptymalizowane
+  mapSizeInch   Int
+  mapUnit       String
+  mapOrigin     String
+  mapAxis       String
+  
+  // Rendering data
+  pointDiameterInch Float
+  pointColorActive  String
+  pointColorInactive String
+  
+  // Relacje
+  objectives    MissionObjective[]
+  struggles     MissionStruggle[]
+  missionCollections MissionCollection[]
+  
+  // Metadata
+  tags          String[]
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean  @default(true)
+  
+  // Indeksy
+  @@index([source])
+  @@index([setCode])
+  @@index([isActive])
+  @@index([name])
+}
+
+model MissionObjective {
+  id            String   @id @default(cuid())
+  missionId     String
+  mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  key           String   // A, B, C, etc.
+  x             Float
+  y             Float
+  radius        Float
+  
+  // Indeksy
+  @@index([missionId])
+  @@index([missionId, key]) // Composite dla szybkiego dostępu
+}
+
+model MissionStruggle {
+  id            String   @id @default(cuid())
+  missionId     String
+  mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  index         Int      // 1, 2, 3
+  cards         Json     // Array of struggle cards
+  
+  // Indeksy
+  @@index([missionId])
+  @@index([missionId, index]) // Composite dla sortowania
+}
+
+// ===== ENUMS =====
+
+enum SetType {
+  CORE_SET
+  SQUAD_PACK
+  TERRAIN_PACK
+  DUEL_PACK
+  MISSION_PACK
+  ACCESSORIES
 }

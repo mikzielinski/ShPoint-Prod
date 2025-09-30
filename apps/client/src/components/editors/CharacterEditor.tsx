@@ -479,23 +479,63 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     }));
   };
 
-  // Auto-save function
+  // Auto-save function - now using database API v2
   const autoSave = async (data: Character) => {
     if (!data.name.trim() || !data.id) return;
     
     try {
-      const response = await fetch(api(`/api/characters/${data.id}`), {
+      // Transform data to database format
+      const dbData = {
+        slug: data.id,
+        name: data.name,
+        characterNames: data.characterNames,
+        faction: data.factions?.[0] || '',
+        unitType: data.unit_type?.[0] || 'Primary',
+        squadPoints: data.squad_points,
+        stamina: data.stamina,
+        durability: data.durability,
+        force: data.force,
+        hanker: 0, // Default value
+        boxSetCode: data.boxSetCode,
+        numberOfCharacters: data.number_of_characters || 1,
+        era: data.period || [],
+        period: data.period || [],
+        tags: [],
+        factions: data.factions || [],
+        portraitUrl: data.portrait,
+        imageUrl: data.portrait,
+        abilities: data.structuredAbilities || [],
+        version: 1
+      };
+
+      const response = await fetch(api(`/api/v2/characters/${data.id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(data)
+        body: JSON.stringify(dbData)
       });
       
       if (response.ok) {
         setLastSaved(new Date());
-        console.log('💾 Auto-saved character:', data.name);
+        console.log('💾 Auto-saved character to database:', data.name);
+      } else {
+        console.log('🔄 Auto-save failed, falling back to JSON API');
+        // Fallback to old JSON API
+        const fallbackResponse = await fetch(api(`/api/characters/${data.id}`), {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        
+        if (fallbackResponse.ok) {
+          setLastSaved(new Date());
+          console.log('💾 Auto-saved character to JSON:', data.name);
+        }
       }
     } catch (error) {
       console.error('❌ Auto-save failed:', error);
@@ -530,9 +570,33 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     }
     
     try {
-      // Manual save to backend
+      // Transform data to database format
+      const dbData = {
+        slug: formData.id,
+        name: formData.name,
+        characterNames: formData.characterNames,
+        faction: formData.factions?.[0] || '',
+        unitType: formData.unit_type?.[0] || 'Primary',
+        squadPoints: formData.squad_points,
+        stamina: formData.stamina,
+        durability: formData.durability,
+        force: formData.force,
+        hanker: 0, // Default value
+        boxSetCode: formData.boxSetCode,
+        numberOfCharacters: formData.number_of_characters || 1,
+        era: formData.period || [],
+        period: formData.period || [],
+        tags: [],
+        factions: formData.factions || [],
+        portraitUrl: formData.portrait,
+        imageUrl: formData.portrait,
+        abilities: formData.structuredAbilities || [],
+        version: 1
+      };
+
+      // Try database API first
       const method = character ? 'PUT' : 'POST';
-      const url = character ? api(`/api/characters/${formData.id}`) : api('/api/characters');
+      const url = character ? api(`/api/v2/characters/${formData.id}`) : api('/api/v2/characters');
       
       const response = await fetch(url, {
         method: method,
@@ -540,26 +604,54 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dbData)
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save character');
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Character saved to database successfully:', result);
+        
+        // Update formData with response data
+        if (result.character) {
+          setFormData(result.character);
+        }
+        
+        setLastSaved(new Date());
+        
+        // Call parent onSave
+        onSave(formData);
+      } else {
+        console.log('🔄 Database save failed, falling back to JSON API');
+        
+        // Fallback to old JSON API
+        const fallbackUrl = character ? api(`/api/characters/${formData.id}`) : api('/api/characters');
+        const fallbackResponse = await fetch(fallbackUrl, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        });
+        
+        if (!fallbackResponse.ok) {
+          const errorData = await fallbackResponse.json();
+          throw new Error(errorData.error || 'Failed to save character');
+        }
+        
+        const result = await fallbackResponse.json();
+        console.log('✅ Character saved to JSON successfully:', result);
+        
+        // Update formData with response data
+        if (result.character) {
+          setFormData(result.character);
+        }
+        
+        setLastSaved(new Date());
+        
+        // Call parent onSave
+        onSave(formData);
       }
-      
-      const result = await response.json();
-      console.log('✅ Character saved successfully:', result);
-      
-      // Update formData with response data
-      if (result.character) {
-        setFormData(result.character);
-      }
-      
-      setLastSaved(new Date());
-      
-      // Call parent onSave
-      onSave(formData);
       
     } catch (error) {
       console.error('❌ Save failed:', error);
@@ -571,32 +663,65 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     try {
       console.log('🔍 Saving stance for character:', formData.id);
       
-      // Call API to save stance
-      const response = await fetch(api(`/api/characters/${formData.id}/stance`), {
+      // Transform stance data to database format
+      const dbStanceData = {
+        attackDice: stance.sides?.[0]?.attack?.melee?.dice || 0,
+        defenseDice: stance.sides?.[0]?.attack?.melee?.defense || 0,
+        meleeExpertise: stance.sides?.[0]?.attack?.melee?.expertise || [],
+        rangedExpertise: stance.sides?.[0]?.attack?.ranged?.expertise || [],
+        tree: stance.sides?.[0]?.tree || {}
+      };
+      
+      // Try database API first
+      const response = await fetch(api(`/api/v2/characters/${formData.id}/stance`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(stance)
+        body: JSON.stringify(dbStanceData)
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save stance');
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Stance saved to database successfully:', result);
+        
+        // Update local state
+        setStanceData(stance);
+        setShowStanceEditor(false);
+        
+        // Show success message
+        alert('Stance saved to database successfully!');
+      } else {
+        console.log('🔄 Database stance save failed, falling back to JSON API');
+        
+        // Fallback to old JSON API
+        const fallbackResponse = await fetch(api(`/api/characters/${formData.id}/stance`), {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(stance)
+        });
+        
+        if (!fallbackResponse.ok) {
+          const errorData = await fallbackResponse.json();
+          throw new Error(errorData.error || 'Failed to save stance');
+        }
+        
+        const result = await fallbackResponse.json();
+        console.log('✅ Stance saved to JSON successfully:', result);
+        
+        // Update local state
+        setStanceData(stance);
+        setShowStanceEditor(false);
+        
+        // Show success message
+        alert('Stance saved to JSON successfully!');
       }
-      
-      const result = await response.json();
-      console.log('Stance saved successfully:', result);
-      
-      // Update local state
-      setStanceData(stance);
-      setShowStanceEditor(false);
-      
-      // Show success message
-      alert('Stance saved successfully!');
     } catch (error) {
-      console.error('Error saving stance:', error);
+      console.error('❌ Error saving stance:', error);
       alert(`Failed to save stance: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -633,17 +758,60 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     console.log('🔍 Loading stance data for character ID:', characterId);
     
     try {
-      const response = await fetch(`${API_BASE}/characters/${characterId}/stance.json`);
-      console.log('🔍 Stance response status:', response.status);
+      // Try database API first
+      const response = await fetch(api(`/api/v2/characters/${characterId}/stance`), {
+        credentials: 'include'
+      });
+      console.log('🔍 Database stance response status:', response.status);
       
       if (response.ok) {
-        const stance = await response.json();
-        console.log('🔍 Stance data loaded:', stance);
+        const result = await response.json();
+        if (result.ok && result.stance) {
+          // Transform database stance to expected format
+          const stance = {
+            sides: [{
+              id: "A",
+              name: "Side A",
+              attack: {
+                melee: {
+                  dice: result.stance.attackDice || 0,
+                  range: 0,
+                  defense: result.stance.defenseDice || 0,
+                  expertise: result.stance.meleeExpertise || []
+                },
+                ranged: {
+                  dice: 0,
+                  range: 0,
+                  defense: 0,
+                  expertise: result.stance.rangedExpertise || []
+                }
+              },
+              defense: {
+                expertise: []
+              },
+              tree: result.stance.tree || {}
+            }]
+          };
+          console.log('🔍 Stance data loaded from database:', stance);
+          setStanceData(stance);
+          return;
+        }
+      }
+      
+      console.log('🔄 Database stance not found, falling back to JSON');
+      
+      // Fallback to JSON file
+      const fallbackResponse = await fetch(`${API_BASE}/characters/${characterId}/stance.json`);
+      console.log('🔍 JSON stance response status:', fallbackResponse.status);
+      
+      if (fallbackResponse.ok) {
+        const stance = await fallbackResponse.json();
+        console.log('🔍 Stance data loaded from JSON:', stance);
         console.log('🔍 Stance sides:', stance.sides);
         console.log('🔍 First side tree:', stance.sides?.[0]?.tree);
         setStanceData(stance);
       } else {
-        console.log('🔍 No stance file found for character:', characterId);
+        console.log('🔍 No stance data found for character:', characterId);
       }
     } catch (error) {
       console.log('🔍 Error loading stance data:', error);

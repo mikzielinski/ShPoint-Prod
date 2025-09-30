@@ -46,6 +46,17 @@ import Joi from "joi";
 import { sendInvitationEmail, testEmailConfiguration } from "./email.js";
 import { logAuditEvent, getAuditLogs } from "./audit.js";
 import { setupSwagger } from "./swagger.js";
+import { 
+  getCharacters, 
+  getCharacterById, 
+  getCharacterAbilities, 
+  getCharacterStance,
+  createCharacter,
+  updateCharacter,
+  deleteCharacter,
+  getSets,
+  getMissions
+} from "./database-api.js";
 
 const prisma = new PrismaClient();
 
@@ -5789,3 +5800,33 @@ app.get("/api/debug/audit-logs", async (req, res) => {
     res.status(500).json({ ok: false, error: error.message || "Audit logs check failed" });
   }
 });
+
+// ===== NEW DATABASE API ENDPOINTS (v2) =====
+
+// Middleware to add user to request
+const addUserToRequest = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user) {
+    // Add user info to request for database API
+    (req as any).user = {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role
+    };
+  }
+  next();
+};
+
+// Characters API v2
+app.get("/api/v2/characters", getCharacters);
+app.get("/api/v2/characters/:id", getCharacterById);
+app.get("/api/v2/characters/:id/abilities", getCharacterAbilities);
+app.get("/api/v2/characters/:id/stance", getCharacterStance);
+app.post("/api/v2/characters", ensureAuth, addUserToRequest, createCharacter);
+app.put("/api/v2/characters/:id", ensureAuth, addUserToRequest, updateCharacter);
+app.delete("/api/v2/characters/:id", ensureAuth, addUserToRequest, deleteCharacter);
+
+// Sets API v2
+app.get("/api/v2/sets", getSets);
+
+// Missions API v2
+app.get("/api/v2/missions", getMissions);

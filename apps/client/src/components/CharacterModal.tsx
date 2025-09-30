@@ -1,7 +1,9 @@
 import * as React from "react";
 import UnitDataCard from "./UnitDataCard";
 import StanceCard from "./StanceCard";
+import CharacterEditor from "./editors/CharacterEditor";
 import { api } from "../lib/env";
+import { useAuth } from "../auth/AuthContext";
 
 type UnitType = "Primary" | "Secondary" | "Support";
 
@@ -24,11 +26,15 @@ type CharacterData = Record<string, any>;
 type StanceData = Record<string, any>;
 
 export default function CharacterModal({ open, onClose, id, character }: Props) {
-  const [tab, setTab] = React.useState<"data" | "stance">("data");
+  const { auth } = useAuth();
+  const me = auth.status === 'authenticated' ? auth.user : null;
+  
+  const [tab, setTab] = React.useState<"data" | "stance" | "edit">("data");
   const [dataObj, setDataObj] = React.useState<CharacterData | null>(null);
   const [stanceObj, setStanceObj] = React.useState<StanceData | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
+  const [showEditor, setShowEditor] = React.useState(false);
 
   // Debug log
   React.useEffect(() => {
@@ -66,7 +72,7 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
     };
   }, [open, onClose]);
 
-  // fetch jsonów
+  // fetch danych z bazy danych (nowe API v2)
   React.useEffect(() => {
     if (!open) return;
     let alive = true;
@@ -74,26 +80,93 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
       try {
         setLoading(true);
         setErr(null);
-        const [dRes, sRes] = await Promise.allSettled([
-          fetch(api(`/characters/${id}/data.json`), { cache: "no-store" }),
-          fetch(api(`/characters/${id}/stance.json`), { cache: "no-store" }),
-        ]);
+        
+        // Try new database API first
+        const response = await fetch(api(`/api/v2/characters/${id}`), { 
+          cache: "no-store",
+          credentials: 'include'
+        });
+        
         if (!alive) return;
 
-        if (dRes.status === "fulfilled" && dRes.value.ok) {
-          const data = await dRes.value.json();
-          setDataObj(data);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.ok && result.character) {
+            const char = result.character;
+            
+            // Transform database data to expected format
+            const transformedData = {
+              id: char.slug,
+              name: char.name,
+              faction: char.faction,
+              role: char.unitType,
+              squad_points: char.squadPoints,
+              stamina: char.stamina,
+              durability: char.durability,
+              force: char.force,
+              hanker: char.hanker,
+              boxSetCode: char.boxSetCode,
+              characterNames: char.characterNames,
+              number_of_characters: char.numberOfCharacters,
+              era: char.era,
+              period: char.period,
+              tags: char.tags,
+              factions: char.factions,
+              portrait: char.portraitUrl,
+              image: char.imageUrl,
+              abilities: char.abilities || [],
+              structuredAbilities: char.abilities?.filter((a: any) => a.order >= 1000) || [],
+              version: char.version,
+              createdAt: char.createdAt,
+              updatedAt: char.updatedAt
+            };
+            
+            setDataObj(transformedData);
+            
+            // Set stance data if available
+            if (char.stances && char.stances.length > 0) {
+              const stance = char.stances[0];
+              setStanceObj({
+                dice: {
+                  attack: stance.attackDice,
+                  defense: stance.defenseDice
+                },
+                expertise: {
+                  melee: stance.meleeExpertise,
+                  ranged: stance.rangedExpertise
+                },
+                tree: stance.tree
+              });
+            } else {
+              setStanceObj(null);
+            }
+          } else {
+            throw new Error('Invalid response format');
+          }
         } else {
-          // Use character prop data as fallback
-          setDataObj(character);
-        }
+          // Fallback to old JSON API
+          console.log('🔄 Falling back to JSON API for character:', id);
+          const [dRes, sRes] = await Promise.allSettled([
+            fetch(api(`/characters/${id}/data.json`), { cache: "no-store" }),
+            fetch(api(`/characters/${id}/stance.json`), { cache: "no-store" }),
+          ]);
 
-        if (sRes.status === "fulfilled" && sRes.value.ok) {
-          setStanceObj(await sRes.value.json());
-        } else setStanceObj(null);
+          if (dRes.status === "fulfilled" && dRes.value.ok) {
+            const data = await dRes.value.json();
+            setDataObj(data);
+          } else {
+            // Use character prop data as fallback
+            setDataObj(character);
+          }
+
+          if (sRes.status === "fulfilled" && sRes.value.ok) {
+            setStanceObj(await sRes.value.json());
+          } else setStanceObj(null);
+        }
       } catch (e: any) {
         if (alive) {
-          setErr(e?.message ?? "Failed to load character files.");
+          console.error('❌ Error loading character data:', e);
+          setErr(e?.message ?? "Failed to load character data.");
           // Use character prop data as fallback
           setDataObj(character);
         }
