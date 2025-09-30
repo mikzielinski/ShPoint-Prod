@@ -17,15 +17,24 @@ export function useUnreadMessages() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${api}/api/v2/inbox?unreadOnly=true`, {
+      const response = await fetch(api('/api/v2/inbox?unreadOnly=true'), {
         credentials: 'include'
       });
       
       if (response.ok) {
-        const data = await response.json();
-        if (data.ok) {
-          setUnreadCount(data.messages?.length || 0);
+        const text = await response.text();
+        try {
+          const data = JSON.parse(text);
+          if (data.ok) {
+            setUnreadCount(data.messages?.length || 0);
+          }
+        } catch (parseError) {
+          console.error('Error parsing JSON response:', parseError, 'Response text:', text);
+          setUnreadCount(0);
         }
+      } else {
+        console.log('Inbox API not available, status:', response.status);
+        setUnreadCount(0);
       }
     } catch (error) {
       console.error('Error checking unread messages:', error);
