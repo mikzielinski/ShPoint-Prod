@@ -4,7 +4,7 @@ import { api } from '../lib/env';
 import ApiTokenManager from './ApiTokenManager';
 import MyGames from './MyGames';
 import Inbox from './Inbox';
-import ShPointLogo from './ShPointLogo';
+import { ShPointLogo } from './ShPointLogo';
 
 interface UserProfileProps {
   onClose?: () => void;
