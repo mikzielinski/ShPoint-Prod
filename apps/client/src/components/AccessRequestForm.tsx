@@ -96,7 +96,6 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
           marginBottom: '4px', 
           fontWeight: 'bold',
           fontSize: compact ? '14px' : '16px',
-          color: '#e2e8f0',
           color: '#e2e8f0'
         }}>
           Gmail Address *
