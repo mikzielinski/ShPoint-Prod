@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { createInboxMessage } from './inbox-api';
+import { createInboxMessage } from './inbox-api.js';
 
 const prisma = new PrismaClient();
 

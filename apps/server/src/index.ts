@@ -293,6 +293,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true })); // Limit URL-enc
 
 // 5. Apply protection layers
 app.use(generalLimiter); // Apply to all requests first
+// @ts-ignore
 app.use(speedLimiter); // Then apply speed limiting
 app.use('/auth/', strictLimiter); // Strict limits for auth
 app.use('/api/', moderateLimiter); // Moderate limits for API
