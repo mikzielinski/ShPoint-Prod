@@ -221,7 +221,7 @@ const strictLimiter = rateLimit({
 
 const moderateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Increased from 50 to 100 for API endpoints
+  max: 300, // Increased from 100 to 300 for API endpoints
   message: { ok: false, error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -233,7 +233,7 @@ const moderateLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Increased from 200 to 500 for general requests
+  max: 1000, // Increased from 500 to 1000 for general requests
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -246,7 +246,7 @@ const generalLimiter = rateLimit({
 // 2. Slow Down (progressive delays) - More lenient
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 20, // Allow 20 requests per windowMs without delay (was 10)
+  delayAfter: 50, // Allow 50 requests per windowMs without delay (was 20)
   delayMs: 200, // Fixed for express-slow-down v2
   maxDelayMs: 10000, // Reduced max delay from 20s to 10s
   skipSuccessfulRequests: true,
@@ -296,6 +296,20 @@ app.use(generalLimiter); // Apply to all requests first
 // @ts-ignore
 app.use(speedLimiter); // Then apply speed limiting
 app.use('/auth/', strictLimiter); // Strict limits for auth
+
+// Special exception for /api/user/me - more lenient rate limiting
+app.use('/api/user/me', rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Very high limit for user profile requests
+  message: { ok: false, error: 'Too many user profile requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // @ts-ignore
+    return req.user && req.user.isTrusted;
+  }
+}));
+
 app.use('/api/', moderateLimiter); // Moderate limits for API
 
 // 6. Brute force protection for specific endpoints - More lenient
