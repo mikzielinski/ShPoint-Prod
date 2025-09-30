@@ -60,6 +60,7 @@ model User {
   gamesAsPlayer1       ScheduledGame[] @relation("ScheduledGamePlayer1")
   gamesAsPlayer2       ScheduledGame[] @relation("ScheduledGamePlayer2")
   gameReminders        GameReminder[] @relation("GameReminders")
+  gameRegistrations    GameRegistration[] @relation("GameRegistrations")
   
   // Game results
   gameResultsAsPlayer1 GameResult[] @relation("GameResultPlayer1")
@@ -825,6 +826,8 @@ model ScheduledGame {
   player2StrikeTeamId String?
   player2StrikeTeam StrikeTeam? @relation("ScheduledGamePlayer2Team", fields: [player2StrikeTeamId], references: [id])
   notes           String?
+  isPublic        Boolean       @default(false)  // Whether the game is open for public registration
+  maxPlayers      Int?          @default(2)      // Maximum number of players (for public games)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   confirmedAt     DateTime?
@@ -833,11 +836,13 @@ model ScheduledGame {
   cancelledAt     DateTime?
   reminders       GameReminder[]
   gameResult      GameResult?
+  registrations   GameRegistration[]
   
   @@index([player1Id])
   @@index([player2Id])
   @@index([scheduledDate])
   @@index([status])
+  @@index([isPublic])
 }
 
 model GameReminder {
@@ -849,6 +854,7 @@ model GameReminder {
   type            ReminderType
   reminderTime    DateTime
   isSent          Boolean       @default(false)
+  isEnabled       Boolean       @default(true)  // Whether the reminder is enabled
   sentAt          DateTime?
   calendarEventId String?       // For tracking calendar events
   createdAt       DateTime      @default(now())
@@ -856,6 +862,34 @@ model GameReminder {
   @@index([gameId])
   @@index([userId])
   @@index([reminderTime])
+}
+
+model GameRegistration {
+  id              String        @id @default(cuid())
+  gameId          String
+  game            ScheduledGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation("GameRegistrations", fields: [userId], references: [id], onDelete: Cascade)
+  status          GameRegistrationStatus @default(PENDING)
+  registeredAt    DateTime      @default(now())
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  waitlistPosition Int?         // Position in waitlist (null if not on waitlist)
+  notes           String?
+  
+  @@unique([gameId, userId])
+  @@index([gameId])
+  @@index([userId])
+  @@index([status])
+  @@index([waitlistPosition])
+}
+
+enum GameRegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  WAITLIST
 }
 
 // ===== GAME RESULTS SYSTEM =====

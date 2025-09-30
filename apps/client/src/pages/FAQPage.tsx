@@ -251,6 +251,56 @@ const faqData: FAQItem[] = [
     answer: 'Yes, your data is stored securely in our database. You can export your game data anytime, and we regularly backup all information.',
     category: 'Technical',
     roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  // Game Scheduling Questions
+  {
+    id: 'public-games',
+    question: 'What are Public Games?',
+    answer: 'Public Games are games that anyone can join. Hosts create public games with details like mission, date, location, and maximum players. Other players can register to join, and the host approves or rejects registrations.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  {
+    id: 'how-to-create-public-game',
+    question: 'How do I create a Public Game?',
+    answer: 'Go to the Play page and click "Create Public Game". Fill in the mission, date/time, location, maximum players, and description. Your game will be visible to other players who can register to join.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  {
+    id: 'how-to-join-game',
+    question: 'How do I join a Public Game?',
+    answer: 'Browse available games on the Play page. Click "Join Game" to register. If the game is full, you can join the waitlist. The host will approve or reject your registration.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  {
+    id: 'waitlist-system',
+    question: 'How does the Waitlist work?',
+    answer: 'When a game is full, new registrations are automatically added to the waitlist. If someone cancels, the next person on the waitlist gets promoted. Your position in the waitlist is shown in your registration status.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  {
+    id: 'game-statuses',
+    question: 'What do the different game statuses mean?',
+    answer: 'Available - open for registration, Pending Approval - waiting for host to approve registrations, Full (Waitlist) - full but accepting waitlist, Full - completely full, In Progress - game is being played, Completed - finished game, Cancelled - cancelled by host.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  {
+    id: 'game-notifications',
+    question: 'How do I get notified about game updates?',
+    answer: 'You receive inbox notifications when someone registers for your game, when your registration is approved/rejected, and when you\'re promoted from waitlist. You can also set up email reminders for scheduled games.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
+  },
+  {
+    id: 'game-reminders',
+    question: 'How do Game Reminders work?',
+    answer: 'You can set up email reminders for your scheduled games. Choose the reminder time, type (email, push notification, or both), and whether to enable/disable it. You can also generate calendar events for Google Calendar, Outlook, or download ICS files.',
+    category: 'Game Scheduling',
+    roles: ['USER', 'EDITOR', 'ADMIN']
   }
 ];
 
