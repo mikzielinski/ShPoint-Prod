@@ -221,7 +221,7 @@ const strictLimiter = rateLimit({
 
 const moderateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Increased from 100 to 300 for API endpoints
+  max: 2000, // Very generous limit for API endpoints
   message: { ok: false, error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -233,7 +233,7 @@ const moderateLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased from 500 to 1000 for general requests
+  max: 5000, // Very generous limit for general requests
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -243,10 +243,10 @@ const generalLimiter = rateLimit({
   }
 });
 
-// 2. Slow Down (progressive delays) - More lenient
+// 2. Slow Down (progressive delays) - Very lenient
 const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 50, // Allow 50 requests per windowMs without delay (was 20)
+  delayAfter: 200, // Allow 200 requests per windowMs without delay
   delayMs: (used, req) => {
     const delayAfter = req.slowDown.limit;
     return (used - delayAfter) * 200;
@@ -300,10 +300,10 @@ app.use(generalLimiter); // Apply to all requests first
 app.use(speedLimiter); // Then apply speed limiting
 app.use('/auth/', strictLimiter); // Strict limits for auth
 
-// Special exception for /api/user/me - more lenient rate limiting
+// Special exception for /api/user/me - very lenient rate limiting
 app.use('/api/user/me', rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Very high limit for user profile requests
+  max: 5000, // Very high limit for user profile requests
   message: { ok: false, error: 'Too many user profile requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
