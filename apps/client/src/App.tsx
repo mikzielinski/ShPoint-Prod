@@ -12,6 +12,7 @@ import StancePreview from "./components/StancePreview";
 import UsersPage from "./pages/UsersPage";
 import LoginPage from "./pages/LoginPage";
 import AdminPage from "./pages/AdminPage";
+import UserProfile from "./components/UserProfile";
 import { CharacterEditor } from "./components/editors/CharacterEditor";
 import { StanceEditor } from "./components/editors/StanceEditor";
 
