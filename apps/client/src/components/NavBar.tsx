@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import ShPointLogo from "./ShPointLogo";
+import { useUnreadMessages } from "../hooks/useUnreadMessages";
 import "./NavBar.css";
 
 type Role = "USER" | "EDITOR" | "ADMIN";
@@ -37,6 +38,7 @@ function ThemeToggle() {
 
 export default function NavBar() {
   const { user, doLogin, doLogout } = useAuth();
+  const { unreadCount } = useUnreadMessages();
   const role = (user?.role || "USER") as Role;
   const isAdmin = role === "ADMIN";
   const isEditor = role === "EDITOR" || isAdmin;
@@ -90,8 +92,29 @@ export default function NavBar() {
             <NavLink
               to="/user"
               className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+              style={{ position: 'relative' }}
             >
               Profile
+              {unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-8px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  fontSize: '11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  minWidth: '18px'
+                }}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavLink>
           )}
 
@@ -173,8 +196,28 @@ export default function NavBar() {
           </NavLink>
         )}
         {user && (
-          <NavLink to="/user" className="nb-drawer-link">
+          <NavLink to="/user" className="nb-drawer-link" style={{ position: 'relative' }}>
             Profile
+            {unreadCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '8px',
+                right: '12px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                borderRadius: '50%',
+                width: '18px',
+                height: '18px',
+                fontSize: '11px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                minWidth: '18px'
+              }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </NavLink>
         )}
         {isEditor && (
