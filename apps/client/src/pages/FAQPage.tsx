@@ -288,15 +288,15 @@ export default function FAQPage() {
       {/* Welcome message based on role */}
       <div style={{ 
         padding: '16px', 
-        backgroundColor: '#e3f2fd', 
+        backgroundColor: '#1e293b', 
         borderRadius: '8px', 
         marginBottom: '20px',
-        border: '1px solid #2196f3'
+        border: '1px solid #334155'
       }}>
-        <h3 style={{ margin: '0 0 8px 0', color: '#1976d2' }}>
+        <h3 style={{ margin: '0 0 8px 0', color: '#e2e8f0' }}>
           Welcome, {userRole === 'ADMIN' ? 'Administrator' : userRole === 'EDITOR' ? 'Editor' : 'Player'}!
         </h3>
-        <p style={{ margin: 0, color: '#1976d2' }}>
+        <p style={{ margin: 0, color: '#cbd5e1' }}>
           {userRole === 'ADMIN' 
             ? 'You have full access to all features including user management and system administration.'
             : userRole === 'EDITOR' 
@@ -323,9 +323,11 @@ export default function FAQPage() {
             style={{
               width: '100%',
               padding: '8px 12px',
-              border: '1px solid #ced4da',
+              border: '1px solid #475569',
               borderRadius: '6px',
-              fontSize: '14px'
+              fontSize: '14px',
+              backgroundColor: '#1e293b',
+              color: '#e2e8f0'
             }}
           />
         </div>
@@ -336,9 +338,11 @@ export default function FAQPage() {
             onChange={(e) => setSelectedCategory(e.target.value)}
             style={{
               padding: '8px 12px',
-              border: '1px solid #ced4da',
+              border: '1px solid #475569',
               borderRadius: '6px',
-              fontSize: '14px'
+              fontSize: '14px',
+              backgroundColor: '#1e293b',
+              color: '#e2e8f0'
             }}
           >
             {categories.map(category => (
@@ -379,17 +383,17 @@ export default function FAQPage() {
       <div style={{ 
         marginTop: '40px', 
         padding: '20px', 
-        backgroundColor: '#f8f9fa', 
+        backgroundColor: '#1e293b', 
         borderRadius: '8px',
         textAlign: 'center'
       }}>
-        <h3 style={{ margin: '0 0 8px 0' }}>Still have questions?</h3>
-        <p style={{ margin: '0 0 16px 0', color: '#6c757d' }}>
+        <h3 style={{ margin: '0 0 8px 0', color: '#e2e8f0' }}>Still have questions?</h3>
+        <p style={{ margin: '0 0 16px 0', color: '#cbd5e1' }}>
           Can't find what you're looking for? We're here to help!
         </p>
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
-            onClick={() => window.open('mailto:support@shpoint.com', '_blank')}
+            onClick={() => window.open('mailto:mikzielinski@gmail.com', '_blank')}
             style={{
               padding: '8px 16px',
               backgroundColor: '#007bff',
@@ -401,20 +405,6 @@ export default function FAQPage() {
             }}
           >
             📧 Contact Support
-          </button>
-          <button
-            onClick={() => window.open('https://discord.gg/shatterpoint', '_blank')}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#7289da',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            💬 Join Discord
           </button>
         </div>
       </div>
@@ -442,8 +432,8 @@ function FAQItem({ item, index }: FAQItemProps) {
         style={{
           padding: '16px',
           cursor: 'pointer',
-          backgroundColor: isExpanded ? '#f8f9fa' : 'white',
-          borderBottom: isExpanded ? '1px solid #e9ecef' : 'none',
+          backgroundColor: isExpanded ? '#334155' : '#1e293b',
+          borderBottom: isExpanded ? '1px solid #475569' : 'none',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -454,14 +444,14 @@ function FAQItem({ item, index }: FAQItemProps) {
           <div style={{ 
             fontWeight: 'bold', 
             marginBottom: '4px',
-            color: '#495057'
+            color: '#e2e8f0'
           }}>
             {index + 1}. {item.question}
           </div>
           <div style={{ 
             fontSize: '12px', 
-            color: '#6c757d',
-            backgroundColor: '#e9ecef',
+            color: '#cbd5e1',
+            backgroundColor: '#475569',
             padding: '2px 6px',
             borderRadius: '4px',
             display: 'inline-block'
@@ -471,7 +461,7 @@ function FAQItem({ item, index }: FAQItemProps) {
         </div>
         <div style={{ 
           fontSize: '18px', 
-          color: '#6c757d',
+          color: '#cbd5e1',
           transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
           transition: 'transform 0.2s ease'
         }}>
@@ -482,9 +472,9 @@ function FAQItem({ item, index }: FAQItemProps) {
       {isExpanded && (
         <div style={{ 
           padding: '16px',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: '#334155',
           lineHeight: '1.6',
-          color: '#495057'
+          color: '#e2e8f0'
         }}>
           {item.answer}
         </div>
