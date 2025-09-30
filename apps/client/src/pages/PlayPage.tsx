@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import ChallengeSystem from '../components/ChallengeSystem';
-import GameScheduler from '../components/GameScheduler';
 
 const PlayPage: React.FC = () => {
   return (
@@ -144,47 +142,9 @@ const PlayPage: React.FC = () => {
           </NavLink>
         </div>
       </div>
+
     </div>
   );
 };
 
 export default PlayPage;
-
-      {/* Game Scheduling System */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-        borderRadius: '16px',
-        padding: '32px',
-        marginBottom: '24px',
-        border: '1px solid #4b5563'
-      }}>
-        <h2 style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color: '#f9fafb',
-          margin: '0 0 16px 0',
-          textAlign: 'center'
-        }}>
-          🎯 Challenge & Schedule Games
-        </h2>
-        <ChallengeSystem />
-      </div>
-
-      <div style={{
-        background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-        borderRadius: '16px',
-        padding: '32px',
-        marginBottom: '24px',
-        border: '1px solid #4b5563'
-      }}>
-        <h2 style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color: '#f9fafb',
-          margin: '0 0 16px 0',
-          textAlign: 'center'
-        }}>
-          📅 Game Scheduler
-        </h2>
-        <GameScheduler />
-      </div>
