@@ -929,7 +929,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.12" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.13" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1138,7 +1138,12 @@ app.post("/debug/seed-missions", async (_req, res) => {
           create: {
             ...mission,
             mapSizeInch: 3, // Default map size
-            mapUnit: 'inch'
+            mapUnit: 'inch',
+            mapOrigin: 'center', // Default map origin
+            mapAxis: 'standard', // Default map axis
+            pointDiameterInch: 0.5, // Default point diameter
+            pointColorActive: '#00ff00', // Default active color
+            pointColorInactive: '#cccccc' // Default inactive color
           }
         });
         createdMissions.push(created);
