@@ -822,7 +822,7 @@ export async function getPublicGames(req: Request, res: Response) {
               description: true
             }
           },
-          gameRegistrations: {
+          registrations: {
             where: { status: 'APPROVED' },
             include: {
               user: {
