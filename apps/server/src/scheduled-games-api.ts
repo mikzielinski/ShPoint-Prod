@@ -783,7 +783,7 @@ function formatDateForURL(date: Date): string {
 
 export async function getPublicGames(req: Request, res: Response) {
   try {
-    const { page = 1, limit = 20, upcoming = 'true' } = req.query;
+    const { page = 1, limit = 20, upcoming = 'true', city, country } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
     
     const whereClause: any = {
@@ -793,6 +793,14 @@ export async function getPublicGames(req: Request, res: Response) {
 
     if (upcoming === 'true') {
       whereClause.scheduledDate = { gte: new Date() };
+    }
+
+    if (city) {
+      whereClause.city = { contains: city as string, mode: 'insensitive' };
+    }
+
+    if (country) {
+      whereClause.country = { contains: country as string, mode: 'insensitive' };
     }
 
     const [games, total] = await Promise.all([
@@ -867,6 +875,8 @@ export async function createPublicGame(req: Request, res: Response) {
     const {
       missionId,
       scheduledDate,
+      city,
+      country,
       location,
       address,
       notes,
@@ -883,21 +893,23 @@ export async function createPublicGame(req: Request, res: Response) {
       });
     }
 
-    if (!scheduledDate || !location) {
+    if (!scheduledDate || !city || !country) {
       return res.status(400).json({ 
         ok: false, 
-        error: 'Scheduled date and location are required' 
+        error: 'Scheduled date, city, and country are required' 
       });
     }
 
     const gameData: any = {
       player1Id: userId,
       scheduledDate: new Date(scheduledDate),
-      location,
+      city,
+      country,
       isPublic: true,
       maxPlayers: 2 // Default for now
     };
 
+    if (location) gameData.location = location;
     if (address) gameData.address = address;
     if (notes) gameData.notes = notes;
     if (missionId) gameData.missionId = missionId;

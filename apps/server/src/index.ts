@@ -877,7 +877,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.2.29" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.0" }));
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {

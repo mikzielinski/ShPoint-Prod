@@ -828,6 +828,12 @@ model ScheduledGame {
   notes           String?
   isPublic        Boolean       @default(false)  // Whether the game is open for public registration
   maxPlayers      Int?          @default(2)      // Maximum number of players (for public games)
+  city            String?       // City where game takes place
+  country         String?       // Country where game takes place
+  skillLevel      String?       // BEGINNER, INTERMEDIATE, ADVANCED, PRO
+  isPaid          Boolean       @default(false)  // Whether reservation requires payment
+  totalCost       Float?        // Total cost for the game
+  currency        String?       @default("PLN")  // Currency code (PLN, EUR, USD, GBP)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   confirmedAt     DateTime?
@@ -843,6 +849,9 @@ model ScheduledGame {
   @@index([scheduledDate])
   @@index([status])
   @@index([isPublic])
+  @@index([city])
+  @@index([country])
+  @@index([city, country])
 }
 
 model GameReminder {

@@ -16,10 +16,16 @@ interface PublicGame {
     description?: string;
   };
   scheduledDate: string;
-  location: string;
+  city?: string;
+  country?: string;
+  location?: string;
   address?: string;
   notes?: string;
   maxPlayers: number;
+  skillLevel?: string;
+  isPaid?: boolean;
+  totalCost?: number;
+  currency?: string;
   status: string;
   registrations: Array<{
     id: string;
@@ -52,9 +58,15 @@ const GameScheduler: React.FC = () => {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [filters, setFilters] = useState({
+    city: '',
+    country: ''
+  });
   const [newGame, setNewGame] = useState({
     missionId: '',
     scheduledDate: '',
+    city: '',
+    country: '',
     location: '',
     address: '',
     notes: '',
@@ -67,7 +79,12 @@ const GameScheduler: React.FC = () => {
   const loadGames = async () => {
     try {
       setLoading(true);
-      const response = await fetch(api('/api/v2/public-games'), {
+      const params = new URLSearchParams();
+      if (filters.city) params.append('city', filters.city);
+      if (filters.country) params.append('country', filters.country);
+      
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await fetch(api(`/api/v2/public-games${queryString}`), {
         credentials: 'include'
       });
       
@@ -111,6 +128,10 @@ const GameScheduler: React.FC = () => {
     loadMissions();
   }, []);
 
+  useEffect(() => {
+    loadGames();
+  }, [filters]);
+
   const createGame = async () => {
     if (!user) return;
     
@@ -129,10 +150,11 @@ const GameScheduler: React.FC = () => {
           setNewGame({
             missionId: '',
             scheduledDate: '',
+            city: '',
+            country: '',
             location: '',
             address: '',
             notes: '',
-            maxPlayers: 2,
             skillLevel: 'INTERMEDIATE',
             isPaid: false,
             totalCost: '',
@@ -198,7 +220,7 @@ const GameScheduler: React.FC = () => {
       }}>
         <h3 style={{ color: '#f9fafb', marginBottom: '16px' }}>🔐 Sign in Required</h3>
         <p style={{ color: '#9ca3af' }}>
-          You need to be logged in to use the game scheduler.
+          You need to be logged in to browse and create public games.
         </p>
       </div>
     );
@@ -223,7 +245,7 @@ const GameScheduler: React.FC = () => {
           fontWeight: '700',
           margin: 0
         }}>
-          🎯 Game Scheduler
+          🌍 Public Games
         </h2>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
@@ -243,6 +265,76 @@ const GameScheduler: React.FC = () => {
         >
           + Create Public Game
         </button>
+      </div>
+
+      {/* Filters */}
+      <div style={{
+        background: '#111827',
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '20px',
+        border: '1px solid #374151'
+      }}>
+        <h3 style={{ color: '#f9fafb', margin: '0 0 12px 0', fontSize: '16px' }}>🔍 Filter Games</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '12px', alignItems: 'end' }}>
+          <div>
+            <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '6px' }}>
+              City
+            </label>
+            <input
+              type="text"
+              value={filters.city}
+              onChange={(e) => setFilters({...filters, city: e.target.value})}
+              placeholder="e.g., Warsaw"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                background: '#1f2937',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+          
+          <div>
+            <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '6px' }}>
+              Country
+            </label>
+            <input
+              type="text"
+              value={filters.country}
+              onChange={(e) => setFilters({...filters, country: e.target.value})}
+              placeholder="e.g., Poland"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                background: '#1f2937',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+          
+          <button
+            onClick={() => setFilters({ city: '', country: '' })}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '6px',
+              border: '1px solid #6b7280',
+              background: '#374151',
+              color: '#f9fafb',
+              fontSize: '14px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Clear Filters
+          </button>
+        </div>
       </div>
 
       {showCreateForm && (
@@ -299,15 +391,59 @@ const GameScheduler: React.FC = () => {
             />
           </div>
 
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            <div>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                City *
+              </label>
+              <input
+                type="text"
+                value={newGame.city}
+                onChange={(e) => setNewGame({...newGame, city: e.target.value})}
+                placeholder="e.g., Warsaw"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  border: '1px solid #4b5563',
+                  background: '#1f2937',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            <div>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Country *
+              </label>
+              <input
+                type="text"
+                value={newGame.country}
+                onChange={(e) => setNewGame({...newGame, country: e.target.value})}
+                placeholder="e.g., Poland"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  border: '1px solid #4b5563',
+                  background: '#1f2937',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+          </div>
+
           <div style={{ marginBottom: '16px' }}>
             <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Location *
+              Venue/Store Name (Optional)
             </label>
             <input
               type="text"
               value={newGame.location}
               onChange={(e) => setNewGame({...newGame, location: e.target.value})}
-              placeholder="e.g., Warsaw, Poland"
+              placeholder="e.g., Local Game Store"
               style={{
                 width: '100%',
                 padding: '12px',
@@ -529,12 +665,40 @@ const GameScheduler: React.FC = () => {
                       {game.mission.name}
                     </h4>
                     <p style={{ color: '#9ca3af', margin: '0 0 8px 0', fontSize: '14px' }}>
-                      Host: {game.player1.name || game.player1.username} • {game.location}
+                      Host: {game.player1.name || game.player1.username}
                     </p>
-                    <p style={{ color: '#d1d5db', margin: '0', fontSize: '14px' }}>
-                      📅 {new Date(game.scheduledDate).toLocaleString()} • 
-                      👥 {currentPlayers}/{game.maxPlayers} players
+                    <p style={{ color: '#d1d5db', margin: '0 0 8px 0', fontSize: '14px' }}>
+                      📍 {game.city}{game.country ? `, ${game.country}` : ''}{game.location ? ` • ${game.location}` : ''}
                     </p>
+                    <p style={{ color: '#d1d5db', margin: '0 0 4px 0', fontSize: '14px' }}>
+                      📅 {new Date(game.scheduledDate).toLocaleString()}
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {game.skillLevel && (
+                        <span style={{
+                          background: '#374151',
+                          color: '#d1d5db',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '500'
+                        }}>
+                          {game.skillLevel}
+                        </span>
+                      )}
+                      {game.isPaid && game.totalCost && (
+                        <span style={{
+                          background: '#047857',
+                          color: '#d1fae5',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '500'
+                        }}>
+                          💰 {game.totalCost} {game.currency || 'PLN'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                     <span style={{

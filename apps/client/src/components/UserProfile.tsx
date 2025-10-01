@@ -73,7 +73,9 @@ export default function UserProfile({ onClose }: UserProfileProps) {
       borderRadius: '8px', 
       padding: '20px',
       maxWidth: '1200px',
-      margin: '0 auto'
+      width: '100%',
+      margin: '20px auto',
+      boxSizing: 'border-box'
     }}>
       <div className="user-profile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
