@@ -135,10 +135,12 @@ const ChallengeSystem: React.FC = () => {
   };
 
   useEffect(() => {
-    loadChallenges();
-    loadAvailableUsers();
-    loadStrikeTeams();
-    loadMissions();
+    if (user) {
+      loadChallenges();
+      loadAvailableUsers();
+      loadStrikeTeams();
+      loadMissions();
+    }
   }, [user]);
 
   const createChallenge = async () => {

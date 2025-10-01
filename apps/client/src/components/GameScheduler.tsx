@@ -124,12 +124,16 @@ const GameScheduler: React.FC = () => {
   };
 
   useEffect(() => {
-    loadGames();
-    loadMissions();
-  }, []);
+    if (user) {
+      loadGames();
+      loadMissions();
+    }
+  }, [user]);
 
   useEffect(() => {
-    loadGames();
+    if (user) {
+      loadGames();
+    }
   }, [filters]);
 
   const createGame = async () => {
