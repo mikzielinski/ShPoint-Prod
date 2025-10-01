@@ -39,10 +39,8 @@ export default function Inbox({ onClose }: InboxProps) {
 
     try {
       setLoading(true);
-      const response = await fetch(`${api}/api/v2/inbox?unreadOnly=${filter === 'unread'}`, {
-        headers: {
-          'Authorization': `Bearer ${me.token}`
-        }
+      const response = await fetch(api(`/api/v2/inbox?unreadOnly=${filter === 'unread'}`), {
+        credentials: 'include'
       });
       const data = await response.json();
       
@@ -67,11 +65,9 @@ export default function Inbox({ onClose }: InboxProps) {
     if (!me) return;
 
     try {
-      const response = await fetch(`${api}/api/v2/inbox/messages/${messageId}/read`, {
+      const response = await fetch(api(`/api/v2/inbox/messages/${messageId}/read`), {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${me.token}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -91,11 +87,9 @@ export default function Inbox({ onClose }: InboxProps) {
     if (!me) return;
 
     try {
-      const response = await fetch(`${api}/api/v2/inbox/messages/read-all`, {
+      const response = await fetch(api('/api/v2/inbox/messages/read-all'), {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${me.token}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -111,11 +105,9 @@ export default function Inbox({ onClose }: InboxProps) {
     if (!me) return;
 
     try {
-      const response = await fetch(`${api}/api/v2/inbox/messages/${messageId}`, {
+      const response = await fetch(api(`/api/v2/inbox/messages/${messageId}`), {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${me.token}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -181,22 +173,25 @@ export default function Inbox({ onClose }: InboxProps) {
     <div style={{ 
       display: 'flex', 
       height: '600px', 
-      border: '1px solid #e9ecef', 
+      border: '1px solid #374151', 
       borderRadius: '8px',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      background: '#1f2937'
     }}>
       {/* Messages list */}
       <div style={{ 
         width: '300px', 
-        borderRight: '1px solid #e9ecef',
+        borderRight: '1px solid #374151',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        background: '#1f2937'
       }}>
         {/* Header */}
         <div style={{ 
           padding: '16px', 
-          borderBottom: '1px solid #e9ecef',
-          backgroundColor: '#f8f9fa'
+          borderBottom: '1px solid #374151',
+          backgroundColor: '#111827',
+          color: '#f9fafb'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 style={{ margin: 0 }}>Inbox</h3>
@@ -221,7 +216,7 @@ export default function Inbox({ onClose }: InboxProps) {
               onClick={() => setFilter('all')}
               style={{
                 padding: '4px 8px',
-                backgroundColor: filter === 'all' ? '#007bff' : '#e9ecef',
+                backgroundColor: filter === 'all' ? '#007bff' : '#374151',
                 color: filter === 'all' ? 'white' : '#495057',
                 border: 'none',
                 borderRadius: '4px',
@@ -235,7 +230,7 @@ export default function Inbox({ onClose }: InboxProps) {
               onClick={() => setFilter('unread')}
               style={{
                 padding: '4px 8px',
-                backgroundColor: filter === 'unread' ? '#007bff' : '#e9ecef',
+                backgroundColor: filter === 'unread' ? '#007bff' : '#374151',
                 color: filter === 'unread' ? 'white' : '#495057',
                 border: 'none',
                 borderRadius: '4px',
@@ -290,7 +285,7 @@ export default function Inbox({ onClose }: InboxProps) {
                 onClick={() => handleMessageClick(message)}
                 style={{
                   padding: '12px',
-                  borderBottom: '1px solid #e9ecef',
+                  borderBottom: '1px solid #374151',
                   cursor: 'pointer',
                   backgroundColor: selectedMessage?.id === message.id ? '#e3f2fd' : 
                                  !message.isRead ? '#fff3cd' : 'white',
@@ -340,8 +335,8 @@ export default function Inbox({ onClose }: InboxProps) {
           <>
             <div style={{ 
               padding: '16px', 
-              borderBottom: '1px solid #e9ecef',
-              backgroundColor: '#f8f9fa'
+              borderBottom: '1px solid #374151',
+              backgroundColor: '#111827'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h4 style={{ margin: 0 }}>{selectedMessage.title}</h4>
@@ -380,7 +375,7 @@ export default function Inbox({ onClose }: InboxProps) {
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '12px', 
-                  backgroundColor: '#f8f9fa', 
+                  backgroundColor: '#111827', 
                   borderRadius: '4px',
                   fontSize: '14px'
                 }}>
