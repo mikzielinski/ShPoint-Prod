@@ -929,7 +929,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.14" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.15" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1185,22 +1185,33 @@ app.post("/debug/seed-struggle-cards", async (_req, res) => {
     const createdStruggles = [];
     for (const struggle of struggleCards) {
       try {
-        const created = await prisma.missionStruggle.upsert({
+        // Check if struggle already exists
+        const existing = await prisma.missionStruggle.findFirst({
           where: {
-            missionId_index: {
-              missionId: struggle.missionId,
-              index: struggle.index
-            }
-          },
-          update: {
-            cards: struggle.cards as any
-          },
-          create: {
             missionId: struggle.missionId,
-            index: struggle.index,
-            cards: struggle.cards as any
+            index: struggle.index
           }
         });
+
+        let created;
+        if (existing) {
+          // Update existing struggle
+          created = await prisma.missionStruggle.update({
+            where: { id: existing.id },
+            data: {
+              cards: struggle.cards as any
+            }
+          });
+        } else {
+          // Create new struggle
+          created = await prisma.missionStruggle.create({
+            data: {
+              missionId: struggle.missionId,
+              index: struggle.index,
+              cards: struggle.cards as any
+            }
+          });
+        }
         createdStruggles.push(created);
       } catch (error) {
         console.error(`Error creating struggle for mission ${struggle.missionId}:`, error);
