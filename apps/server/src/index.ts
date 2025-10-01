@@ -877,7 +877,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.0" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.1" }));
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {
@@ -3736,6 +3736,13 @@ app.get("/api/shatterpoint/strike-teams/public", async (req, res) => {
 });
 
 // ===== MISSION COLLECTION ENDPOINTS =====
+
+// Special high rate limit for missions endpoint (used by multiple components)
+app.use('/api/missions', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10000, // Very high limit
+  message: { ok: false, error: 'Too many requests' }
+}));
 
 // GET /api/missions — get list of all available missions (public)
 app.get("/api/missions", async (req, res) => {

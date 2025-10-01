@@ -102,7 +102,7 @@ const ChallengeSystem: React.FC = () => {
     if (!user) return;
     
     try {
-      const response = await fetch(api('/api/v2/strike-teams'), {
+      const response = await fetch(api('/api/shatterpoint/strike-teams'), {
         credentials: 'include'
       });
       
