@@ -86,7 +86,7 @@ const GameScheduler: React.FC = () => {
 
   const loadMissions = async () => {
     try {
-      const response = await fetch(api('/api/shatterpoint/missions'), {
+      const response = await fetch(api('/api/missions'), {
         credentials: 'include'
       });
       
@@ -382,7 +382,7 @@ const GameScheduler: React.FC = () => {
                 }}
               />
               <label htmlFor="isPaid" style={{ color: '#d1d5db', fontSize: '14px', cursor: 'pointer' }}>
-                This game requires payment
+                Reservation is paid
               </label>
             </div>
             

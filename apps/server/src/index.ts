@@ -3735,6 +3735,28 @@ app.get("/api/shatterpoint/strike-teams/public", async (req, res) => {
 
 // ===== MISSION COLLECTION ENDPOINTS =====
 
+// GET /api/missions — get list of all available missions (public)
+app.get("/api/missions", async (req, res) => {
+  try {
+    // Basic mission list for game scheduling
+    const missions = [
+      { id: 'sabotage-showdown', name: 'Sabotage Showdown', description: 'Core mission pack' },
+      { id: 'shifting-priorities', name: 'Shifting Priorities', description: 'Core mission pack' },
+      { id: 'dont-tell-me-odds', name: "Don't Tell Me the Odds", description: 'First Contact mission pack' },
+      { id: 'first-contact', name: 'First Contact', description: 'First Contact mission pack' },
+      { id: 'never-tell-me-the-odds', name: 'Never Tell Me the Odds', description: 'Core mission pack' },
+      { id: 'high-ground', name: 'High Ground', description: 'Core mission pack' },
+      { id: 'showdown', name: 'Showdown', description: 'Core mission pack' },
+      { id: 'control-the-center', name: 'Control the Center', description: 'Core mission pack' }
+    ];
+    
+    res.json({ ok: true, missions });
+  } catch (error) {
+    console.error("Error fetching missions:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch missions" });
+  }
+});
+
 // GET /api/shatterpoint/missions — get user's mission collection
 app.get("/api/shatterpoint/missions", ensureAuth, async (req, res) => {
   try {

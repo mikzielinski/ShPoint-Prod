@@ -51,6 +51,11 @@ const ChallengeSystem: React.FC = () => {
     name: string;
     description?: string;
   }>>([]);
+  const [missions, setMissions] = useState<Array<{
+    id: string;
+    name: string;
+    description?: string;
+  }>>([]);
 
   const loadChallenges = async () => {
     if (!user) return;
@@ -112,10 +117,28 @@ const ChallengeSystem: React.FC = () => {
     }
   };
 
+  const loadMissions = async () => {
+    try {
+      const response = await fetch(api('/api/missions'), {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.ok) {
+          setMissions(data.missions || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading missions:', error);
+    }
+  };
+
   useEffect(() => {
     loadChallenges();
     loadAvailableUsers();
     loadStrikeTeams();
+    loadMissions();
   }, [user]);
 
   const createChallenge = async () => {
@@ -277,11 +300,11 @@ const ChallengeSystem: React.FC = () => {
               }}
             >
               <option value="">Select Mission</option>
-              <option value="First Contact">First Contact</option>
-              <option value="Sabotage Showdown">Sabotage Showdown</option>
-              <option value="Don't Tell Me the Odds">Don't Tell Me the Odds</option>
-              <option value="Shifting Priorities">Shifting Priorities</option>
-              <option value="Never Tell Me the Odds">Never Tell Me the Odds</option>
+              {missions.map(mission => (
+                <option key={mission.id} value={mission.name}>
+                  {mission.name}
+                </option>
+              ))}
             </select>
           </div>
 
