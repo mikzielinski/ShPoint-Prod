@@ -832,6 +832,11 @@ export async function getPublicGames(req: Request, res: Response) {
                 }
               }
             }
+          },
+          _count: {
+            select: {
+              registrations: true
+            }
           }
         },
         orderBy: { scheduledDate: 'asc' },
