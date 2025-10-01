@@ -248,6 +248,10 @@ const generalLimiter = rateLimit({
     if (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests')) {
       return true;
     }
+    // Skip for authenticated user endpoints (users should not be rate limited on their own data)
+    if (req.path.startsWith('/api/shatterpoint/missions') || req.path.startsWith('/api/shatterpoint/strike-teams')) {
+      return true;
+    }
     // @ts-ignore
     return req.user && req.user.isTrusted;
   }
@@ -925,7 +929,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.9" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.10" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
