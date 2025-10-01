@@ -362,6 +362,7 @@ const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
     '89.151.22.52', // User's IP - added to prevent accidental bans
     '172.71.150.50', // User's current IP from logs
     '172.71.151.92', // User's previous IP from logs
+    '172.69.214.80', // User's latest IP from logs
     // Add your trusted IPs here if needed
     // '192.168.1.100',
     // '10.0.0.50'
@@ -911,7 +912,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.3" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.4" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -976,6 +977,18 @@ app.get("/debug/my-ip", (req, res) => {
       'x-client-ip': req.headers['x-client-ip'],
       'cf-connecting-ip': req.headers['cf-connecting-ip']
     }
+  });
+});
+
+// Debug endpoint to check Google OAuth configuration
+app.get("/debug/google-oauth", (req, res) => {
+  res.json({
+    ok: true,
+    clientId: GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET',
+    callbackUrl: GOOGLE_CALLBACK_URL,
+    expectedCallbackUrl: 'https://shpoint.netlify.app/backend-auth/google/callback',
+    directCallbackUrl: 'https://shpoint-prod.onrender.com/auth/google/callback'
   });
 });
 
