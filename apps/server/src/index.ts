@@ -594,15 +594,22 @@ passport.use(
     // verify/callback
     async (_accessToken: string, _refreshToken: string, profile: Profile, done) => {
       try {
+        console.log('🔍 Google OAuth strategy - profile:', profile);
         const email = profile.emails?.[0]?.value?.toLowerCase().trim() || null;
-        if (!email) return done(null, false, { message: "Email not provided by Google" });
+        console.log('🔍 Google OAuth strategy - email:', email);
+        if (!email) {
+          console.log('🔍 Google OAuth strategy - no email found');
+          return done(null, false, { message: "Email not provided by Google" });
+        }
 
         // Check if email is in allowed list
         const allowedEmail = await prisma.allowedEmail.findUnique({
           where: { email, isActive: true }
         });
 
+        console.log('🔍 Google OAuth strategy - allowedEmail:', allowedEmail);
         if (!allowedEmail) {
+          console.log('🔍 Google OAuth strategy - email not authorized:', email);
           return done(null, false, { message: "Email not authorized. Please contact administrator." });
         }
 
@@ -902,7 +909,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.1" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.2" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1117,6 +1124,8 @@ app.get(
   (req, res, next) => {
     // Store origin for failure redirect
     (req as any).origin = req.get('origin');
+    console.log('🔍 Google OAuth callback - query params:', req.query);
+    console.log('🔍 Google OAuth callback - headers:', req.headers);
     next();
   },
   passport.authenticate("google", { failureRedirect: "/auth/google/failure" }),
