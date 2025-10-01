@@ -881,7 +881,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.3" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.4" }));
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {
@@ -3744,16 +3744,13 @@ app.get("/api/shatterpoint/strike-teams/public", async (req, res) => {
 // GET /api/missions — get list of all available missions (public, no rate limit)
 app.get("/api/missions", async (req, res) => {
   try {
-    // Basic mission list for game scheduling
+    // Core missions only (4 from official core set)
     const missions = [
+      { id: 'any', name: 'Any Mission', description: 'Player preference' },
       { id: 'sabotage-showdown', name: 'Sabotage Showdown', description: 'Core mission pack' },
       { id: 'shifting-priorities', name: 'Shifting Priorities', description: 'Core mission pack' },
-      { id: 'dont-tell-me-odds', name: "Don't Tell Me the Odds", description: 'First Contact mission pack' },
-      { id: 'first-contact', name: 'First Contact', description: 'First Contact mission pack' },
-      { id: 'never-tell-me-the-odds', name: 'Never Tell Me the Odds', description: 'Core mission pack' },
-      { id: 'high-ground', name: 'High Ground', description: 'Core mission pack' },
-      { id: 'showdown', name: 'Showdown', description: 'Core mission pack' },
-      { id: 'control-the-center', name: 'Control the Center', description: 'Core mission pack' }
+      { id: 'first-contact', name: 'First Contact', description: 'Core mission pack' },
+      { id: 'never-tell-me-the-odds', name: 'Never Tell Me the Odds', description: 'Core mission pack' }
     ];
     
     res.json({ ok: true, missions });
