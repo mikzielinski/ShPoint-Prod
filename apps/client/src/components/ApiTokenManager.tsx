@@ -19,7 +19,8 @@ interface ApiTokenManagerProps {
 }
 
 export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
-  const { me } = useAuth();
+  const { auth } = useAuth();
+  const me = auth.status === 'authenticated' ? auth.user : null;
   const [tokens, setTokens] = useState<ApiToken[]>([]);
   const [availableScopes, setAvailableScopes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
   const fetchTokens = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${api}/api/v2/api-tokens`, {
+      const response = await fetch(api('/api/v2/api-tokens'), {
         credentials: 'include'
       });
       
@@ -69,7 +70,7 @@ export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
         return;
       }
 
-      const response = await fetch(`${api}/api/v2/api-tokens`, {
+      const response = await fetch(api('/api/v2/api-tokens'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -99,7 +100,7 @@ export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
 
   const toggleToken = async (tokenId: string, isActive: boolean) => {
     try {
-      const response = await fetch(`${api}/api/v2/api-tokens/${tokenId}`, {
+      const response = await fetch(api(`/api/v2/api-tokens/${tokenId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -126,7 +127,7 @@ export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
     }
 
     try {
-      const response = await fetch(`${api}/api/v2/api-tokens/${tokenId}`, {
+      const response = await fetch(api(`/api/v2/api-tokens/${tokenId}`), {
         method: 'DELETE',
         credentials: 'include'
       });
