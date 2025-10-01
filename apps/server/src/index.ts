@@ -252,6 +252,10 @@ const generalLimiter = rateLimit({
     if (req.path.startsWith('/api/shatterpoint/missions') || req.path.startsWith('/api/shatterpoint/strike-teams')) {
       return true;
     }
+    // Skip for Netlify proxy endpoints (all /backend-api/* paths)
+    if (req.path.startsWith('/backend-api/')) {
+      return true;
+    }
     // @ts-ignore
     return req.user && req.user.isTrusted;
   }

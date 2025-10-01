@@ -656,7 +656,7 @@ const GameScheduler: React.FC = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {games.map((game) => {
-            const currentPlayers = game._count.registrations + (game.player1.id === game.player2.id ? 1 : 2);
+            const currentPlayers = game._count.registrations + 1; // player1 + registered players
             const isFull = currentPlayers >= game.maxPlayers;
             const isRegistered = game.registrations.some(r => r.user.id === user.id);
             
