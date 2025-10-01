@@ -829,7 +829,7 @@ export async function getPublicGames(req: Request, res: Response) {
           },
           _count: {
             select: {
-              gameRegistrations: true
+              registrations: true
             }
           }
         },
