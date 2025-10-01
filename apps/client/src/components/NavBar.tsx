@@ -137,7 +137,7 @@ export default function NavBar() {
 
           {isEditor && (
             <NavLink
-              to="/editor"
+              to="/content-management"
               className={({ isActive }) => cx("nb-link", isActive && "is-active")}
             >
               Editor
