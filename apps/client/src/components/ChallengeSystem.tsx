@@ -116,28 +116,42 @@ const ChallengeSystem: React.FC = () => {
   };
 
   const loadMissions = async () => {
+    console.log('🔄 ChallengeSystem: Loading missions...');
     try {
-      const response = await fetch(api('/api/missions'), {
+      const url = api('/api/missions');
+      console.log('🔄 ChallengeSystem: API URL:', url);
+      const response = await fetch(url, {
         credentials: 'include'
       });
       
+      console.log('🔄 ChallengeSystem: Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('🔄 ChallengeSystem: Response data:', data);
         if (data.ok) {
           setMissions(data.missions || []);
+          console.log('✅ ChallengeSystem: Loaded missions:', data.missions);
+        } else {
+          console.error('❌ ChallengeSystem: Failed to load missions:', data);
         }
+      } else {
+        console.error('❌ ChallengeSystem: Missions API error:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error loading missions:', error);
+      console.error('❌ ChallengeSystem: Error loading missions:', error);
     }
   };
 
   useEffect(() => {
+    console.log('🔄 ChallengeSystem: useEffect triggered, user:', user ? user.email : 'null');
     if (user) {
+      console.log('🔄 ChallengeSystem: User authenticated, loading data...');
       loadChallenges();
       loadAvailableUsers();
       loadStrikeTeams();
       loadMissions();
+    } else {
+      console.log('🔄 ChallengeSystem: No user, skipping API calls');
     }
   }, [user]);
 
