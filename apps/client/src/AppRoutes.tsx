@@ -20,6 +20,7 @@ import BattlePage from "./pages/BattlePage";
 import FAQPage from "./pages/FAQPage";
 import UserProfile from "./components/UserProfile";
 import SquadBuilder from "./components/SquadBuilder";
+import RequireAuth from "./routers/RequireAuth";
 import FiltersPanel, { type Filters } from "./components/FiltersPanel";
 import CharacterModal from "./components/CharacterModal";
 import AvatarManager from "./components/AvatarManager";
