@@ -258,7 +258,6 @@ export async function createChallenge(req: Request, res: Response) {
       `You have received a new challenge from ${challenge.challenger.name || challenge.challenger.username || 'Unknown User'}`,
       {
         challengeId: challenge.id,
-        skillLevel: challenge.skillLevel,
         preferredMissions: challenge.preferredMissions
       }
     );
@@ -464,7 +463,7 @@ export async function cancelChallenge(req: Request, res: Response) {
 export async function getAvailablePlayers(req: Request, res: Response) {
   try {
     const userId = (req as any).user?.id;
-    const { skillLevel, language = 'en', page = 1, limit = 20 } = req.query;
+    const { language = 'en', page = 1, limit = 20 } = req.query;
 
     if (!userId) {
       return res.status(401).json({ 

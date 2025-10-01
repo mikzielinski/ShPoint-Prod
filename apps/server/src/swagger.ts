@@ -152,6 +152,7 @@ const specs = swaggerJsdoc(options);
 
 export function setupSwagger(app: Express, ensureApiAccess: any) {
   // Temporary: Allow access to Swagger for testing (remove in production)
+  // @ts-ignore - swaggerUi.setup type compatibility issue
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'ShPoint API Documentation'

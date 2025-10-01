@@ -76,7 +76,6 @@ export async function getScheduledGames(req: Request, res: Response) {
           challenge: {
             select: {
               id: true,
-              skillLevel: true,
               language: true
             }
           },
@@ -295,7 +294,6 @@ export async function createScheduledGame(req: Request, res: Response) {
         challenge: {
           select: {
             id: true,
-            skillLevel: true,
             language: true
           }
         }
@@ -475,7 +473,6 @@ export async function updateScheduledGame(req: Request, res: Response) {
         challenge: {
           select: {
             id: true,
-            skillLevel: true,
             language: true
           }
         }

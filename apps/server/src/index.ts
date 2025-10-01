@@ -342,6 +342,7 @@ app.use('/auth/', (req, res, next) => {
   if (netlifyIPs.includes(req.ip)) {
     return next();
   }
+  // @ts-ignore - ExpressBrute type compatibility issue
   return authBruteForce.prevent(req, res, next);
 });
 
@@ -901,7 +902,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.7" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.8" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
