@@ -1,6 +1,6 @@
 FROM node:20-alpine
 WORKDIR /app
-# Force cache bust - v1.3.0
+# Force cache bust - v1.3.2
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN apk add --no-cache openssl openssl-dev && \
@@ -27,4 +27,6 @@ RUN npm run build
 
 ENV PORT=3001
 EXPOSE 3001
-CMD ["node","dist/index.js"]
+
+# Run migrations and start server
+CMD npx prisma migrate deploy && node dist/index.js
