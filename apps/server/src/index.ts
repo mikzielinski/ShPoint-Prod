@@ -925,7 +925,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.7" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.8" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1010,7 +1010,7 @@ app.get("/debug/allowed-emails", async (req, res) => {
   try {
     const allowedEmails = await prisma.allowedEmail.findMany({
       where: { isActive: true },
-      select: { email: true, createdAt: true }
+      select: { email: true, role: true, createdAt: true }
     });
     res.json({
       ok: true,
