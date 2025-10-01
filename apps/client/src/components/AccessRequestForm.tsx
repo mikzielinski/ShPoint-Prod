@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api } from '../lib/env';
 
 interface AccessRequestFormProps {
   onSuccess?: () => void;
@@ -21,10 +22,16 @@ const AccessRequestForm: React.FC<AccessRequestFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.email || !formData.email.toLowerCase().endsWith('@gmail.com')) {
+      onError?.('Only Gmail addresses are accepted');
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/v2/access-requests', {
+      const response = await fetch(api('/api/v2/access-requests'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
