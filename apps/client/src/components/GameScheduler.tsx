@@ -58,7 +58,6 @@ const GameScheduler: React.FC = () => {
     location: '',
     address: '',
     notes: '',
-    maxPlayers: 2,
     skillLevel: 'INTERMEDIATE',
     isPaid: false,
     totalCost: '',
@@ -87,7 +86,7 @@ const GameScheduler: React.FC = () => {
 
   const loadMissions = async () => {
     try {
-      const response = await fetch(api('/api/v2/missions'), {
+      const response = await fetch(api('/api/shatterpoint/missions'), {
         credentials: 'include'
       });
       
@@ -368,30 +367,6 @@ const GameScheduler: React.FC = () => {
 
           <div style={{ marginBottom: '16px' }}>
             <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Max Players
-            </label>
-            <select
-              value={newGame.maxPlayers}
-              onChange={(e) => setNewGame({...newGame, maxPlayers: parseInt(e.target.value)})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            >
-              <option value={2}>2 Players</option>
-              <option value={3}>3 Players</option>
-              <option value={4}>4 Players</option>
-              <option value={6}>6 Players</option>
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
               Payment Information
             </label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -458,14 +433,6 @@ const GameScheduler: React.FC = () => {
                     <option value="GBP">GBP</option>
                   </select>
                 </div>
-              </div>
-            )}
-            
-            {newGame.isPaid && newGame.totalCost && newGame.maxPlayers > 1 && (
-              <div style={{ marginTop: '8px', padding: '8px', background: '#374151', borderRadius: '4px' }}>
-                <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>
-                  Cost per person: {(parseFloat(newGame.totalCost) / newGame.maxPlayers).toFixed(2)} {newGame.currency}
-                </p>
               </div>
             )}
           </div>

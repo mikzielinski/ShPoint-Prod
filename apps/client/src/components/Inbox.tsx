@@ -330,7 +330,7 @@ export default function Inbox({ onClose }: InboxProps) {
       </div>
 
       {/* Message content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#1f2937', color: '#f9fafb' }}>
         {selectedMessage ? (
           <>
             <div style={{ 
