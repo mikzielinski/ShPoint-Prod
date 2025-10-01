@@ -126,7 +126,6 @@ export async function createChallenge(req: Request, res: Response) {
     const userId = (req as any).user?.id;
     const {
       challengedId,
-      skillLevel,
       preferredMissions = [],
       challengerStrikeTeamId,
       language = 'en',
@@ -143,10 +142,10 @@ export async function createChallenge(req: Request, res: Response) {
       });
     }
 
-    if (!challengedId || !skillLevel) {
+    if (!challengedId) {
       return res.status(400).json({ 
         ok: false, 
-        error: 'ChallengedId and skillLevel are required' 
+        error: 'ChallengedId is required' 
       });
     }
 
@@ -215,7 +214,6 @@ export async function createChallenge(req: Request, res: Response) {
       data: {
         challengerId: userId,
         challengedId,
-        skillLevel: skillLevel as any,
         preferredMissions,
         challengerStrikeTeamId,
         language,

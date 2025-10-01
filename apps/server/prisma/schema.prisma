@@ -781,7 +781,6 @@ model Challenge {
   challengedId    String
   challenged      User            @relation("ChallengeChallenged", fields: [challengedId], references: [id], onDelete: Cascade)
   status          ChallengeStatus @default(PENDING)
-  skillLevel      SkillLevel
   preferredMissions String[]      // Array of mission IDs
   challengerStrikeTeamId String?
   challengerStrikeTeam StrikeTeam? @relation("ChallengeChallengerTeam", fields: [challengerStrikeTeamId], references: [id])

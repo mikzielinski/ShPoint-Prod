@@ -17,7 +17,6 @@ interface Challenge {
     avatarUrl?: string;
   };
   mission: string;
-  skillLevel: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'PRO';
   location: string;
   description?: string;
   status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
@@ -35,7 +34,6 @@ const ChallengeSystem: React.FC = () => {
   const [newChallenge, setNewChallenge] = useState({
     challengeeId: '',
     mission: '',
-    skillLevel: 'INTERMEDIATE' as const,
     location: '',
     description: '',
     challengerStrikeTeamId: ''
@@ -161,7 +159,6 @@ const ChallengeSystem: React.FC = () => {
           setNewChallenge({
             challengeeId: '',
             mission: '',
-            skillLevel: 'INTERMEDIATE',
             location: '',
             description: ''
           });
@@ -310,29 +307,6 @@ const ChallengeSystem: React.FC = () => {
             </select>
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Skill Level
-            </label>
-            <select
-              value={newChallenge.skillLevel}
-              onChange={(e) => setNewChallenge({...newChallenge, skillLevel: e.target.value as any})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            >
-              <option value="BEGINNER">Beginner</option>
-              <option value="INTERMEDIATE">Intermediate</option>
-              <option value="ADVANCED">Advanced</option>
-              <option value="PRO">Pro</option>
-            </select>
-          </div>
 
           <div style={{ marginBottom: '16px' }}>
             <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
@@ -442,7 +416,7 @@ const ChallengeSystem: React.FC = () => {
                     Challenge: {challenge.mission}
                   </h4>
                   <p style={{ color: '#9ca3af', margin: 0, fontSize: '14px' }}>
-                    From: {challenge.challenger.name} • Skill: {challenge.skillLevel} • Location: {challenge.location}
+                    From: {challenge.challenger.name} • Location: {challenge.location}
                   </p>
                 </div>
                 <span style={{
