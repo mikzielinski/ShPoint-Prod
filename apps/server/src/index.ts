@@ -929,7 +929,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.13" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.14" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1153,6 +1153,61 @@ app.post("/debug/seed-missions", async (_req, res) => {
     }
 
     res.json({ ok: true, created: createdMissions.length, missions: createdMissions });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Debug endpoint to seed struggle cards for missions
+app.post("/debug/seed-struggle-cards", async (_req, res) => {
+  try {
+    // Sample struggle cards for sabotage-showdown mission
+    const struggleCards = [
+      {
+        missionId: 'sabotage-showdown',
+        index: 1,
+        cards: [
+          { name: "Zabezpieczyć Wyjścia", active: ["E","F","A","B","C","D"], specialRules: "All objectives are worth 2 victory points instead of 1." },
+          { name: "Zneutralizować Obrońców", active: ["A","B"], specialRules: "Characters gain +1 defense when on objectives A or B." },
+          { name: "Przejąć Kontrolę", active: ["C","D"], specialRules: "Characters gain +1 attack when on objectives C or D." }
+        ]
+      },
+      {
+        missionId: 'sabotage-showdown',
+        index: 2,
+        cards: [
+          { name: "Ostatnia Linia Obrony", active: ["E","F"], specialRules: "Characters gain +1 movement when starting from objectives E or F." },
+          { name: "Kontratak", active: ["A","B","C","D"], specialRules: "Characters can make one additional action when on any objective." }
+        ]
+      }
+    ];
+
+    const createdStruggles = [];
+    for (const struggle of struggleCards) {
+      try {
+        const created = await prisma.missionStruggle.upsert({
+          where: {
+            missionId_index: {
+              missionId: struggle.missionId,
+              index: struggle.index
+            }
+          },
+          update: {
+            cards: struggle.cards as any
+          },
+          create: {
+            missionId: struggle.missionId,
+            index: struggle.index,
+            cards: struggle.cards as any
+          }
+        });
+        createdStruggles.push(created);
+      } catch (error) {
+        console.error(`Error creating struggle for mission ${struggle.missionId}:`, error);
+      }
+    }
+
+    res.json({ ok: true, created: createdStruggles.length, struggles: createdStruggles });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
