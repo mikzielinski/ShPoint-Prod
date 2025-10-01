@@ -885,6 +885,15 @@ export default function AppRoutes() {
         <Route path="/user" element={<RequireAuth><UserProfile/></RequireAuth>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
         <Route path="/banned" element={<BannedPage/>}/>
+        <Route path="/auth/google/failure" element={
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <h2>Authentication Failed</h2>
+            <p>There was an error during Google authentication.</p>
+            <button onClick={() => window.location.href = '/'}>
+              Return to Home
+            </button>
+          </div>
+        }/>
       </Routes>
       
       {/* Avatar Manager Modal */}
