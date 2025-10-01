@@ -75,8 +75,13 @@ export default function AdminPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<Role>("USER");
   
+  // Access requests state
+  const [accessRequests, setAccessRequests] = useState<any[]>([]);
+  const [accessRequestsLoading, setAccessRequestsLoading] = useState(false);
+  
   // Collapsible sections state
   const [sectionsExpanded, setSectionsExpanded] = useState({
+    accessRequests: true,
     invitations: true,
     users: true,
     invitationSettings: true,
@@ -126,10 +131,11 @@ export default function AdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, role]);
 
-  // Load invitations on mount
+  // Load invitations and access requests on mount
   useEffect(() => {
     if (canManage) {
       loadInvitations();
+      loadAccessRequests();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canManage]);
@@ -355,6 +361,66 @@ export default function AdminPage() {
       setError(err.message);
     } finally {
       setInvitationsLoading(false);
+    }
+  };
+
+  const loadAccessRequests = async () => {
+    if (!canManage) return;
+    setAccessRequestsLoading(true);
+    try {
+      const data = await apiFetch<{ ok: boolean; requests: any[] }>(
+        api(`/api/v2/access-requests`)
+      );
+      setAccessRequests(data.requests || []);
+    } catch (e: any) {
+      console.error("Failed to load access requests:", e);
+      setError(e?.message ?? "Failed to load access requests");
+    } finally {
+      setAccessRequestsLoading(false);
+    }
+  };
+
+  const handleApproveRequest = async (requestId: string) => {
+    if (!canManage) return;
+    try {
+      await apiFetch(api(`/api/v2/access-requests/${requestId}`), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "APPROVED" })
+      });
+      setOk("Access request approved successfully");
+      loadAccessRequests();
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to approve access request");
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string, reviewNotes?: string) => {
+    if (!canManage) return;
+    try {
+      await apiFetch(api(`/api/v2/access-requests/${requestId}`), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "REJECTED", reviewNotes })
+      });
+      setOk("Access request rejected");
+      loadAccessRequests();
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to reject access request");
+    }
+  };
+
+  const handleInviteFromRequest = async (requestId: string) => {
+    if (!canManage) return;
+    try {
+      await apiFetch(api(`/api/v2/access-requests/${requestId}/invite`), {
+        method: "POST"
+      });
+      setOk("Invitation sent successfully");
+      loadAccessRequests();
+      loadInvitations();
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to send invitation");
     }
   };
 
@@ -1054,6 +1120,137 @@ export default function AdminPage() {
       </div>
           </>
         )}
+        </section>
+      )}
+
+      {/* Access Requests Section */}
+      {activeTab === 'invitations' && (
+        <section className="card" style={{ marginTop: "24px" }}>
+          <div className="card-header">
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <button
+                className="btn btn-sm btn--outline"
+                onClick={() => toggleSection('accessRequests')}
+                style={{ 
+                  minWidth: "32px", 
+                  height: "32px", 
+                  padding: "0", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  fontSize: "16px"
+                }}
+              >
+                {sectionsExpanded.accessRequests ? "▼" : "▶"}
+              </button>
+              <h3 className="card-title" style={{ margin: 0 }}>
+                Access Requests
+                {accessRequests.length > 0 && (
+                  <span style={{ 
+                    marginLeft: "8px", 
+                    fontSize: "14px", 
+                    color: "#64748b",
+                    fontWeight: "normal"
+                  }}>
+                    ({accessRequests.filter(r => r.status === 'PENDING').length} pending)
+                  </span>
+                )}
+              </h3>
+            </div>
+          </div>
+
+          {sectionsExpanded.accessRequests && (
+            <>
+              {accessRequestsLoading && (
+                <div style={{ padding: "24px", textAlign: "center", color: "#64748b" }}>
+                  Loading access requests...
+                </div>
+              )}
+
+              {!accessRequestsLoading && accessRequests.length === 0 && (
+                <div style={{ padding: "24px", textAlign: "center", color: "#64748b" }}>
+                  No access requests
+                </div>
+              )}
+
+              {!accessRequestsLoading && accessRequests.length > 0 && (
+                <div className="table" style={{ overflow: "auto" }}>
+                  <div className="table__row table__row--header">
+                    <div className="table__cell" style={{ minWidth: "200px" }}>Email</div>
+                    <div className="table__cell" style={{ minWidth: "150px" }}>Name</div>
+                    <div className="table__cell" style={{ minWidth: "250px" }}>Message</div>
+                    <div className="table__cell" style={{ minWidth: "100px" }}>Status</div>
+                    <div className="table__cell" style={{ minWidth: "150px" }}>Requested At</div>
+                    <div className="table__cell" style={{ minWidth: "200px" }}>Actions</div>
+                  </div>
+
+                  {accessRequests.map((request) => (
+                    <div key={request.id} className="table__row">
+                      <div className="table__cell" style={{ minWidth: "200px" }}>
+                        {request.email}
+                      </div>
+                      <div className="table__cell" style={{ minWidth: "150px" }}>
+                        {request.name || '—'}
+                      </div>
+                      <div className="table__cell" style={{ minWidth: "250px" }}>
+                        {request.message || '—'}
+                      </div>
+                      <div className="table__cell" style={{ minWidth: "100px" }}>
+                        <span className={`badge ${
+                          request.status === 'PENDING' ? 'badge--warning' :
+                          request.status === 'APPROVED' ? 'badge--success' :
+                          'badge--error'
+                        }`}>
+                          {request.status}
+                        </span>
+                      </div>
+                      <div className="table__cell" style={{ minWidth: "150px" }}>
+                        {new Date(request.requestedAt).toLocaleDateString()}
+                      </div>
+                      <div className="table__cell" style={{ minWidth: "200px" }}>
+                        {request.status === 'PENDING' && (
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                            <button
+                              onClick={() => handleInviteFromRequest(request.id)}
+                              className="btn btn-sm btn-primary"
+                              title="Send invitation"
+                            >
+                              Send Invite
+                            </button>
+                            <button
+                              onClick={() => handleApproveRequest(request.id)}
+                              className="btn btn-sm btn-success"
+                              title="Approve without invitation"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => {
+                                const notes = prompt('Rejection reason (optional):');
+                                if (notes !== null) {
+                                  handleRejectRequest(request.id, notes);
+                                }
+                              }}
+                              className="btn btn-sm btn-danger"
+                              title="Reject request"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                        {request.status !== 'PENDING' && (
+                          <span style={{ color: "#64748b", fontSize: "12px" }}>
+                            {request.status === 'APPROVED' ? 'Approved by ' : 'Rejected by '}
+                            {request.reviewedByUser?.name || request.reviewedByUser?.email || 'admin'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </section>
       )}
 
