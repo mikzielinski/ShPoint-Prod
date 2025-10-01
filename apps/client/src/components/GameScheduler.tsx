@@ -59,7 +59,10 @@ const GameScheduler: React.FC = () => {
     address: '',
     notes: '',
     maxPlayers: 2,
-    skillLevel: 'INTERMEDIATE'
+    skillLevel: 'INTERMEDIATE',
+    isPaid: false,
+    totalCost: '',
+    currency: 'PLN'
   });
 
   const loadGames = async () => {
@@ -131,7 +134,10 @@ const GameScheduler: React.FC = () => {
             address: '',
             notes: '',
             maxPlayers: 2,
-            skillLevel: 'INTERMEDIATE'
+            skillLevel: 'INTERMEDIATE',
+            isPaid: false,
+            totalCost: '',
+            currency: 'PLN'
           });
           loadGames();
         }
@@ -382,6 +388,86 @@ const GameScheduler: React.FC = () => {
               <option value={4}>4 Players</option>
               <option value={6}>6 Players</option>
             </select>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              Payment Information
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <input
+                type="checkbox"
+                id="isPaid"
+                checked={newGame.isPaid}
+                onChange={(e) => setNewGame({...newGame, isPaid: e.target.checked, totalCost: e.target.checked ? newGame.totalCost : ''})}
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  accentColor: '#3b82f6'
+                }}
+              />
+              <label htmlFor="isPaid" style={{ color: '#d1d5db', fontSize: '14px', cursor: 'pointer' }}>
+                This game requires payment
+              </label>
+            </div>
+            
+            {newGame.isPaid && (
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                    Total Cost
+                  </label>
+                  <input
+                    type="number"
+                    value={newGame.totalCost}
+                    onChange={(e) => setNewGame({...newGame, totalCost: e.target.value})}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #4b5563',
+                      background: '#1f2937',
+                      color: '#f9fafb',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                <div style={{ width: '80px' }}>
+                  <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                    Currency
+                  </label>
+                  <select
+                    value={newGame.currency}
+                    onChange={(e) => setNewGame({...newGame, currency: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #4b5563',
+                      background: '#1f2937',
+                      color: '#f9fafb',
+                      fontSize: '14px'
+                    }}
+                  >
+                    <option value="PLN">PLN</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                  </select>
+                </div>
+              </div>
+            )}
+            
+            {newGame.isPaid && newGame.totalCost && newGame.maxPlayers > 1 && (
+              <div style={{ marginTop: '8px', padding: '8px', background: '#374151', borderRadius: '4px' }}>
+                <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>
+                  Cost per person: {(parseFloat(newGame.totalCost) / newGame.maxPlayers).toFixed(2)} {newGame.currency}
+                </p>
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: '20px' }}>

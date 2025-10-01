@@ -37,8 +37,20 @@ const ChallengeSystem: React.FC = () => {
     mission: '',
     skillLevel: 'INTERMEDIATE' as const,
     location: '',
-    description: ''
+    description: '',
+    challengerStrikeTeamId: ''
   });
+  const [availableUsers, setAvailableUsers] = useState<Array<{
+    id: string;
+    name: string;
+    username?: string;
+    avatarUrl?: string;
+  }>>([]);
+  const [strikeTeams, setStrikeTeams] = useState<Array<{
+    id: string;
+    name: string;
+    description?: string;
+  }>>([]);
 
   const loadChallenges = async () => {
     if (!user) return;
@@ -62,8 +74,48 @@ const ChallengeSystem: React.FC = () => {
     }
   };
 
+  const loadAvailableUsers = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(api('/api/v2/challenges/available-players'), {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.ok) {
+          setAvailableUsers(data.players || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading available users:', error);
+    }
+  };
+
+  const loadStrikeTeams = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(api('/api/v2/strike-teams'), {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.ok) {
+          setStrikeTeams(data.strikeTeams || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading strike teams:', error);
+    }
+  };
+
   useEffect(() => {
     loadChallenges();
+    loadAvailableUsers();
+    loadStrikeTeams();
   }, [user]);
 
   const createChallenge = async () => {
@@ -183,6 +235,32 @@ const ChallengeSystem: React.FC = () => {
           
           <div style={{ marginBottom: '16px' }}>
             <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              Challenge Player *
+            </label>
+            <select
+              value={newChallenge.challengeeId}
+              onChange={(e) => setNewChallenge({...newChallenge, challengeeId: e.target.value})}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                background: '#1f2937',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+            >
+              <option value="">Select Player to Challenge</option>
+              {availableUsers.map(player => (
+                <option key={player.id} value={player.id}>
+                  {player.name || player.username || 'Unknown User'}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
               Mission
             </label>
             <select
@@ -277,7 +355,7 @@ const ChallengeSystem: React.FC = () => {
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={createChallenge}
-              disabled={!newChallenge.mission || !newChallenge.location}
+              disabled={!newChallenge.challengeeId || !newChallenge.mission || !newChallenge.location}
               style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)',
                 color: 'white',
@@ -287,7 +365,7 @@ const ChallengeSystem: React.FC = () => {
                 fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                opacity: (!newChallenge.mission || !newChallenge.location) ? 0.5 : 1
+                opacity: (!newChallenge.challengeeId || !newChallenge.mission || !newChallenge.location) ? 0.5 : 1
               }}
             >
               Send Challenge
