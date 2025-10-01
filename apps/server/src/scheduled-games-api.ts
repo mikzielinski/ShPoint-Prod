@@ -783,6 +783,7 @@ function formatDateForURL(date: Date): string {
 
 export async function getPublicGames(req: Request, res: Response) {
   try {
+    console.log('🔍 getPublicGames called with query:', req.query);
     const { page = 1, limit = 20, upcoming = 'true', city, country } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
     
@@ -866,6 +867,7 @@ export async function getPublicGames(req: Request, res: Response) {
 
 export async function createPublicGame(req: Request, res: Response) {
   try {
+    console.log('🔍 createPublicGame called with body:', req.body);
     const userId = (req as any).user?.id;
     const {
       missionId,
@@ -913,6 +915,8 @@ export async function createPublicGame(req: Request, res: Response) {
     if (totalCost !== undefined) gameData.totalCost = parseFloat(totalCost);
     if (currency) gameData.currency = currency;
 
+    console.log('🔍 createPublicGame gameData:', gameData);
+    
     const game = await prisma.scheduledGame.create({
       data: gameData,
       include: {
@@ -939,10 +943,13 @@ export async function createPublicGame(req: Request, res: Response) {
       game
     });
   } catch (error) {
-    console.error('Error creating public game:', error);
+    console.error('❌ Error creating public game:', error);
+    console.error('❌ Error details:', error.message);
+    console.error('❌ Error stack:', error.stack);
     res.status(500).json({ 
       ok: false, 
-      error: 'Failed to create public game' 
+      error: 'Failed to create public game',
+      details: error.message
     });
   }
 }

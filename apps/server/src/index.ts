@@ -901,7 +901,22 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.5" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.6" }));
+
+// Debug endpoint to check database schema
+app.get("/debug/schema", async (_req, res) => {
+  try {
+    const result = await prisma.$queryRaw`
+      SELECT column_name, data_type, is_nullable 
+      FROM information_schema.columns 
+      WHERE table_name = 'ScheduledGame' 
+      ORDER BY ordinal_position;
+    `;
+    res.json({ ok: true, schema: result });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {
