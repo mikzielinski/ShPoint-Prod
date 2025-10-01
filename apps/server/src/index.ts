@@ -929,7 +929,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.10" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.11" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1093,6 +1093,26 @@ app.get("/debug/access-requests", async (req, res) => {
       count: accessRequests.length,
       requests: accessRequests
     });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Debug endpoint to check missions in database
+app.get("/debug/missions", async (_req, res) => {
+  try {
+    const missions = await prisma.mission.findMany({
+      select: {
+        id: true,
+        name: true,
+        source: true,
+        description: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+    res.json({ ok: true, missions });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
