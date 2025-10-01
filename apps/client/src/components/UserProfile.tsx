@@ -11,13 +11,19 @@ interface UserProfileProps {
 }
 
 export default function UserProfile({ onClose }: UserProfileProps) {
-  const { user } = useAuth();
+  const { auth } = useAuth();
+  const user = auth.status === 'authenticated' ? auth.user : null;
   const [showApiTokens, setShowApiTokens] = useState(false);
-  const [username, setUsername] = useState(user?.username || '');
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'games' | 'inbox' | 'stats' | 'modified' | 'api-tokens'>('profile');
+
+  // Update username when user changes
+  useEffect(() => {
+    setUsername(user?.username || '');
+  }, [user]);
 
   const handleUpdateUsername = async () => {
     if (!username.trim()) {

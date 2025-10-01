@@ -875,7 +875,7 @@ export default function AppRoutes() {
         <Route path="/admin" element={<AdminPage/>}/>
         <Route path="/content-management" element={<ContentManagementPage/>}/>
         <Route path="/faq" element={<FAQPage/>}/>
-        <Route path="/user" element={<UserProfile/>}/>
+        <Route path="/user" element={<RequireAuth><UserProfile/></RequireAuth>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
         <Route path="/banned" element={<BannedPage/>}/>
       </Routes>

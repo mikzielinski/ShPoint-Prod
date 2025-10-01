@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import ChallengeSystem from '../components/ChallengeSystem';
+import GameScheduler from '../components/GameScheduler';
 
 const PlayPage: React.FC = () => {
   return (
@@ -141,6 +143,17 @@ const PlayPage: React.FC = () => {
             </div>
           </NavLink>
         </div>
+      </div>
+
+      {/* Game Scheduling System */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: '24px',
+        marginTop: '24px'
+      }}>
+        <ChallengeSystem />
+        <GameScheduler />
       </div>
 
     </div>
