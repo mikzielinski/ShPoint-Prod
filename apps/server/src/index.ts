@@ -235,13 +235,13 @@ const moderateLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5000, // Very generous limit for general requests
+  max: 10000, // Very generous limit for development/deployment
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
     // Skip for public endpoints
-    if (req.path === '/api/missions' || req.path === '/health') {
+    if (req.path === '/api/missions' || req.path === '/health' || req.path === '/unban') {
       return true;
     }
     // @ts-ignore
@@ -285,9 +285,9 @@ try {
 }
 
 const bruteForce = new ExpressBrute(bruteForceStore, {
-  freeRetries: 5, // Increased from 3 to 5 attempts
-  minWait: 2 * 60 * 1000, // Reduced from 5 minutes to 2 minutes
-  maxWait: 10 * 60 * 1000, // Reduced from 15 minutes to 10 minutes
+  freeRetries: 20, // Very generous for development/deployment
+  minWait: 30 * 1000, // Reduced to 30 seconds
+  maxWait: 2 * 60 * 1000, // Reduced to 2 minutes
   lifetime: 24 * 60 * 60, // 24 hours
   refreshTimeoutOnRequest: false,
   handleStoreError: (error) => {
@@ -323,9 +323,9 @@ app.use('/api/', moderateLimiter); // Moderate limits for API
 
 // 6. Brute force protection for specific endpoints - More lenient
 const authBruteForce = new ExpressBrute(bruteForceStore, {
-  freeRetries: 5, // Increased from 2 to 5
-  minWait: 5 * 60 * 1000, // Reduced from 10 minutes to 5 minutes
-  maxWait: 30 * 60 * 1000, // Reduced from 1 hour to 30 minutes
+  freeRetries: 50, // Very generous for development/deployment
+  minWait: 30 * 1000, // Reduced to 30 seconds
+  maxWait: 2 * 60 * 1000, // Reduced to 2 minutes
   lifetime: 24 * 60 * 60, // 24 hours
 });
 
@@ -348,8 +348,8 @@ app.use('/auth/', (req, res, next) => {
 
 // 8. DDoS Detection and Monitoring - Adjusted thresholds
 const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
-const IP_THRESHOLD = 200; // Increased from 100 to 200 requests per minute
-const IP_BAN_DURATION = 30 * 60 * 1000; // Reduced from 1 hour to 30 minutes
+const IP_THRESHOLD = 1000; // Very high threshold for development/deployment
+const IP_BAN_DURATION = 5 * 60 * 1000; // Reduced to 5 minutes
 
 const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
@@ -902,7 +902,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.0" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.1" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -948,6 +948,26 @@ app.post("/debug/resolve-migration", async (_req, res) => {
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
+});
+
+// Debug endpoint to check your IP
+app.get("/debug/my-ip", (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+  const forwarded = req.headers['x-forwarded-for'];
+  const realIp = req.headers['x-real-ip'];
+  
+  res.json({ 
+    ok: true, 
+    ip: ip,
+    forwarded: forwarded,
+    realIp: realIp,
+    headers: {
+      'x-forwarded-for': req.headers['x-forwarded-for'],
+      'x-real-ip': req.headers['x-real-ip'],
+      'x-client-ip': req.headers['x-client-ip'],
+      'cf-connecting-ip': req.headers['cf-connecting-ip']
+    }
+  });
 });
 
 // Test email configuration
