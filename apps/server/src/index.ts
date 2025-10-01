@@ -902,7 +902,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.8" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.9" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -914,6 +914,37 @@ app.get("/debug/schema", async (_req, res) => {
       ORDER BY ordinal_position;
     `;
     res.json({ ok: true, schema: result });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Debug endpoint to check migration status
+app.get("/debug/migrations", async (_req, res) => {
+  try {
+    const result = await prisma.$queryRaw`
+      SELECT * FROM _prisma_migrations 
+      ORDER BY finished_at DESC 
+      LIMIT 10;
+    `;
+    res.json({ ok: true, migrations: result });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Emergency endpoint to resolve failed migrations
+app.post("/debug/resolve-migration", async (_req, res) => {
+  try {
+    // Mark the failed migration as resolved
+    await prisma.$executeRaw`
+      UPDATE _prisma_migrations 
+      SET finished_at = NOW(), 
+          logs = 'Resolved manually via debug endpoint'
+      WHERE migration_name = '20251001105500_add_city_country_payment_to_scheduled_games' 
+      AND finished_at IS NULL;
+    `;
+    res.json({ ok: true, message: 'Migration marked as resolved' });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
