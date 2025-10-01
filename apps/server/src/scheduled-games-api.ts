@@ -778,3 +778,164 @@ function generateOutlookCalendarURL(eventData: any): string {
 function formatDateForURL(date: Date): string {
   return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 }
+
+// ===== PUBLIC GAMES API =====
+
+export async function getPublicGames(req: Request, res: Response) {
+  try {
+    const { page = 1, limit = 20, upcoming = 'true' } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+    
+    const whereClause: any = {
+      isPublic: true,
+      status: { notIn: ['CANCELLED', 'COMPLETED'] }
+    };
+
+    if (upcoming === 'true') {
+      whereClause.scheduledDate = { gte: new Date() };
+    }
+
+    const [games, total] = await Promise.all([
+      prisma.scheduledGame.findMany({
+        where: whereClause,
+        include: {
+          player1: {
+            select: {
+              id: true,
+              name: true,
+              username: true,
+              avatarUrl: true
+            }
+          },
+          mission: {
+            select: {
+              id: true,
+              name: true,
+              description: true
+            }
+          },
+          gameRegistrations: {
+            where: { status: 'APPROVED' },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  username: true,
+                  avatarUrl: true
+                }
+              }
+            }
+          },
+          _count: {
+            select: {
+              gameRegistrations: true
+            }
+          }
+        },
+        orderBy: { scheduledDate: 'asc' },
+        skip,
+        take: Number(limit)
+      }),
+      prisma.scheduledGame.count({
+        where: whereClause
+      })
+    ]);
+
+    res.json({
+      ok: true,
+      games,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching public games:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to fetch public games' 
+    });
+  }
+}
+
+export async function createPublicGame(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const {
+      missionId,
+      scheduledDate,
+      location,
+      address,
+      notes,
+      skillLevel,
+      isPaid,
+      totalCost,
+      currency
+    } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!scheduledDate || !location) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Scheduled date and location are required' 
+      });
+    }
+
+    const gameData: any = {
+      player1Id: userId,
+      scheduledDate: new Date(scheduledDate),
+      location,
+      isPublic: true,
+      maxPlayers: 2 // Default for now
+    };
+
+    if (address) gameData.address = address;
+    if (notes) gameData.notes = notes;
+    if (missionId) gameData.missionId = missionId;
+    if (skillLevel) gameData.skillLevel = skillLevel;
+    if (isPaid !== undefined) gameData.isPaid = isPaid;
+    if (totalCost !== undefined) gameData.totalCost = parseFloat(totalCost);
+    if (currency) gameData.currency = currency;
+
+    const game = await prisma.scheduledGame.create({
+      data: gameData,
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    res.status(201).json({
+      ok: true,
+      game
+    });
+  } catch (error) {
+    console.error('Error creating public game:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to create public game' 
+    });
+  }
+}

@@ -83,7 +83,7 @@ const ChallengeSystem: React.FC = () => {
     if (!user) return;
     
     try {
-      const response = await fetch(api('/api/v2/challenges/available-players'), {
+      const response = await fetch(api('/api/v2/players/available'), {
         credentials: 'include'
       });
       

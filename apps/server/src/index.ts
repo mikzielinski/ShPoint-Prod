@@ -82,9 +82,11 @@ import {
   getScheduledGames, 
   createScheduledGame, 
   updateScheduledGame, 
-  addGameReminder, 
-  removeGameReminder, 
-  generateCalendarEvent 
+  addGameReminder,
+  removeGameReminder,
+  generateCalendarEvent,
+  getPublicGames,
+  createPublicGame
 } from "./scheduled-games-api.js";
 import { 
   getGameResults, 
@@ -6030,6 +6032,10 @@ app.put("/api/v2/scheduled-games/:id", ensureAuth, addUserToRequest, updateSched
 app.post("/api/v2/scheduled-games/:id/reminders", ensureAuth, addUserToRequest, addGameReminder);
 app.delete("/api/v2/scheduled-games/:id/reminders/:reminderId", ensureAuth, addUserToRequest, removeGameReminder);
 app.get("/api/v2/scheduled-games/:id/calendar", ensureAuth, addUserToRequest, generateCalendarEvent);
+
+// ===== PUBLIC GAMES API =====
+app.get("/api/v2/public-games", getPublicGames);
+app.post("/api/v2/public-games", ensureAuth, addUserToRequest, createPublicGame);
 
 // ===== GAME RESULTS API =====
 app.get("/api/v2/game-results", authenticateUserOrToken, requireScope(['read:game-results']), getGameResults);
