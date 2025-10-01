@@ -72,7 +72,7 @@ export default function UserProfile({ onClose }: UserProfileProps) {
       border: '1px solid #374151', 
       borderRadius: '8px', 
       padding: '20px',
-      maxWidth: '600px',
+      maxWidth: '1200px',
       margin: '0 auto'
     }}>
       <div className="user-profile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
