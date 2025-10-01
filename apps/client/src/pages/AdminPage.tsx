@@ -519,7 +519,7 @@ export default function AdminPage() {
   );
 
   return (
-    <main className="admin-page">
+    <main className="admin-page" style={{ background: '#0b1220', minHeight: '100vh', color: '#e5e7eb' }}>
       <header className="page-head">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
           <ShPointLogo size={40} showText={false} />

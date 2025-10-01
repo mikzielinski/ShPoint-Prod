@@ -70,17 +70,27 @@ export default function ApiTokenManager({ onClose }: ApiTokenManagerProps) {
         return;
       }
 
+      const payload: any = {
+        name: newToken.name.trim(),
+        scopes: newToken.scopes || []
+      };
+
+      if (newToken.expiresInDays && newToken.expiresInDays.trim()) {
+        const days = parseInt(newToken.expiresInDays);
+        if (!isNaN(days) && days > 0) {
+          payload.expiresInDays = days;
+        }
+      }
+
+      console.log('Creating token with payload:', payload);
+
       const response = await fetch(api('/api/v2/api-tokens'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify({
-          name: newToken.name.trim(),
-          expiresInDays: newToken.expiresInDays ? parseInt(newToken.expiresInDays) : null,
-          scopes: newToken.scopes
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
