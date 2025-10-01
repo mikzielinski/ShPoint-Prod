@@ -505,7 +505,7 @@ app.use('/sets', express.static(setsPath));
 app.use(session({
     secret: SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // Allow saving uninitialized sessions for Passport
     cookie: {
       httpOnly: true,
       sameSite: "none", // Cross-origin (Netlify -> Render)
@@ -561,12 +561,23 @@ app.use(passport.session());
 app.use(authenticateBearerToken);
 
 // w sesji trzymaj tylko id
-passport.serializeUser((user: any, done) => done(null, { id: user.id }));
+passport.serializeUser((user: any, done) => {
+  console.log('🔍 passport.serializeUser called with user:', user ? `${user.email} (${user.id})` : 'null');
+  done(null, { id: user.id });
+});
 passport.deserializeUser(async (obj: any, done) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: obj?.id } });
+    console.log('🔍 passport.deserializeUser called with obj:', obj);
+    if (!obj?.id) {
+      console.log('🔍 No user ID in session object, returning false');
+      return done(null, false);
+    }
+    
+    const user = await prisma.user.findUnique({ where: { id: obj.id } });
+    console.log('🔍 Deserialized user:', user ? `${user.email} (${user.id})` : 'null');
     done(null, user || false);
   } catch (e) {
+    console.error('🔍 passport.deserializeUser error:', e);
     done(e as any);
   }
 });
@@ -707,7 +718,16 @@ function ensureAuth(req: Request, res: Response, next: NextFunction) {
   console.log('🔍 ensureAuth - req.session:', req.session?.id);
   // @ts-ignore
   console.log('🔍 ensureAuth - req.session.passport:', (req.session as any)?.passport);
+  // @ts-ignore
+  console.log('🔍 ensureAuth - req.session keys:', Object.keys(req.session || {}));
   console.log('🔍 ensureAuth - cookies:', req.headers.cookie);
+  
+  // Debug Passport deserialization
+  if ((req.session as any)?.passport?.user) {
+    console.log('🔍 Passport user ID in session:', (req.session as any).passport.user.id);
+  } else {
+    console.log('🔍 No Passport user in session - deserialization may have failed');
+  }
   
   // @ts-ignore
   if (req.user) {
@@ -881,7 +901,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.4" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.5" }));
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {
