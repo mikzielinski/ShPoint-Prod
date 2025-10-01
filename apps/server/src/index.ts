@@ -929,7 +929,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.11" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.12" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -1113,6 +1113,41 @@ app.get("/debug/missions", async (_req, res) => {
       }
     });
     res.json({ ok: true, missions });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Debug endpoint to seed missions in database
+app.post("/debug/seed-missions", async (_req, res) => {
+  try {
+    const missions = [
+      { id: 'any', name: 'Any Mission', source: 'official', description: 'Player preference' },
+      { id: 'sabotage-showdown', name: 'Sabotage Showdown', source: 'official', description: 'Core mission pack' },
+      { id: 'shifting-priorities', name: 'Shifting Priorities', source: 'official', description: 'Core mission pack' },
+      { id: 'first-contact', name: 'First Contact', source: 'official', description: 'Core mission pack' },
+      { id: 'never-tell-me-the-odds', name: 'Never Tell Me the Odds', source: 'official', description: 'Core mission pack' }
+    ];
+
+    const createdMissions = [];
+    for (const mission of missions) {
+      try {
+        const created = await prisma.mission.upsert({
+          where: { id: mission.id },
+          update: mission,
+          create: {
+            ...mission,
+            mapSizeInch: 3, // Default map size
+            mapUnit: 'inch'
+          }
+        });
+        createdMissions.push(created);
+      } catch (error) {
+        console.error(`Error creating mission ${mission.id}:`, error);
+      }
+    }
+
+    res.json({ ok: true, created: createdMissions.length, missions: createdMissions });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
