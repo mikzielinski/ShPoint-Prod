@@ -241,11 +241,11 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
   skip: (req) => {
     // Skip for public endpoints
-    if (req.path === '/api/missions' || req.path === '/health' || req.path === '/unban' || req.path === '/debug/my-ip') {
+    if (req.path === '/api/missions' || req.path === '/backend-api/missions' || req.path === '/health' || req.path === '/unban' || req.path === '/debug/my-ip') {
       return true;
     }
     // Skip for admin endpoints (admin users should not be rate limited)
-    if (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests')) {
+    if (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests') || req.path.startsWith('/backend-api/admin/') || req.path.startsWith('/backend-api/v2/access-requests')) {
       return true;
     }
     // Skip for authenticated user endpoints (users should not be rate limited on their own data)

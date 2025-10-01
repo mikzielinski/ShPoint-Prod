@@ -102,31 +102,40 @@ const GameScheduler: React.FC = () => {
   };
 
   const loadMissions = async () => {
+    console.log('🔄 GameScheduler: Loading missions...');
     try {
-      const response = await fetch(api('/api/missions'), {
+      const url = api('/api/missions');
+      console.log('🔄 GameScheduler: API URL:', url);
+      const response = await fetch(url, {
         credentials: 'include'
       });
       
+      console.log('🔄 GameScheduler: Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('🔄 GameScheduler: Response data:', data);
         if (data.ok) {
           setMissions(data.missions || []);
-          console.log('Loaded missions:', data.missions);
+          console.log('✅ GameScheduler: Loaded missions:', data.missions);
         } else {
-          console.error('Failed to load missions:', data);
+          console.error('❌ GameScheduler: Failed to load missions:', data);
         }
       } else {
-        console.error('Missions API error:', response.status, response.statusText);
+        console.error('❌ GameScheduler: Missions API error:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error loading missions:', error);
+      console.error('❌ GameScheduler: Error loading missions:', error);
     }
   };
 
   useEffect(() => {
+    console.log('🔄 GameScheduler: useEffect triggered, user:', user ? user.email : 'null');
     if (user) {
+      console.log('🔄 GameScheduler: User authenticated, loading games and missions...');
       loadGames();
       loadMissions();
+    } else {
+      console.log('🔄 GameScheduler: No user, skipping API calls');
     }
   }, [user]);
 
