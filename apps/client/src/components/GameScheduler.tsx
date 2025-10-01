@@ -58,7 +58,8 @@ const GameScheduler: React.FC = () => {
     location: '',
     address: '',
     notes: '',
-    maxPlayers: 2
+    maxPlayers: 2,
+    skillLevel: 'INTERMEDIATE'
   });
 
   const loadGames = async () => {
@@ -91,7 +92,12 @@ const GameScheduler: React.FC = () => {
         const data = await response.json();
         if (data.ok) {
           setMissions(data.missions || []);
+          console.log('Loaded missions:', data.missions);
+        } else {
+          console.error('Failed to load missions:', data);
         }
+      } else {
+        console.error('Missions API error:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error loading missions:', error);
@@ -124,7 +130,8 @@ const GameScheduler: React.FC = () => {
             location: '',
             address: '',
             notes: '',
-            maxPlayers: 2
+            maxPlayers: 2,
+            skillLevel: 'INTERMEDIATE'
           });
           loadGames();
         }
@@ -327,6 +334,30 @@ const GameScheduler: React.FC = () => {
                 fontSize: '14px'
               }}
             />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+              Skill Level
+            </label>
+            <select
+              value={newGame.skillLevel}
+              onChange={(e) => setNewGame({...newGame, skillLevel: e.target.value})}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                background: '#1f2937',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+            >
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="ADVANCED">Advanced</option>
+              <option value="PRO">Pro</option>
+            </select>
           </div>
 
           <div style={{ marginBottom: '16px' }}>

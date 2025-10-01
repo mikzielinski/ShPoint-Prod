@@ -78,16 +78,16 @@ export default function NavBar() {
             Library
           </NavLink>
           <NavLink
-            to="/play"
-            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
-          >
-            Play
-          </NavLink>
-          <NavLink
             to="/strike-teams"
             className={({ isActive }) => cx("nb-link", isActive && "is-active")}
           >
             Strike Teams
+          </NavLink>
+          <NavLink
+            to="/play"
+            className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+          >
+            Play
           </NavLink>
           <NavLink
             to="/faq"
@@ -197,11 +197,11 @@ export default function NavBar() {
         <NavLink to="/library" className="nb-drawer-link">
           Library
         </NavLink>
-        <NavLink to="/play" className="nb-drawer-link">
-          Play
-        </NavLink>
         <NavLink to="/strike-teams" className="nb-drawer-link">
           Strike Teams
+        </NavLink>
+        <NavLink to="/play" className="nb-drawer-link">
+          Play
         </NavLink>
         <NavLink to="/faq" className="nb-drawer-link">
           FAQ
