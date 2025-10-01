@@ -240,6 +240,10 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
+    // Skip for public endpoints
+    if (req.path === '/api/missions' || req.path === '/health') {
+      return true;
+    }
     // @ts-ignore
     return req.user && req.user.isTrusted;
   }
@@ -877,7 +881,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.2" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.3.3" }));
 
 // Test email configuration
 app.get("/api/test-email", ensureAuth, async (req, res) => {
@@ -3737,14 +3741,7 @@ app.get("/api/shatterpoint/strike-teams/public", async (req, res) => {
 
 // ===== MISSION COLLECTION ENDPOINTS =====
 
-// Special high rate limit for missions endpoint (used by multiple components)
-app.use('/api/missions', rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10000, // Very high limit
-  message: { ok: false, error: 'Too many requests' }
-}));
-
-// GET /api/missions — get list of all available missions (public)
+// GET /api/missions — get list of all available missions (public, no rate limit)
 app.get("/api/missions", async (req, res) => {
   try {
     // Basic mission list for game scheduling
