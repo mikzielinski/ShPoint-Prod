@@ -809,12 +809,12 @@ model Challenge {
 
 model ScheduledGame {
   id              String        @id @default(cuid())
-  challengeId     String        @unique
-  challenge       Challenge     @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId     String?       @unique
+  challenge       Challenge?    @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   player1Id       String
   player1         User          @relation("ScheduledGamePlayer1", fields: [player1Id], references: [id], onDelete: Cascade)
-  player2Id       String
-  player2         User          @relation("ScheduledGamePlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
+  player2Id       String?
+  player2         User?         @relation("ScheduledGamePlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
   status          GameStatus    @default(SCHEDULED)
   scheduledDate   DateTime
   location        String?
