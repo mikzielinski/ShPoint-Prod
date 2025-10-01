@@ -351,22 +351,31 @@ const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen
 const IP_THRESHOLD = 5000; // Extremely high threshold for development/deployment
 const IP_BAN_DURATION = 1 * 60 * 1000; // Reduced to 1 minute
 
-const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
+const ddosDetection = async (req: Request, res: Response, next: NextFunction) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
   const now = new Date();
   
-  // Whitelist for trusted IPs (optional - add your office/home IPs here)
-  const trustedIPs = [
-    '127.0.0.1',
-    '::1',
-    '89.151.22.52', // User's IP - added to prevent accidental bans
-    '172.71.150.50', // User's current IP from logs
-    '172.71.151.92', // User's previous IP from logs
-    '172.69.214.80', // User's latest IP from logs
-    // Add your trusted IPs here if needed
-    // '192.168.1.100',
-    // '10.0.0.50'
-  ];
+  // Get trusted IPs from database
+  let trustedIPs: string[] = ['127.0.0.1', '::1']; // Always trusted
+  
+  try {
+    const dbTrustedIPs = await prisma.trustedIP.findMany({
+      where: { isActive: true },
+      select: { ip: true }
+    });
+    trustedIPs = [...trustedIPs, ...dbTrustedIPs.map(t => t.ip)];
+  } catch (error) {
+    console.warn('⚠️ Failed to load trusted IPs from database, using fallback list:', error.message);
+    // Fallback to hardcoded list if database fails
+    trustedIPs = [
+      ...trustedIPs,
+      '89.151.22.52', // User's IP - added to prevent accidental bans
+      '172.71.150.50', // User's current IP from logs
+      '172.71.151.92', // User's previous IP from logs
+      '172.69.214.80', // User's latest IP from logs
+      '172.71.151.7', // User's newest IP from logs
+    ];
+  }
   
   // Check if user is trusted (bypasses DDoS detection)
   // @ts-ignore
@@ -912,7 +921,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.4" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.6" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -990,6 +999,72 @@ app.get("/debug/google-oauth", (req, res) => {
     expectedCallbackUrl: 'https://shpoint.netlify.app/backend-auth/google/callback',
     directCallbackUrl: 'https://shpoint-prod.onrender.com/auth/google/callback'
   });
+});
+
+// Debug endpoint to check allowed emails
+app.get("/debug/allowed-emails", async (req, res) => {
+  try {
+    const allowedEmails = await prisma.allowedEmail.findMany({
+      where: { isActive: true },
+      select: { email: true, createdAt: true }
+    });
+    res.json({
+      ok: true,
+      count: allowedEmails.length,
+      emails: allowedEmails
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Debug endpoint to check trusted IPs
+app.get("/debug/trusted-ips", async (req, res) => {
+  try {
+    const trustedIPs = await prisma.trustedIP.findMany({
+      where: { isActive: true },
+      select: { ip: true, description: true, createdAt: true }
+    });
+    res.json({
+      ok: true,
+      count: trustedIPs.length,
+      ips: trustedIPs
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Endpoint to add trusted IP (admin only)
+app.post("/debug/add-trusted-ip", ensureAuth, async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    const { ip, description } = req.body;
+
+    if (!userId || !ip) {
+      return res.status(400).json({ ok: false, error: 'User ID and IP are required' });
+    }
+
+    const trustedIP = await prisma.trustedIP.create({
+      data: {
+        ip: ip.trim(),
+        description: description || `Added by user ${userId}`,
+        createdBy: userId
+      }
+    });
+
+    res.json({
+      ok: true,
+      message: 'Trusted IP added successfully',
+      trustedIP
+    });
+  } catch (error) {
+    if (error.code === 'P2002') {
+      res.status(400).json({ ok: false, error: 'IP already exists in trusted list' });
+    } else {
+      res.status(500).json({ ok: false, error: error.message });
+    }
+  }
 });
 
 // Test email configuration

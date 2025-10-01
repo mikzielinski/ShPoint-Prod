@@ -77,6 +77,7 @@ model User {
   accessRequestsReviewed AccessRequest[] @relation("AccessRequestReviewedBy")
   invitationsSentRel UserInvitation[] @relation("UserInvitations")
   invitedByRel UserInvitation? @relation("UserInvitedBy")
+  trustedIPsCreated TrustedIP[] @relation("TrustedIPCreatedBy")
 
   @@index([createdAt])
   @@index([email])
@@ -142,6 +143,20 @@ model AllowedEmail {
   @@index([invitedBy])
   @@index([usedAt])
   @@index([expiresAt])
+}
+
+model TrustedIP {
+  id          String   @id @default(cuid())
+  ip          String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  createdByUser User?  @relation("TrustedIPCreatedBy", fields: [createdBy], references: [id])
+
+  @@index([ip])
+  @@index([isActive])
+  @@index([createdBy])
 }
 
 model SystemSettings {
