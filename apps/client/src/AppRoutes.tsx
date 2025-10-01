@@ -93,10 +93,16 @@ function CharactersPage() {
     let alive = true;
     (async () => {
       try {
+        console.log('🔍 Fetching characters from:', api("/api/characters"));
         const res = await fetch(api("/api/characters"), { credentials: "include" });
+        console.log('📊 Characters response status:', res.status);
         const json = (await res.json()) as ApiList;
+        console.log('📊 Characters data:', { ok: json.ok, itemsCount: json.items?.length, total: json.total });
         if (alive) setData(json.items ?? []);
-      } catch { if (alive) setData([]); }
+      } catch (error) { 
+        console.error('❌ Error loading characters:', error);
+        if (alive) setData([]); 
+      }
       finally { if (alive) setLoading(false); }
     })();
     return () => { alive = false; };
