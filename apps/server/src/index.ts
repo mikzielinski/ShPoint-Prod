@@ -235,13 +235,13 @@ const moderateLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10000, // Very generous limit for development/deployment
+  max: 50000, // Extremely generous limit for development/deployment
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
     // Skip for public endpoints
-    if (req.path === '/api/missions' || req.path === '/health' || req.path === '/unban') {
+    if (req.path === '/api/missions' || req.path === '/health' || req.path === '/unban' || req.path === '/debug/my-ip') {
       return true;
     }
     // @ts-ignore
@@ -348,8 +348,8 @@ app.use('/auth/', (req, res, next) => {
 
 // 8. DDoS Detection and Monitoring - Adjusted thresholds
 const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
-const IP_THRESHOLD = 1000; // Very high threshold for development/deployment
-const IP_BAN_DURATION = 5 * 60 * 1000; // Reduced to 5 minutes
+const IP_THRESHOLD = 5000; // Extremely high threshold for development/deployment
+const IP_BAN_DURATION = 1 * 60 * 1000; // Reduced to 1 minute
 
 const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
@@ -360,6 +360,8 @@ const ddosDetection = (req: Request, res: Response, next: NextFunction) => {
     '127.0.0.1',
     '::1',
     '89.151.22.52', // User's IP - added to prevent accidental bans
+    '172.71.150.50', // User's current IP from logs
+    '172.71.151.92', // User's previous IP from logs
     // Add your trusted IPs here if needed
     // '192.168.1.100',
     // '10.0.0.50'
@@ -909,7 +911,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.2" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.3" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
