@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
+import { useMissions } from '../contexts/MissionsContext';
 
 interface PublicGame {
   id: string;
@@ -55,7 +56,7 @@ const GameScheduler: React.FC = () => {
   const user = auth.status === 'authenticated' ? auth.user : null;
   
   const [games, setGames] = useState<PublicGame[]>([]);
-  const [missions, setMissions] = useState<Mission[]>([]);
+  const { missions, loading: missionsLoading, error: missionsError } = useMissions();
   const [loading, setLoading] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filters, setFilters] = useState({
@@ -101,39 +102,12 @@ const GameScheduler: React.FC = () => {
     }
   };
 
-  const loadMissions = async () => {
-    console.log('🔄 GameScheduler: Loading missions...');
-    try {
-      const url = api('/api/missions');
-      console.log('🔄 GameScheduler: API URL:', url);
-      const response = await fetch(url, {
-        credentials: 'include'
-      });
-      
-      console.log('🔄 GameScheduler: Response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🔄 GameScheduler: Response data:', data);
-        if (data.ok) {
-          setMissions(data.missions || []);
-          console.log('✅ GameScheduler: Loaded missions:', data.missions);
-        } else {
-          console.error('❌ GameScheduler: Failed to load missions:', data);
-        }
-      } else {
-        console.error('❌ GameScheduler: Missions API error:', response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error('❌ GameScheduler: Error loading missions:', error);
-    }
-  };
 
   useEffect(() => {
     console.log('🔄 GameScheduler: useEffect triggered, user:', user ? user.email : 'null');
     if (user) {
-      console.log('🔄 GameScheduler: User authenticated, loading games and missions...');
+      console.log('🔄 GameScheduler: User authenticated, loading games...');
       loadGames();
-      loadMissions();
     } else {
       console.log('🔄 GameScheduler: No user, skipping API calls');
     }

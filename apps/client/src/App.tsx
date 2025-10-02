@@ -18,6 +18,7 @@ import { StanceEditor } from "./components/editors/StanceEditor";
 
 import RequireAuth from "./routers/RequireAuth";
 import { useAuth } from "./auth/AuthContext";
+import { MissionsProvider } from "./contexts/MissionsContext";
 import GlyphSpriteFull from "./components/icons/GlyphSpriteFull";
 
 /* ===== helpers ===== */
@@ -407,7 +408,7 @@ function LogoutScreen() {
 /* ===== Główne Routes ===== */
 export default function App() {
   return (
-    <>
+    <MissionsProvider>
       <NavBar />
       {/* sprite glifów (musi być raz w DOM – Safari) */}
       <GlyphSpriteFull />
@@ -477,6 +478,6 @@ export default function App() {
         <Route path="/logout" element={<LogoutScreen />} />
         <Route path="*" element={<Navigate to="/builder" replace />} />
       </Routes>
-    </>
+    </MissionsProvider>
   );
 }

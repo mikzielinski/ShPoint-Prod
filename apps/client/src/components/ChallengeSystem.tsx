@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
+import { useMissions } from '../contexts/MissionsContext';
 
 interface Challenge {
   id: string;
@@ -49,11 +50,7 @@ const ChallengeSystem: React.FC = () => {
     name: string;
     description?: string;
   }>>([]);
-  const [missions, setMissions] = useState<Array<{
-    id: string;
-    name: string;
-    description?: string;
-  }>>([]);
+  const { missions, loading: missionsLoading, error: missionsError } = useMissions();
 
   const loadChallenges = async () => {
     if (!user) return;
@@ -115,32 +112,6 @@ const ChallengeSystem: React.FC = () => {
     }
   };
 
-  const loadMissions = async () => {
-    console.log('🔄 ChallengeSystem: Loading missions...');
-    try {
-      const url = api('/api/missions');
-      console.log('🔄 ChallengeSystem: API URL:', url);
-      const response = await fetch(url, {
-        credentials: 'include'
-      });
-      
-      console.log('🔄 ChallengeSystem: Response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🔄 ChallengeSystem: Response data:', data);
-        if (data.ok) {
-          setMissions(data.missions || []);
-          console.log('✅ ChallengeSystem: Loaded missions:', data.missions);
-        } else {
-          console.error('❌ ChallengeSystem: Failed to load missions:', data);
-        }
-      } else {
-        console.error('❌ ChallengeSystem: Missions API error:', response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error('❌ ChallengeSystem: Error loading missions:', error);
-    }
-  };
 
   useEffect(() => {
     console.log('🔄 ChallengeSystem: useEffect triggered, user:', user ? user.email : 'null');
@@ -149,7 +120,6 @@ const ChallengeSystem: React.FC = () => {
       loadChallenges();
       loadAvailableUsers();
       loadStrikeTeams();
-      loadMissions();
     } else {
       console.log('🔄 ChallengeSystem: No user, skipping API calls');
     }
