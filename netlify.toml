@@ -6,14 +6,8 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Disable all Netlify rate limiting
-[functions]
-  # Disable function rate limiting
-  rate_limit = 0
-  
-# Disable edge functions rate limiting
-[edge_functions]
-  rate_limit = 0
+# Note: Netlify rate limiting cannot be disabled via configuration
+# We'll use headers to try to override the limits
 
 # Disable Netlify's rate limiting for API calls
 [[headers]]
