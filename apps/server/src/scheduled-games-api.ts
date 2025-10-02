@@ -955,3 +955,107 @@ export async function createPublicGame(req: Request, res: Response) {
     });
   }
 }
+
+export async function registerForPublicGame(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const gameId = req.params.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    console.log('🔄 registerForPublicGame: User', userId, 'registering for game', gameId);
+
+    // Check if game exists and is public
+    const game = await prisma.scheduledGame.findUnique({
+      where: { id: gameId },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        }
+      }
+    });
+
+    if (!game) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game not found' 
+      });
+    }
+
+    if (game.gameType !== 'PUBLIC') {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'This is not a public game' 
+      });
+    }
+
+    // Check if user is already registered
+    const existingRegistration = await prisma.gameRegistration.findFirst({
+      where: {
+        gameId: gameId,
+        userId: userId
+      }
+    });
+
+    if (existingRegistration) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'You are already registered for this game' 
+      });
+    }
+
+    // Create registration
+    const registration = await prisma.gameRegistration.create({
+      data: {
+        gameId: gameId,
+        userId: userId,
+        status: 'PENDING' // Needs approval from game creator
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        }
+      }
+    });
+
+    // Send notification to game creator
+    await createInboxMessage({
+      recipientId: game.player1Id,
+      senderId: userId,
+      subject: 'New Game Registration',
+      message: `A player has registered for your public game. Please review and approve/reject the registration.`,
+      type: 'GAME_REGISTRATION',
+      relatedGameId: gameId,
+      relatedUserId: userId
+    });
+
+    console.log('✅ registerForPublicGame: Created registration:', registration.id);
+
+    res.json({
+      ok: true,
+      registration,
+      message: 'Registration submitted successfully. Waiting for approval from game creator.'
+    });
+  } catch (error) {
+    console.error('❌ registerForPublicGame: Error registering for game:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to register for game' 
+    });
+  }
+}

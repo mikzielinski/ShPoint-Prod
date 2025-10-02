@@ -86,7 +86,8 @@ import {
   removeGameReminder,
   generateCalendarEvent,
   getPublicGames,
-  createPublicGame
+  createPublicGame,
+  registerForPublicGame
 } from "./scheduled-games-api.js";
 import { 
   getGameResults, 
@@ -955,7 +956,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.25" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.26" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
@@ -6406,6 +6407,7 @@ app.get("/api/v2/scheduled-games/:id/calendar", ensureAuth, addUserToRequest, ge
 // ===== PUBLIC GAMES API =====
 app.get("/api/v2/public-games", getPublicGames);
 app.post("/api/v2/public-games", ensureAuth, addUserToRequest, createPublicGame);
+app.post("/api/v2/public-games/:id/register", ensureAuth, addUserToRequest, registerForPublicGame);
 
 // ===== GAME RESULTS API =====
 app.get("/api/v2/game-results", authenticateUserOrToken, requireScope(['read:game-results']), getGameResults);
