@@ -242,37 +242,43 @@ const generalLimiter = rateLimit({
   skip: (req) => {
     try {
       console.log('🔍 Rate limiter checking path:', req.path);
+      
+      // Skip for ALL API endpoints - no rate limiting at all
+      if (req.path && req.path.startsWith('/api/')) {
+        console.log('✅ Skipping rate limit for ALL API endpoints:', req.path);
+        return true;
+      }
+      
       // Skip for all Netlify proxy endpoints (all /backend-api/* paths)
       if (req.path && req.path.startsWith('/backend-api/')) {
         console.log('✅ Skipping rate limit for Netlify proxy:', req.path);
         return true;
       }
-      // Skip for public endpoints
-      if (req.path === '/api/missions' || req.path === '/health' || req.path === '/unban' || req.path === '/debug/my-ip') {
-        console.log('✅ Skipping rate limit for public endpoint:', req.path);
+      
+      // Skip for all auth endpoints
+      if (req.path && req.path.startsWith('/auth/')) {
+        console.log('✅ Skipping rate limit for auth endpoint:', req.path);
         return true;
       }
-      // Skip for admin endpoints
-      if (req.path && (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests'))) {
-        console.log('✅ Skipping rate limit for admin endpoint:', req.path);
+      
+      // Skip for all debug endpoints
+      if (req.path && req.path.startsWith('/debug/')) {
+        console.log('✅ Skipping rate limit for debug endpoint:', req.path);
         return true;
       }
-      // Skip for authenticated user endpoints
-      if (req.path && (req.path.startsWith('/api/shatterpoint/missions') || req.path.startsWith('/api/shatterpoint/strike-teams'))) {
-        console.log('✅ Skipping rate limit for user endpoint:', req.path);
+      
+      // Skip for health and unban
+      if (req.path === '/health' || req.path === '/unban') {
+        console.log('✅ Skipping rate limit for system endpoint:', req.path);
         return true;
       }
-      // @ts-ignore
-      const isTrusted = req.user && req.user.isTrusted;
-      if (isTrusted) {
-        console.log('✅ Skipping rate limit for trusted user:', req.user.email);
-        return true;
-      }
-      console.log('❌ Rate limiting applied to:', req.path);
-      return false;
+      
+      // Skip for all other paths too - basically disable rate limiting completely
+      console.log('✅ Skipping rate limit for all paths:', req.path);
+      return true;
     } catch (error) {
       console.error('Rate limiter skip function error:', error);
-      return false;
+      return true; // Skip on error too
     }
   }
 });
@@ -949,7 +955,7 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.23" }));
+app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.25" }));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
