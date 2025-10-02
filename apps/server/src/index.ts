@@ -241,24 +241,35 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
   skip: (req) => {
     try {
+      console.log('🔍 Rate limiter checking path:', req.path);
       // Skip for all Netlify proxy endpoints (all /backend-api/* paths)
       if (req.path && req.path.startsWith('/backend-api/')) {
+        console.log('✅ Skipping rate limit for Netlify proxy:', req.path);
         return true;
       }
       // Skip for public endpoints
       if (req.path === '/api/missions' || req.path === '/health' || req.path === '/unban' || req.path === '/debug/my-ip') {
+        console.log('✅ Skipping rate limit for public endpoint:', req.path);
         return true;
       }
       // Skip for admin endpoints
       if (req.path && (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests'))) {
+        console.log('✅ Skipping rate limit for admin endpoint:', req.path);
         return true;
       }
       // Skip for authenticated user endpoints
       if (req.path && (req.path.startsWith('/api/shatterpoint/missions') || req.path.startsWith('/api/shatterpoint/strike-teams'))) {
+        console.log('✅ Skipping rate limit for user endpoint:', req.path);
         return true;
       }
       // @ts-ignore
-      return req.user && req.user.isTrusted;
+      const isTrusted = req.user && req.user.isTrusted;
+      if (isTrusted) {
+        console.log('✅ Skipping rate limit for trusted user:', req.user.email);
+        return true;
+      }
+      console.log('❌ Rate limiting applied to:', req.path);
+      return false;
     } catch (error) {
       console.error('Rate limiter skip function error:', error);
       return false;
