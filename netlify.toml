@@ -6,12 +6,44 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Disable all Netlify rate limiting
+[functions]
+  # Disable function rate limiting
+  rate_limit = 0
+  
+# Disable edge functions rate limiting
+[edge_functions]
+  rate_limit = 0
+
 # Disable Netlify's rate limiting for API calls
 [[headers]]
   for = "/backend-api/*"
   [headers.values]
-    X-RateLimit-Limit = "10000"
-    X-RateLimit-Window = "900"
+    X-RateLimit-Limit = "999999"
+    X-RateLimit-Window = "1"
+    X-RateLimit-Remaining = "999999"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# Disable rate limiting for all API paths
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    X-RateLimit-Limit = "999999"
+    X-RateLimit-Window = "1"
+    X-RateLimit-Remaining = "999999"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# Disable rate limiting for auth paths
+[[headers]]
+  for = "/auth/*"
+  [headers.values]
+    X-RateLimit-Limit = "999999"
+    X-RateLimit-Window = "1"
+    X-RateLimit-Remaining = "999999"
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
