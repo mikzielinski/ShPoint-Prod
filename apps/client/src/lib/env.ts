@@ -24,10 +24,10 @@ export const API_BASE: string = (() => {
     return ""; // Względne ścieżki - proxy na Netlify
   }
   
-  // WYMUSZENIE względnych ścieżek dla Netlify (tymczasowe)
+  // WYMUSZENIE bezpośrednich URL do backend (bypass Netlify rate limiting)
   if (typeof window !== "undefined" && window.location.hostname.includes('netlify.app')) {
-    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.3.5 - FORCE DEPLOY');
-    return "";
+    console.log('🔍 Netlify detected: using direct backend URLs to bypass rate limiting');
+    return "https://shpoint-prod.onrender.com";
   }
 
   const raw = viteApiBase ?? viteServerUrl ?? windowApiBase ?? "https://shpoint-prod.onrender.com"; // domyślnie backend prod
@@ -49,6 +49,13 @@ export const API_BASE: string = (() => {
 // Helper do budowania ścieżek: api("/auth/status") -> "http://.../auth/status"
 export function api(path = ""): string {
   const p = String(path || "");
+  
+  // Jeśli używamy bezpośrednich URL (API_BASE nie jest pusty), nie transformuj ścieżek
+  if (API_BASE !== "") {
+    const fullUrl = `${API_BASE}${p.startsWith("/") ? "" : "/"}${p}`;
+    console.log('🔍 api() called with path:', path, '-> direct URL:', fullUrl);
+    return fullUrl;
+  }
   
   // Jeśli to API path, zamień /api/ na /backend-api/ dla Netlify proxy
   if (p.startsWith('/api/') && API_BASE === "") {
