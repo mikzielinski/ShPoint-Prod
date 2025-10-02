@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
 import { useMissions } from '../contexts/MissionsContext';
+import { usePlayers } from '../contexts/PlayersContext';
+import { useStrikeTeams } from '../contexts/StrikeTeamsContext';
 
 interface Challenge {
   id: string;
@@ -39,17 +41,8 @@ const ChallengeSystem: React.FC = () => {
     description: '',
     challengerStrikeTeamId: ''
   });
-  const [availableUsers, setAvailableUsers] = useState<Array<{
-    id: string;
-    name: string;
-    username?: string;
-    avatarUrl?: string;
-  }>>([]);
-  const [strikeTeams, setStrikeTeams] = useState<Array<{
-    id: string;
-    name: string;
-    description?: string;
-  }>>([]);
+  const { players: availableUsers, loading: playersLoading, error: playersError } = usePlayers();
+  const { strikeTeams, loading: strikeTeamsLoading, error: strikeTeamsError } = useStrikeTeams();
   const { missions, loading: missionsLoading, error: missionsError } = useMissions();
 
   const loadChallenges = async () => {
@@ -74,52 +67,14 @@ const ChallengeSystem: React.FC = () => {
     }
   };
 
-  const loadAvailableUsers = async () => {
-    if (!user) return;
-    
-    try {
-      const response = await fetch(api('/api/v2/players/available'), {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.ok) {
-          setAvailableUsers(data.players || []);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading available users:', error);
-    }
-  };
 
-  const loadStrikeTeams = async () => {
-    if (!user) return;
-    
-    try {
-      const response = await fetch(api('/api/shatterpoint/strike-teams'), {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.ok) {
-          setStrikeTeams(data.strikeTeams || []);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading strike teams:', error);
-    }
-  };
 
 
   useEffect(() => {
     console.log('🔄 ChallengeSystem: useEffect triggered, user:', user ? user.email : 'null');
     if (user) {
-      console.log('🔄 ChallengeSystem: User authenticated, loading data...');
+      console.log('🔄 ChallengeSystem: User authenticated, loading challenges...');
       loadChallenges();
-      loadAvailableUsers();
-      loadStrikeTeams();
     } else {
       console.log('🔄 ChallengeSystem: No user, skipping API calls');
     }

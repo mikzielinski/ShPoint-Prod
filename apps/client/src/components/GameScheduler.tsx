@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
 import { useMissions } from '../contexts/MissionsContext';
+import { usePlayers } from '../contexts/PlayersContext';
 
 interface PublicGame {
   id: string;
