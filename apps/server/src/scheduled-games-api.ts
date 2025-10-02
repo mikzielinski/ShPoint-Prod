@@ -992,7 +992,7 @@ export async function registerForPublicGame(req: Request, res: Response) {
       });
     }
 
-    if (game.gameType !== 'PUBLIC') {
+    if (!game.isPublic) {
       return res.status(400).json({ 
         ok: false, 
         error: 'This is not a public game' 
@@ -1034,15 +1034,14 @@ export async function registerForPublicGame(req: Request, res: Response) {
     });
 
     // Send notification to game creator
-    await createInboxMessage({
-      recipientId: game.player1Id,
-      senderId: userId,
-      subject: 'New Game Registration',
-      message: `A player has registered for your public game. Please review and approve/reject the registration.`,
-      type: 'GAME_REGISTRATION',
-      relatedGameId: gameId,
-      relatedUserId: userId
-    });
+    await createInboxMessage(
+      game.player1Id,
+      userId,
+      'GAME_REGISTRATION',
+      'New Game Registration',
+      `A player has registered for your public game. Please review and approve/reject the registration.`,
+      { gameId, userId }
+    );
 
     console.log('✅ registerForPublicGame: Created registration:', registration.id);
 
