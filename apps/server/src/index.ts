@@ -241,7 +241,7 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
   skip: (req) => {
     // Skip for all Netlify proxy endpoints (all /backend-api/* paths)
-    if (req.path.startsWith('/backend-api/')) {
+    if (req.path && req.path.startsWith('/backend-api/')) {
       return true;
     }
     // Skip for public endpoints
@@ -249,11 +249,11 @@ const generalLimiter = rateLimit({
       return true;
     }
     // Skip for admin endpoints
-    if (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests')) {
+    if (req.path && (req.path.startsWith('/api/admin/') || req.path.startsWith('/api/v2/access-requests'))) {
       return true;
     }
     // Skip for authenticated user endpoints
-    if (req.path.startsWith('/api/shatterpoint/missions') || req.path.startsWith('/api/shatterpoint/strike-teams')) {
+    if (req.path && (req.path.startsWith('/api/shatterpoint/missions') || req.path.startsWith('/api/shatterpoint/strike-teams'))) {
       return true;
     }
     // @ts-ignore
