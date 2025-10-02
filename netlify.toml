@@ -6,6 +6,16 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Disable Netlify's rate limiting for API calls
+[[headers]]
+  for = "/backend-api/*"
+  [headers.values]
+    X-RateLimit-Limit = "10000"
+    X-RateLimit-Window = "900"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
 [[redirects]]
   from = "/characters/*"
   to = "https://shpoint-prod.onrender.com/characters/:splat"
