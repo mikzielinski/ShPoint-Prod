@@ -1,6 +1,9 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { api, API_BASE } from "./lib/env";
+import { MissionsProvider } from "./contexts/MissionsContext";
+import { PlayersProvider } from "./contexts/PlayersContext";
+import { StrikeTeamsProvider } from "./contexts/StrikeTeamsContext";
 import HomePage from "./pages/HomePage";
 import CollectionsPage from "./pages/CollectionsPage";
 import MyCollectionPage from "./pages/MyCollectionPage";
@@ -858,9 +861,11 @@ export default function AppRoutes() {
   }, [me, refetch]);
 
   return (
-    <>
-      <NavBar />
-      <Routes>
+    <MissionsProvider>
+      <PlayersProvider>
+        <StrikeTeamsProvider>
+          <NavBar />
+          <Routes>
         <Route path="/" element={<HomePage/>}/>
         <Route path="/builder" element={
           <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
@@ -911,6 +916,8 @@ export default function AppRoutes() {
         isOpen={showInvitationModal} 
         onClose={() => setShowInvitationModal(false)} 
       />
-    </>
+        </StrikeTeamsProvider>
+      </PlayersProvider>
+    </MissionsProvider>
   );
 }

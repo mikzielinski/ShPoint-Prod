@@ -18,9 +18,6 @@ import { StanceEditor } from "./components/editors/StanceEditor";
 
 import RequireAuth from "./routers/RequireAuth";
 import { useAuth } from "./auth/AuthContext";
-import { MissionsProvider } from "./contexts/MissionsContext";
-import { PlayersProvider } from "./contexts/PlayersContext";
-import { StrikeTeamsProvider } from "./contexts/StrikeTeamsContext";
 import GlyphSpriteFull from "./components/icons/GlyphSpriteFull";
 
 /* ===== helpers ===== */
@@ -410,14 +407,12 @@ function LogoutScreen() {
 /* ===== Główne Routes ===== */
 export default function App() {
   return (
-    <MissionsProvider>
-      <PlayersProvider>
-        <StrikeTeamsProvider>
-          <NavBar />
-          {/* sprite glifów (musi być raz w DOM – Safari) */}
-          <GlyphSpriteFull />
+    <>
+      <NavBar />
+      {/* sprite glifów (musi być raz w DOM – Safari) */}
+      <GlyphSpriteFull />
 
-          <Routes>
+      <Routes>
         {/* public */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Navigate to="/builder" replace />} />
@@ -481,9 +476,7 @@ export default function App() {
 
         <Route path="/logout" element={<LogoutScreen />} />
         <Route path="*" element={<Navigate to="/builder" replace />} />
-          </Routes>
-        </StrikeTeamsProvider>
-      </PlayersProvider>
-    </MissionsProvider>
+      </Routes>
+    </>
   );
 }
