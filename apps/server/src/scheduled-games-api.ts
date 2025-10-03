@@ -6,6 +6,70 @@ const prisma = new PrismaClient();
 
 // ===== SCHEDULED GAMES API =====
 
+// GET /api/v2/scheduled-games/my-approved - get user's approved games
+export const getMyApprovedGames = async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    // Get all public game registrations where user is approved
+    const approvedRegistrations = await prisma.gameRegistration.findMany({
+      where: {
+        userId: userId,
+        status: 'APPROVED'
+      },
+      include: {
+        game: {
+          include: {
+            player1: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                avatarUrl: true
+              }
+            },
+            mission: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        game: {
+          scheduledDate: 'asc'
+        }
+      }
+    });
+
+    // Transform to game format
+    const approvedGames = approvedRegistrations.map(reg => ({
+      ...reg.game,
+      isApproved: true,
+      registrationDate: (reg as any).createdAt || new Date(),
+      registrationStatus: reg.status
+    }));
+
+    res.json({
+      ok: true,
+      games: approvedGames,
+      pagination: {
+        page: 1,
+        limit: approvedGames.length,
+        total: approvedGames.length,
+        totalPages: 1
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching approved games:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fetch approved games' });
+  }
+};
+
 export async function getScheduledGames(req: Request, res: Response) {
   try {
     const userId = (req as any).user?.id;
@@ -1033,14 +1097,54 @@ export async function registerForPublicGame(req: Request, res: Response) {
       }
     });
 
-    // Send notification to game creator
+    // Get detailed game info for the notification
+    const gameDetails = await prisma.scheduledGame.findUnique({
+      where: { id: gameId },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    // Send notification to game creator with detailed game info
     await createInboxMessage(
       game.player1Id,
       userId,
       'GAME_REGISTRATION',
       'New Game Registration',
       `A player has registered for your public game. Please review and approve/reject the registration.`,
-      { gameId, userId }
+      { 
+        gameId, 
+        userId, 
+        registrationId: registration.id,
+        gameDetails: {
+          scheduledDate: gameDetails?.scheduledDate,
+          location: gameDetails?.location,
+          address: gameDetails?.address,
+          city: gameDetails?.city,
+          country: gameDetails?.country,
+          mission: gameDetails?.mission,
+          host: gameDetails?.player1,
+          notes: gameDetails?.notes,
+          isPaid: gameDetails?.isPaid,
+          totalCost: gameDetails?.totalCost,
+          currency: gameDetails?.currency,
+          skillLevel: gameDetails?.skillLevel
+        }
+      }
     );
 
     console.log('✅ registerForPublicGame: Created registration:', registration.id);

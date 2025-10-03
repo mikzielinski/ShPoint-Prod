@@ -94,6 +94,25 @@ interface GameResult {
   };
 }
 
+interface ApprovedGame {
+  id: string;
+  scheduledDate: string;
+  location?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  mission?: Mission;
+  player1: User;
+  notes?: string;
+  isPaid?: boolean;
+  totalCost?: number;
+  currency?: string;
+  skillLevel?: string;
+  isApproved: boolean;
+  registrationDate: string;
+  registrationStatus: string;
+}
+
 interface MyGamesProps {
   playerId?: string;
 }
@@ -103,13 +122,16 @@ export default function MyGames({ playerId }: MyGamesProps) {
   const me = auth.status === 'authenticated' ? auth.user : null;
   
   const [games, setGames] = useState<GameResult[]>([]);
+  const [approvedGames, setApprovedGames] = useState<ApprovedGame[]>([]);
   const [loading, setLoading] = useState(true);
+  const [approvedLoading, setApprovedLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedGame, setExpandedGame] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'wins' | 'losses' | 'draws'>('all');
   const [mode, setMode] = useState<'all' | 'CASUAL' | 'RANKED' | 'TOURNAMENT' | 'FRIENDLY'>('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [activeTab, setActiveTab] = useState<'results' | 'approved'>('results');
 
   const targetPlayerId = playerId || me?.id;
 
@@ -132,9 +154,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
       }
 
       const response = await fetch(`${api}/api/v2/game-results?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${me.token}`
-        }
+        credentials: 'include'
       });
       const data = await response.json();
       
@@ -155,9 +175,35 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
+  const loadApprovedGames = async () => {
+    if (!me) return;
+
+    try {
+      setApprovedLoading(true);
+      const response = await fetch(api('/api/v2/scheduled-games/my-approved'), {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (data.ok) {
+        setApprovedGames(data.games);
+      } else {
+        console.error('Failed to load approved games:', data.error);
+      }
+    } catch (err) {
+      console.error('Failed to load approved games:', err);
+    } finally {
+      setApprovedLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadGames();
   }, [me, targetPlayerId, filter, mode]);
+
+  useEffect(() => {
+    loadApprovedGames();
+  }, [me]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -223,13 +269,162 @@ export default function MyGames({ playerId }: MyGamesProps) {
     <div style={{ padding: '20px' }}>
       <h2 style={{ marginBottom: '20px' }}>My Games</h2>
       
-      {/* Filters */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '12px', 
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
         marginBottom: '20px',
-        flexWrap: 'wrap'
+        borderBottom: '1px solid #374151'
       }}>
+        <button
+          onClick={() => setActiveTab('results')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'results' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'results' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Game Results
+        </button>
+        <button
+          onClick={() => setActiveTab('approved')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'approved' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'approved' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Approved Games ({approvedGames.length})
+        </button>
+      </div>
+
+      {activeTab === 'approved' && (
+        <div>
+          {approvedLoading ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>Loading approved games...</div>
+          ) : approvedGames.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
+              No approved games found
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {approvedGames.map(game => (
+                <div key={game.id} style={{
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  backgroundColor: '#1f2937'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <div>
+                      <h3 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '18px' }}>
+                        {game.mission?.name || 'Mission'}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db' }}>
+                        <div>
+                          <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {new Date(game.scheduledDate).toLocaleString('pl-PL', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <div>
+                          <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {game.location || game.address || 
+                             `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ 
+                        background: '#10b981', 
+                        color: 'white', 
+                        padding: '4px 8px', 
+                        borderRadius: '4px', 
+                        fontSize: '12px', 
+                        fontWeight: 'bold',
+                        marginBottom: '8px'
+                      }}>
+                        ✅ APPROVED
+                      </div>
+                      {game.isPaid && (
+                        <div style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 'bold' }}>
+                          💰 {game.totalCost} {game.currency}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>👤 Host:</strong>
+                      <span style={{ marginLeft: '8px' }}>
+                        {game.player1.name || game.player1.username || 'Unknown'}
+                      </span>
+                    </div>
+                    {game.skillLevel && (
+                      <div>
+                        <strong style={{ color: '#fbbf24' }}>🎮 Skill:</strong>
+                        <span style={{ marginLeft: '8px' }}>
+                          {game.skillLevel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {game.notes && (
+                    <div style={{ 
+                      background: '#374151', 
+                      padding: '8px 12px', 
+                      borderRadius: '4px', 
+                      fontSize: '14px', 
+                      color: '#d1d5db',
+                      marginBottom: '12px'
+                    }}>
+                      <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
+                      <span style={{ marginLeft: '8px' }}>{game.notes}</span>
+                    </div>
+                  )}
+                  
+                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                    Approved on: {new Date(game.registrationDate).toLocaleString('pl-PL')}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'results' && (
+        <div>
+          {/* Filters */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px', 
+            marginBottom: '20px',
+            flexWrap: 'wrap'
+          }}>
         <div>
           <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
             Result
@@ -294,7 +489,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
           No games found
         </div>
       ) : (
-        <>
+        <div>
           {games.map(game => (
             <div key={game.id} style={{
               border: '1px solid #e9ecef',
@@ -580,7 +775,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
               </button>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

@@ -80,6 +80,7 @@ import {
 } from "./challenges-api.js";
 import { 
   getScheduledGames, 
+  getMyApprovedGames,
   createScheduledGame, 
   updateScheduledGame, 
   addGameReminder,
@@ -238,7 +239,7 @@ const moderateLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50000, // Extremely generous limit for development/deployment
+  max: 100000, // DISABLED for testing
   message: { ok: false, error: 'Rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -6400,6 +6401,7 @@ app.get("/api/v2/players/available", ensureAuth, addUserToRequest, getAvailableP
 
 // ===== SCHEDULED GAMES API =====
 app.get("/api/v2/scheduled-games", ensureAuth, addUserToRequest, getScheduledGames);
+app.get("/api/v2/scheduled-games/my-approved", ensureAuth, addUserToRequest, getMyApprovedGames);
 app.post("/api/v2/scheduled-games", ensureAuth, addUserToRequest, createScheduledGame);
 app.put("/api/v2/scheduled-games/:id", ensureAuth, addUserToRequest, updateScheduledGame);
 app.post("/api/v2/scheduled-games/:id/reminders", ensureAuth, addUserToRequest, addGameReminder);

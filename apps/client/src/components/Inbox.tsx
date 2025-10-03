@@ -426,15 +426,87 @@ END:VCALENDAR`;
                   </div>
                   
                   <div style={{ marginBottom: '12px' }}>
-                    <p style={{ margin: '0 0 8px 0', color: '#e5e7eb' }}>
+                    <p style={{ margin: '0 0 12px 0', color: '#e5e7eb' }}>
                       A player wants to join your public game!
                     </p>
-                    <p style={{ margin: '0', color: '#d1d5db', fontSize: '13px' }}>
-                      Game ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{selectedMessage.data.gameId}</code>
-                    </p>
-                    <p style={{ margin: '4px 0 0 0', color: '#d1d5db', fontSize: '13px' }}>
-                      Player ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{selectedMessage.data.userId}</code>
-                    </p>
+                    
+                    {selectedMessage.data.gameDetails && (
+                      <div style={{ 
+                        background: '#1f2937', 
+                        padding: '12px', 
+                        borderRadius: '6px',
+                        marginBottom: '12px'
+                      }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {selectedMessage.data.gameDetails.scheduledDate ? 
+                              new Date(selectedMessage.data.gameDetails.scheduledDate).toLocaleString('pl-PL', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : 'TBD'
+                            }
+                          </span>
+                        </div>
+                        
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
+                             `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                          </span>
+                        </div>
+                        
+                        {selectedMessage.data.gameDetails.mission && (
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong style={{ color: '#fbbf24' }}>🎯 Mission:</strong>
+                            <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                              {selectedMessage.data.gameDetails.mission.name}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {selectedMessage.data.gameDetails.skillLevel && (
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong style={{ color: '#fbbf24' }}>🎮 Skill Level:</strong>
+                            <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                              {selectedMessage.data.gameDetails.skillLevel}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {selectedMessage.data.gameDetails.isPaid && (
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong style={{ color: '#fbbf24' }}>💰 Cost:</strong>
+                            <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                              {selectedMessage.data.gameDetails.totalCost} {selectedMessage.data.gameDetails.currency}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {selectedMessage.data.gameDetails.notes && (
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
+                            <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                              {selectedMessage.data.gameDetails.notes}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                      <p style={{ margin: '0 0 4px 0' }}>
+                        Game ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{selectedMessage.data.gameId}</code>
+                      </p>
+                      <p style={{ margin: '0' }}>
+                        Registration ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{selectedMessage.data.registrationId}</code>
+                      </p>
+                    </div>
                   </div>
                   
                   <div style={{ display: 'flex', gap: '8px' }}>
