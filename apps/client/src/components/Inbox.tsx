@@ -523,16 +523,22 @@ END:VCALENDAR`;
                       }}
                       onClick={async () => {
                         try {
-                          const response = await fetch(api('/api/v2/public-games/approve-registration'), {
+                          console.log('🔍 Approve registration data:', selectedMessage.data);
+                          
+                          const requestData = {
+                            gameId: selectedMessage.data.gameId,
+                            registrationId: selectedMessage.data.registrationId || selectedMessage.data.userId
+                          };
+                          
+                          console.log('🔍 Request data:', requestData);
+                          
+                          const response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/approve-registration', {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
                             },
                             credentials: 'include',
-                            body: JSON.stringify({
-                              gameId: selectedMessage.data.gameId,
-                              registrationId: selectedMessage.data.registrationId || selectedMessage.data.userId
-                            })
+                            body: JSON.stringify(requestData)
                           });
 
                           if (response.ok) {
@@ -563,16 +569,22 @@ END:VCALENDAR`;
                       }}
                       onClick={async () => {
                         try {
-                          const response = await fetch(api('/api/v2/public-games/reject-registration'), {
+                          console.log('🔍 Reject registration data:', selectedMessage.data);
+                          
+                          const requestData = {
+                            gameId: selectedMessage.data.gameId,
+                            registrationId: selectedMessage.data.registrationId || selectedMessage.data.userId
+                          };
+                          
+                          console.log('🔍 Request data:', requestData);
+                          
+                          const response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/reject-registration', {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
                             },
                             credentials: 'include',
-                            body: JSON.stringify({
-                              gameId: selectedMessage.data.gameId,
-                              registrationId: selectedMessage.data.registrationId || selectedMessage.data.userId
-                            })
+                            body: JSON.stringify(requestData)
                           });
 
                           if (response.ok) {
