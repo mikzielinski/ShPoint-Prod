@@ -449,7 +449,7 @@ END:VCALENDAR`;
                           <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
                           <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
                             {parseMessageData(selectedMessage).gameDetails.scheduledDate ? 
-                              new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('pl-PL', {
+                              new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',
@@ -509,11 +509,26 @@ END:VCALENDAR`;
                     
                     <div style={{ fontSize: '12px', color: '#9ca3af' }}>
                       <p style={{ margin: '0 0 4px 0' }}>
-                        Game ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{selectedMessage.data.gameId}</code>
+                        Game ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{parseMessageData(selectedMessage).gameId || 'N/A'}</code>
                       </p>
                       <p style={{ margin: '0' }}>
-                        Registration ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{selectedMessage.data.registrationId}</code>
+                        Registration ID: <code style={{ background: '#374151', padding: '2px 6px', borderRadius: '4px' }}>{parseMessageData(selectedMessage).registrationId || parseMessageData(selectedMessage).userId || 'N/A'}</code>
                       </p>
+                    </div>
+                    
+                    {/* Debug info */}
+                    <div style={{ 
+                      background: '#374151', 
+                      padding: '8px 12px', 
+                      borderRadius: '4px', 
+                      fontSize: '12px', 
+                      color: '#9ca3af',
+                      marginBottom: '12px'
+                    }}>
+                      <strong>Debug - Raw data:</strong>
+                      <pre style={{ margin: '4px 0 0 0', fontSize: '10px', overflow: 'auto' }}>
+                        {JSON.stringify(parseMessageData(selectedMessage), null, 2)}
+                      </pre>
                     </div>
                   </div>
                   
@@ -644,7 +659,7 @@ END:VCALENDAR`;
                       <strong style={{ color: '#e5e7eb' }}>📅 When:</strong>
                       <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
                         {parseMessageData(selectedMessage).gameDetails.scheduledDate ? 
-                          new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('pl-PL', {
+                          new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('en-US', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',
