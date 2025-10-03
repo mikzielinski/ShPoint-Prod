@@ -84,11 +84,23 @@ const ChallengeSystem: React.FC = () => {
     if (!user) return;
     
     try {
+      // Prepare data - convert empty strings to null/undefined for optional fields
+      const challengeData = {
+        challengedId: newChallenge.challengedId,
+        preferredMissions: newChallenge.mission ? [newChallenge.mission] : [],
+        challengerStrikeTeamId: newChallenge.challengerStrikeTeamId || undefined,
+        language: 'en',
+        location: newChallenge.location,
+        description: newChallenge.description || undefined
+      };
+      
+      console.log('🔍 Sending challenge data:', challengeData);
+      
       const response = await fetch(api('/api/v2/challenges'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(newChallenge)
+        body: JSON.stringify(challengeData)
       });
       
       if (response.ok) {

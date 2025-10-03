@@ -123,6 +123,8 @@ export async function getChallenges(req: Request, res: Response) {
 
 export async function createChallenge(req: Request, res: Response) {
   try {
+    console.log('🔍 Creating challenge with data:', req.body);
+    
     const userId = (req as any).user?.id;
     const {
       challengedId,
@@ -193,11 +195,14 @@ export async function createChallenge(req: Request, res: Response) {
       });
     }
 
+    // Clean up empty strings to null for optional fields
+    const cleanChallengerStrikeTeamId = challengerStrikeTeamId && challengerStrikeTeamId.trim() !== '' ? challengerStrikeTeamId : null;
+    
     // Validate strike team if provided
-    if (challengerStrikeTeamId) {
+    if (cleanChallengerStrikeTeamId) {
       const strikeTeam = await prisma.strikeTeam.findFirst({
         where: {
-          id: challengerStrikeTeamId,
+          id: cleanChallengerStrikeTeamId,
           userId
         }
       });
@@ -215,12 +220,12 @@ export async function createChallenge(req: Request, res: Response) {
         challengerId: userId,
         challengedId,
         preferredMissions,
-        challengerStrikeTeamId,
+        challengerStrikeTeamId: cleanChallengerStrikeTeamId,
         language,
-        location,
-        address,
+        location: location || null,
+        address: address || null,
         reservationCost: reservationCost ? parseFloat(reservationCost) : null,
-        description
+        description: description || null
       },
       include: {
         challenger: {
@@ -267,10 +272,16 @@ export async function createChallenge(req: Request, res: Response) {
       challenge
     });
   } catch (error) {
-    console.error('Error creating challenge:', error);
+    console.error('❌ Error creating challenge:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({ 
       ok: false, 
-      error: 'Failed to create challenge' 
+      error: 'Failed to create challenge',
+      details: error.message 
     });
   }
 }

@@ -1269,15 +1269,15 @@ export async function approveGameRegistration(req: Request, res: Response) {
       registration.userId,
       'GAME_REGISTRATION_APPROVED_BY_OWNER',
       'Game Registration Approved',
-      `You have approved ${registration.user.name || registration.user.username}'s registration for your public game.`,
+      `You have approved ${registration.user?.name || registration.user?.username || 'Unknown User'}'s registration for your public game.`,
       { 
         gameId, 
         registrationId,
         approvedPlayer: {
-          id: registration.user.id,
-          name: registration.user.name,
-          username: registration.user.username,
-          avatarUrl: registration.user.avatarUrl
+          id: registration.user?.id,
+          name: registration.user?.name,
+          username: registration.user?.username,
+          avatarUrl: registration.user?.avatarUrl
         },
         gameDetails: {
           scheduledDate: gameDetails?.scheduledDate,
@@ -1418,7 +1418,7 @@ export async function rejectGameRegistration(req: Request, res: Response) {
       registration.userId,
       'GAME_REGISTRATION_REJECTED_BY_OWNER',
       'Game Registration Rejected',
-      `You have rejected ${registration.user.name || registration.user.username}'s registration for your public game.`,
+      `You have rejected ${registration.user?.name || registration.user?.username || 'Unknown User'}'s registration for your public game.`,
       { 
         gameId, 
         registrationId,
