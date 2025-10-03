@@ -1,10 +1,10 @@
 FROM node:20-alpine
 WORKDIR /app
-# RENDER CACHE BYPASS - v1.3.8 - FORCE COMPLETE REBUILD
+# FRESH DOCKERFILE - v1.3.9 - NO CACHE
 
 # Force complete rebuild - no cache
-RUN echo "RENDER CACHE BYPASS v1.3.8 - $(date)" > /tmp/render-bypass.txt
-RUN echo "FORCE REBUILD - $(date)" > /tmp/force-rebuild.txt
+RUN echo "FRESH DOCKERFILE v1.3.9 - $(date)" > /tmp/fresh-dockerfile.txt
+RUN echo "NO CACHE REBUILD - $(date)" > /tmp/no-cache.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-dev && \
@@ -16,8 +16,7 @@ RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-de
 # Copy package files and install dependencies
 COPY package*.json ./
 # Force cache bust for npm install
-RUN echo "Cache bust v1.3.8 - $(date)" > /tmp/cache-bust.txt
-RUN echo "Render npm cache bypass - $(date)" > /tmp/npm-bypass.txt
+RUN echo "Cache bust v1.3.9 - $(date)" > /tmp/cache-bust.txt
 RUN npm install
 
 # Copy server source code
@@ -29,7 +28,7 @@ COPY apps/client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
 RUN npx prisma generate
-RUN echo "Build cache bust v1.3.8 - $(date)" > /tmp/build-bust.txt
+RUN echo "Build cache bust v1.3.9 - $(date)" > /tmp/build-bust.txt
 RUN npm run build
 
 ENV PORT=3001
