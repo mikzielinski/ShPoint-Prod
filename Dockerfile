@@ -11,6 +11,8 @@ RUN apk add --no-cache openssl openssl-dev && \
 
 # Copy package files and install dependencies
 COPY package*.json ./
+# Force cache bust for npm install
+RUN echo "Cache bust v1.3.5 - $(date)" > /tmp/cache-bust.txt
 RUN npm install
 
 # Copy server source code
