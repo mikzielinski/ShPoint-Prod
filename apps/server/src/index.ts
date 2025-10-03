@@ -1027,6 +1027,36 @@ app.get("/debug/my-ip", (req, res) => {
   });
 });
 
+// Debug endpoint to check GAME_REGISTRATION messages
+app.get("/debug/check-game-registration-messages", async (req, res) => {
+  try {
+    const messages = await prisma.inboxMessage.findMany({
+      where: {
+        type: 'GAME_REGISTRATION'
+      },
+      include: {
+        sender: true
+      }
+    });
+    
+    const messagesWithData = messages.map(msg => ({
+      id: msg.id,
+      senderId: msg.senderId,
+      recipientId: msg.recipientId,
+      data: msg.data ? JSON.parse(msg.data as string) : null
+    }));
+    
+    res.json({ 
+      ok: true, 
+      count: messages.length,
+      messages: messagesWithData
+    });
+  } catch (error) {
+    console.error('❌ Error checking messages:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Debug endpoint to fix existing GAME_REGISTRATION messages
 app.post("/debug/fix-game-registration-messages", async (req, res) => {
   try {
