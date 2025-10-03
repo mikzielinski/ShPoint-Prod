@@ -190,17 +190,26 @@ export default function Inbox({ onClose }: InboxProps) {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     };
 
+    // Ensure we have proper data
+    const title = eventData.title || 'Shatterpoint Game';
+    const description = eventData.description || 'Shatterpoint tabletop game';
+    const location = eventData.location || 'Location TBD';
+
     return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//ShPoint//Shatterpoint Game//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
 BEGIN:VEVENT
 UID:${eventData.startDate.getTime()}@shpoint.com
 DTSTAMP:${formatDate(new Date())}
 DTSTART:${formatDate(eventData.startDate)}
 DTEND:${formatDate(eventData.endDate)}
-SUMMARY:${eventData.title}
-DESCRIPTION:${eventData.description}
-LOCATION:${eventData.location}
+SUMMARY:${title}
+DESCRIPTION:${description}\\n\\nEvent created by ShPoint - Shatterpoint Game Manager
+LOCATION:${location}
+STATUS:CONFIRMED
+TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR`;
   };
@@ -744,11 +753,11 @@ END:VCALENDAR`;
                         onClick={() => {
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username || 'Unknown Host'}`,
                             startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
-                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'Location TBD'
                           };
                           
                           // Google Calendar
@@ -773,11 +782,11 @@ END:VCALENDAR`;
                         onClick={() => {
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username || 'Unknown Host'}`,
                             startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
-                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'Location TBD'
                           };
                           
                           // Outlook Calendar
@@ -802,11 +811,11 @@ END:VCALENDAR`;
                         onClick={() => {
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username || 'Unknown Host'}`,
                             startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
-                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'Location TBD'
                           };
                           
                           // iOS Calendar (ICS file)
@@ -815,7 +824,7 @@ END:VCALENDAR`;
                           const url = URL.createObjectURL(blob);
                           const a = document.createElement('a');
                           a.href = url;
-                          a.download = `shatterpoint-game-${selectedMessage.data.gameId}.ics`;
+                          a.download = `shatterpoint-game-${parseMessageData(selectedMessage).gameId || 'event'}.ics`;
                           document.body.appendChild(a);
                           a.click();
                           document.body.removeChild(a);
@@ -839,11 +848,11 @@ END:VCALENDAR`;
                         onClick={() => {
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username || 'Unknown Host'}`,
                             startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
-                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'Location TBD'
                           };
                           
                           // Android Calendar (ICS file)
@@ -852,7 +861,7 @@ END:VCALENDAR`;
                           const url = URL.createObjectURL(blob);
                           const a = document.createElement('a');
                           a.href = url;
-                          a.download = `shatterpoint-game-${selectedMessage.data.gameId}.ics`;
+                          a.download = `shatterpoint-game-${parseMessageData(selectedMessage).gameId || 'event'}.ics`;
                           document.body.appendChild(a);
                           a.click();
                           document.body.removeChild(a);
