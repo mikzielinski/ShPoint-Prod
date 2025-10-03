@@ -564,6 +564,7 @@ END:VCALENDAR`;
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
+                              'Cookie': document.cookie
                             },
                             credentials: 'include',
                             body: JSON.stringify(requestData)
@@ -615,6 +616,7 @@ END:VCALENDAR`;
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
+                              'Cookie': document.cookie
                             },
                             credentials: 'include',
                             body: JSON.stringify(requestData)
