@@ -1058,3 +1058,198 @@ export async function registerForPublicGame(req: Request, res: Response) {
     });
   }
 }
+
+export async function approveGameRegistration(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameId, registrationId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!gameId || !registrationId) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Game ID and registration ID are required' 
+      });
+    }
+
+    // Check if user owns the game
+    const game = await prisma.scheduledGame.findFirst({
+      where: {
+        id: gameId,
+        player1Id: userId,
+        isPublic: true
+      }
+    });
+
+    if (!game) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game not found or access denied' 
+      });
+    }
+
+    // Update registration status
+    const registration = await prisma.gameRegistration.update({
+      where: { id: registrationId },
+      data: { status: 'APPROVED' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        }
+      }
+    });
+
+    // Get game details for the notification
+    const gameDetails = await prisma.scheduledGame.findUnique({
+      where: { id: gameId },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      }
+    });
+
+    // Send notification to the registered player with detailed game info
+    await createInboxMessage(
+      registration.userId,
+      userId,
+      'GAME_REGISTRATION_APPROVED',
+      'Game Registration Approved',
+      `Your registration for the public game has been approved!`,
+      { 
+        gameId, 
+        registrationId,
+        gameDetails: {
+          scheduledDate: gameDetails?.scheduledDate,
+          location: gameDetails?.location,
+          address: gameDetails?.address,
+          city: gameDetails?.city,
+          country: gameDetails?.country,
+          mission: gameDetails?.mission,
+          host: gameDetails?.player1,
+          notes: gameDetails?.notes
+        }
+      }
+    );
+
+    res.json({
+      ok: true,
+      registration,
+      message: 'Registration approved successfully'
+    });
+  } catch (error) {
+    console.error('Error approving game registration:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to approve registration' 
+    });
+  }
+}
+
+export async function rejectGameRegistration(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameId, registrationId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!gameId || !registrationId) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Game ID and registration ID are required' 
+      });
+    }
+
+    // Check if user owns the game
+    const game = await prisma.scheduledGame.findFirst({
+      where: {
+        id: gameId,
+        player1Id: userId,
+        isPublic: true
+      }
+    });
+
+    if (!game) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game not found or access denied' 
+      });
+    }
+
+    // Get registration details before deleting
+    const registration = await prisma.gameRegistration.findUnique({
+      where: { id: registrationId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        }
+      }
+    });
+
+    if (!registration) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Registration not found' 
+      });
+    }
+
+    // Delete the registration
+    await prisma.gameRegistration.delete({
+      where: { id: registrationId }
+    });
+
+    // Send notification to the registered player
+    await createInboxMessage(
+      registration.userId,
+      userId,
+      'GAME_REGISTRATION_REJECTED',
+      'Game Registration Rejected',
+      `Your registration for the public game has been rejected.`,
+      { gameId, registrationId }
+    );
+
+    res.json({
+      ok: true,
+      message: 'Registration rejected successfully'
+    });
+  } catch (error) {
+    console.error('Error rejecting game registration:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to reject registration' 
+    });
+  }
+}

@@ -87,7 +87,9 @@ import {
   generateCalendarEvent,
   getPublicGames,
   createPublicGame,
-  registerForPublicGame
+  registerForPublicGame,
+  approveGameRegistration,
+  rejectGameRegistration
 } from "./scheduled-games-api.js";
 import { 
   getGameResults, 
@@ -6408,6 +6410,8 @@ app.get("/api/v2/scheduled-games/:id/calendar", ensureAuth, addUserToRequest, ge
 app.get("/api/v2/public-games", getPublicGames);
 app.post("/api/v2/public-games", ensureAuth, addUserToRequest, createPublicGame);
 app.post("/api/v2/public-games/:id/register", ensureAuth, addUserToRequest, registerForPublicGame);
+app.post("/api/v2/public-games/approve-registration", ensureAuth, addUserToRequest, approveGameRegistration);
+app.post("/api/v2/public-games/reject-registration", ensureAuth, addUserToRequest, rejectGameRegistration);
 
 // ===== GAME RESULTS API =====
 app.get("/api/v2/game-results", authenticateUserOrToken, requireScope(['read:game-results']), getGameResults);
