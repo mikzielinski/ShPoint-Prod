@@ -1120,31 +1120,35 @@ export async function registerForPublicGame(req: Request, res: Response) {
     });
 
     // Send notification to game creator with detailed game info
+    const messageData = { 
+      gameId, 
+      userId, 
+      registrationId: registration.id,
+      gameDetails: {
+        scheduledDate: gameDetails?.scheduledDate,
+        location: gameDetails?.location,
+        address: gameDetails?.address,
+        city: gameDetails?.city,
+        country: gameDetails?.country,
+        mission: gameDetails?.mission,
+        host: gameDetails?.player1,
+        notes: gameDetails?.notes,
+        isPaid: gameDetails?.isPaid,
+        totalCost: gameDetails?.totalCost,
+        currency: gameDetails?.currency,
+        skillLevel: gameDetails?.skillLevel
+      }
+    };
+    
+    console.log('🔍 Creating inbox message with data:', messageData);
+    
     await createInboxMessage(
       game.player1Id,
       userId,
       'GAME_REGISTRATION',
       'New Game Registration',
       `A player has registered for your public game. Please review and approve/reject the registration.`,
-      { 
-        gameId, 
-        userId, 
-        registrationId: registration.id,
-        gameDetails: {
-          scheduledDate: gameDetails?.scheduledDate,
-          location: gameDetails?.location,
-          address: gameDetails?.address,
-          city: gameDetails?.city,
-          country: gameDetails?.country,
-          mission: gameDetails?.mission,
-          host: gameDetails?.player1,
-          notes: gameDetails?.notes,
-          isPaid: gameDetails?.isPaid,
-          totalCost: gameDetails?.totalCost,
-          currency: gameDetails?.currency,
-          skillLevel: gameDetails?.skillLevel
-        }
-      }
+      messageData
     );
 
     console.log('✅ registerForPublicGame: Created registration:', registration.id);

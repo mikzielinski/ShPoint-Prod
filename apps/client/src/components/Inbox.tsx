@@ -45,6 +45,7 @@ export default function Inbox({ onClose }: InboxProps) {
       const data = await response.json();
       
       if (data.ok) {
+        console.log('🔍 Loaded messages:', data.messages);
         setMessages(data.messages);
         setUnreadCount(data.unreadCount);
       } else {
