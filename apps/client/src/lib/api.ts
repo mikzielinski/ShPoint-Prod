@@ -4,7 +4,7 @@ import { API_BASE, api } from './env';
 // Re-export api function for backward compatibility
 export { api };
 
-// Force Netlify rebuild - v1.2.30
+// Force Netlify rebuild - v1.2.31 - Enhanced notifications
 
 type Json = Record<string, unknown> | unknown[];
 
