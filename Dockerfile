@@ -1,9 +1,10 @@
 FROM node:20-alpine
 WORKDIR /app
-# COMPLETE REBUILD - v1.3.6 - FORCE RENDER TO USE NEW DOCKERFILE
+# ULTIMATE REBUILD - v1.3.7 - RENDER CACHE BYPASS
 
 # Force complete rebuild - no cache
-RUN echo "FORCE REBUILD v1.3.6 - $(date)" > /tmp/force-rebuild.txt
+RUN echo "ULTIMATE REBUILD v1.3.7 - $(date)" > /tmp/ultimate-rebuild.txt
+RUN echo "Render cache bypass - $(date)" > /tmp/render-bypass.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN apk add --no-cache openssl openssl-dev && \
@@ -15,7 +16,8 @@ RUN apk add --no-cache openssl openssl-dev && \
 # Copy package files and install dependencies
 COPY package*.json ./
 # Force cache bust for npm install
-RUN echo "Cache bust v1.3.6 - $(date)" > /tmp/cache-bust.txt
+RUN echo "Cache bust v1.3.7 - $(date)" > /tmp/cache-bust.txt
+RUN echo "Render npm cache bypass - $(date)" > /tmp/npm-bypass.txt
 RUN npm install
 
 # Copy server source code
@@ -27,6 +29,7 @@ COPY apps/client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
 RUN npx prisma generate
+RUN echo "Build cache bust v1.3.7 - $(date)" > /tmp/build-bust.txt
 RUN npm run build
 
 ENV PORT=3001
