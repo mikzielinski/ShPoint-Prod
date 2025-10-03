@@ -1027,6 +1027,96 @@ app.get("/debug/my-ip", (req, res) => {
   });
 });
 
+// Debug endpoint to fix existing GAME_REGISTRATION messages
+app.post("/debug/fix-game-registration-messages", async (req, res) => {
+  try {
+    console.log('🔧 Fixing GAME_REGISTRATION messages...');
+    
+    // Find all GAME_REGISTRATION messages
+    const messages = await prisma.inboxMessage.findMany({
+      where: {
+        type: 'GAME_REGISTRATION'
+      },
+      include: {
+        sender: true
+      }
+    });
+    
+    console.log(`🔍 Found ${messages.length} GAME_REGISTRATION messages`);
+    
+    let fixed = 0;
+    for (const message of messages) {
+      try {
+        const data = message.data ? JSON.parse(message.data) : {};
+        
+        // If message doesn't have gameId or registrationId, try to find them
+        if (!data.gameId || !data.registrationId) {
+          console.log(`🔍 Fixing message ${message.id}, current data:`, data);
+          
+          // Try to find the registration by sender and recipient
+          const registration = await prisma.gameRegistration.findFirst({
+            where: {
+              userId: message.senderId,
+              status: 'PENDING'
+            },
+            include: {
+              game: {
+                include: {
+                  player1: true
+                }
+              }
+            }
+          });
+          
+          if (registration && registration.game.player1Id === message.recipientId) {
+            const updatedData = {
+              ...data,
+              gameId: registration.gameId,
+              registrationId: registration.id,
+              gameDetails: {
+                scheduledDate: registration.game.scheduledDate,
+                location: registration.game.location,
+                address: registration.game.address,
+                city: registration.game.city,
+                country: registration.game.country,
+                mission: registration.game.mission,
+                host: registration.game.player1,
+                notes: registration.game.notes,
+                isPaid: registration.game.isPaid,
+                totalCost: registration.game.totalCost,
+                currency: registration.game.currency,
+                skillLevel: registration.game.skillLevel
+              }
+            };
+            
+            await prisma.inboxMessage.update({
+              where: { id: message.id },
+              data: { data: JSON.stringify(updatedData) }
+            });
+            
+            console.log(`✅ Fixed message ${message.id}`);
+            fixed++;
+          } else {
+            console.log(`⚠️ Could not find matching registration for message ${message.id}`);
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Error fixing message ${message.id}:`, error);
+      }
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: `Fixed ${fixed} out of ${messages.length} messages`,
+      total: messages.length,
+      fixed: fixed
+    });
+  } catch (error) {
+    console.error('❌ Error fixing messages:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Debug endpoint to check Google OAuth configuration
 app.get("/debug/google-oauth", (req, res) => {
   res.json({
