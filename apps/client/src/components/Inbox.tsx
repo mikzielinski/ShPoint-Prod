@@ -34,6 +34,13 @@ export default function Inbox({ onClose }: InboxProps) {
   const [selectedMessage, setSelectedMessage] = useState<InboxMessage | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
+  // Helper function to parse message data
+  const parseMessageData = (message: InboxMessage) => {
+    return typeof message.data === 'string' 
+      ? JSON.parse(message.data) 
+      : message.data;
+  };
+
   const loadMessages = async () => {
     if (!me) return;
 
@@ -431,7 +438,7 @@ END:VCALENDAR`;
                       A player wants to join your public game!
                     </p>
                     
-                    {selectedMessage.data.gameDetails && (
+                    {parseMessageData(selectedMessage).gameDetails && (
                       <div style={{ 
                         background: '#1f2937', 
                         padding: '12px', 
@@ -441,8 +448,8 @@ END:VCALENDAR`;
                         <div style={{ marginBottom: '8px' }}>
                           <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
                           <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                            {selectedMessage.data.gameDetails.scheduledDate ? 
-                              new Date(selectedMessage.data.gameDetails.scheduledDate).toLocaleString('pl-PL', {
+                            {parseMessageData(selectedMessage).gameDetails.scheduledDate ? 
+                              new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('pl-PL', {
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',
@@ -457,43 +464,43 @@ END:VCALENDAR`;
                         <div style={{ marginBottom: '8px' }}>
                           <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
                           <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                            {selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
-                             `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                            {parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                             `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
                           </span>
                         </div>
                         
-                        {selectedMessage.data.gameDetails.mission && (
+                        {parseMessageData(selectedMessage).gameDetails.mission && (
                           <div style={{ marginBottom: '8px' }}>
                             <strong style={{ color: '#fbbf24' }}>🎯 Mission:</strong>
                             <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                              {selectedMessage.data.gameDetails.mission.name}
+                              {parseMessageData(selectedMessage).gameDetails.mission.name}
                             </span>
                           </div>
                         )}
                         
-                        {selectedMessage.data.gameDetails.skillLevel && (
+                        {parseMessageData(selectedMessage).gameDetails.skillLevel && (
                           <div style={{ marginBottom: '8px' }}>
                             <strong style={{ color: '#fbbf24' }}>🎮 Skill Level:</strong>
                             <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                              {selectedMessage.data.gameDetails.skillLevel}
+                              {parseMessageData(selectedMessage).gameDetails.skillLevel}
                             </span>
                           </div>
                         )}
                         
-                        {selectedMessage.data.gameDetails.isPaid && (
+                        {parseMessageData(selectedMessage).gameDetails.isPaid && (
                           <div style={{ marginBottom: '8px' }}>
                             <strong style={{ color: '#fbbf24' }}>💰 Cost:</strong>
                             <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                              {selectedMessage.data.gameDetails.totalCost} {selectedMessage.data.gameDetails.currency}
+                              {parseMessageData(selectedMessage).gameDetails.totalCost} {parseMessageData(selectedMessage).gameDetails.currency}
                             </span>
                           </div>
                         )}
                         
-                        {selectedMessage.data.gameDetails.notes && (
+                        {parseMessageData(selectedMessage).gameDetails.notes && (
                           <div style={{ marginBottom: '8px' }}>
                             <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
                             <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                              {selectedMessage.data.gameDetails.notes}
+                              {parseMessageData(selectedMessage).gameDetails.notes}
                             </span>
                           </div>
                         )}
@@ -526,9 +533,14 @@ END:VCALENDAR`;
                         try {
                           console.log('🔍 Approve registration data:', selectedMessage.data);
                           
+                          // Parse data if it's a string
+                          const data = parseMessageData(selectedMessage);
+                          
+                          console.log('🔍 Parsed data:', data);
+                          
                           const requestData = {
-                            gameId: selectedMessage.data.gameId,
-                            registrationId: selectedMessage.data.registrationId || selectedMessage.data.userId
+                            gameId: data.gameId,
+                            registrationId: data.registrationId || data.userId
                           };
                           
                           console.log('🔍 Request data:', requestData);
@@ -572,9 +584,14 @@ END:VCALENDAR`;
                         try {
                           console.log('🔍 Reject registration data:', selectedMessage.data);
                           
+                          // Parse data if it's a string
+                          const data = parseMessageData(selectedMessage);
+                          
+                          console.log('🔍 Parsed data:', data);
+                          
                           const requestData = {
-                            gameId: selectedMessage.data.gameId,
-                            registrationId: selectedMessage.data.registrationId || selectedMessage.data.userId
+                            gameId: data.gameId,
+                            registrationId: data.registrationId || data.userId
                           };
                           
                           console.log('🔍 Request data:', requestData);
@@ -626,8 +643,8 @@ END:VCALENDAR`;
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#e5e7eb' }}>📅 When:</strong>
                       <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                        {selectedMessage.data.gameDetails.scheduledDate ? 
-                          new Date(selectedMessage.data.gameDetails.scheduledDate).toLocaleString('pl-PL', {
+                        {parseMessageData(selectedMessage).gameDetails.scheduledDate ? 
+                          new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('pl-PL', {
                             weekday: 'long',
                             year: 'numeric',
                             month: 'long',
@@ -642,32 +659,32 @@ END:VCALENDAR`;
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#e5e7eb' }}>📍 Where:</strong>
                       <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                        {selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
-                         `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                        {parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                         `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
                       </span>
                     </div>
                     
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#e5e7eb' }}>👤 Host:</strong>
                       <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                        {selectedMessage.data.gameDetails.host?.name || selectedMessage.data.gameDetails.host?.username || 'Unknown'}
+                        {parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username || 'Unknown'}
                       </span>
                     </div>
                     
-                    {selectedMessage.data.gameDetails.mission && (
+                    {parseMessageData(selectedMessage).gameDetails.mission && (
                       <div style={{ marginBottom: '8px' }}>
                         <strong style={{ color: '#e5e7eb' }}>🎯 Mission:</strong>
                         <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                          {selectedMessage.data.gameDetails.mission.name}
+                          {parseMessageData(selectedMessage).gameDetails.mission.name}
                         </span>
                       </div>
                     )}
                     
-                    {selectedMessage.data.gameDetails.notes && (
+                    {parseMessageData(selectedMessage).gameDetails.notes && (
                       <div style={{ marginBottom: '8px' }}>
                         <strong style={{ color: '#e5e7eb' }}>📝 Notes:</strong>
                         <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
-                          {selectedMessage.data.gameDetails.notes}
+                          {parseMessageData(selectedMessage).gameDetails.notes}
                         </span>
                       </div>
                     )}
@@ -691,12 +708,12 @@ END:VCALENDAR`;
                         }}
                         onClick={() => {
                           const eventData = {
-                            title: `Shatterpoint Game - ${selectedMessage.data.gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${selectedMessage.data.gameDetails.host?.name || selectedMessage.data.gameDetails.host?.username}`,
-                            startDate: selectedMessage.data.gameDetails.scheduledDate,
-                            endDate: new Date(new Date(selectedMessage.data.gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
-                            location: selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
-                                     `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                            title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
+                            location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
                           };
                           
                           // Google Calendar
@@ -720,12 +737,12 @@ END:VCALENDAR`;
                         }}
                         onClick={() => {
                           const eventData = {
-                            title: `Shatterpoint Game - ${selectedMessage.data.gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${selectedMessage.data.gameDetails.host?.name || selectedMessage.data.gameDetails.host?.username}`,
-                            startDate: selectedMessage.data.gameDetails.scheduledDate,
-                            endDate: new Date(new Date(selectedMessage.data.gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
-                            location: selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
-                                     `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                            title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
+                            location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
                           };
                           
                           // Outlook Calendar
@@ -749,12 +766,12 @@ END:VCALENDAR`;
                         }}
                         onClick={() => {
                           const eventData = {
-                            title: `Shatterpoint Game - ${selectedMessage.data.gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${selectedMessage.data.gameDetails.host?.name || selectedMessage.data.gameDetails.host?.username}`,
-                            startDate: selectedMessage.data.gameDetails.scheduledDate,
-                            endDate: new Date(new Date(selectedMessage.data.gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
-                            location: selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
-                                     `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                            title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
+                            location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
                           };
                           
                           // iOS Calendar (ICS file)
@@ -786,12 +803,12 @@ END:VCALENDAR`;
                         }}
                         onClick={() => {
                           const eventData = {
-                            title: `Shatterpoint Game - ${selectedMessage.data.gameDetails.mission?.name || 'Mission'}`,
-                            description: `Game with ${selectedMessage.data.gameDetails.host?.name || selectedMessage.data.gameDetails.host?.username}`,
-                            startDate: selectedMessage.data.gameDetails.scheduledDate,
-                            endDate: new Date(new Date(selectedMessage.data.gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
-                            location: selectedMessage.data.gameDetails.location || selectedMessage.data.gameDetails.address || 
-                                     `${selectedMessage.data.gameDetails.city || ''}, ${selectedMessage.data.gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+                            title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
+                            description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
+                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
+                            location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                                     `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
                           };
                           
                           // Android Calendar (ICS file)
