@@ -1,6 +1,9 @@
 FROM node:20-alpine
 WORKDIR /app
-# Force cache bust - v1.3.5 - FIX START.SH ISSUE
+# COMPLETE REBUILD - v1.3.6 - FORCE RENDER TO USE NEW DOCKERFILE
+
+# Force complete rebuild - no cache
+RUN echo "FORCE REBUILD v1.3.6 - $(date)" > /tmp/force-rebuild.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN apk add --no-cache openssl openssl-dev && \
@@ -12,7 +15,7 @@ RUN apk add --no-cache openssl openssl-dev && \
 # Copy package files and install dependencies
 COPY package*.json ./
 # Force cache bust for npm install
-RUN echo "Cache bust v1.3.5 - $(date)" > /tmp/cache-bust.txt
+RUN echo "Cache bust v1.3.6 - $(date)" > /tmp/cache-bust.txt
 RUN npm install
 
 # Copy server source code
