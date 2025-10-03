@@ -1,10 +1,10 @@
 FROM node:20-alpine
 WORKDIR /app
-# ULTIMATE REBUILD - v1.3.7 - RENDER CACHE BYPASS
+# RENDER CACHE BYPASS - v1.3.8 - FORCE COMPLETE REBUILD
 
 # Force complete rebuild - no cache
-RUN echo "ULTIMATE REBUILD v1.3.7 - $(date)" > /tmp/ultimate-rebuild.txt
-RUN echo "Render cache bypass - $(date)" > /tmp/render-bypass.txt
+RUN echo "RENDER CACHE BYPASS v1.3.8 - $(date)" > /tmp/render-bypass.txt
+RUN echo "FORCE REBUILD - $(date)" > /tmp/force-rebuild.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-dev && \
@@ -16,20 +16,20 @@ RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-de
 # Copy package files and install dependencies
 COPY package*.json ./
 # Force cache bust for npm install
-RUN echo "Cache bust v1.3.7 - $(date)" > /tmp/cache-bust.txt
+RUN echo "Cache bust v1.3.8 - $(date)" > /tmp/cache-bust.txt
 RUN echo "Render npm cache bypass - $(date)" > /tmp/npm-bypass.txt
 RUN npm install
 
 # Copy server source code
 COPY . .
 
-# Copy character data from server (relative to build context) - v1.3.4
+# Copy character data from server (relative to build context)
 COPY characters_assets ./characters_assets
 COPY apps/client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
 RUN npx prisma generate
-RUN echo "Build cache bust v1.3.7 - $(date)" > /tmp/build-bust.txt
+RUN echo "Build cache bust v1.3.8 - $(date)" > /tmp/build-bust.txt
 RUN npm run build
 
 ENV PORT=3001
