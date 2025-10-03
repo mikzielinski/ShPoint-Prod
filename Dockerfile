@@ -27,6 +27,5 @@ RUN npm run build
 ENV PORT=3001
 EXPOSE 3001
 
-# Make start script executable and run migrations with retry
-RUN chmod +x start.sh
-CMD ./start.sh
+# Run migrations with timeout and fallback, then start server
+CMD sh -c "timeout 30 npx prisma migrate deploy || echo 'Migration failed, trying db push...' && npx prisma db push --accept-data-loss" && node dist/index.js
