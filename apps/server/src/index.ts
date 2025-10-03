@@ -1047,7 +1047,7 @@ app.post("/debug/fix-game-registration-messages", async (req, res) => {
     let fixed = 0;
     for (const message of messages) {
       try {
-        const data = message.data ? JSON.parse(message.data) : {};
+        const data = message.data ? JSON.parse(message.data as string) : {};
         
         // If message doesn't have gameId or registrationId, try to find them
         if (!data.gameId || !data.registrationId) {
@@ -1062,7 +1062,14 @@ app.post("/debug/fix-game-registration-messages", async (req, res) => {
             include: {
               game: {
                 include: {
-                  player1: true
+                  player1: true,
+                  mission: {
+                    select: {
+                      id: true,
+                      name: true,
+                      description: true
+                    }
+                  }
                 }
               }
             }
