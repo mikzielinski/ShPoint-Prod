@@ -1,6 +1,6 @@
 FROM node:20-alpine
 WORKDIR /app
-# Force cache bust - v1.3.4
+# Force cache bust - v1.3.5 - FIX START.SH ISSUE
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN apk add --no-cache openssl openssl-dev && \
@@ -28,4 +28,4 @@ ENV PORT=3001
 EXPOSE 3001
 
 # Run migrations with timeout and fallback, then start server
-CMD sh -c "timeout 30 npx prisma migrate deploy || echo 'Migration failed, trying db push...' && npx prisma db push --accept-data-loss" && node dist/index.js
+CMD sh -c "echo 'Starting ShPoint Server...' && timeout 30 npx prisma migrate deploy || echo 'Migration failed, trying db push...' && npx prisma db push --accept-data-loss" && echo 'Starting Node.js server...' && node dist/index.js
