@@ -7,7 +7,7 @@ RUN echo "ULTIMATE REBUILD v1.3.7 - $(date)" > /tmp/ultimate-rebuild.txt
 RUN echo "Render cache bypass - $(date)" > /tmp/render-bypass.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
-RUN apk add --no-cache openssl openssl-dev && \
+RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-dev && \
     ln -sf /lib/libssl.so.3 /lib/libssl.so.1.1 && \
     ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.1 && \
     ln -sf /lib/libssl.so.3 /lib/libssl.so.1.0.0 && \
