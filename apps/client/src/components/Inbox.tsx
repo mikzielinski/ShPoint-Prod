@@ -745,7 +745,7 @@ END:VCALENDAR`;
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
                             description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
-                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
                                      `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
@@ -774,7 +774,7 @@ END:VCALENDAR`;
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
                             description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
-                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
                                      `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
@@ -803,7 +803,7 @@ END:VCALENDAR`;
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
                             description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
-                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
                                      `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
@@ -840,7 +840,7 @@ END:VCALENDAR`;
                           const eventData = {
                             title: `Shatterpoint Game - ${parseMessageData(selectedMessage).gameDetails.mission?.name || 'Mission'}`,
                             description: `Game with ${parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username}`,
-                            startDate: parseMessageData(selectedMessage).gameDetails.scheduledDate,
+                            startDate: new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate),
                             endDate: new Date(new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).getTime() + 3 * 60 * 60 * 1000),
                             location: parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
                                      `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '')
