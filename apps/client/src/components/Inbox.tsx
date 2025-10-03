@@ -660,7 +660,7 @@ END:VCALENDAR`;
               )}
               
               {/* Special handling for game registration approved messages */}
-              {selectedMessage.type === 'GAME_REGISTRATION_APPROVED' && parseMessageData(selectedMessage).gameDetails && (
+              {(selectedMessage.type === 'GAME_REGISTRATION_APPROVED' || selectedMessage.type === 'GAME_REGISTRATION_APPROVED_BY_OWNER') && parseMessageData(selectedMessage).gameDetails && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '16px', 
@@ -867,7 +867,7 @@ END:VCALENDAR`;
               )}
               
               {/* Special handling for game registration rejected messages */}
-              {selectedMessage.type === 'GAME_REGISTRATION_REJECTED' && parseMessageData(selectedMessage).gameDetails && (
+              {(selectedMessage.type === 'GAME_REGISTRATION_REJECTED' || selectedMessage.type === 'GAME_REGISTRATION_REJECTED_BY_OWNER') && parseMessageData(selectedMessage).gameDetails && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '16px', 
@@ -934,7 +934,7 @@ END:VCALENDAR`;
                 </div>
               )}
 
-              {selectedMessage.data && selectedMessage.type !== 'GAME_REGISTRATION' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED' && selectedMessage.type !== 'GAME_REGISTRATION_REJECTED' && (
+              {selectedMessage.data && selectedMessage.type !== 'GAME_REGISTRATION' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED_BY_OWNER' && selectedMessage.type !== 'GAME_REGISTRATION_REJECTED' && selectedMessage.type !== 'GAME_REGISTRATION_REJECTED_BY_OWNER' && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '12px', 
