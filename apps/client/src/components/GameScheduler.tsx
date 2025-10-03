@@ -633,7 +633,11 @@ const GameScheduler: React.FC = () => {
           {games.map((game) => {
             const currentPlayers = game._count.registrations + 1; // player1 + registered players
             const isFull = currentPlayers >= game.maxPlayers;
-            const isRegistered = game.registrations.some(r => r.user.id === user.id);
+            const userRegistration = game.registrations.find(r => r.user.id === user.id);
+            const isRegistered = !!userRegistration;
+            const isApproved = userRegistration?.status === 'APPROVED';
+            const isRejected = userRegistration?.status === 'REJECTED';
+            const isPending = userRegistration?.status === 'PENDING';
             
             return (
               <div key={game.id} style={{
@@ -701,14 +705,18 @@ const GameScheduler: React.FC = () => {
                     </span>
                     {isRegistered && (
                       <span style={{
-                        background: '#10b981',
+                        background: isApproved ? '#10b981' : 
+                                   isRejected ? '#ef4444' : 
+                                   isPending ? '#f59e0b' : '#6b7280',
                         color: 'white',
                         padding: '4px 8px',
                         borderRadius: '4px',
                         fontSize: '12px',
                         fontWeight: '600'
                       }}>
-                        Registered
+                        {isApproved ? 'Approved' : 
+                         isRejected ? 'Rejected' : 
+                         isPending ? 'Pending' : 'Registered'}
                       </span>
                     )}
                   </div>
@@ -747,24 +755,56 @@ const GameScheduler: React.FC = () => {
                   </div>
                 )}
                 
-                {!isRegistered && game.status === 'SCHEDULED' && (
+                {/* Show join button only if user is not registered or has pending registration */}
+                {(!isRegistered || isPending) && game.status === 'SCHEDULED' && !isRejected && (
                   <button
                     onClick={() => registerForGame(game.id)}
-                    disabled={isFull}
+                    disabled={isFull && !isPending}
                     style={{
-                      background: isFull ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
+                      background: isFull && !isPending ? '#6b7280' : 'linear-gradient(135deg, #10b981, #059669)',
                       color: 'white',
                       border: 'none',
                       borderRadius: '6px',
                       padding: '8px 16px',
                       fontSize: '14px',
                       fontWeight: '600',
-                      cursor: isFull ? 'not-allowed' : 'pointer',
-                      opacity: isFull ? 0.5 : 1
+                      cursor: (isFull && !isPending) ? 'not-allowed' : 'pointer',
+                      opacity: (isFull && !isPending) ? 0.5 : 1
                     }}
                   >
-                    {isFull ? 'Join Waitlist' : 'Join Game'}
+                    {isFull && !isPending ? 'Join Waitlist' : 
+                     isPending ? 'Registration Pending' : 'Join Game'}
                   </button>
+                )}
+                
+                {/* Show message for rejected players */}
+                {isRejected && (
+                  <div style={{
+                    background: '#7f1d1d',
+                    color: '#fecaca',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    border: '1px solid #dc2626'
+                  }}>
+                    ❌ Your registration was rejected. You cannot join this game.
+                  </div>
+                )}
+                
+                {/* Show message for approved players */}
+                {isApproved && (
+                  <div style={{
+                    background: '#065f46',
+                    color: '#d1fae5',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    border: '1px solid #10b981'
+                  }}>
+                    ✅ Your registration is approved! You can join this game.
+                  </div>
                 )}
               </div>
             );
