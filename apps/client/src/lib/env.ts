@@ -26,7 +26,7 @@ export const API_BASE: string = (() => {
   
   // WYMUSZENIE względnych ścieżek dla Netlify (bypass cache)
   if (typeof window !== "undefined" && window.location.hostname.includes('netlify.app')) {
-    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.4.0 - BYPASS RATE LIMIT');
+    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.4.1 - FIX SESSION ISSUES');
     return "";
   }
 

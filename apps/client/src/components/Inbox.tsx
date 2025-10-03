@@ -560,7 +560,8 @@ END:VCALENDAR`;
                           
                           console.log('🔍 Request data:', requestData);
                           
-                          const response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/approve-registration', {
+                          // Try direct backend URL first (bypass Netlify proxy issues)
+                          let response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/approve-registration', {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
@@ -569,6 +570,19 @@ END:VCALENDAR`;
                             credentials: 'include',
                             body: JSON.stringify(requestData)
                           });
+                          
+                          // If direct URL fails, try with Netlify proxy
+                          if (!response.ok && response.status === 401) {
+                            console.log('🔍 Direct backend failed, trying Netlify proxy...');
+                            response = await fetch(api('/api/v2/public-games/approve-registration'), {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              credentials: 'include',
+                              body: JSON.stringify(requestData)
+                            });
+                          }
 
                           if (response.ok) {
                             alert('✅ Registration approved successfully!');
@@ -612,7 +626,8 @@ END:VCALENDAR`;
                           
                           console.log('🔍 Request data:', requestData);
                           
-                          const response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/reject-registration', {
+                          // Try direct backend URL first (bypass Netlify proxy issues)
+                          let response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/reject-registration', {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',
@@ -621,6 +636,19 @@ END:VCALENDAR`;
                             credentials: 'include',
                             body: JSON.stringify(requestData)
                           });
+                          
+                          // If direct URL fails, try with Netlify proxy
+                          if (!response.ok && response.status === 401) {
+                            console.log('🔍 Direct backend failed, trying Netlify proxy...');
+                            response = await fetch(api('/api/v2/public-games/reject-registration'), {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              credentials: 'include',
+                              body: JSON.stringify(requestData)
+                            });
+                          }
 
                           if (response.ok) {
                             alert('❌ Registration rejected successfully!');
