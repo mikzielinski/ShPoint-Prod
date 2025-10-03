@@ -28,5 +28,6 @@ RUN npm run build
 ENV PORT=3001
 EXPOSE 3001
 
-# Run migrations and start server
-CMD npx prisma migrate deploy && node dist/index.js
+# Make start script executable and run migrations with retry
+RUN chmod +x start.sh
+CMD ./start.sh
