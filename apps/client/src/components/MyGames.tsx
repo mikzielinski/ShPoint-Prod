@@ -425,83 +425,83 @@ export default function MyGames({ playerId }: MyGamesProps) {
             marginBottom: '20px',
             flexWrap: 'wrap'
           }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-            Result
-          </label>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            style={{
-              padding: '6px 8px',
-              border: '1px solid #ced4da',
-              borderRadius: '4px',
-              fontSize: '14px'
-            }}
-          >
-            <option value="all">All Results</option>
-            <option value="wins">Wins</option>
-            <option value="losses">Losses</option>
-            <option value="draws">Draws</option>
-          </select>
-        </div>
-        
-        <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-            Mode
-          </label>
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value as any)}
-            style={{
-              padding: '6px 8px',
-              border: '1px solid #ced4da',
-              borderRadius: '4px',
-              fontSize: '14px'
-            }}
-          >
-            <option value="all">All Modes</option>
-            <option value="CASUAL">Casual</option>
-            <option value="RANKED">Ranked</option>
-            <option value="TOURNAMENT">Tournament</option>
-            <option value="FRIENDLY">Friendly</option>
-          </select>
-        </div>
-      </div>
-
-      {error && (
-        <div style={{ 
-          padding: '12px', 
-          backgroundColor: '#f8d7da', 
-          color: '#721c24', 
-          border: '1px solid #f5c6cb',
-          borderRadius: '4px',
-          marginBottom: '20px'
-        }}>
-          {error}
-        </div>
-      )}
-
-      {loading && games.length === 0 ? (
-        <div style={{ padding: '40px', textAlign: 'center' }}>Loading games...</div>
-      ) : games.length === 0 ? (
-        <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
-          No games found
-        </div>
-      ) : (
-        <div>
-          {games.map(game => (
-            <div key={game.id} style={{
-              border: '1px solid #e9ecef',
-              borderRadius: '8px',
-              marginBottom: '16px',
-              overflow: 'hidden'
-            }}>
-              {/* Game Header */}
-              <div
-                onClick={() => toggleGameExpansion(game.id)}
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Result
+              </label>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
                 style={{
-                  padding: '16px',
+                  padding: '6px 8px',
+                  border: '1px solid #ced4da',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="all">All Results</option>
+                <option value="wins">Wins</option>
+                <option value="losses">Losses</option>
+                <option value="draws">Draws</option>
+              </select>
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                Mode
+              </label>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as any)}
+                style={{
+                  padding: '6px 8px',
+                  border: '1px solid #ced4da',
+                  borderRadius: '4px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="all">All Modes</option>
+                <option value="CASUAL">Casual</option>
+                <option value="RANKED">Ranked</option>
+                <option value="TOURNAMENT">Tournament</option>
+                <option value="FRIENDLY">Friendly</option>
+              </select>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{ 
+              padding: '12px', 
+              backgroundColor: '#f8d7da', 
+              color: '#721c24', 
+              border: '1px solid #f5c6cb',
+              borderRadius: '4px',
+              marginBottom: '20px'
+            }}>
+              {error}
+            </div>
+          )}
+
+          {loading && games.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>Loading games...</div>
+          ) : games.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
+              No games found
+            </div>
+          ) : (
+            <div>
+              {games.map(game => (
+                <div key={game.id} style={{
+                  border: '1px solid #e9ecef',
+                  borderRadius: '8px',
+                  marginBottom: '16px',
+                  overflow: 'hidden'
+                }}>
+                  {/* Game Header */}
+                  <div
+                    onClick={() => toggleGameExpansion(game.id)}
+                    style={{
+                      padding: '16px',
                   backgroundColor: '#f8f9fa',
                   cursor: 'pointer',
                   display: 'flex',
@@ -773,6 +773,8 @@ export default function MyGames({ playerId }: MyGamesProps) {
               >
                 {loading ? 'Loading...' : 'Load More'}
               </button>
+            </div>
+          )}
             </div>
           )}
         </div>
