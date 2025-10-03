@@ -81,6 +81,7 @@ import {
 import { 
   getScheduledGames, 
   getMyApprovedGames,
+  getMyPublicGames,
   createScheduledGame, 
   updateScheduledGame, 
   addGameReminder,
@@ -88,6 +89,7 @@ import {
   generateCalendarEvent,
   getPublicGames,
   createPublicGame,
+  deletePublicGame,
   registerForPublicGame,
   approveGameRegistration,
   rejectGameRegistration
@@ -245,43 +247,11 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
   skip: (req) => {
     try {
-      console.log('🔍 Rate limiter checking path:', req.path);
-      
-      // Skip for ALL API endpoints - no rate limiting at all
-      if (req.path && req.path.startsWith('/api/')) {
-        console.log('✅ Skipping rate limit for ALL API endpoints:', req.path);
-        return true;
-      }
-      
-      // Skip for all Netlify proxy endpoints (all /backend-api/* paths)
-      if (req.path && req.path.startsWith('/backend-api/')) {
-        console.log('✅ Skipping rate limit for Netlify proxy:', req.path);
-        return true;
-      }
-      
-      // Skip for all auth endpoints
-      if (req.path && req.path.startsWith('/auth/')) {
-        console.log('✅ Skipping rate limit for auth endpoint:', req.path);
-        return true;
-      }
-      
-      // Skip for all debug endpoints
-      if (req.path && req.path.startsWith('/debug/')) {
-        console.log('✅ Skipping rate limit for debug endpoint:', req.path);
-        return true;
-      }
-      
-      // Skip for health and unban
-      if (req.path === '/health' || req.path === '/unban') {
-        console.log('✅ Skipping rate limit for system endpoint:', req.path);
-        return true;
-      }
-      
-      // Skip for all other paths too - basically disable rate limiting completely
-      console.log('✅ Skipping rate limit for all paths:', req.path);
+      // COMPLETELY DISABLE rate limiting for testing
+      console.log('🔍 Rate limiting COMPLETELY DISABLED for:', req.path);
       return true;
     } catch (error) {
-      console.error('Rate limiter skip function error:', error);
+      console.error('Rate limiter error:', error);
       return true; // Skip on error too
     }
   }
@@ -6529,6 +6499,7 @@ app.get("/api/v2/players/available", ensureAuth, addUserToRequest, getAvailableP
 // ===== SCHEDULED GAMES API =====
 app.get("/api/v2/scheduled-games", ensureAuth, addUserToRequest, getScheduledGames);
 app.get("/api/v2/scheduled-games/my-approved", ensureAuth, addUserToRequest, getMyApprovedGames);
+app.get("/api/v2/scheduled-games/my-public", ensureAuth, addUserToRequest, getMyPublicGames);
 app.post("/api/v2/scheduled-games", ensureAuth, addUserToRequest, createScheduledGame);
 app.put("/api/v2/scheduled-games/:id", ensureAuth, addUserToRequest, updateScheduledGame);
 app.post("/api/v2/scheduled-games/:id/reminders", ensureAuth, addUserToRequest, addGameReminder);
@@ -6538,6 +6509,7 @@ app.get("/api/v2/scheduled-games/:id/calendar", ensureAuth, addUserToRequest, ge
 // ===== PUBLIC GAMES API =====
 app.get("/api/v2/public-games", getPublicGames);
 app.post("/api/v2/public-games", ensureAuth, addUserToRequest, createPublicGame);
+app.delete("/api/v2/public-games/:id", ensureAuth, addUserToRequest, deletePublicGame);
 app.post("/api/v2/public-games/:id/register", ensureAuth, addUserToRequest, registerForPublicGame);
 app.post("/api/v2/public-games/approve-registration", ensureAuth, addUserToRequest, approveGameRegistration);
 app.post("/api/v2/public-games/reject-registration", ensureAuth, addUserToRequest, rejectGameRegistration);

@@ -113,6 +113,34 @@ interface ApprovedGame {
   registrationStatus: string;
 }
 
+interface MyPublicGame {
+  id: string;
+  scheduledDate: string;
+  location?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  mission?: Mission;
+  player1: User;
+  notes?: string;
+  isPaid?: boolean;
+  totalCost?: number;
+  currency?: string;
+  skillLevel?: string;
+  maxPlayers: number;
+  status: string;
+  createdAt: string;
+  registrations: Array<{
+    id: string;
+    user: User;
+    status: string;
+    registeredAt: string;
+  }>;
+  _count: {
+    registrations: number;
+  };
+}
+
 interface MyGamesProps {
   playerId?: string;
 }
@@ -123,15 +151,17 @@ export default function MyGames({ playerId }: MyGamesProps) {
   
   const [games, setGames] = useState<GameResult[]>([]);
   const [approvedGames, setApprovedGames] = useState<ApprovedGame[]>([]);
+  const [myPublicGames, setMyPublicGames] = useState<MyPublicGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [approvedLoading, setApprovedLoading] = useState(true);
+  const [myPublicGamesLoading, setMyPublicGamesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedGame, setExpandedGame] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'wins' | 'losses' | 'draws'>('all');
   const [mode, setMode] = useState<'all' | 'CASUAL' | 'RANKED' | 'TOURNAMENT' | 'FRIENDLY'>('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [activeTab, setActiveTab] = useState<'results' | 'approved'>('results');
+  const [activeTab, setActiveTab] = useState<'results' | 'approved' | 'my-public'>('results');
 
   const targetPlayerId = playerId || me?.id;
 
@@ -197,12 +227,35 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
+  const loadMyPublicGames = async () => {
+    if (!me) return;
+
+    try {
+      setMyPublicGamesLoading(true);
+      const response = await fetch(api('/api/v2/scheduled-games/my-public'), {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (data.ok) {
+        setMyPublicGames(data.games);
+      } else {
+        console.error('Failed to load my public games:', data.error);
+      }
+    } catch (err) {
+      console.error('Failed to load my public games:', err);
+    } finally {
+      setMyPublicGamesLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadGames();
   }, [me, targetPlayerId, filter, mode]);
 
   useEffect(() => {
     loadApprovedGames();
+    loadMyPublicGames();
   }, [me]);
 
   const formatDate = (dateString: string) => {

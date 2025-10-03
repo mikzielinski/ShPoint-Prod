@@ -70,6 +70,78 @@ export const getMyApprovedGames = async (req: Request, res: Response) => {
   }
 };
 
+export async function getMyPublicGames(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Get public games created by the user
+    const publicGames = await prisma.scheduledGame.findMany({
+      where: {
+        player1Id: userId,
+        isPublic: true
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        },
+        registrations: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                avatarUrl: true
+              }
+            }
+          },
+          orderBy: {
+            registeredAt: 'asc'
+          }
+        },
+        _count: {
+          select: {
+            registrations: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.json({
+      ok: true,
+      games: publicGames
+    });
+  } catch (error) {
+    console.error('Error fetching my public games:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to fetch my public games' 
+    });
+  }
+}
+
 export async function getScheduledGames(req: Request, res: Response) {
   try {
     const userId = (req as any).user?.id;
@@ -927,6 +999,89 @@ export async function getPublicGames(req: Request, res: Response) {
     res.status(500).json({ 
       ok: false, 
       error: 'Failed to fetch public games' 
+    });
+  }
+}
+
+export async function deletePublicGame(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Check if the game exists and belongs to the user
+    const game = await prisma.scheduledGame.findFirst({
+      where: {
+        id,
+        player1Id: userId,
+        isPublic: true
+      },
+      include: {
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        },
+        registrations: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!game) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game not found or access denied' 
+      });
+    }
+
+    // Send notifications to all registered players
+    for (const registration of game.registrations) {
+      await createInboxMessage(
+        registration.userId,
+        userId,
+        'game_cancelled',
+        'Public Game Cancelled',
+        `The public game "${game.mission?.name || 'Mission'}" scheduled for ${new Date(game.scheduledDate).toLocaleDateString('en-US')} has been cancelled by the host.`,
+        {
+          gameId: game.id,
+          mission: game.mission?.name,
+          scheduledDate: game.scheduledDate,
+          location: game.location || game.address || `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '')
+        }
+      );
+    }
+
+    // Delete the game (this will cascade delete registrations)
+    await prisma.scheduledGame.delete({
+      where: { id }
+    });
+
+    res.json({
+      ok: true,
+      message: 'Game deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting public game:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to delete game' 
     });
   }
 }
