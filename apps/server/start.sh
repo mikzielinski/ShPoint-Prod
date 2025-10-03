@@ -9,7 +9,7 @@ run_migrations() {
     for i in {1..3}; do
         echo "🔄 Migration attempt $i/3..."
         
-        if npx prisma migrate deploy; then
+        if timeout 30 npx prisma migrate deploy --skip-seed; then
             echo "✅ Migrations completed successfully!"
             return 0
         else
@@ -22,7 +22,7 @@ run_migrations() {
     done
     
     echo "⚠️ All migration attempts failed, trying db push as fallback..."
-    if npx prisma db push --accept-data-loss; then
+    if timeout 30 npx prisma db push --accept-data-loss; then
         echo "✅ Database schema synced with db push!"
         return 0
     else

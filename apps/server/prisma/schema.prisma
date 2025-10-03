@@ -3,81 +3,67 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id                   String                @id @default(cuid())
-  email                String                @unique
-  name                 String?
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
-  avatarUrl            String?
-  role                 Role                  @default(USER)
-  lastLoginAt          DateTime?
-  status               UserStatus            @default(ACTIVE)
-  image                String?
-  passwordHash         String?
-  invitedAt            DateTime?
-  invitedBy            String?
-  username             String?               @unique
-  invitationsLimit     Int                   @default(0)
-  invitationsSent      Int                   @default(0)
-  lastInvitationSentAt DateTime?
-  suspendedAt          DateTime?
-  suspendedBy          String?
-  suspendedReason      String?
-  suspendedUntil       DateTime?
-  cards                Card[]
-  characterCollections CharacterCollection[]
-  collections          Collection[]
-  missionCollections   MissionCollection[]
-  setCollections       SetCollection[]
-  strikeTeams          StrikeTeam[]
-  customCards          CustomMadeCard[]
-  customCardShares     CustomCardShare[]
-  customCardCollections CustomCardCollection[]
-  auditLogs            AuditLog[]
-  // Nowe relacje dla Shatterpoint
-  createdCharacters    Character[] @relation("CharacterCreatedBy")
-  updatedCharacters    Character[] @relation("CharacterUpdatedBy")
-  
-  // Comments system
-  comments             Comment[] @relation("CommentAuthor")
-  commentLikes         CommentLike[] @relation("CommentLikes")
-  
-  // Inbox system
-  inboxMessages        InboxMessage[] @relation("InboxRecipient")
-  sentMessages         InboxMessage[] @relation("InboxSender")
-  
-  // Challenge system
-  challengesSent       Challenge[] @relation("ChallengeChallenger")
-  challengesReceived   Challenge[] @relation("ChallengeChallenged")
-  
-  // Scheduled games
-  gamesAsPlayer1       ScheduledGame[] @relation("ScheduledGamePlayer1")
-  gamesAsPlayer2       ScheduledGame[] @relation("ScheduledGamePlayer2")
-  gameReminders        GameReminder[] @relation("GameReminders")
-  gameRegistrations    GameRegistration[] @relation("GameRegistrations")
-  
-  // Game results
-  gameResultsAsPlayer1 GameResult[] @relation("GameResultPlayer1")
-  gameResultsAsPlayer2 GameResult[] @relation("GameResultPlayer2")
-  gameResultsWon       GameResult[] @relation("GameResultWinner")
-  gameResultsReported  GameResult[] @relation("GameResultReportedBy")
-  gameResultCharacters GameResultCharacter[] @relation("GameResultCharacterPlayer")
-  characterStates CharacterState[] @relation("CharacterStatePlayer")
-  diceRolls DiceRoll[] @relation("DiceRollPlayer")
-  nodeActivations NodeActivation[] @relation("NodeActivationPlayer")
-  // API Tokens
+  id                     String                 @id @default(cuid())
+  email                  String                 @unique
+  name                   String?
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  avatarUrl              String?
+  role                   Role                   @default(USER)
+  lastLoginAt            DateTime?
+  status                 UserStatus             @default(ACTIVE)
+  image                  String?
+  passwordHash           String?
+  invitedAt              DateTime?
+  invitedBy              String?
+  username               String?                @unique
+  invitationsLimit       Int                    @default(0)
+  invitationsSent        Int                    @default(0)
+  lastInvitationSentAt   DateTime?
+  suspendedAt            DateTime?
+  suspendedBy            String?
+  suspendedReason        String?
+  suspendedUntil         DateTime?
+  accessRequestsReviewed AccessRequest[]        @relation("AccessRequestReviewedBy")
   apiTokens              ApiToken[]
-
-  // Relations
-  accessRequestsReviewed AccessRequest[] @relation("AccessRequestReviewedBy")
-  invitationsSentRel UserInvitation[] @relation("UserInvitations")
-  invitedByRel UserInvitation? @relation("UserInvitedBy")
-  trustedIPsCreated TrustedIP[] @relation("TrustedIPCreatedBy")
+  auditLogs              AuditLog[]
+  cards                  Card[]
+  challengesReceived     Challenge[]            @relation("ChallengeChallenged")
+  challengesSent         Challenge[]            @relation("ChallengeChallenger")
+  createdCharacters      Character[]            @relation("CharacterCreatedBy")
+  updatedCharacters      Character[]            @relation("CharacterUpdatedBy")
+  characterCollections   CharacterCollection[]
+  characterStates        CharacterState[]       @relation("CharacterStatePlayer")
+  collections            Collection[]
+  comments               Comment[]              @relation("CommentAuthor")
+  commentLikes           CommentLike[]          @relation("CommentLikes")
+  customCardCollections  CustomCardCollection[]
+  customCardShares       CustomCardShare[]
+  customCards            CustomMadeCard[]
+  diceRolls              DiceRoll[]             @relation("DiceRollPlayer")
+  gameRegistrations      GameRegistration[]     @relation("GameRegistrations")
+  gameReminders          GameReminder[]         @relation("GameReminders")
+  gameResultsAsPlayer1   GameResult[]           @relation("GameResultPlayer1")
+  gameResultsAsPlayer2   GameResult[]           @relation("GameResultPlayer2")
+  gameResultsReported    GameResult[]           @relation("GameResultReportedBy")
+  gameResultsWon         GameResult[]           @relation("GameResultWinner")
+  gameResultCharacters   GameResultCharacter[]  @relation("GameResultCharacterPlayer")
+  inboxMessages          InboxMessage[]         @relation("InboxRecipient")
+  sentMessages           InboxMessage[]         @relation("InboxSender")
+  missionCollections     MissionCollection[]
+  nodeActivations        NodeActivation[]       @relation("NodeActivationPlayer")
+  gamesAsPlayer1         ScheduledGame[]        @relation("ScheduledGamePlayer1")
+  gamesAsPlayer2         ScheduledGame[]        @relation("ScheduledGamePlayer2")
+  setCollections         SetCollection[]
+  strikeTeams            StrikeTeam[]
+  trustedIPsCreated      TrustedIP[]            @relation("TrustedIPCreatedBy")
+  invitationsSentRel     UserInvitation[]       @relation("UserInvitations")
+  invitedByRel           UserInvitation?        @relation("UserInvitedBy")
 
   @@index([createdAt])
   @@index([email])
@@ -91,18 +77,16 @@ model User {
 }
 
 model UserInvitation {
-  id          String    @id @default(cuid())
-  email       String    @unique
-  invitedBy   String
-  invitedAt   DateTime  @default(now())
-  expiresAt   DateTime
-  usedAt      DateTime?
-  usedBy      String?   @unique
-  
-  // Relations
-  inviter     User      @relation("UserInvitations", fields: [invitedBy], references: [id])
-  user        User?     @relation("UserInvitedBy", fields: [usedBy], references: [id])
-  
+  id        String    @id @default(cuid())
+  email     String    @unique
+  invitedBy String
+  invitedAt DateTime  @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+  usedBy    String?   @unique
+  inviter   User      @relation("UserInvitations", fields: [invitedBy], references: [id])
+  user      User?     @relation("UserInvitedBy", fields: [usedBy], references: [id])
+
   @@index([email])
   @@index([invitedBy])
   @@index([expiresAt])
@@ -146,13 +130,13 @@ model AllowedEmail {
 }
 
 model TrustedIP {
-  id          String   @id @default(cuid())
-  ip          String   @unique
-  description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  createdBy   String?
-  createdByUser User?  @relation("TrustedIPCreatedBy", fields: [createdBy], references: [id])
+  id            String   @id @default(cuid())
+  ip            String   @unique
+  description   String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  createdBy     String?
+  createdByUser User?    @relation("TrustedIPCreatedBy", fields: [createdBy], references: [id])
 
   @@index([ip])
   @@index([isActive])
@@ -201,21 +185,21 @@ model CollectionItem {
 }
 
 model CharacterCollection {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   characterId String
   notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isFavorite  Boolean  @default(false)
-  isOwned     Boolean  @default(false)
-  isPainted   Boolean  @default(false)
-  isSold      Boolean  @default(false)
-  isWishlist  Boolean  @default(false)
-  deaths      Int      @default(0)
-  kills       Int      @default(0)
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isFavorite  Boolean   @default(false)
+  isOwned     Boolean   @default(false)
+  isPainted   Boolean   @default(false)
+  isSold      Boolean   @default(false)
+  isWishlist  Boolean   @default(false)
+  deaths      Int       @default(0)
+  kills       Int       @default(0)
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, characterId])
   @@index([userId])
@@ -237,8 +221,8 @@ model SetCollection {
   isPainted  Boolean  @default(false)
   isSold     Boolean  @default(false)
   isWishlist Boolean  @default(false)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   set        Set      @relation(fields: [setId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, setId])
   @@index([userId])
@@ -261,8 +245,8 @@ model MissionCollection {
   isLocked    Boolean   @default(false)
   isOwned     Boolean   @default(false)
   isWishlist  Boolean   @default(false)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   mission     Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, missionId])
   @@index([userId])
@@ -273,30 +257,26 @@ model MissionCollection {
 }
 
 model StrikeTeam {
-  id          String                @id @default(cuid())
-  userId      String
-  name        String
-  type        StrikeTeamType        @default(MY_TEAMS)
-  description String?
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  draws       Int                   @default(0)
-  isPublished Boolean               @default(false)
-  losses      Int                   @default(0)
-  squad1Name  String                @default("Squad 1")
-  squad2Name  String                @default("Squad 2")
-  wins        Int                   @default(0)
-  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  characters  StrikeTeamCharacter[]
-  
-  // Challenge system relations
-  challengesAsChallenger Challenge[] @relation("ChallengeChallengerTeam")
-  gamesAsPlayer1Team     ScheduledGame[] @relation("ScheduledGamePlayer1Team")
-  gamesAsPlayer2Team     ScheduledGame[] @relation("ScheduledGamePlayer2Team")
-  
-  // Game results relations
-  gameResultsAsPlayer1Team GameResult[] @relation("GameResultPlayer1Team")
-  gameResultsAsPlayer2Team GameResult[] @relation("GameResultPlayer2Team")
+  id                       String                @id @default(cuid())
+  userId                   String
+  name                     String
+  type                     StrikeTeamType        @default(MY_TEAMS)
+  description              String?
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  draws                    Int                   @default(0)
+  isPublished              Boolean               @default(false)
+  losses                   Int                   @default(0)
+  squad1Name               String                @default("Squad 1")
+  squad2Name               String                @default("Squad 2")
+  wins                     Int                   @default(0)
+  challengesAsChallenger   Challenge[]           @relation("ChallengeChallengerTeam")
+  gameResultsAsPlayer1Team GameResult[]          @relation("GameResultPlayer1Team")
+  gameResultsAsPlayer2Team GameResult[]          @relation("GameResultPlayer2Team")
+  gamesAsPlayer1Team       ScheduledGame[]       @relation("ScheduledGamePlayer1Team")
+  gamesAsPlayer2Team       ScheduledGame[]       @relation("ScheduledGamePlayer2Team")
+  user                     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  characters               StrikeTeamCharacter[]
 
   @@index([userId])
   @@index([type])
@@ -312,13 +292,667 @@ model StrikeTeamCharacter {
   createdAt     DateTime      @default(now())
   characterName String?
   unitCount     Int           @default(1)
-  strikeTeam    StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
   character     Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  strikeTeam    StrikeTeam    @relation(fields: [strikeTeamId], references: [id], onDelete: Cascade)
 
   @@unique([strikeTeamId, characterId])
   @@index([strikeTeamId])
   @@index([characterId])
   @@index([characterName])
+}
+
+model CustomMadeCard {
+  id          String                 @id @default(cuid())
+  name        String
+  description String?
+  faction     String
+  unitType    CharacterRole
+  squadPoints Int
+  stamina     Int
+  durability  Int
+  force       Int?
+  hanker      Int?
+  abilities   Json?
+  stances     Json?
+  portrait    String?
+  status      CustomCardStatus       @default(DRAFT)
+  isPublic    Boolean                @default(false)
+  authorId    String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  collections CustomCardCollection[]
+  sharedWith  CustomCardShare[]
+  author      User                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([status])
+  @@index([isPublic])
+  @@index([faction])
+  @@index([unitType])
+}
+
+model CustomCardShare {
+  id           String         @id @default(cuid())
+  cardId       String
+  sharedWithId String
+  accepted     Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  card         CustomMadeCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  sharedWith   User           @relation(fields: [sharedWithId], references: [id], onDelete: Cascade)
+
+  @@unique([cardId, sharedWithId])
+  @@index([cardId])
+  @@index([sharedWithId])
+  @@index([accepted])
+}
+
+model CustomCardCollection {
+  id         String         @id @default(cuid())
+  userId     String
+  cardId     String
+  isOwned    Boolean        @default(false)
+  isPainted  Boolean        @default(false)
+  isWishlist Boolean        @default(false)
+  isFavorite Boolean        @default(false)
+  notes      String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  card       CustomMadeCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
+  @@index([userId])
+  @@index([cardId])
+  @@index([isOwned])
+  @@index([isPainted])
+  @@index([isWishlist])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  entityType  EntityType
+  entityId    String
+  action      AuditAction
+  userId      String?
+  changes     Json?
+  description String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+  user        User?       @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Character {
+  id                      String                @id @default(cuid())
+  name                    String
+  slug                    String                @unique
+  faction                 String
+  unitType                String
+  squadPoints             Int
+  stamina                 Int
+  durability              Int
+  force                   Int?
+  hanker                  Int?
+  boxSetCode              String?
+  characterNames          String
+  numberOfCharacters      Int                   @default(1)
+  era                     String[]
+  period                  String[]
+  tags                    String[]
+  factions                String[]
+  portraitUrl             String?
+  imageUrl                String?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  createdBy               String?
+  updatedBy               String?
+  version                 Int                   @default(1)
+  isActive                Boolean               @default(true)
+  createdByUser           User?                 @relation("CharacterCreatedBy", fields: [createdBy], references: [id])
+  updatedByUser           User?                 @relation("CharacterUpdatedBy", fields: [updatedBy], references: [id])
+  abilities               CharacterAbility[]
+  characterCollections    CharacterCollection[]
+  stances                 CharacterStance?
+  characterStates         CharacterState[]
+  diceRolls               DiceRoll[]
+  diceRollsAsSource       DiceRoll[]            @relation("DiceRollTarget")
+  gameResultCharacters    GameResultCharacter[]
+  nodeActivations         NodeActivation[]
+  nodeActivationsAsTarget NodeActivation[]      @relation("NodeActivationTarget")
+  setCharacters           SetCharacter[]
+  strikeTeamCharacters    StrikeTeamCharacter[]
+
+  @@index([faction])
+  @@index([unitType])
+  @@index([boxSetCode])
+  @@index([isActive])
+  @@index([name])
+  @@index([squadPoints])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model CharacterAbility {
+  id          String    @id @default(cuid())
+  characterId String
+  name        String
+  type        String
+  symbol      String
+  trigger     String
+  isAction    Boolean   @default(false)
+  forceCost   Int       @default(0)
+  damageCost  Int       @default(0)
+  description String
+  tags        String[]
+  legacyText  String?
+  legacyTitle String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([type])
+  @@index([order])
+  @@index([characterId, order])
+}
+
+model CharacterStance {
+  id              String    @id @default(cuid())
+  characterId     String    @unique
+  attackDice      Int
+  defenseDice     Int
+  meleeExpertise  Int
+  rangedExpertise Int
+  tree            Json
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+}
+
+model Set {
+  id             String          @id @default(cuid())
+  name           String
+  code           String          @unique
+  type           SetType
+  description    String?
+  productUrl     String?
+  imageUrl       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  isActive       Boolean         @default(true)
+  characters     SetCharacter[]
+  setCollections SetCollection[]
+
+  @@index([code])
+  @@index([type])
+  @@index([isActive])
+  @@index([name])
+}
+
+model SetCharacter {
+  id          String        @id @default(cuid())
+  setId       String
+  characterId String?
+  role        CharacterRole
+  name        String
+  character   Character?    @relation(fields: [characterId], references: [id])
+  set         Set           @relation(fields: [setId], references: [id], onDelete: Cascade)
+
+  @@unique([setId, characterId])
+  @@index([setId])
+  @@index([characterId])
+  @@index([role])
+}
+
+model Mission {
+  id                 String              @id @default(cuid())
+  name               String
+  source             String
+  setCode            String?
+  description        String?
+  thumbnailUrl       String?
+  mapSizeInch        Int
+  mapUnit            String
+  mapOrigin          String
+  mapAxis            String
+  pointDiameterInch  Float
+  pointColorActive   String
+  pointColorInactive String
+  tags               String[]
+  notes              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  isActive           Boolean             @default(true)
+  gameResults        GameResult[]
+  gameSessions       GameSession[]
+  missionCollections MissionCollection[]
+  objectives         MissionObjective[]
+  struggles          MissionStruggle[]
+  scheduledGames     ScheduledGame[]
+
+  @@index([source])
+  @@index([setCode])
+  @@index([isActive])
+  @@index([name])
+}
+
+model MissionObjective {
+  id        String  @id @default(cuid())
+  missionId String
+  key       String
+  x         Float
+  y         Float
+  radius    Float
+  mission   Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId])
+  @@index([missionId, key])
+}
+
+model MissionStruggle {
+  id        String  @id @default(cuid())
+  missionId String
+  index     Int
+  cards     Json
+  mission   Mission @relation(fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@index([missionId])
+  @@index([missionId, index])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  content   String
+  type      CommentType
+  entityId  String
+  authorId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  isDeleted Boolean       @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+  parentId  String?
+  author    User          @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[]     @relation("CommentReplies")
+  likes     CommentLike[]
+
+  @@index([type, entityId])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation("CommentLikes", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@index([userId])
+}
+
+model InboxMessage {
+  id          String    @id @default(cuid())
+  recipientId String
+  senderId    String?
+  type        String
+  title       String
+  content     String
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+  data        Json?
+  recipient   User      @relation("InboxRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  sender      User?     @relation("InboxSender", fields: [senderId], references: [id])
+
+  @@index([recipientId, isRead])
+  @@index([createdAt])
+}
+
+model Challenge {
+  id                     String          @id @default(cuid())
+  challengerId           String
+  challengedId           String
+  status                 ChallengeStatus @default(PENDING)
+  preferredMissions      String[]
+  challengerStrikeTeamId String?
+  language               String          @default("en")
+  location               String?
+  address                String?
+  reservationCost        Decimal?        @db.Decimal(10, 2)
+  description            String?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  acceptedAt             DateTime?
+  declinedAt             DateTime?
+  cancelledAt            DateTime?
+  completedAt            DateTime?
+  challenged             User            @relation("ChallengeChallenged", fields: [challengedId], references: [id], onDelete: Cascade)
+  challenger             User            @relation("ChallengeChallenger", fields: [challengerId], references: [id], onDelete: Cascade)
+  challengerStrikeTeam   StrikeTeam?     @relation("ChallengeChallengerTeam", fields: [challengerStrikeTeamId], references: [id])
+  scheduledGame          ScheduledGame?
+
+  @@index([challengerId])
+  @@index([challengedId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ScheduledGame {
+  id                  String             @id @default(cuid())
+  challengeId         String?            @unique
+  player1Id           String
+  player2Id           String?
+  status              GameStatus         @default(SCHEDULED)
+  scheduledDate       DateTime
+  location            String?
+  address             String?
+  missionId           String?
+  player1StrikeTeamId String?
+  player2StrikeTeamId String?
+  notes               String?
+  isPublic            Boolean            @default(false)
+  maxPlayers          Int?               @default(2)
+  city                String?
+  country             String?
+  skillLevel          String?
+  isPaid              Boolean            @default(false)
+  totalCost           Float?
+  currency            String?            @default("PLN")
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  confirmedAt         DateTime?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  registrations       GameRegistration[]
+  reminders           GameReminder[]
+  gameResult          GameResult?
+  challenge           Challenge?         @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  mission             Mission?           @relation(fields: [missionId], references: [id])
+  player1             User               @relation("ScheduledGamePlayer1", fields: [player1Id], references: [id], onDelete: Cascade)
+  player1StrikeTeam   StrikeTeam?        @relation("ScheduledGamePlayer1Team", fields: [player1StrikeTeamId], references: [id])
+  player2             User?              @relation("ScheduledGamePlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
+  player2StrikeTeam   StrikeTeam?        @relation("ScheduledGamePlayer2Team", fields: [player2StrikeTeamId], references: [id])
+
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([scheduledDate])
+  @@index([status])
+  @@index([isPublic])
+  @@index([city])
+  @@index([country])
+  @@index([city, country])
+}
+
+model GameReminder {
+  id              String        @id @default(cuid())
+  gameId          String
+  userId          String
+  type            ReminderType
+  reminderTime    DateTime
+  isSent          Boolean       @default(false)
+  isEnabled       Boolean       @default(true)
+  sentAt          DateTime?
+  calendarEventId String?
+  createdAt       DateTime      @default(now())
+  game            ScheduledGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user            User          @relation("GameReminders", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([gameId])
+  @@index([userId])
+  @@index([reminderTime])
+}
+
+model GameRegistration {
+  id               String                 @id @default(cuid())
+  gameId           String
+  userId           String
+  status           GameRegistrationStatus @default(PENDING)
+  registeredAt     DateTime               @default(now())
+  approvedAt       DateTime?
+  rejectedAt       DateTime?
+  waitlistPosition Int?
+  notes            String?
+  game             ScheduledGame          @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user             User                   @relation("GameRegistrations", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, userId])
+  @@index([gameId])
+  @@index([userId])
+  @@index([status])
+  @@index([waitlistPosition])
+}
+
+model GameResult {
+  id                  String                @id @default(cuid())
+  player1Id           String
+  player2Id           String
+  winnerId            String?
+  result              GameResultType
+  mode                GameMode              @default(CASUAL)
+  missionId           String?
+  player1StrikeTeamId String?
+  player2StrikeTeamId String?
+  roundsPlayed        Int                   @default(1)
+  durationMinutes     Int?
+  location            String?
+  notes               String?
+  scheduledGameId     String?               @unique
+  playedAt            DateTime              @default(now())
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  reportedById        String
+  isVerified          Boolean               @default(false)
+  verifiedAt          DateTime?
+  verifiedBy          String?
+  mission             Mission?              @relation(fields: [missionId], references: [id])
+  player1             User                  @relation("GameResultPlayer1", fields: [player1Id], references: [id], onDelete: Cascade)
+  player1StrikeTeam   StrikeTeam?           @relation("GameResultPlayer1Team", fields: [player1StrikeTeamId], references: [id])
+  player2             User                  @relation("GameResultPlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
+  player2StrikeTeam   StrikeTeam?           @relation("GameResultPlayer2Team", fields: [player2StrikeTeamId], references: [id])
+  reportedBy          User                  @relation("GameResultReportedBy", fields: [reportedById], references: [id], onDelete: Cascade)
+  scheduledGame       ScheduledGame?        @relation(fields: [scheduledGameId], references: [id])
+  winner              User?                 @relation("GameResultWinner", fields: [winnerId], references: [id])
+  characterResults    GameResultCharacter[]
+  gameSession         GameSession?
+
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([winnerId])
+  @@index([playedAt])
+  @@index([mode])
+  @@index([missionId])
+}
+
+model GameResultCharacter {
+  id                String     @id @default(cuid())
+  gameResultId      String
+  characterId       String
+  playerId          String
+  damageDealt       Int        @default(0)
+  damageTaken       Int        @default(0)
+  abilitiesUsed     Int        @default(0)
+  objectivesSecured Int        @default(0)
+  isMVP             Boolean    @default(false)
+  character         Character  @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  gameResult        GameResult @relation(fields: [gameResultId], references: [id], onDelete: Cascade)
+  player            User       @relation("GameResultCharacterPlayer", fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([gameResultId])
+  @@index([characterId])
+  @@index([playerId])
+}
+
+model GameSession {
+  id                String           @id @default(cuid())
+  gameResultId      String           @unique
+  missionId         String
+  startingPositions Json
+  setupData         Json?
+  currentTier       StruggleTier     @default(TIER_1)
+  isActive          Boolean          @default(true)
+  startedAt         DateTime         @default(now())
+  completedAt       DateTime?
+  characterStates   CharacterState[]
+  diceRolls         DiceRoll[]
+  gameResult        GameResult       @relation(fields: [gameResultId], references: [id], onDelete: Cascade)
+  mission           Mission          @relation(fields: [missionId], references: [id])
+  nodeActivations   NodeActivation[]
+  struggleCards     StruggleCard[]
+
+  @@index([gameResultId])
+  @@index([missionId])
+  @@index([startedAt])
+}
+
+model StruggleCard {
+  id              String         @id @default(cuid())
+  gameSessionId   String
+  tier            StruggleTier
+  cardName        String
+  cardDescription String?
+  cardImageUrl    String?
+  selectedBy      String?
+  isActive        Boolean        @default(false)
+  isCompleted     Boolean        @default(false)
+  winnerId        String?
+  result          GameResultType
+  selectedAt      DateTime       @default(now())
+  completedAt     DateTime?
+  gameSession     GameSession    @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+
+  @@index([gameSessionId])
+  @@index([tier])
+  @@index([selectedBy])
+}
+
+model CharacterState {
+  id                String          @id @default(cuid())
+  gameSessionId     String
+  characterId       String
+  playerId          String
+  currentStamina    Int
+  currentDurability Int
+  currentForce      Int?
+  currentHanker     Int?
+  status            CharacterStatus @default(NORMAL)
+  statusDuration    Int?
+  damageDealt       Int             @default(0)
+  damageTaken       Int             @default(0)
+  abilitiesUsed     Int             @default(0)
+  objectivesSecured Int             @default(0)
+  isMVP             Boolean         @default(false)
+  currentPosition   Json?
+  updatedAt         DateTime        @updatedAt
+  character         Character       @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  gameSession       GameSession     @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  player            User            @relation("CharacterStatePlayer", fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([gameSessionId])
+  @@index([characterId])
+  @@index([playerId])
+  @@index([status])
+}
+
+model DiceRoll {
+  id                String       @id @default(cuid())
+  gameSessionId     String
+  characterId       String
+  playerId          String
+  diceType          DiceType
+  diceCount         Int
+  diceResults       DiceResult[]
+  action            String?
+  targetCharacterId String?
+  modifiers         Json?
+  finalResult       String?
+  rolledAt          DateTime     @default(now())
+  character         Character    @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  gameSession       GameSession  @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  player            User         @relation("DiceRollPlayer", fields: [playerId], references: [id], onDelete: Cascade)
+  targetCharacter   Character?   @relation("DiceRollTarget", fields: [targetCharacterId], references: [id])
+
+  @@index([gameSessionId])
+  @@index([characterId])
+  @@index([playerId])
+  @@index([diceType])
+  @@index([rolledAt])
+}
+
+model NodeActivation {
+  id                String      @id @default(cuid())
+  gameSessionId     String
+  characterId       String
+  playerId          String
+  nodePath          String
+  nodeName          String
+  nodeEffects       Json
+  activationType    String
+  triggerAction     String?
+  targetCharacterId String?
+  effectsApplied    Json?
+  damageDealt       Int?
+  conditionsApplied String[]
+  activatedAt       DateTime    @default(now())
+  character         Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  gameSession       GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  player            User        @relation("NodeActivationPlayer", fields: [playerId], references: [id], onDelete: Cascade)
+  targetCharacter   Character?  @relation("NodeActivationTarget", fields: [targetCharacterId], references: [id])
+
+  @@index([gameSessionId])
+  @@index([characterId])
+  @@index([playerId])
+  @@index([activationType])
+  @@index([activatedAt])
+}
+
+model AccessRequest {
+  id             String              @id @default(cuid())
+  email          String              @unique
+  name           String?
+  message        String?
+  status         AccessRequestStatus @default(PENDING)
+  requestedAt    DateTime            @default(now())
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  reviewNotes    String?
+  reviewedByUser User?               @relation("AccessRequestReviewedBy", fields: [reviewedBy], references: [id])
+
+  @@index([email])
+  @@index([status])
+  @@index([requestedAt])
+}
+
+model ApiToken {
+  id         String    @id @default(cuid())
+  name       String
+  token      String    @unique
+  userId     String
+  isActive   Boolean   @default(true)
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  scopes     String[]  @default([])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([isActive])
+  @@index([expiresAt])
 }
 
 enum Role {
@@ -371,100 +1005,6 @@ enum CustomCardStatus {
   SHARED
 }
 
-model CustomMadeCard {
-  id            String            @id @default(cuid())
-  name          String
-  description   String?
-  faction       String
-  unitType      CharacterRole
-  squadPoints   Int
-  stamina       Int
-  durability    Int
-  force         Int?
-  hanker        Int?
-  
-  // Card data (JSON)
-  abilities     Json?             // Array of abilities with names, descriptions, icons
-  stances       Json?             // Array of stances with attack/defense data
-  portrait      String?           // Base64 encoded image or URL
-  
-  // Metadata
-  status        CustomCardStatus  @default(DRAFT)
-  isPublic      Boolean           @default(false)
-  authorId      String
-  author        User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  // Sharing
-  sharedWith    CustomCardShare[]
-  collections   CustomCardCollection[]
-  
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  
-  @@index([authorId])
-  @@index([status])
-  @@index([isPublic])
-  @@index([faction])
-  @@index([unitType])
-}
-
-model CustomCardShare {
-  id            String        @id @default(cuid())
-  cardId        String
-  card          CustomMadeCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  sharedWithId  String
-  sharedWith    User          @relation(fields: [sharedWithId], references: [id], onDelete: Cascade)
-  accepted      Boolean       @default(false)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  @@unique([cardId, sharedWithId])
-  @@index([cardId])
-  @@index([sharedWithId])
-  @@index([accepted])
-}
-
-model CustomCardCollection {
-  id            String        @id @default(cuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cardId        String
-  card          CustomMadeCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
-  isOwned       Boolean       @default(false)
-  isPainted     Boolean       @default(false)
-  isWishlist    Boolean       @default(false)
-  isFavorite    Boolean       @default(false)
-  notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  @@unique([userId, cardId])
-  @@index([userId])
-  @@index([cardId])
-  @@index([isOwned])
-  @@index([isPainted])
-  @@index([isWishlist])
-}
-
-model AuditLog {
-  id          String      @id @default(cuid())
-  entityType  EntityType
-  entityId    String
-  action      AuditAction
-  userId      String?
-  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  changes     Json?       // Before/after values
-  description String?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime    @default(now())
-  
-  @@index([entityType, entityId])
-  @@index([userId])
-  @@index([action])
-  @@index([createdAt])
-}
-
 enum EntityType {
   USER
   CARD
@@ -494,418 +1034,6 @@ enum AuditAction {
   DDOS_DETECTED
 }
 
-// ===== SHATTERPOINT GAME DATA MODELS =====
-
-model Character {
-  id                String   @id @default(cuid())
-  name              String
-  slug              String   @unique
-  faction           String
-  unitType          String   // Primary, Secondary, Support
-  squadPoints       Int
-  stamina           Int
-  durability        Int
-  force             Int?
-  hanker            Int?
-  boxSetCode        String?
-  characterNames    String
-  numberOfCharacters Int     @default(1)
-  
-  // Era i okresy
-  era               String[]
-  period            String[]
-  tags              String[]
-  factions          String[]
-  
-  // Obrazy - zoptymalizowane dla szybkiego ładowania
-  portraitUrl       String?
-  imageUrl          String?
-  
-  // Relacje - eager loading optimization
-  abilities         CharacterAbility[]
-  stances           CharacterStance[]
-  characterCollections CharacterCollection[]
-  strikeTeamCharacters StrikeTeamCharacter[]
-  setCharacters     SetCharacter[]
-  gameResultCharacters GameResultCharacter[]
-  characterStates CharacterState[]
-  diceRolls DiceRoll[]
-  nodeActivations NodeActivation[]
-  diceRollsAsSource DiceRoll[] @relation("DiceRollTarget")
-  nodeActivationsAsTarget NodeActivation[] @relation("NodeActivationTarget")
-  
-  // Metadata z wersjonowaniem
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  createdBy         String?  // ID użytkownika który dodał
-  updatedBy         String?  // ID użytkownika który ostatnio edytował
-  version           Int      @default(1)
-  isActive          Boolean  @default(true)
-  
-  // Relacje do User
-  createdByUser     User?    @relation("CharacterCreatedBy", fields: [createdBy], references: [id])
-  updatedByUser     User?    @relation("CharacterUpdatedBy", fields: [updatedBy], references: [id])
-  
-  // Indeksy dla szybkiego wyszukiwania
-  @@index([faction])
-  @@index([unitType])
-  @@index([boxSetCode])
-  @@index([isActive])
-  @@index([name])
-  @@index([squadPoints])
-  @@index([createdAt])
-  @@index([updatedAt])
-}
-
-model CharacterAbility {
-  id            String   @id @default(cuid())
-  characterId   String
-  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  
-  name          String
-  type          String   // Active, Reactive, Innate
-  symbol        String
-  trigger       String
-  isAction      Boolean  @default(false)
-  forceCost     Int      @default(0)
-  damageCost    Int      @default(0)
-  description   String
-  tags          String[]
-  
-  // Legacy support dla kompatybilności
-  legacyText    String?
-  legacyTitle   String?
-  
-  // Metadata
-  order         Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Indeksy dla szybkiego ładowania
-  @@index([characterId])
-  @@index([type])
-  @@index([order])
-  @@index([characterId, order]) // Composite index dla sortowania
-}
-
-model CharacterStance {
-  id            String   @id @default(cuid())
-  characterId   String
-  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  
-  // Dice data - zoptymalizowane dla szybkiego dostępu
-  attackDice    Int
-  defenseDice   Int
-  
-  // Expertise
-  meleeExpertise Int
-  rangedExpertise Int
-  
-  // Tree structure - JSON z optymalizacją
-  tree          Json     // Array of arrays representing stance tree
-  // Przykład: [["start"], ["melee_attack", "ranged_attack"], ["damage", "damage"]]
-  
-  // Metadata
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Indeksy
-  @@index([characterId])
-  @@unique([characterId]) // Jeden stance per character
-}
-
-model Set {
-  id            String   @id @default(cuid())
-  name          String
-  code          String   @unique // SWP01, SWP03, etc.
-  type          SetType
-  description   String?
-  productUrl    String?
-  imageUrl      String?
-  
-  // Relacje
-  characters    SetCharacter[]
-  setCollections SetCollection[]
-  
-  // Metadata
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  isActive      Boolean  @default(true)
-  
-  // Indeksy dla szybkiego wyszukiwania
-  @@index([code])
-  @@index([type])
-  @@index([isActive])
-  @@index([name])
-}
-
-model SetCharacter {
-  id            String   @id @default(cuid())
-  setId         String
-  set           Set      @relation(fields: [setId], references: [id], onDelete: Cascade)
-  characterId   String?  // Może być null jeśli postać nie istnieje jeszcze
-  character     Character? @relation(fields: [characterId], references: [id])
-  
-  role          CharacterRole // Primary, Secondary, Supporting
-  name          String        // Nazwa postaci w kontekście setu
-  
-  // Indeksy
-  @@unique([setId, characterId])
-  @@index([setId])
-  @@index([characterId])
-  @@index([role])
-}
-
-model Mission {
-  id            String   @id @default(cuid())
-  name          String
-  source        String   // official, custom
-  setCode       String?
-  description   String?
-  thumbnailUrl  String?
-  
-  // Map data - zoptymalizowane
-  mapSizeInch   Int
-  mapUnit       String
-  mapOrigin     String
-  mapAxis       String
-  
-  // Rendering data
-  pointDiameterInch Float
-  
-  // Scheduled games relation
-  scheduledGames ScheduledGame[]
-  
-  // Game results relation
-  gameResults GameResult[]
-  
-  // Game sessions relation
-  gameSessions GameSession[]
-  pointColorActive  String
-  pointColorInactive String
-  
-  // Relacje
-  objectives    MissionObjective[]
-  struggles     MissionStruggle[]
-  missionCollections MissionCollection[]
-  
-  // Metadata
-  tags          String[]
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  isActive      Boolean  @default(true)
-  
-  // Indeksy
-  @@index([source])
-  @@index([setCode])
-  @@index([isActive])
-  @@index([name])
-}
-
-model MissionObjective {
-  id            String   @id @default(cuid())
-  missionId     String
-  mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  
-  key           String   // A, B, C, etc.
-  x             Float
-  y             Float
-  radius        Float
-  
-  // Indeksy
-  @@index([missionId])
-  @@index([missionId, key]) // Composite dla szybkiego dostępu
-}
-
-model MissionStruggle {
-  id            String   @id @default(cuid())
-  missionId     String
-  mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  
-  index         Int      // 1, 2, 3
-  cards         Json     // Array of struggle cards
-  
-  // Indeksy
-  @@index([missionId])
-  @@index([missionId, index]) // Composite dla sortowania
-}
-
-// ===== COMMENTS SYSTEM =====
-
-model Comment {
-  id          String      @id @default(cuid())
-  content     String
-  type        CommentType
-  entityId    String      // ID of the entity being commented on
-  authorId    String
-  author      User        @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  isDeleted   Boolean     @default(false)
-  deletedAt   DateTime?
-  deletedBy   String?
-  likes       CommentLike[]
-  replies     Comment[]   @relation("CommentReplies")
-  parentId    String?
-  parent      Comment?    @relation("CommentReplies", fields: [parentId], references: [id])
-  
-  @@index([type, entityId])
-  @@index([authorId])
-  @@index([createdAt])
-}
-
-model CommentLike {
-  id        String   @id @default(cuid())
-  commentId String
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation("CommentLikes", fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  
-  @@unique([commentId, userId])
-  @@index([userId])
-}
-
-// ===== INBOX SYSTEM =====
-
-model InboxMessage {
-  id          String   @id @default(cuid())
-  recipientId String
-  recipient   User     @relation("InboxRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
-  senderId    String?
-  sender      User?    @relation("InboxSender", fields: [senderId], references: [id], onDelete: SetNull)
-  type        String   // "challenge", "game_invite", "system", etc.
-  title       String
-  content     String
-  isRead      Boolean  @default(false)
-  readAt      DateTime?
-  createdAt   DateTime @default(now())
-  data        Json?    // Additional data for the message
-  
-  @@index([recipientId, isRead])
-  @@index([createdAt])
-}
-
-// ===== CHALLENGE SYSTEM =====
-
-model Challenge {
-  id              String          @id @default(cuid())
-  challengerId    String
-  challenger      User            @relation("ChallengeChallenger", fields: [challengerId], references: [id], onDelete: Cascade)
-  challengedId    String
-  challenged      User            @relation("ChallengeChallenged", fields: [challengedId], references: [id], onDelete: Cascade)
-  status          ChallengeStatus @default(PENDING)
-  preferredMissions String[]      // Array of mission IDs
-  challengerStrikeTeamId String?
-  challengerStrikeTeam StrikeTeam? @relation("ChallengeChallengerTeam", fields: [challengerStrikeTeamId], references: [id])
-  language        String          @default("en")
-  location        String?
-  address         String?
-  reservationCost Decimal?        @db.Decimal(10, 2)
-  description     String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  acceptedAt      DateTime?
-  declinedAt      DateTime?
-  cancelledAt     DateTime?
-  completedAt     DateTime?
-  scheduledGame   ScheduledGame?
-  
-  @@index([challengerId])
-  @@index([challengedId])
-  @@index([status])
-  @@index([createdAt])
-}
-
-// ===== SCHEDULED GAMES =====
-
-model ScheduledGame {
-  id              String        @id @default(cuid())
-  challengeId     String?       @unique
-  challenge       Challenge?    @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-  player1Id       String
-  player1         User          @relation("ScheduledGamePlayer1", fields: [player1Id], references: [id], onDelete: Cascade)
-  player2Id       String?
-  player2         User?         @relation("ScheduledGamePlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
-  status          GameStatus    @default(SCHEDULED)
-  scheduledDate   DateTime
-  location        String?
-  address         String?
-  missionId       String?
-  mission         Mission?      @relation(fields: [missionId], references: [id])
-  player1StrikeTeamId String?
-  player1StrikeTeam StrikeTeam? @relation("ScheduledGamePlayer1Team", fields: [player1StrikeTeamId], references: [id])
-  player2StrikeTeamId String?
-  player2StrikeTeam StrikeTeam? @relation("ScheduledGamePlayer2Team", fields: [player2StrikeTeamId], references: [id])
-  notes           String?
-  isPublic        Boolean       @default(false)  // Whether the game is open for public registration
-  maxPlayers      Int?          @default(2)      // Maximum number of players (for public games)
-  city            String?       // City where game takes place
-  country         String?       // Country where game takes place
-  skillLevel      String?       // BEGINNER, INTERMEDIATE, ADVANCED, PRO
-  isPaid          Boolean       @default(false)  // Whether reservation requires payment
-  totalCost       Float?        // Total cost for the game
-  currency        String?       @default("PLN")  // Currency code (PLN, EUR, USD, GBP)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  confirmedAt     DateTime?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  cancelledAt     DateTime?
-  reminders       GameReminder[]
-  gameResult      GameResult?
-  registrations   GameRegistration[]
-  
-  @@index([player1Id])
-  @@index([player2Id])
-  @@index([scheduledDate])
-  @@index([status])
-  @@index([isPublic])
-  @@index([city])
-  @@index([country])
-  @@index([city, country])
-}
-
-model GameReminder {
-  id              String        @id @default(cuid())
-  gameId          String
-  game            ScheduledGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User          @relation("GameReminders", fields: [userId], references: [id], onDelete: Cascade)
-  type            ReminderType
-  reminderTime    DateTime
-  isSent          Boolean       @default(false)
-  isEnabled       Boolean       @default(true)  // Whether the reminder is enabled
-  sentAt          DateTime?
-  calendarEventId String?       // For tracking calendar events
-  createdAt       DateTime      @default(now())
-  
-  @@index([gameId])
-  @@index([userId])
-  @@index([reminderTime])
-}
-
-model GameRegistration {
-  id              String        @id @default(cuid())
-  gameId          String
-  game            ScheduledGame @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User          @relation("GameRegistrations", fields: [userId], references: [id], onDelete: Cascade)
-  status          GameRegistrationStatus @default(PENDING)
-  registeredAt    DateTime      @default(now())
-  approvedAt      DateTime?
-  rejectedAt      DateTime?
-  waitlistPosition Int?         // Position in waitlist (null if not on waitlist)
-  notes           String?
-  
-  @@unique([gameId, userId])
-  @@index([gameId])
-  @@index([userId])
-  @@index([status])
-  @@index([waitlistPosition])
-}
-
 enum GameRegistrationStatus {
   PENDING
   APPROVED
@@ -913,286 +1041,6 @@ enum GameRegistrationStatus {
   CANCELLED
   WAITLIST
 }
-
-// ===== GAME RESULTS SYSTEM =====
-
-model GameResult {
-  id              String        @id @default(cuid())
-  player1Id       String
-  player1         User          @relation("GameResultPlayer1", fields: [player1Id], references: [id], onDelete: Cascade)
-  player2Id       String
-  player2         User          @relation("GameResultPlayer2", fields: [player2Id], references: [id], onDelete: Cascade)
-  winnerId        String?
-  winner          User?         @relation("GameResultWinner", fields: [winnerId], references: [id], onDelete: SetNull)
-  result          GameResultType
-  mode            GameMode      @default(CASUAL)
-  missionId       String?
-  mission         Mission?      @relation(fields: [missionId], references: [id])
-  
-  // Strike teams used
-  player1StrikeTeamId String?
-  player1StrikeTeam   StrikeTeam? @relation("GameResultPlayer1Team", fields: [player1StrikeTeamId], references: [id])
-  player2StrikeTeamId String?
-  player2StrikeTeam   StrikeTeam? @relation("GameResultPlayer2Team", fields: [player2StrikeTeamId], references: [id])
-  
-  // Game details
-  roundsPlayed    Int           @default(1)
-  durationMinutes Int?
-  location        String?
-  notes           String?
-  
-  // Related scheduled game (if any)
-  scheduledGameId String?       @unique
-  scheduledGame   ScheduledGame? @relation(fields: [scheduledGameId], references: [id])
-  
-  // Timestamps
-  playedAt        DateTime      @default(now())
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
-  // Reported by
-  reportedById    String
-  reportedBy      User          @relation("GameResultReportedBy", fields: [reportedById], references: [id], onDelete: Cascade)
-  
-  // Verification
-  isVerified      Boolean       @default(false)
-  verifiedAt      DateTime?
-  verifiedBy      String?
-  
-  // Character performance
-  characterResults GameResultCharacter[]
-  
-  // Detailed game session
-  gameSession GameSession?
-  
-  @@index([player1Id])
-  @@index([player2Id])
-  @@index([winnerId])
-  @@index([playedAt])
-  @@index([mode])
-  @@index([missionId])
-}
-
-model GameResultCharacter {
-  id            String      @id @default(cuid())
-  gameResultId  String
-  gameResult    GameResult  @relation(fields: [gameResultId], references: [id], onDelete: Cascade)
-  characterId   String
-  character     Character   @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  playerId      String
-  player        User        @relation("GameResultCharacterPlayer", fields: [playerId], references: [id], onDelete: Cascade)
-  
-  // Character performance
-  damageDealt   Int         @default(0)
-  damageTaken   Int         @default(0)
-  abilitiesUsed Int         @default(0)
-  objectivesSecured Int     @default(0)
-  isMVP         Boolean     @default(false)
-  
-  @@index([gameResultId])
-  @@index([characterId])
-  @@index([playerId])
-}
-
-// ===== DETAILED GAME LOGGING =====
-
-model GameSession {
-  id              String        @id @default(cuid())
-  gameResultId    String        @unique
-  gameResult      GameResult    @relation(fields: [gameResultId], references: [id], onDelete: Cascade)
-  
-  // Mission and setup
-  missionId       String
-  mission         Mission       @relation(fields: [missionId], references: [id])
-  
-  // Starting positions and setup
-  startingPositions Json        // Starting positions for both players
-  setupData       Json?         // Additional setup information
-  
-  // Game state
-  currentTier     StruggleTier  @default(TIER_1)
-  isActive        Boolean       @default(true)
-  
-  // Timestamps
-  startedAt       DateTime      @default(now())
-  completedAt     DateTime?
-  
-  // Related data
-  struggleCards   StruggleCard[]
-  characterStates CharacterState[]
-  diceRolls       DiceRoll[]
-  nodeActivations NodeActivation[]
-  
-  @@index([gameResultId])
-  @@index([missionId])
-  @@index([startedAt])
-}
-
-model StruggleCard {
-  id              String        @id @default(cuid())
-  gameSessionId   String
-  gameSession     GameSession   @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
-  
-  tier            StruggleTier
-  cardName        String
-  cardDescription String?
-  cardImageUrl    String?
-  
-  // Card selection
-  selectedBy      String?       // Player ID who selected this card
-  isActive        Boolean       @default(false)
-  isCompleted     Boolean       @default(false)
-  
-  // Results
-  winnerId        String?       // Player ID who won this struggle
-  result          GameResultType
-  
-  // Timestamps
-  selectedAt      DateTime      @default(now())
-  completedAt     DateTime?
-  
-  @@index([gameSessionId])
-  @@index([tier])
-  @@index([selectedBy])
-}
-
-model CharacterState {
-  id              String        @id @default(cuid())
-  gameSessionId   String
-  gameSession     GameSession   @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
-  
-  characterId     String
-  character       Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  playerId        String
-  player          User          @relation("CharacterStatePlayer", fields: [playerId], references: [id], onDelete: Cascade)
-  
-  // Current stats
-  currentStamina  Int
-  currentDurability Int
-  currentForce    Int?
-  currentHanker   Int?
-  
-  // Status effects
-  status          CharacterStatus @default(NORMAL)
-  statusDuration  Int?           // How many rounds the status lasts
-  
-  // Performance tracking
-  damageDealt     Int           @default(0)
-  damageTaken     Int           @default(0)
-  abilitiesUsed   Int           @default(0)
-  objectivesSecured Int         @default(0)
-  isMVP           Boolean       @default(false)
-  
-  // Position tracking
-  currentPosition Json?         // Current position on the map
-  
-  // Timestamps
-  updatedAt       DateTime      @updatedAt
-  
-  @@index([gameSessionId])
-  @@index([characterId])
-  @@index([playerId])
-  @@index([status])
-}
-
-// ===== DICE ROLLS AND NODE ACTIVATION =====
-
-model DiceRoll {
-  id              String        @id @default(cuid())
-  gameSessionId   String
-  gameSession     GameSession   @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
-  
-  characterId     String
-  character       Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  playerId        String
-  player          User          @relation("DiceRollPlayer", fields: [playerId], references: [id], onDelete: Cascade)
-  
-  // Dice information
-  diceType        DiceType
-  diceCount       Int           // Number of dice rolled
-  diceResults     DiceResult[]  // Array of individual dice results
-  
-  // Context
-  action          String?       // What action triggered this roll (e.g., "Melee Attack", "Force Push")
-  targetCharacterId String?     // Target character if applicable
-  targetCharacter Character?    @relation("DiceRollTarget", fields: [targetCharacterId], references: [id])
-  
-  // Modifiers
-  modifiers       Json?         // Any modifiers applied (rerolls, bonuses, etc.)
-  finalResult     String?       // Final calculated result
-  
-  // Timestamps
-  rolledAt        DateTime      @default(now())
-  
-  @@index([gameSessionId])
-  @@index([characterId])
-  @@index([playerId])
-  @@index([diceType])
-  @@index([rolledAt])
-}
-
-model NodeActivation {
-  id              String        @id @default(cuid())
-  gameSessionId   String
-  gameSession     GameSession   @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
-  
-  characterId     String
-  character       Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  playerId        String
-  player          User          @relation("NodeActivationPlayer", fields: [playerId], references: [id], onDelete: Cascade)
-  
-  // Node information
-  nodePath        String        // Path to the node in the stance tree (e.g., "0.1.2")
-  nodeName        String        // Name/description of the node
-  nodeEffects     Json          // Effects of the node (damage, conditions, etc.)
-  
-  // Activation context
-  activationType  String        // "MANUAL" or "AUTOMATIC"
-  triggerAction   String?       // What action triggered this activation
-  targetCharacterId String?     // Target character if applicable
-  targetCharacter Character?    @relation("NodeActivationTarget", fields: [targetCharacterId], references: [id])
-  
-  // Results
-  effectsApplied  Json?         // What effects were actually applied
-  damageDealt     Int?          // Damage dealt if applicable
-  conditionsApplied String[]    // Conditions applied (strain, pinned, etc.)
-  
-  // Timestamps
-  activatedAt     DateTime      @default(now())
-  
-  @@index([gameSessionId])
-  @@index([characterId])
-  @@index([playerId])
-  @@index([activationType])
-  @@index([activatedAt])
-}
-
-// ===== ACCESS REQUESTS SYSTEM =====
-
-model AccessRequest {
-  id              String        @id @default(cuid())
-  email           String        @unique
-  name            String?
-  message         String?
-  status          AccessRequestStatus @default(PENDING)
-  
-  // Timestamps
-  requestedAt     DateTime      @default(now())
-  reviewedAt      DateTime?
-  reviewedBy      String?       // Admin user ID who reviewed
-  
-  // Review notes
-  reviewNotes     String?
-  
-  // Reviewed by admin
-  reviewedByUser  User?         @relation("AccessRequestReviewedBy", fields: [reviewedBy], references: [id])
-  
-  @@index([email])
-  @@index([status])
-  @@index([requestedAt])
-}
-
-// ===== ENUMS =====
 
 enum SetType {
   CORE_SET
@@ -1292,27 +1140,4 @@ enum AccessRequestStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model ApiToken {
-  id          String    @id @default(cuid())
-  name        String    // User-friendly name for the token
-  token       String    @unique // The actual bearer token
-  userId      String
-  isActive    Boolean   @default(true)
-  lastUsedAt  DateTime?
-  expiresAt   DateTime?
-  scopes      String[]  @default([]) // Array of permissions/scopes
-  
-  // Timestamps
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // Relations
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([token])
-  @@index([isActive])
-  @@index([expiresAt])
 }
