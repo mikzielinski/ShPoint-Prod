@@ -866,7 +866,75 @@ END:VCALENDAR`;
                 </div>
               )}
               
-              {selectedMessage.data && selectedMessage.type !== 'GAME_REGISTRATION' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED' && (
+              {/* Special handling for game registration rejected messages */}
+              {selectedMessage.type === 'GAME_REGISTRATION_REJECTED' && parseMessageData(selectedMessage).gameDetails && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  padding: '16px', 
+                  backgroundColor: '#7f1d1d', 
+                  borderRadius: '8px',
+                  border: '2px solid #dc2626',
+                  fontSize: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '20px', marginRight: '8px' }}>❌</span>
+                    <strong style={{ color: '#fbbf24' }}>Game Details</strong>
+                  </div>
+                  
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#e5e7eb' }}>📅 When:</strong>
+                      <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                        {parseMessageData(selectedMessage).gameDetails.scheduledDate ? 
+                          new Date(parseMessageData(selectedMessage).gameDetails.scheduledDate).toLocaleString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'TBD'
+                        }
+                      </span>
+                    </div>
+                    
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#e5e7eb' }}>📍 Where:</strong>
+                      <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                        {parseMessageData(selectedMessage).gameDetails.location || parseMessageData(selectedMessage).gameDetails.address || 
+                         `${parseMessageData(selectedMessage).gameDetails.city || ''}, ${parseMessageData(selectedMessage).gameDetails.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                      </span>
+                    </div>
+                    
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#e5e7eb' }}>👤 Host:</strong>
+                      <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                        {parseMessageData(selectedMessage).gameDetails.host?.name || parseMessageData(selectedMessage).gameDetails.host?.username || 'Unknown'}
+                      </span>
+                    </div>
+                    
+                    {parseMessageData(selectedMessage).gameDetails.mission && (
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong style={{ color: '#e5e7eb' }}>🎯 Mission:</strong>
+                        <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                          {parseMessageData(selectedMessage).gameDetails.mission.name}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {parseMessageData(selectedMessage).gameDetails.notes && (
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong style={{ color: '#e5e7eb' }}>📝 Notes:</strong>
+                        <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                          {parseMessageData(selectedMessage).gameDetails.notes}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {selectedMessage.data && selectedMessage.type !== 'GAME_REGISTRATION' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED' && selectedMessage.type !== 'GAME_REGISTRATION_REJECTED' && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '12px', 
