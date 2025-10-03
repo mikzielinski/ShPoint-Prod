@@ -33,7 +33,7 @@ const ChallengeSystem: React.FC = () => {
   
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [newChallenge, setNewChallenge] = useState({
     challengedId: '',
     mission: '',
@@ -94,7 +94,7 @@ const ChallengeSystem: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.ok) {
-          setShowCreateForm(false);
+          setShowCreateModal(false);
           setNewChallenge({
             challengedId: '',
             mission: '',
@@ -166,7 +166,7 @@ const ChallengeSystem: React.FC = () => {
           ⚔️ Challenge System
         </h2>
         <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
+          onClick={() => setShowCreateModal(true)}
           style={{
             background: 'linear-gradient(135deg, #10b981, #059669)',
             color: 'white',
@@ -185,145 +185,190 @@ const ChallengeSystem: React.FC = () => {
         </button>
       </div>
 
-      {showCreateForm && (
+      {/* Create Challenge Modal */}
+      {showCreateModal && (
         <div style={{
-          background: '#374151',
-          borderRadius: '8px',
-          padding: '20px',
-          marginBottom: '24px',
-          border: '1px solid #4b5563'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
         }}>
-          <h3 style={{ color: '#f9fafb', marginBottom: '16px' }}>Create New Challenge</h3>
-          
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Challenge Player *
-            </label>
-            <select
-              value={newChallenge.challengedId}
-              onChange={(e) => setNewChallenge({...newChallenge, challengedId: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            >
-              <option value="">Select Player to Challenge</option>
-              {availableUsers.map(player => (
-                <option key={player.id} value={player.id}>
-                  {player.name || player.username || 'Unknown User'}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div style={{
+            background: '#1f2937',
+            borderRadius: '12px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '500px',
+            border: '1px solid #374151',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                color: '#f9fafb', 
+                margin: 0, 
+                fontSize: '20px',
+                fontWeight: '600'
+              }}>
+                ⚔️ Create New Challenge
+              </h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#9ca3af',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  borderRadius: '4px'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#374151'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Challenge Player *
+              </label>
+              <select
+                value={newChallenge.challengedId}
+                onChange={(e) => setNewChallenge({...newChallenge, challengedId: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">Select Player to Challenge</option>
+                {availableUsers.map(player => (
+                  <option key={player.id} value={player.id}>
+                    {player.name || player.username || 'Unknown User'}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Mission
-            </label>
-            <select
-              value={newChallenge.mission}
-              onChange={(e) => setNewChallenge({...newChallenge, mission: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            >
-              <option value="">Select Mission</option>
-              {missions.map(mission => (
-                <option key={mission.id} value={mission.name}>
-                  {mission.name}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Mission *
+              </label>
+              <select
+                value={newChallenge.mission}
+                onChange={(e) => setNewChallenge({...newChallenge, mission: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">Select Mission</option>
+                {missions.map(mission => (
+                  <option key={mission.id} value={mission.name}>
+                    {mission.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Location *
+              </label>
+              <input
+                type="text"
+                value={newChallenge.location}
+                onChange={(e) => setNewChallenge({...newChallenge, location: e.target.value})}
+                placeholder="e.g., Warsaw, Poland"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Location
-            </label>
-            <input
-              type="text"
-              value={newChallenge.location}
-              onChange={(e) => setNewChallenge({...newChallenge, location: e.target.value})}
-              placeholder="e.g., Warsaw, Poland"
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            />
-          </div>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Description
+              </label>
+              <textarea
+                value={newChallenge.description}
+                onChange={(e) => setNewChallenge({...newChallenge, description: e.target.value})}
+                placeholder="Any additional details..."
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Description
-            </label>
-            <textarea
-              value={newChallenge.description}
-              onChange={(e) => setNewChallenge({...newChallenge, description: e.target.value})}
-              placeholder="Any additional details..."
-              rows={3}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px',
-                resize: 'vertical'
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={createChallenge}
-              disabled={!newChallenge.challengedId || !newChallenge.mission || !newChallenge.location}
-              style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                opacity: (!newChallenge.challengedId || !newChallenge.mission || !newChallenge.location) ? 0.5 : 1
-              }}
-            >
-              Send Challenge
-            </button>
-            <button
-              onClick={() => setShowCreateForm(false)}
-              style={{
-                background: '#6b7280',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Cancel
-            </button>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                style={{
+                  background: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={createChallenge}
+                disabled={!newChallenge.challengedId || !newChallenge.mission || !newChallenge.location}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  opacity: (!newChallenge.challengedId || !newChallenge.mission || !newChallenge.location) ? 0.5 : 1
+                }}
+              >
+                Send Challenge
+              </button>
+            </div>
           </div>
         </div>
       )}

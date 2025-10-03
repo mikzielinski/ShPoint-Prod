@@ -59,7 +59,7 @@ const GameScheduler: React.FC = () => {
   const [games, setGames] = useState<PublicGame[]>([]);
   const { missions, loading: missionsLoading, error: missionsError } = useMissions();
   const [loading, setLoading] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [filters, setFilters] = useState({
     city: '',
     country: ''
@@ -134,7 +134,7 @@ const GameScheduler: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.ok) {
-          setShowCreateForm(false);
+          setShowCreateModal(false);
           setNewGame({
             missionId: '',
             scheduledDate: '',
@@ -236,7 +236,7 @@ const GameScheduler: React.FC = () => {
           🌍 Public Games
         </h2>
         <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
+          onClick={() => setShowCreateModal(true)}
           style={{
             background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
             color: 'white',
@@ -325,300 +325,349 @@ const GameScheduler: React.FC = () => {
         </div>
       </div>
 
-      {showCreateForm && (
+      {/* Create Game Modal */}
+      {showCreateModal && (
         <div style={{
-          background: '#374151',
-          borderRadius: '8px',
-          padding: '20px',
-          marginBottom: '24px',
-          border: '1px solid #4b5563'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
         }}>
-          <h3 style={{ color: '#f9fafb', marginBottom: '16px' }}>Create Public Game</h3>
-          
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Mission *
-            </label>
-            <select
-              value={newGame.missionId}
-              onChange={(e) => setNewGame({...newGame, missionId: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            >
-              <option value="">Select Mission</option>
-              {missions.map(mission => (
-                <option key={mission.id} value={mission.id}>{mission.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Date & Time *
-            </label>
-            <input
-              type="datetime-local"
-              value={newGame.scheduledDate}
-              onChange={(e) => setNewGame({...newGame, scheduledDate: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-            <div>
+          <div style={{
+            background: '#1f2937',
+            borderRadius: '12px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            border: '1px solid #374151',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                color: '#f9fafb', 
+                margin: 0, 
+                fontSize: '20px',
+                fontWeight: '600'
+              }}>
+                🌍 Create Public Game
+              </h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#9ca3af',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  borderRadius: '4px'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#374151'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
               <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                City *
+                Mission *
               </label>
-              <input
-                type="text"
-                value={newGame.city}
-                onChange={(e) => setNewGame({...newGame, city: e.target.value})}
-                placeholder="e.g., Warsaw"
+              <select
+                value={newGame.missionId}
+                onChange={(e) => setNewGame({...newGame, missionId: e.target.value})}
                 style={{
                   width: '100%',
                   padding: '12px',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   border: '1px solid #4b5563',
-                  background: '#1f2937',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">Select Mission</option>
+                {missions.map(mission => (
+                  <option key={mission.id} value={mission.id}>{mission.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Date & Time *
+              </label>
+              <input
+                type="datetime-local"
+                value={newGame.scheduledDate}
+                onChange={(e) => setNewGame({...newGame, scheduledDate: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
                   color: '#f9fafb',
                   fontSize: '14px'
                 }}
               />
             </div>
-            
-            <div>
-              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-                Country *
-              </label>
-              <input
-                type="text"
-                value={newGame.country}
-                onChange={(e) => setNewGame({...newGame, country: e.target.value})}
-                placeholder="e.g., Poland"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  border: '1px solid #4b5563',
-                  background: '#1f2937',
-                  color: '#f9fafb',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-          </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Venue/Store Name (Optional)
-            </label>
-            <input
-              type="text"
-              value={newGame.location}
-              onChange={(e) => setNewGame({...newGame, location: e.target.value})}
-              placeholder="e.g., Local Game Store"
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Address (Optional)
-            </label>
-            <input
-              type="text"
-              value={newGame.address}
-              onChange={(e) => setNewGame({...newGame, address: e.target.value})}
-              placeholder="Specific address or venue"
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Skill Level
-            </label>
-            <select
-              value={newGame.skillLevel}
-              onChange={(e) => setNewGame({...newGame, skillLevel: e.target.value})}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px'
-              }}
-            >
-              <option value="BEGINNER">Beginner</option>
-              <option value="INTERMEDIATE">Intermediate</option>
-              <option value="ADVANCED">Advanced</option>
-              <option value="PRO">Pro</option>
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Payment Information
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <input
-                type="checkbox"
-                id="isPaid"
-                checked={newGame.isPaid}
-                onChange={(e) => setNewGame({...newGame, isPaid: e.target.checked, totalCost: e.target.checked ? newGame.totalCost : ''})}
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  accentColor: '#3b82f6'
-                }}
-              />
-              <label htmlFor="isPaid" style={{ color: '#d1d5db', fontSize: '14px', cursor: 'pointer' }}>
-                Reservation is paid
-              </label>
-            </div>
-            
-            {newGame.isPaid && (
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
-                    Total Cost
-                  </label>
-                  <input
-                    type="number"
-                    value={newGame.totalCost}
-                    onChange={(e) => setNewGame({...newGame, totalCost: e.target.value})}
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '6px',
-                      border: '1px solid #4b5563',
-                      background: '#1f2937',
-                      color: '#f9fafb',
-                      fontSize: '14px'
-                    }}
-                  />
-                </div>
-                <div style={{ width: '80px' }}>
-                  <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
-                    Currency
-                  </label>
-                  <select
-                    value={newGame.currency}
-                    onChange={(e) => setNewGame({...newGame, currency: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '6px',
-                      border: '1px solid #4b5563',
-                      background: '#1f2937',
-                      color: '#f9fafb',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <option value="PLN">PLN</option>
-                    <option value="EUR">EUR</option>
-                    <option value="USD">USD</option>
-                    <option value="GBP">GBP</option>
-                  </select>
-                </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+              <div>
+                <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                  City *
+                </label>
+                <input
+                  type="text"
+                  value={newGame.city}
+                  onChange={(e) => setNewGame({...newGame, city: e.target.value})}
+                  placeholder="e.g., Warsaw"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #4b5563',
+                    background: '#374151',
+                    color: '#f9fafb',
+                    fontSize: '14px'
+                  }}
+                />
               </div>
-            )}
-          </div>
+              
+              <div>
+                <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                  Country *
+                </label>
+                <input
+                  type="text"
+                  value={newGame.country}
+                  onChange={(e) => setNewGame({...newGame, country: e.target.value})}
+                  placeholder="e.g., Poland"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #4b5563',
+                    background: '#374151',
+                    color: '#f9fafb',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+            </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
-              Description (Optional)
-            </label>
-            <textarea
-              value={newGame.notes}
-              onChange={(e) => setNewGame({...newGame, notes: e.target.value})}
-              placeholder="Any additional details about the game..."
-              rows={3}
-              style={{
-                width: '100%',
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #4b5563',
-                background: '#1f2937',
-                color: '#f9fafb',
-                fontSize: '14px',
-                resize: 'vertical'
-              }}
-            />
-          </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Venue/Store Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={newGame.location}
+                onChange={(e) => setNewGame({...newGame, location: e.target.value})}
+                placeholder="e.g., Local Game Store"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button
-              onClick={createGame}
-              disabled={!newGame.missionId || !newGame.scheduledDate || !newGame.location}
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                opacity: (!newGame.missionId || !newGame.scheduledDate || !newGame.location) ? 0.5 : 1
-              }}
-            >
-              Create Game
-            </button>
-            <button
-              onClick={() => setShowCreateForm(false)}
-              style={{
-                background: '#6b7280',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '12px 24px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              Cancel
-            </button>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Address (Optional)
+              </label>
+              <input
+                type="text"
+                value={newGame.address}
+                onChange={(e) => setNewGame({...newGame, address: e.target.value})}
+                placeholder="Specific address or venue"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Skill Level
+              </label>
+              <select
+                value={newGame.skillLevel}
+                onChange={(e) => setNewGame({...newGame, skillLevel: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="ADVANCED">Advanced</option>
+                <option value="PRO">Pro</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Payment Information
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <input
+                  type="checkbox"
+                  id="isPaid"
+                  checked={newGame.isPaid}
+                  onChange={(e) => setNewGame({...newGame, isPaid: e.target.checked, totalCost: e.target.checked ? newGame.totalCost : ''})}
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    accentColor: '#3b82f6'
+                  }}
+                />
+                <label htmlFor="isPaid" style={{ color: '#d1d5db', fontSize: '14px', cursor: 'pointer' }}>
+                  Reservation is paid
+                </label>
+              </div>
+              
+              {newGame.isPaid && (
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                      Total Cost
+                    </label>
+                    <input
+                      type="number"
+                      value={newGame.totalCost}
+                      onChange={(e) => setNewGame({...newGame, totalCost: e.target.value})}
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid #4b5563',
+                        background: '#374151',
+                        color: '#f9fafb',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                  <div style={{ width: '80px' }}>
+                    <label style={{ color: '#d1d5db', fontSize: '12px', fontWeight: '500', display: 'block', marginBottom: '4px' }}>
+                      Currency
+                    </label>
+                    <select
+                      value={newGame.currency}
+                      onChange={(e) => setNewGame({...newGame, currency: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid #4b5563',
+                        background: '#374151',
+                        color: '#f9fafb',
+                        fontSize: '14px'
+                      }}
+                    >
+                      <option value="PLN">PLN</option>
+                      <option value="EUR">EUR</option>
+                      <option value="USD">USD</option>
+                      <option value="GBP">GBP</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ color: '#d1d5db', fontSize: '14px', fontWeight: '500', display: 'block', marginBottom: '8px' }}>
+                Description (Optional)
+              </label>
+              <textarea
+                value={newGame.notes}
+                onChange={(e) => setNewGame({...newGame, notes: e.target.value})}
+                placeholder="Any additional details about the game..."
+                rows={3}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #4b5563',
+                  background: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px',
+                  resize: 'vertical'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                style={{
+                  background: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={createGame}
+                disabled={!newGame.missionId || !newGame.scheduledDate || !newGame.city || !newGame.country}
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '12px 24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  opacity: (!newGame.missionId || !newGame.scheduledDate || !newGame.city || !newGame.country) ? 0.5 : 1
+                }}
+              >
+                Create Game
+              </button>
+            </div>
           </div>
         </div>
       )}
+
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px' }}>
@@ -629,7 +678,11 @@ const GameScheduler: React.FC = () => {
           <p style={{ color: '#9ca3af' }}>No public games available. Create one to get started!</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          gap: '20px' 
+        }}>
           {games.map((game) => {
             const currentPlayers = game._count.registrations + 1; // player1 + registered players
             const isFull = currentPlayers >= game.maxPlayers;
