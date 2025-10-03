@@ -128,7 +128,7 @@ async function testStanceFromDatabase(characterId: string) {
       return null;
     }
 
-    if (!character.stances || character.stances.length === 0) {
+    if (!Array.isArray(character.stances) || character.stances.length === 0) {
       console.log(`⚠️  No stance data found for ${characterId} in database`);
       return null;
     }
@@ -220,7 +220,7 @@ async function testStanceLoadingPerformance() {
   let totalTreeNodes = 0;
   
   for (const character of characters) {
-    if (character.stances && character.stances.length > 0) {
+    if (Array.isArray(character.stances) && character.stances.length > 0) {
       const tree = character.stances[0].tree as any[];
       if (Array.isArray(tree)) {
         totalTreeNodes += tree.flat().length;

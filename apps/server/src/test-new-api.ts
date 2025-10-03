@@ -157,8 +157,8 @@ async function testCharacterCRUD() {
     
     if (fullCharacter) {
       console.log(`✅ Read character: ${fullCharacter.name}`);
-      console.log(`  - Abilities: ${fullCharacter.abilities.length}`);
-      console.log(`  - Stances: ${fullCharacter.stances.length}`);
+      console.log(`  - Abilities: ${Array.isArray(fullCharacter.abilities) ? fullCharacter.abilities.length : 'N/A'}`);
+      console.log(`  - Stances: ${Array.isArray(fullCharacter.stances) ? fullCharacter.stances.length : 'N/A'}`);
       console.log(`  - Version: ${fullCharacter.version}`);
     }
     
@@ -239,7 +239,7 @@ async function testPerformance() {
     let totalTreeNodes = 0;
     
     for (const character of characters) {
-      if (character.stances && character.stances.length > 0) {
+      if (Array.isArray(character.stances) && character.stances.length > 0) {
         const tree = character.stances[0].tree as any[];
         if (Array.isArray(tree)) {
           totalTreeNodes += tree.flat().length;
