@@ -1263,6 +1263,34 @@ export async function approveGameRegistration(req: Request, res: Response) {
       }
     );
 
+    // Send notification to the game owner about the approval
+    await createInboxMessage(
+      userId,
+      registration.userId,
+      'GAME_REGISTRATION_APPROVED_BY_OWNER',
+      'Game Registration Approved',
+      `You have approved ${registration.user.name || registration.user.username}'s registration for your public game.`,
+      { 
+        gameId, 
+        registrationId,
+        approvedPlayer: {
+          id: registration.user.id,
+          name: registration.user.name,
+          username: registration.user.username,
+          avatarUrl: registration.user.avatarUrl
+        },
+        gameDetails: {
+          scheduledDate: gameDetails?.scheduledDate,
+          location: gameDetails?.location,
+          address: gameDetails?.address,
+          city: gameDetails?.city,
+          country: gameDetails?.country,
+          mission: gameDetails?.mission,
+          notes: gameDetails?.notes
+        }
+      }
+    );
+
     res.json({
       ok: true,
       registration,
@@ -1334,19 +1362,82 @@ export async function rejectGameRegistration(req: Request, res: Response) {
       });
     }
 
+    // Get game details for the notification
+    const gameDetails = await prisma.scheduledGame.findUnique({
+      where: { id: gameId },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      }
+    });
+
     // Delete the registration
     await prisma.gameRegistration.delete({
       where: { id: registrationId }
     });
 
-    // Send notification to the registered player
+    // Send notification to the registered player with detailed game info
     await createInboxMessage(
       registration.userId,
       userId,
       'GAME_REGISTRATION_REJECTED',
       'Game Registration Rejected',
       `Your registration for the public game has been rejected.`,
-      { gameId, registrationId }
+      { 
+        gameId, 
+        registrationId,
+        gameDetails: {
+          scheduledDate: gameDetails?.scheduledDate,
+          location: gameDetails?.location,
+          address: gameDetails?.address,
+          city: gameDetails?.city,
+          country: gameDetails?.country,
+          mission: gameDetails?.mission,
+          host: gameDetails?.player1,
+          notes: gameDetails?.notes
+        }
+      }
+    );
+
+    // Send notification to the game owner about the rejection
+    await createInboxMessage(
+      userId,
+      registration.userId,
+      'GAME_REGISTRATION_REJECTED_BY_OWNER',
+      'Game Registration Rejected',
+      `You have rejected ${registration.user.name || registration.user.username}'s registration for your public game.`,
+      { 
+        gameId, 
+        registrationId,
+        rejectedPlayer: {
+          id: registration.user.id,
+          name: registration.user.name,
+          username: registration.user.username,
+          avatarUrl: registration.user.avatarUrl
+        },
+        gameDetails: {
+          scheduledDate: gameDetails?.scheduledDate,
+          location: gameDetails?.location,
+          address: gameDetails?.address,
+          city: gameDetails?.city,
+          country: gameDetails?.country,
+          mission: gameDetails?.mission,
+          notes: gameDetails?.notes
+        }
+      }
     );
 
     res.json({

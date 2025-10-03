@@ -161,6 +161,10 @@ export default function Inbox({ onClose }: InboxProps) {
         return '✅';
       case 'GAME_REGISTRATION_REJECTED':
         return '❌';
+      case 'GAME_REGISTRATION_APPROVED_BY_OWNER':
+        return '✅';
+      case 'GAME_REGISTRATION_REJECTED_BY_OWNER':
+        return '❌';
       case 'system':
         return '🔔';
       default:
@@ -516,20 +520,6 @@ END:VCALENDAR`;
                       </p>
                     </div>
                     
-                    {/* Debug info */}
-                    <div style={{ 
-                      background: '#374151', 
-                      padding: '8px 12px', 
-                      borderRadius: '4px', 
-                      fontSize: '12px', 
-                      color: '#9ca3af',
-                      marginBottom: '12px'
-                    }}>
-                      <strong>Debug - Raw data:</strong>
-                      <pre style={{ margin: '4px 0 0 0', fontSize: '10px', overflow: 'auto' }}>
-                        {JSON.stringify(parseMessageData(selectedMessage), null, 2)}
-                      </pre>
-                    </div>
                   </div>
                   
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -670,7 +660,7 @@ END:VCALENDAR`;
               )}
               
               {/* Special handling for game registration approved messages */}
-              {selectedMessage.type === 'GAME_REGISTRATION_APPROVED' && selectedMessage.data?.gameDetails && (
+              {selectedMessage.type === 'GAME_REGISTRATION_APPROVED' && parseMessageData(selectedMessage).gameDetails && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '16px', 
