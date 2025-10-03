@@ -35,7 +35,7 @@ const ChallengeSystem: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newChallenge, setNewChallenge] = useState({
-    challengeeId: '',
+    challengedId: '',
     mission: '',
     location: '',
     description: '',
@@ -96,10 +96,11 @@ const ChallengeSystem: React.FC = () => {
         if (data.ok) {
           setShowCreateForm(false);
           setNewChallenge({
-            challengeeId: '',
+            challengedId: '',
             mission: '',
             location: '',
-            description: ''
+            description: '',
+            challengerStrikeTeamId: ''
           });
           loadChallenges();
         }
@@ -199,8 +200,8 @@ const ChallengeSystem: React.FC = () => {
               Challenge Player *
             </label>
             <select
-              value={newChallenge.challengeeId}
-              onChange={(e) => setNewChallenge({...newChallenge, challengeeId: e.target.value})}
+              value={newChallenge.challengedId}
+              onChange={(e) => setNewChallenge({...newChallenge, challengedId: e.target.value})}
               style={{
                 width: '100%',
                 padding: '12px',
@@ -293,7 +294,7 @@ const ChallengeSystem: React.FC = () => {
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={createChallenge}
-              disabled={!newChallenge.challengeeId || !newChallenge.mission || !newChallenge.location}
+              disabled={!newChallenge.challengedId || !newChallenge.mission || !newChallenge.location}
               style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)',
                 color: 'white',
@@ -303,7 +304,7 @@ const ChallengeSystem: React.FC = () => {
                 fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                opacity: (!newChallenge.challengeeId || !newChallenge.mission || !newChallenge.location) ? 0.5 : 1
+                opacity: (!newChallenge.challengedId || !newChallenge.mission || !newChallenge.location) ? 0.5 : 1
               }}
             >
               Send Challenge
