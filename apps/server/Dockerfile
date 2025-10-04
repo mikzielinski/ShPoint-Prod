@@ -12,7 +12,11 @@ RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-de
     ln -sf /lib/libssl.so.3 /lib/libssl.so.1.1 && \
     ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.1 && \
     ln -sf /lib/libssl.so.3 /lib/libssl.so.1.0.0 && \
-    ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.0.0
+    ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.0.0 && \
+    ln -sf /lib/libssl.so.3 /usr/lib/libssl.so.1.1 && \
+    ln -sf /lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1 && \
+    echo "SSL libraries installed and linked" && \
+    ls -la /lib/libssl* /lib/libcrypto* /usr/lib/libssl* /usr/lib/libcrypto*
 
 # Copy package files and install dependencies
 COPY package*.json ./
