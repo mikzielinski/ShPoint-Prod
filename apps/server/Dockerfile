@@ -25,7 +25,8 @@ COPY . .
 
 # Copy character data from server (relative to build context)
 COPY characters_assets ./characters_assets
-COPY apps/client/public/images/sets ./public/images/sets
+# Note: apps/client/public/images/sets is not available in apps/server build context
+# COPY apps/client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
 RUN npx prisma generate
