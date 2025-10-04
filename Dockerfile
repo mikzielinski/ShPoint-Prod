@@ -1,9 +1,9 @@
 FROM node:20-alpine
 WORKDIR /app
-# RENDER CACHE BYPASS - v1.4.5 - FORCE NEW BUILD
+# RENDER CACHE BYPASS - v1.4.6 - FORCE NEW BUILD
 
 # Force complete rebuild - no cache
-RUN echo "RENDER CACHE BYPASS v1.4.5 - $(date)" > /tmp/render-bypass.txt
+RUN echo "RENDER CACHE BYPASS v1.4.6 - $(date)" > /tmp/render-bypass.txt
 RUN echo "FORCE NEW BUILD - $(date)" > /tmp/force-new-build.txt
 RUN echo "NO START.SH - $(date)" > /tmp/no-start-sh.txt
 
@@ -17,7 +17,7 @@ RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-de
 # Copy package files and install dependencies
 COPY package*.json ./
 # Force cache bust for npm install
-RUN echo "Cache bust v1.4.5 - $(date)" > /tmp/cache-bust.txt
+RUN echo "Cache bust v1.4.6 - $(date)" > /tmp/cache-bust.txt
 RUN npm install
 
 # Copy server source code
@@ -29,7 +29,7 @@ COPY apps/client/public/images/sets ./public/images/sets
 
 # Generate Prisma client and build
 RUN npx prisma generate
-RUN echo "Build cache bust v1.4.5 - $(date)" > /tmp/build-bust.txt
+RUN echo "Build cache bust v1.4.6 - $(date)" > /tmp/build-bust.txt
 RUN npm run build
 
 ENV PORT=3001
