@@ -8,7 +8,7 @@ RUN echo "FORCE NEW BUILD - $(date)" > /tmp/force-new-build.txt
 RUN echo "NO START.SH - $(date)" > /tmp/no-start-sh.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
-RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-dev && \
+RUN echo "Installing OpenSSL and musl-dev - $(date)" && apk add --no-cache openssl openssl-dev musl-dev && \
     ln -sf /lib/libssl.so.3 /lib/libssl.so.1.1 && \
     ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.1 && \
     ln -sf /lib/libssl.so.3 /lib/libssl.so.1.0.0 && \
@@ -16,7 +16,9 @@ RUN echo "Installing OpenSSL - $(date)" && apk add --no-cache openssl openssl-de
     ln -sf /lib/libssl.so.3 /usr/lib/libssl.so.1.1 && \
     ln -sf /lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1 && \
     echo "SSL libraries installed and linked" && \
-    ls -la /lib/libssl* /lib/libcrypto* /usr/lib/libssl* /usr/lib/libcrypto*
+    ls -la /lib/libssl* /lib/libcrypto* /usr/lib/libssl* /usr/lib/libcrypto* && \
+    echo "Checking if libssl.so.1.1 exists:" && \
+    find /lib /usr/lib -name "*libssl*" -o -name "*libcrypto*" 2>/dev/null
 
 # Copy package files and install dependencies
 COPY package*.json ./
