@@ -37,7 +37,7 @@ COPY characters_assets ./characters_assets
 # Generate Prisma client and build
 RUN npx prisma generate
 RUN echo "Build cache bust v1.5.1 - $(date)" > /tmp/build-bust.txt
-RUN echo "Regenerating Prisma client with linux-musl-openssl-3.0.x binary target..." && npx prisma generate
+RUN echo "Regenerating Prisma client with debian-openssl-3.0.x binary target..." && npx prisma generate
 RUN npm run build
 
 ENV PORT=3001
