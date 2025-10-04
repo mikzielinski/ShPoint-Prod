@@ -36,4 +36,4 @@ ENV PORT=3001
 EXPOSE 3001
 
 # Run migrations with timeout and fallback, then start server
-CMD sh -c "echo 'Starting ShPoint Server...' && timeout 30 npx prisma migrate deploy || echo 'Migration failed, trying db push...' && npx prisma db push --accept-data-loss" && echo 'Starting Node.js server...' && node dist/index.js
+CMD ["sh","-c","echo 'Starting ShPoint Server...' && timeout 30 npx prisma migrate deploy || echo 'Migration failed, trying db push...' && npx prisma db push --accept-data-loss && echo 'Starting Node.js server...' && node dist/index.js"]
