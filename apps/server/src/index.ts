@@ -73,7 +73,9 @@ import {
   createChallenge, 
   respondToChallenge, 
   cancelChallenge, 
-  getAvailablePlayers 
+  getAvailablePlayers,
+  acceptChallenge,
+  rejectChallenge
 } from "./challenges-api.js";
 import { 
   getScheduledGames, 
@@ -683,10 +685,11 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.31",
+  version: "v1.4.32",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
-  lastUpdate: "2025-10-05T23:15:00Z",
+  hasChallengeAcceptReject: true,
+  lastUpdate: "2025-10-05T23:30:00Z",
   rateLimitingDisabled: true,
   ddosProtectionDisabled: true,
   allProtectionRemoved: true,
@@ -6477,6 +6480,8 @@ app.get("/api/v2/challenges", ensureAuth, addUserToRequest, getChallenges);
 app.post("/api/v2/challenges", ensureAuth, addUserToRequest, createChallenge);
 app.put("/api/v2/challenges/:id/respond", ensureAuth, addUserToRequest, respondToChallenge);
 app.put("/api/v2/challenges/:id/cancel", ensureAuth, addUserToRequest, cancelChallenge);
+app.post("/api/v2/challenges/accept", ensureAuth, addUserToRequest, acceptChallenge);
+app.post("/api/v2/challenges/reject", ensureAuth, addUserToRequest, rejectChallenge);
 app.get("/api/v2/players/available", ensureAuth, addUserToRequest, getAvailablePlayers);
 
 // ===== SCHEDULED GAMES API =====

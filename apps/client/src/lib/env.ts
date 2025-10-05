@@ -26,7 +26,7 @@ export const API_BASE: string = (() => {
   
   // WYMUSZENIE względnych ścieżek dla Netlify (bypass cache)
   if (typeof window !== "undefined" && window.location.hostname.includes('netlify.app')) {
-    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.4.2 - FIX WHITE TEXT IN INBOX');
+    console.log('🔍 Netlify detected: forcing relative paths - CACHE BUST v1.4.3 - CHALLENGE ACCEPT/REJECT');
     return "";
   }
 

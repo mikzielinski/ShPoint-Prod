@@ -471,6 +471,210 @@ export async function cancelChallenge(req: Request, res: Response) {
   }
 }
 
+export async function acceptChallenge(req: Request, res: Response) {
+  try {
+    const { challengeId, scheduledDate, location, mission } = req.body;
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!challengeId || !scheduledDate || !location) {
+      return res.status(400).json({
+        ok: false,
+        error: 'challengeId, scheduledDate, and location are required'
+      });
+    }
+
+    // Find the challenge
+    const challenge = await prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: {
+        challenger: {
+          select: { id: true, name: true, username: true, email: true }
+        },
+        challenged: {
+          select: { id: true, name: true, username: true, email: true }
+        }
+      }
+    });
+
+    if (!challenge) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Challenge not found'
+      });
+    }
+
+    if (challenge.challengedId !== userId) {
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only accept challenges sent to you'
+      });
+    }
+
+    if (challenge.status !== 'PENDING') {
+      return res.status(400).json({
+        ok: false,
+        error: 'Challenge is no longer pending'
+      });
+    }
+
+    // Update challenge status to ACCEPTED
+    const updatedChallenge = await prisma.challenge.update({
+      where: { id: challengeId },
+      data: { 
+        status: 'ACCEPTED',
+        acceptedAt: new Date()
+      }
+    });
+
+    // Create a scheduled game
+    const scheduledGame = await prisma.scheduledGame.create({
+      data: {
+        player1Id: challenge.challengerId,
+        player2Id: challenge.challengedId,
+        scheduledDate: new Date(scheduledDate),
+        location,
+        status: 'SCHEDULED',
+        challengeId: challengeId,
+        notes: `Challenge game between ${challenge.challenger.name} and ${challenge.challenged.name}. Mission: ${mission || 'TBD'}`
+      }
+    });
+
+    // Send notification to challenger
+    await prisma.inboxMessage.create({
+      data: {
+        recipientId: challenge.challengerId,
+        senderId: challenge.challengedId,
+        type: 'CHALLENGE_ACCEPTED',
+        title: 'Challenge Accepted!',
+        content: `Your challenge has been accepted by ${challenge.challenged.name}!`,
+        data: JSON.stringify({
+          challengeId: challengeId,
+          gameId: scheduledGame.id,
+          scheduledDate: scheduledDate,
+          location: location,
+          mission: mission,
+          challengerName: challenge.challenger.name,
+          challengedName: challenge.challenged.name
+        })
+      }
+    });
+
+    res.json({
+      ok: true,
+      challenge: updatedChallenge,
+      game: scheduledGame,
+      message: 'Challenge accepted and game scheduled successfully'
+    });
+
+  } catch (error) {
+    console.error('Error accepting challenge:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to accept challenge' 
+    });
+  }
+}
+
+export async function rejectChallenge(req: Request, res: Response) {
+  try {
+    const { challengeId } = req.body;
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!challengeId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'challengeId is required'
+      });
+    }
+
+    // Find the challenge
+    const challenge = await prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: {
+        challenger: {
+          select: { id: true, name: true, username: true, email: true }
+        },
+        challenged: {
+          select: { id: true, name: true, username: true, email: true }
+        }
+      }
+    });
+
+    if (!challenge) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Challenge not found'
+      });
+    }
+
+    if (challenge.challengedId !== userId) {
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only reject challenges sent to you'
+      });
+    }
+
+    if (challenge.status !== 'PENDING') {
+      return res.status(400).json({
+        ok: false,
+        error: 'Challenge is no longer pending'
+      });
+    }
+
+    // Update challenge status to DECLINED
+    const updatedChallenge = await prisma.challenge.update({
+      where: { id: challengeId },
+      data: { 
+        status: 'DECLINED',
+        declinedAt: new Date()
+      }
+    });
+
+    // Send notification to challenger
+    await prisma.inboxMessage.create({
+      data: {
+        recipientId: challenge.challengerId,
+        senderId: challenge.challengedId,
+        type: 'CHALLENGE_REJECTED',
+        title: 'Challenge Rejected',
+        content: `Your challenge has been rejected by ${challenge.challenged.name}.`,
+        data: JSON.stringify({
+          challengeId: challengeId,
+          challengerName: challenge.challenger.name,
+          challengedName: challenge.challenged.name
+        })
+      }
+    });
+
+    res.json({
+      ok: true,
+      challenge: updatedChallenge,
+      message: 'Challenge rejected successfully'
+    });
+
+  } catch (error) {
+    console.error('Error rejecting challenge:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to reject challenge' 
+    });
+  }
+}
+
 export async function getAvailablePlayers(req: Request, res: Response) {
   try {
     const userId = (req as any).user?.id;

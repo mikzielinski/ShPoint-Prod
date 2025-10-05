@@ -33,6 +33,11 @@ export default function Inbox({ onClose }: InboxProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [selectedMessage, setSelectedMessage] = useState<InboxMessage | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [showChallengeModal, setShowChallengeModal] = useState<{
+    challengeId: string;
+    challengerName: string;
+    preferredMissions: string[];
+  } | null>(null);
 
   // Helper function to parse message data
   const parseMessageData = (message: InboxMessage) => {
@@ -943,7 +948,253 @@ END:VCALENDAR`;
                 </div>
               )}
 
-              {selectedMessage.data && selectedMessage.type !== 'GAME_REGISTRATION' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED' && selectedMessage.type !== 'GAME_REGISTRATION_APPROVED_BY_OWNER' && selectedMessage.type !== 'GAME_REGISTRATION_REJECTED' && selectedMessage.type !== 'GAME_REGISTRATION_REJECTED_BY_OWNER' && (
+              {/* Special handling for challenge rejected messages */}
+              {selectedMessage.type === 'CHALLENGE_REJECTED' && selectedMessage.data && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  padding: '16px', 
+                  backgroundColor: '#7f1d1d', 
+                  borderRadius: '8px',
+                  border: '2px solid #dc2626',
+                  fontSize: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '20px', marginRight: '8px' }}>❌</span>
+                    <strong style={{ color: '#fbbf24' }}>Challenge Rejected</strong>
+                  </div>
+                  
+                  <div style={{ marginBottom: '12px' }}>
+                    <p style={{ margin: '0 0 12px 0', color: '#e5e7eb' }}>
+                      Your challenge has been rejected.
+                    </p>
+                    
+                    {parseMessageData(selectedMessage).challengeId && (
+                      <div style={{ 
+                        background: '#1f2937', 
+                        padding: '12px', 
+                        borderRadius: '6px',
+                        marginBottom: '12px'
+                      }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>🆔 Challenge ID:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {parseMessageData(selectedMessage).challengeId}
+                          </span>
+                        </div>
+                        
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>👤 Rejected by:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {parseMessageData(selectedMessage).challengedName || 'Unknown Player'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Special handling for challenge accepted messages */}
+              {selectedMessage.type === 'CHALLENGE_ACCEPTED' && selectedMessage.data && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  padding: '16px', 
+                  backgroundColor: '#065f46', 
+                  borderRadius: '8px',
+                  border: '2px solid #10b981',
+                  fontSize: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '20px', marginRight: '8px' }}>✅</span>
+                    <strong style={{ color: '#fbbf24' }}>Challenge Accepted!</strong>
+                  </div>
+                  
+                  <div style={{ marginBottom: '12px' }}>
+                    <p style={{ margin: '0 0 12px 0', color: '#e5e7eb' }}>
+                      Your challenge has been accepted! Game is now scheduled.
+                    </p>
+                    
+                    {parseMessageData(selectedMessage).gameId && (
+                      <div style={{ 
+                        background: '#1f2937', 
+                        padding: '12px', 
+                        borderRadius: '6px',
+                        marginBottom: '12px'
+                      }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>🆔 Game ID:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {parseMessageData(selectedMessage).gameId}
+                          </span>
+                        </div>
+                        
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>📅 Scheduled Date:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {parseMessageData(selectedMessage).scheduledDate ? 
+                              new Date(parseMessageData(selectedMessage).scheduledDate).toLocaleString('en-US', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              }) : 'TBD'
+                            }
+                          </span>
+                        </div>
+                        
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>📍 Location:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {parseMessageData(selectedMessage).location || 'TBD'}
+                          </span>
+                        </div>
+                        
+                        {parseMessageData(selectedMessage).mission && (
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong style={{ color: '#fbbf24' }}>🎯 Mission:</strong>
+                            <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                              {parseMessageData(selectedMessage).mission}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Special handling for challenge messages */}
+              {selectedMessage.type === 'CHALLENGE_RECEIVED' && selectedMessage.data && (
+                <div style={{ 
+                  marginTop: '16px', 
+                  padding: '16px', 
+                  backgroundColor: '#7c2d12', 
+                  borderRadius: '8px',
+                  border: '2px solid #ea580c',
+                  fontSize: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '20px', marginRight: '8px' }}>⚔️</span>
+                    <strong style={{ color: '#fbbf24' }}>Challenge Details</strong>
+                  </div>
+                  
+                  <div style={{ marginBottom: '12px' }}>
+                    <p style={{ margin: '0 0 12px 0', color: '#e5e7eb' }}>
+                      You have received a new challenge!
+                    </p>
+                    
+                    {parseMessageData(selectedMessage).challengeId && (
+                      <div style={{ 
+                        background: '#1f2937', 
+                        padding: '12px', 
+                        borderRadius: '6px',
+                        marginBottom: '12px'
+                      }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ color: '#fbbf24' }}>🆔 Challenge ID:</strong>
+                          <span style={{ color: '#d1d5db', marginLeft: '8px' }}>
+                            {parseMessageData(selectedMessage).challengeId}
+                          </span>
+                        </div>
+                        
+                        {parseMessageData(selectedMessage).preferredMissions && parseMessageData(selectedMessage).preferredMissions.length > 0 && (
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong style={{ color: '#fbbf24' }}>🎯 Preferred Missions:</strong>
+                            <div style={{ color: '#d1d5db', marginLeft: '8px', marginTop: '4px' }}>
+                              {parseMessageData(selectedMessage).preferredMissions.map((mission: string, index: number) => (
+                                <div key={index} style={{ 
+                                  background: '#374151', 
+                                  padding: '4px 8px', 
+                                  borderRadius: '4px',
+                                  marginBottom: '4px',
+                                  display: 'inline-block',
+                                  marginRight: '8px'
+                                }}>
+                                  {mission}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                      onClick={() => {
+                        const data = parseMessageData(selectedMessage);
+                        setShowChallengeModal({
+                          challengeId: data.challengeId,
+                          challengerName: selectedMessage.sender?.name || selectedMessage.sender?.username || 'Unknown',
+                          preferredMissions: data.preferredMissions || []
+                        });
+                      }}
+                    >
+                      ✅ Accept Challenge
+                    </button>
+                    <button
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}
+                      onClick={async () => {
+                        try {
+                          const data = parseMessageData(selectedMessage);
+                          const response = await fetch('https://shpoint-prod.onrender.com/api/v2/challenges/reject', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'Cookie': document.cookie
+                            },
+                            body: JSON.stringify({ challengeId: data.challengeId })
+                          });
+                          
+                          if (response.ok) {
+                            alert('Challenge rejected successfully!');
+                            loadMessages(); // Reload messages
+                          } else {
+                            alert('Failed to reject challenge');
+                          }
+                        } catch (error) {
+                          console.error('Error rejecting challenge:', error);
+                          alert('Error rejecting challenge');
+                        }
+                      }}
+                    >
+                      ❌ Reject Challenge
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {selectedMessage.data && 
+               selectedMessage.type !== 'GAME_REGISTRATION' && 
+               selectedMessage.type !== 'GAME_REGISTRATION_APPROVED' && 
+               selectedMessage.type !== 'GAME_REGISTRATION_REJECTED' &&
+               selectedMessage.type !== 'GAME_REGISTRATION_APPROVED_BY_OWNER' &&
+               selectedMessage.type !== 'GAME_REGISTRATION_REJECTED_BY_OWNER' &&
+               selectedMessage.type !== 'CHALLENGE_RECEIVED' &&
+               selectedMessage.type !== 'CHALLENGE_ACCEPTED' &&
+               selectedMessage.type !== 'CHALLENGE_REJECTED' && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '12px', 
@@ -975,6 +1226,245 @@ END:VCALENDAR`;
             Select a message to view
           </div>
         )}
+      </div>
+      
+      {/* Challenge Date Modal */}
+      {showChallengeModal && (
+        <ChallengeDateModal
+          challengeId={showChallengeModal.challengeId}
+          challengerName={showChallengeModal.challengerName}
+          preferredMissions={showChallengeModal.preferredMissions}
+          onClose={() => setShowChallengeModal(null)}
+          onSuccess={() => {
+            setShowChallengeModal(null);
+            loadMessages(); // Reload messages
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Challenge Date Modal Component
+function ChallengeDateModal({ 
+  challengeId, 
+  challengerName, 
+  preferredMissions, 
+  onClose, 
+  onSuccess 
+}: {
+  challengeId: string;
+  challengerName: string;
+  preferredMissions: string[];
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
+  const [location, setLocation] = useState('');
+  const [selectedMission, setSelectedMission] = useState(preferredMissions[0] || '');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!scheduledDate || !scheduledTime || !location) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Combine date and time
+      const dateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+      
+      const response = await fetch('https://shpoint-prod.onrender.com/api/v2/challenges/accept', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': document.cookie
+        },
+        body: JSON.stringify({
+          challengeId,
+          scheduledDate: dateTime.toISOString(),
+          location,
+          mission: selectedMission
+        })
+      });
+      
+      if (response.ok) {
+        alert('Challenge accepted! Game scheduled successfully.');
+        onSuccess();
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to accept challenge: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error accepting challenge:', error);
+      alert('Error accepting challenge');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    }}>
+      <div style={{
+        backgroundColor: '#1f2937',
+        borderRadius: '12px',
+        padding: '24px',
+        maxWidth: '500px',
+        width: '90%',
+        border: '2px solid #ea580c'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+          <span style={{ fontSize: '24px', marginRight: '12px' }}>⚔️</span>
+          <h2 style={{ margin: 0, color: '#fbbf24' }}>Accept Challenge</h2>
+        </div>
+        
+        <p style={{ color: '#e5e7eb', marginBottom: '20px' }}>
+          You're accepting a challenge from <strong>{challengerName}</strong>
+        </p>
+        
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', color: '#fbbf24', marginBottom: '8px', fontWeight: '500' }}>
+              📅 Game Date *
+            </label>
+            <input
+              type="date"
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                backgroundColor: '#374151',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+              min={new Date().toISOString().split('T')[0]}
+              required
+            />
+          </div>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', color: '#fbbf24', marginBottom: '8px', fontWeight: '500' }}>
+              ⏰ Game Time *
+            </label>
+            <input
+              type="time"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                backgroundColor: '#374151',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+              required
+            />
+          </div>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', color: '#fbbf24', marginBottom: '8px', fontWeight: '500' }}>
+              📍 Location *
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g., Wrocław, Local Game Store"
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '6px',
+                border: '1px solid #4b5563',
+                backgroundColor: '#374151',
+                color: '#f9fafb',
+                fontSize: '14px'
+              }}
+              required
+            />
+          </div>
+          
+          {preferredMissions.length > 0 && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', color: '#fbbf24', marginBottom: '8px', fontWeight: '500' }}>
+                🎯 Mission
+              </label>
+              <select
+                value={selectedMission}
+                onChange={(e) => setSelectedMission(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  border: '1px solid #4b5563',
+                  backgroundColor: '#374151',
+                  color: '#f9fafb',
+                  fontSize: '14px'
+                }}
+              >
+                {preferredMissions.map(mission => (
+                  <option key={mission} value={mission}>{mission}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Scheduling...' : 'Accept & Schedule'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
