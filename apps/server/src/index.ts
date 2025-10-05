@@ -683,14 +683,15 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.30",
+  version: "v1.4.31",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
-  lastUpdate: "2025-10-05T23:10:00Z",
+  lastUpdate: "2025-10-05T23:15:00Z",
   rateLimitingDisabled: true,
   ddosProtectionDisabled: true,
   allProtectionRemoved: true,
-  ipBanningDisabled: true
+  ipBanningDisabled: true,
+  securityEndpointsRemoved: true
 }));
 
 // ===== DEVELOPER ENDPOINTS =====
@@ -5283,137 +5284,9 @@ app.get("/api/me/tokens", ensureAuth, async (req, res) => {
   }
 });
 
-// DDoS monitoring endpoint (admin only)
-app.get("/api/admin/security/ddos", ensureAuth, ensureAdmin, async (req, res) => {
-  try {
-    const now = new Date();
-    const activeThreats = Array.from(suspiciousIPs.entries())
-      .filter(([ip, data]) => {
-        const timeDiff = now.getTime() - data.firstSeen.getTime();
-        const requestsPerMinute = (data.count / timeDiff) * 60000;
-        return requestsPerMinute > IP_THRESHOLD * 0.5; // Show IPs with >50% of threshold
-      })
-      .map(([ip, data]) => {
-        const timeDiff = now.getTime() - data.firstSeen.getTime();
-        const requestsPerMinute = (data.count / timeDiff) * 60000;
-        return {
-          ip,
-          count: data.count,
-          requestsPerMinute: Math.round(requestsPerMinute * 100) / 100,
-          firstSeen: data.firstSeen,
-          lastSeen: data.lastSeen,
-          duration: Math.round(timeDiff / 1000), // seconds
-          isBanned: timeDiff < IP_BAN_DURATION
-        };
-      })
-      .sort((a, b) => b.requestsPerMinute - a.requestsPerMinute);
+// DDoS admin endpoints removed - no longer needed
 
-    res.json({
-      ok: true,
-      stats: {
-        totalTrackedIPs: suspiciousIPs.size,
-        activeThreats: activeThreats.length,
-        threshold: IP_THRESHOLD,
-        banDuration: IP_BAN_DURATION / 1000 / 60 // minutes
-      },
-      threats: activeThreats
-    });
-  } catch (error) {
-    console.error("Error fetching DDoS stats:", error);
-    res.status(500).json({ ok: false, error: "Failed to fetch DDoS stats" });
-  }
-});
-
-// Clear banned IPs (admin only)
-app.delete("/api/admin/security/ddos/clear", ensureAuth, ensureAdmin, async (req, res) => {
-  try {
-    suspiciousIPs.clear();
-    res.json({ ok: true, message: "Cleared all tracked IPs" });
-  } catch (error) {
-    console.error("Error clearing DDoS data:", error);
-    res.status(500).json({ ok: false, error: "Failed to clear DDoS data" });
-  }
-});
-
-// Get security settings (admin only)
-app.get("/api/admin/security/settings", ensureAuth, ensureAdmin, async (req, res) => {
-  try {
-    res.json({
-      ok: true,
-      data: {
-        rateLimits: {
-          general: 500,
-          auth: 10,
-          api: 100
-        },
-        ddosThreshold: IP_THRESHOLD,
-        banDuration: IP_BAN_DURATION / 1000 / 60, // minutes
-        trustedIPs: ['127.0.0.1', '::1', '89.151.22.52']
-      }
-    });
-  } catch (error) {
-    console.error("Error fetching security settings:", error);
-    res.status(500).json({ ok: false, error: "Failed to fetch security settings" });
-  }
-});
-
-// Update security settings (admin only)
-app.put("/api/admin/security/settings", ensureAuth, ensureAdmin, async (req, res) => {
-  try {
-    const { rateLimits, ddosThreshold, banDuration } = req.body;
-    
-    // Update settings (in a real app, you'd save these to database)
-    if (ddosThreshold) {
-      // IP_THRESHOLD = ddosThreshold;
-    }
-    if (banDuration) {
-      // IP_BAN_DURATION = banDuration * 60 * 1000;
-    }
-    
-    res.json({ ok: true, message: "Security settings updated" });
-  } catch (error) {
-    console.error("Error updating security settings:", error);
-    res.status(500).json({ ok: false, error: "Failed to update security settings" });
-  }
-});
-
-// Manage IP whitelist (admin only)
-app.post("/api/admin/security/whitelist", ensureAuth, ensureAdmin, async (req, res) => {
-  try {
-    const { ip } = req.body;
-    
-    if (!ip) {
-      return res.status(400).json({ ok: false, error: "IP address required" });
-    }
-    
-    // Add IP to whitelist (in a real app, you'd save this to database)
-    console.log(`🔒 Added IP to whitelist: ${ip}`);
-    
-    res.json({ ok: true, message: `IP ${ip} added to whitelist` });
-  } catch (error) {
-    console.error("Error adding IP to whitelist:", error);
-    res.status(500).json({ ok: false, error: "Failed to add IP to whitelist" });
-  }
-});
-
-// Remove IP from whitelist (admin only)
-app.delete("/api/admin/security/whitelist", ensureAuth, ensureAdmin, async (req, res) => {
-  try {
-    const { ip } = req.body;
-    
-    if (!ip) {
-      return res.status(400).json({ ok: false, error: "IP address required" });
-    }
-    
-    // Remove IP from whitelist (in a real app, you'd save this to database)
-    console.log(`🔒 Removed IP from whitelist: ${ip}`);
-    
-    res.json({ ok: true, message: `IP ${ip} removed from whitelist` });
-  } catch (error) {
-    console.error("Error removing IP from whitelist:", error);
-    res.status(500).json({ ok: false, error: "Failed to remove IP from whitelist" });
-  }
-});
+// All security endpoints removed - no longer needed
 
 // Test email configuration (admin only)
 app.get("/api/admin/test-email", ensureAuth, ensureAdmin, async (req, res) => {
