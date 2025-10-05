@@ -427,7 +427,7 @@ END:VCALENDAR`;
               overflow: 'auto',
               lineHeight: '1.6'
             }}>
-              <div style={{ whiteSpace: 'pre-wrap' }}>
+              <div style={{ whiteSpace: 'pre-wrap', color: '#f9fafb' }}>
                 {selectedMessage.content}
               </div>
               

@@ -228,17 +228,7 @@ const strictLimiter = rateLimit({
   }
 });
 
-const moderateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 2000, // Very generous limit for API endpoints
-  message: { ok: false, error: 'Too many requests, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    // @ts-ignore
-    return req.user && req.user.isTrusted;
-  }
-});
+// moderateLimiter removed - using new one below
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -250,9 +240,27 @@ const generalLimiter = rateLimit({
     try {
       // COMPLETELY DISABLE rate limiting for testing
       console.log('🔍 Rate limiting COMPLETELY DISABLED for:', req.path);
-      return true;
+      return true; // ALWAYS skip rate limiting
     } catch (error) {
       console.error('Rate limiter error:', error);
+      return true; // Skip on error too
+    }
+  }
+});
+
+const moderateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100000, // DISABLED for testing
+  message: { ok: false, error: 'Too many requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    try {
+      // COMPLETELY DISABLE rate limiting for testing
+      console.log('🔍 Moderate rate limiting COMPLETELY DISABLED for:', req.path);
+      return true; // ALWAYS skip rate limiting
+    } catch (error) {
+      console.error('Moderate rate limiter error:', error);
       return true; // Skip on error too
     }
   }

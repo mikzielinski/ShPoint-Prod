@@ -551,6 +551,9 @@ export async function getAvailablePlayers(req: Request, res: Response) {
       }
     });
 
+    console.log('🔍 Available players query result:', users.length, 'users');
+    console.log('🔍 Current user ID:', userId);
+    
     res.json({
       ok: true,
       players: users,
