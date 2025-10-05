@@ -940,9 +940,11 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.27",
+  version: "v1.4.28",
   hasPendingGamesEndpoint: true,
-  lastUpdate: "2025-10-05T10:00:00Z"
+  hasAgentTestingEndpoint: true,
+  lastUpdate: "2025-10-05T22:50:00Z",
+  rateLimitingDisabled: true
 }));
 
 // ===== DEVELOPER ENDPOINTS =====
