@@ -1145,6 +1145,154 @@ app.post("/api/dev/users/create", validateDevAccess, async (req: Request, res: R
   }
 });
 
+// Agent testing endpoint - simulate frontend API calls
+app.post("/api/dev/agent/test", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { testType, userId } = req.body;
+    
+    if (!testType) {
+      return res.status(400).json({
+        ok: false,
+        error: 'testType is required (available_players, create_user, all_users)'
+      });
+    }
+    
+    let result;
+    
+    switch (testType) {
+      case 'available_players':
+        if (!userId) {
+          return res.status(400).json({
+            ok: false,
+            error: 'userId is required for available_players test'
+          });
+        }
+        
+        // Test available players logic
+        const users = await prisma.user.findMany({
+          where: {
+            id: { not: userId as string },
+            status: 'ACTIVE',
+            NOT: {
+              OR: [
+                {
+                  challengesSent: {
+                    some: {
+                      challengedId: userId as string,
+                      status: 'PENDING'
+                    }
+                  }
+                },
+                {
+                  challengesReceived: {
+                    some: {
+                      challengerId: userId as string,
+                      status: 'PENDING'
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true,
+            createdAt: true
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        
+        const totalUsers = await prisma.user.count();
+        const availableCount = await prisma.user.count({
+          where: {
+            id: { not: userId as string },
+            status: 'ACTIVE'
+          }
+        });
+        
+        result = {
+          available_players: users,
+          total_users: totalUsers,
+          available_count: availableCount,
+          current_user_id: userId,
+          explanation: `Found ${users.length} available players out of ${availableCount} total users (excluding current user)`
+        };
+        break;
+        
+      case 'create_user':
+        const testUser = await prisma.user.create({
+          data: {
+            name: `Agent Test User ${Date.now()}`,
+            email: `agent-test-${Date.now()}@example.com`,
+            username: `agent_test_${Date.now()}`,
+            status: 'ACTIVE',
+            role: 'USER'
+          },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            email: true,
+            status: true,
+            role: true,
+            createdAt: true
+          }
+        });
+        
+        result = {
+          created_user: testUser,
+          message: 'Test user created successfully'
+        };
+        break;
+        
+      case 'all_users':
+        const allUsers = await prisma.user.findMany({
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            email: true,
+            status: true,
+            role: true,
+            createdAt: true
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+        
+        result = {
+          all_users: allUsers,
+          total_count: allUsers.length,
+          active_users: allUsers.filter(u => u.status === 'ACTIVE').length
+        };
+        break;
+        
+      default:
+        return res.status(400).json({
+          ok: false,
+          error: 'Invalid testType. Use: available_players, create_user, or all_users'
+        });
+    }
+    
+    res.json({
+      ok: true,
+      test_type: testType,
+      result,
+      timestamp: new Date().toISOString(),
+      message: 'Agent test completed successfully'
+    });
+    
+  } catch (error) {
+    console.error('Agent test error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Agent test failed',
+      details: error.message
+    });
+  }
+});
+
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
   try {
@@ -1799,27 +1947,27 @@ async function updateUserStatusIfNeeded(req: Request, res: Response, next: NextF
       });
       
       if (fullUser && fullUser.status === 'SUSPENDED' && fullUser.suspendedUntil) {
-        const now = new Date();
+      const now = new Date();
         const suspendedUntil = new Date(fullUser.suspendedUntil);
+      
+      // If suspension has ended, update user status
+      if (now >= suspendedUntil) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { 
+            status: 'ACTIVE',
+            suspendedUntil: null,
+            suspendedReason: null,
+            suspendedBy: null,
+            suspendedAt: null
+          }
+        });
         
-        // If suspension has ended, update user status
-        if (now >= suspendedUntil) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { 
-              status: 'ACTIVE',
-              suspendedUntil: null,
-              suspendedReason: null,
-              suspendedBy: null,
-              suspendedAt: null
-            }
-          });
-          
-          // Update the user object in the request
-          // @ts-ignore
-          req.user = await prisma.user.findUnique({
-            where: { id: user.id }
-          });
+        // Update the user object in the request
+        // @ts-ignore
+        req.user = await prisma.user.findUnique({
+          where: { id: user.id }
+        });
         }
       }
     }
