@@ -218,120 +218,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true })); // Limit URL-enc
 
 console.log('🚫 Rate limiting completely disabled - all protection removed');
 
-// 8. DDoS Detection and Monitoring - Adjusted thresholds
-const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
-const IP_THRESHOLD = 5000; // Extremely high threshold for development/deployment
-const IP_BAN_DURATION = 1 * 60 * 1000; // Reduced to 1 minute
-
-const ddosDetection = async (req: Request, res: Response, next: NextFunction) => {
-  const ip = req.ip || req.connection.remoteAddress || 'unknown';
-  const now = new Date();
-  
-  // Get trusted IPs from database
-  let trustedIPs: string[] = ['127.0.0.1', '::1']; // Always trusted
-  
-  try {
-    const dbTrustedIPs = await prisma.trustedIP.findMany({
-      where: { isActive: true },
-      select: { ip: true }
-    });
-    trustedIPs = [...trustedIPs, ...dbTrustedIPs.map(t => t.ip)];
-  } catch (error) {
-    console.warn('⚠️ Failed to load trusted IPs from database, using fallback list:', error.message);
-    // Fallback to hardcoded list if database fails
-    trustedIPs = [
-      ...trustedIPs,
-      '89.151.22.52', // User's IP - added to prevent accidental bans
-      '172.71.150.50', // User's current IP from logs
-      '172.71.151.92', // User's previous IP from logs
-      '172.69.214.80', // User's latest IP from logs
-      '172.71.151.7', // User's newest IP from logs
-    ];
-  }
-  
-  // Check if user is trusted (bypasses DDoS detection)
-  // @ts-ignore
-  if (req.user && req.user.isTrusted) {
-    console.log('🛡️ Trusted user bypassing DDoS detection:', req.user.email);
-    return next();
-  }
-  
-  // Emergency unban endpoint - remove this after fixing
-  if (req.path === '/unban' && req.method === 'POST') {
-    suspiciousIPs.clear();
-    console.log('🚨 Emergency unban executed - all IPs cleared');
-    return res.json({ ok: true, message: 'All IPs unbanned' });
-  }
-  
-  if (trustedIPs.includes(ip)) {
-    return next(); // Skip DDoS detection for trusted IPs
-  }
-  
-  // Clean old entries
-  for (const [key, data] of suspiciousIPs.entries()) {
-    if (now.getTime() - data.lastSeen.getTime() > IP_BAN_DURATION) {
-      suspiciousIPs.delete(key);
-    }
-  }
-  
-  // Check if IP is already banned
-  const ipData = suspiciousIPs.get(ip);
-  if (ipData && now.getTime() - ipData.firstSeen.getTime() < IP_BAN_DURATION) {
-    console.warn(`🚨 Banned IP attempting access: ${ip}`);
-    return res.status(429).json({ 
-      ok: false, 
-      error: 'IP temporarily banned due to suspicious activity' 
-    });
-  }
-  
-  // Track request frequency
-  if (!ipData) {
-    suspiciousIPs.set(ip, { count: 1, firstSeen: now, lastSeen: now });
-  } else {
-    ipData.count++;
-    ipData.lastSeen = now;
-    
-    // Check if IP is making too many requests
-    const timeDiff = now.getTime() - ipData.firstSeen.getTime();
-    const requestsPerMinute = (ipData.count / timeDiff) * 60000;
-    
-    if (requestsPerMinute > IP_THRESHOLD) {
-      console.warn(`🚨 DDoS detected from IP: ${ip}, ${requestsPerMinute.toFixed(2)} req/min`);
-      
-      // Log the attack
-      logAuditEvent({
-        entityType: 'SECURITY' as any,
-        entityId: ip,
-        action: 'DDOS_DETECTED' as any,
-        userId: null,
-        description: `DDoS attack detected from ${ip}: ${requestsPerMinute.toFixed(2)} requests per minute`,
-        changes: {
-          before: null,
-          after: { requestsPerMinute, count: ipData.count, duration: timeDiff }
-        }
-      }).catch(console.error);
-      
-      return res.status(429).json({ 
-        ok: false, 
-        error: 'Rate limit exceeded - suspicious activity detected' 
-      });
-    }
-  }
-  
-  next();
-};
-
-// 8. Apply DDoS detection (with exceptions)
-app.use((req, res, next) => {
-  // Skip DDoS detection for static files and health checks
-  if (req.path.startsWith('/characters/') || 
-      req.path.startsWith('/public/') || 
-      req.path === '/health' ||
-      req.path === '/favicon.ico') {
-    return next();
-  }
-  ddosDetection(req, res, next);
-});
+// DDoS protection also removed
+console.log('🚫 DDoS protection also disabled');
 
 // Setup Swagger documentation (will be called after ensureApiAccess is defined)
 
@@ -795,13 +683,14 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.29",
+  version: "v1.4.30",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
-  lastUpdate: "2025-10-05T23:00:00Z",
+  lastUpdate: "2025-10-05T23:10:00Z",
   rateLimitingDisabled: true,
   ddosProtectionDisabled: true,
-  allProtectionRemoved: true
+  allProtectionRemoved: true,
+  ipBanningDisabled: true
 }));
 
 // ===== DEVELOPER ENDPOINTS =====
