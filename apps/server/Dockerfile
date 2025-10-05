@@ -1,32 +1,15 @@
 FROM node:20-alpine
 WORKDIR /app
-# RENDER CACHE BYPASS - v1.5.4 - TRY DEBIAN-OPENSSL-3.0.X
+# RENDER CACHE BYPASS - v1.5.5 - FIX PRISMA OPENSSL 3
 
 # Force complete rebuild - no cache
-RUN echo "RENDER CACHE BYPASS v1.5.4 - $(date)" > /tmp/render-bypass.txt
+RUN echo "RENDER CACHE BYPASS v1.5.5 - $(date)" > /tmp/render-bypass.txt
 RUN echo "FORCE NEW BUILD - $(date)" > /tmp/force-new-build.txt
 RUN echo "NO START.SH - $(date)" > /tmp/no-start-sh.txt
-RUN echo "TRY DEBIAN-OPENSSL-3.0.X v1.5.4 - $(date)" > /tmp/debian-openssl-fix.txt
+RUN echo "FIX PRISMA OPENSSL 3 v1.5.5 - $(date)" > /tmp/prisma-openssl3-fix.txt
 
-# Install OpenSSL and create compatibility layer for Prisma
-RUN echo "Installing OpenSSL, musl-dev and glibc compatibility - $(date)" && apk add --no-cache openssl openssl-dev musl-dev libssl3 libcrypto3 gcompat && \
-    echo "Creating SSL library symlinks..." && \
-    ln -sf /lib/libssl.so.3 /lib/libssl.so.1.1 && \
-    ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.1 && \
-    ln -sf /lib/libssl.so.3 /lib/libssl.so.1.0.0 && \
-    ln -sf /lib/libcrypto.so.3 /lib/libcrypto.so.1.0.0 && \
-    ln -sf /lib/libssl.so.3 /usr/lib/libssl.so.1.1 && \
-    ln -sf /lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.1 && \
-    ln -sf /lib/libssl.so.3 /usr/lib/libssl.so.1.0.0 && \
-    ln -sf /lib/libcrypto.so.3 /usr/lib/libcrypto.so.1.0.0 && \
-    echo "Creating additional SSL symlinks in /usr/local/lib..." && \
-    mkdir -p /usr/local/lib && \
-    ln -sf /lib/libssl.so.3 /usr/local/lib/libssl.so.1.1 && \
-    ln -sf /lib/libcrypto.so.3 /usr/local/lib/libcrypto.so.1.1 && \
-    echo "SSL libraries installed and linked" && \
-    ls -la /lib/libssl* /lib/libcrypto* /usr/lib/libssl* /usr/lib/libcrypto* /usr/local/lib/libssl* /usr/local/lib/libcrypto* && \
-    echo "Checking if libssl.so.1.1 exists:" && \
-    find /lib /usr/lib /usr/local/lib -name "*libssl*" -o -name "*libcrypto*" 2>/dev/null
+# Install only OpenSSL 3 (standard on Alpine 3.18+)
+RUN echo "Installing OpenSSL 3 only - $(date)" && apk add --no-cache openssl
 
 # Copy package files and install dependencies
 COPY package*.json ./
@@ -45,11 +28,11 @@ COPY characters_assets ./characters_assets
 # Generate Prisma client and build
 RUN npx prisma generate
 RUN echo "Build cache bust v1.5.1 - $(date)" > /tmp/build-bust.txt
-RUN echo "Regenerating Prisma client with debian-openssl-3.0.x binary target..." && npx prisma generate
+RUN echo "Regenerating Prisma client with linux-musl-openssl-3.0.x binary target..." && npx prisma generate
 RUN npm run build
 
 ENV PORT=3001
 EXPOSE 3001
 
 # Run migrations with timeout and fallback, then start server
-CMD ["sh","-c","echo 'Starting ShPoint Server...' && echo 'DATABASE_URL check:' && echo $DATABASE_URL | head -c 50 && echo '...' && echo 'Setting LD_LIBRARY_PATH for Prisma...' && export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH && echo 'LD_LIBRARY_PATH set to:' && echo $LD_LIBRARY_PATH && echo 'Checking SSL libraries...' && ls -la /lib/libssl* /usr/lib/libssl* /usr/local/lib/libssl* 2>/dev/null || echo 'Some SSL libs not found' && echo 'Skipping migrations for now, starting server directly...' && node dist/index.js"]
+CMD ["sh","-c","echo 'Starting ShPoint Server...' && echo 'DATABASE_URL check:' && echo $DATABASE_URL | head -c 50 && echo '...' && echo 'Skipping migrations for now, starting server directly...' && node dist/index.js"]
