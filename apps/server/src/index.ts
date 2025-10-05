@@ -945,6 +945,206 @@ app.get("/health", (_req, res) => res.json({
   lastUpdate: "2025-10-05T10:00:00Z"
 }));
 
+// ===== DEVELOPER ENDPOINTS =====
+// Secure developer endpoints - only accessible with secret key
+const DEV_SECRET_KEY = process.env.DEV_SECRET_KEY || 'dev-secret-key-2025';
+
+const validateDevAccess = (req: Request, res: Response, next: NextFunction) => {
+  const devKey = req.headers['x-dev-secret'] || req.query.dev_secret;
+  
+  if (devKey !== DEV_SECRET_KEY) {
+    return res.status(403).json({
+      ok: false,
+      error: 'Developer access denied. Invalid or missing dev_secret.'
+    });
+  }
+  
+  next();
+};
+
+// Get all users (for testing player list)
+app.get("/api/dev/users", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        status: true,
+        role: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    res.json({
+      ok: true,
+      users,
+      total: users.length,
+      message: 'Developer endpoint - all users retrieved'
+    });
+  } catch (error) {
+    console.error('Dev endpoint error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to fetch users'
+    });
+  }
+});
+
+// Get available players (for testing)
+app.get("/api/dev/players/available", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.query;
+    
+    if (!userId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'userId query parameter is required'
+      });
+    }
+    
+    // Get users who are not the specified user and don't have pending challenges
+    const users = await prisma.user.findMany({
+      where: {
+        id: { not: userId as string },
+        status: 'ACTIVE',
+        // Exclude users with pending challenges from/to specified user
+        NOT: {
+          OR: [
+            {
+              challengesSent: {
+                some: {
+                  challengedId: userId as string,
+                  status: 'PENDING'
+                }
+              }
+            },
+            {
+              challengesReceived: {
+                some: {
+                  challengerId: userId as string,
+                  status: 'PENDING'
+                }
+              }
+            }
+          ]
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        createdAt: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    const totalUsers = await prisma.user.count({
+      where: {
+        id: { not: userId as string },
+        status: 'ACTIVE',
+        NOT: {
+          OR: [
+            {
+              challengesSent: {
+                some: {
+                  challengedId: userId as string,
+                  status: 'PENDING'
+                }
+              }
+            },
+            {
+              challengesReceived: {
+                some: {
+                  challengerId: userId as string,
+                  status: 'PENDING'
+                }
+              }
+            }
+          ]
+        }
+      }
+    });
+    
+    console.log('🔍 Dev endpoint: Available players query result:', users.length, 'users');
+    console.log('🔍 Dev endpoint: Current user ID:', userId);
+    console.log('🔍 Dev endpoint: Total users in database:', totalUsers);
+    
+    res.json({
+      ok: true,
+      players: users,
+      total: totalUsers,
+      message: 'Developer endpoint - available players retrieved'
+    });
+  } catch (error) {
+    console.error('Dev endpoint error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to fetch available players'
+    });
+  }
+});
+
+// Create test user (for testing)
+app.post("/api/dev/users/create", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { name, email, username } = req.body;
+    
+    if (!name || !email) {
+      return res.status(400).json({
+        ok: false,
+        error: 'name and email are required'
+      });
+    }
+    
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
+    
+    if (existingUser) {
+      return res.status(400).json({
+        ok: false,
+        error: 'User with this email already exists'
+      });
+    }
+    
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        username: username || `test_${Date.now()}`,
+        status: 'ACTIVE',
+        role: 'USER'
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        status: true,
+        role: true,
+        createdAt: true
+      }
+    });
+    
+    res.json({
+      ok: true,
+      user,
+      message: 'Developer endpoint - test user created'
+    });
+  } catch (error) {
+    console.error('Dev endpoint error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to create test user'
+    });
+  }
+});
+
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
   try {
