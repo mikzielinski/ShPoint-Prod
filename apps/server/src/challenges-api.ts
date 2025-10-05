@@ -554,6 +554,18 @@ export async function getAvailablePlayers(req: Request, res: Response) {
     console.log('🔍 Available players query result:', users.length, 'users');
     console.log('🔍 Current user ID:', userId);
     
+    // If no users found, let's check total users in database
+    const totalUsers = await prisma.user.count();
+    console.log('🔍 Total users in database:', totalUsers);
+    
+    if (users.length === 0 && totalUsers > 1) {
+      console.log('🔍 No available players found, but database has users. Checking why...');
+      const allUsers = await prisma.user.findMany({
+        select: { id: true, name: true, username: true, status: true }
+      });
+      console.log('🔍 All users in database:', allUsers);
+    }
+    
     res.json({
       ok: true,
       players: users,

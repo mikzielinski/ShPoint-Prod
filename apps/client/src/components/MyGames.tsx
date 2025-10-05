@@ -291,6 +291,38 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
+  const deletePublicGame = async (gameId: string) => {
+    if (!me || !confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(api(`/api/v2/public-games/${gameId}`), {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.ok) {
+        // Reload the list
+        loadMyPublicGames();
+        alert('Game deleted successfully!');
+      } else {
+        console.error('Failed to delete game:', data.error);
+        alert(`Failed to delete game: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Error deleting game:', err);
+      alert('Error deleting game. Please try again.');
+    }
+  };
+
+  const editPublicGame = async (gameId: string) => {
+    // TODO: Implement edit functionality
+    alert('Edit functionality coming soon!');
+  };
+
   useEffect(() => {
     loadGames();
   }, [me, targetPlayerId, filter, mode]);
@@ -419,6 +451,22 @@ export default function MyGames({ playerId }: MyGamesProps) {
           }}
         >
           Pending Games ({pendingGames.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('my-public')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'my-public' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'my-public' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          My Public Games ({myPublicGames.length})
         </button>
       </div>
 
@@ -626,6 +674,145 @@ export default function MyGames({ playerId }: MyGamesProps) {
                   
                   <div style={{ fontSize: '12px', color: '#9ca3af' }}>
                     Registered on: {new Date(game.registrationDate).toLocaleString('pl-PL')}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'my-public' && (
+        <div>
+          {myPublicGamesLoading ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>Loading your public games...</div>
+          ) : myPublicGames.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
+              No public games found. Create one in the Play section!
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {myPublicGames.map(game => (
+                <div key={game.id} style={{
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  backgroundColor: '#1f2937'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <div>
+                      <h3 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '18px' }}>
+                        {game.mission?.name || 'Mission'}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db' }}>
+                        <div>
+                          <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {new Date(game.scheduledDate).toLocaleString('pl-PL', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <div>
+                          <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {game.location || game.address || 
+                             `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ 
+                        background: '#3b82f6', 
+                        color: 'white', 
+                        padding: '4px 8px', 
+                        borderRadius: '4px', 
+                        fontSize: '12px', 
+                        fontWeight: 'bold',
+                        marginBottom: '8px'
+                      }}>
+                        📋 YOUR GAME
+                      </div>
+                      {game.isPaid && (
+                        <div style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 'bold' }}>
+                          💰 {game.totalCost} {game.currency}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>👤 Host:</strong>
+                      <span style={{ marginLeft: '8px' }}>
+                        {game.player1.name || game.player1.username || 'You'}
+                      </span>
+                    </div>
+                    {game.skillLevel && (
+                      <div>
+                        <strong style={{ color: '#fbbf24' }}>🎮 Skill:</strong>
+                        <span style={{ marginLeft: '8px' }}>
+                          {game.skillLevel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {game.notes && (
+                    <div style={{ 
+                      background: '#374151', 
+                      padding: '8px 12px', 
+                      borderRadius: '4px', 
+                      fontSize: '14px', 
+                      color: '#d1d5db',
+                      marginBottom: '12px'
+                    }}>
+                      <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
+                      <span style={{ marginLeft: '8px' }}>{game.notes}</span>
+                    </div>
+                  )}
+                  
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                    <button
+                      onClick={() => editPublicGame(game.id)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      ✏️ Edit Game
+                    </button>
+                    <button
+                      onClick={() => deletePublicGame(game.id)}
+                      style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}
+                    >
+                      🗑️ Delete Game
+                    </button>
+                  </div>
+                  
+                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
+                    Created on: {new Date(game.createdAt).toLocaleString('pl-PL')}
                   </div>
                 </div>
               ))}
