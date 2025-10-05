@@ -39,10 +39,7 @@ import { Strategy as GoogleStrategy, Profile } from "passport-google-oauth20";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 import fs from "fs";
-import rateLimit from "express-rate-limit";
-import slowDown from "express-slow-down";
-import ExpressBrute from "express-brute";
-import ExpressBruteRedis from "express-brute-redis";
+// Rate limiting completely removed
 import Joi from "joi";
 import { sendInvitationEmail, testEmailConfiguration } from "./email.js";
 import { logAuditEvent, getAuditLogs } from "./audit.js";
@@ -212,156 +209,14 @@ export const app = express();
 // Trust proxy for Render (needed for secure cookies)
 app.set('trust proxy', 1);
 
-// ===== ADVANCED DDoS PROTECTION =====
+// ===== RATE LIMITING COMPLETELY REMOVED =====
+// All rate limiting, slow down, and brute force protection removed for testing
 
-// 1. Basic Rate Limiting - Adjusted for normal users
-const strictLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Allow 10 auth attempts per 15 minutes (was 3)
-  message: { ok: false, error: 'Too many authentication attempts, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true, // Don't count successful requests
-  skip: (req) => {
-    // @ts-ignore
-    return req.user && req.user.isTrusted;
-  }
-});
-
-// moderateLimiter removed - using new one below
-
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100000, // DISABLED for testing
-  message: { ok: false, error: 'Rate limit exceeded, please slow down' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    try {
-      // COMPLETELY DISABLE rate limiting for testing
-      console.log('🔍 Rate limiting COMPLETELY DISABLED for:', req.path);
-      return true; // ALWAYS skip rate limiting
-    } catch (error) {
-      console.error('Rate limiter error:', error);
-      return true; // Skip on error too
-    }
-  }
-});
-
-const moderateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100000, // DISABLED for testing
-  message: { ok: false, error: 'Too many requests, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    try {
-      // COMPLETELY DISABLE rate limiting for testing
-      console.log('🔍 Moderate rate limiting COMPLETELY DISABLED for:', req.path);
-      return true; // ALWAYS skip rate limiting
-    } catch (error) {
-      console.error('Moderate rate limiter error:', error);
-      return true; // Skip on error too
-    }
-  }
-});
-
-// 2. Slow Down (progressive delays) - Very lenient
-const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  delayAfter: 200, // Allow 200 requests per windowMs without delay
-  delayMs: (used, req) => {
-    const delayAfter = req.slowDown.limit;
-    return (used - delayAfter) * 200;
-  },
-  maxDelayMs: 10000, // Reduced max delay from 20s to 10s
-  skipSuccessfulRequests: true,
-  skip: (req) => {
-    // @ts-ignore
-    return req.user && req.user.isTrusted;
-  }
-});
-
-// 3. Brute Force Protection
-let bruteForceStore;
-try {
-  // Check if Redis is available
-  if (process.env.REDIS_URL && process.env.REDIS_URL !== 'localhost') {
-    bruteForceStore = new ExpressBruteRedis({
-      host: process.env.REDIS_URL,
-      port: process.env.REDIS_PORT || 6379,
-      prefix: 'shpoint:bruteforce:'
-    });
-    console.log('✅ Redis brute force protection enabled');
-  } else {
-    throw new Error('Redis not configured');
-  }
-} catch (error) {
-  console.warn('⚠️ Redis not available, using memory store for brute force protection');
-  bruteForceStore = new ExpressBrute.MemoryStore();
-}
-
-const bruteForce = new ExpressBrute(bruteForceStore, {
-  freeRetries: 20, // Very generous for development/deployment
-  minWait: 30 * 1000, // Reduced to 30 seconds
-  maxWait: 2 * 60 * 1000, // Reduced to 2 minutes
-  lifetime: 24 * 60 * 60, // 24 hours
-  refreshTimeoutOnRequest: false,
-  handleStoreError: (error) => {
-    console.warn('Brute force store error:', error.message);
-    // Continue with memory store fallback
-  }
-});
-
-// 4. Request size limiting
+// Request size limiting only
 app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
 app.use(express.urlencoded({ limit: '10mb', extended: true })); // Limit URL-encoded payload size
 
-// 5. Apply protection layers
-app.use(generalLimiter); // Apply to all requests first
-// @ts-ignore
-app.use(speedLimiter); // Then apply speed limiting
-app.use('/auth/', strictLimiter); // Strict limits for auth
-
-// Special exception for /api/user/me - very lenient rate limiting
-app.use('/api/user/me', rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5000, // Very high limit for user profile requests
-  message: { ok: false, error: 'Too many user profile requests, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    // @ts-ignore
-    return req.user && req.user.isTrusted;
-  }
-}));
-
-app.use('/api/', moderateLimiter); // Moderate limits for API
-
-// 6. Brute force protection for specific endpoints - More lenient
-const authBruteForce = new ExpressBrute(bruteForceStore, {
-  freeRetries: 50, // Very generous for development/deployment
-  minWait: 30 * 1000, // Reduced to 30 seconds
-  maxWait: 2 * 60 * 1000, // Reduced to 2 minutes
-  lifetime: 24 * 60 * 60, // 24 hours
-});
-
-// 7. Netlify CDN IP whitelist middleware
-const netlifyIPs = [
-  '104.23.209.126',
-  '104.23.208.126', 
-  '104.23.210.126',
-  '104.23.211.126'
-];
-
-app.use('/auth/', (req, res, next) => {
-  // Skip brute force protection for Netlify CDN IPs
-  if (netlifyIPs.includes(req.ip)) {
-    return next();
-  }
-  // @ts-ignore - ExpressBrute type compatibility issue
-  return authBruteForce.prevent(req, res, next);
-});
+console.log('🚫 Rate limiting completely disabled - all protection removed');
 
 // 8. DDoS Detection and Monitoring - Adjusted thresholds
 const suspiciousIPs = new Map<string, { count: number; firstSeen: Date; lastSeen: Date }>();
@@ -940,11 +795,13 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.28",
+  version: "v1.4.29",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
-  lastUpdate: "2025-10-05T22:50:00Z",
-  rateLimitingDisabled: true
+  lastUpdate: "2025-10-05T23:00:00Z",
+  rateLimitingDisabled: true,
+  ddosProtectionDisabled: true,
+  allProtectionRemoved: true
 }));
 
 // ===== DEVELOPER ENDPOINTS =====
