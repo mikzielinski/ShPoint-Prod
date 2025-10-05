@@ -42,6 +42,16 @@ const ChallengeSystem: React.FC = () => {
     challengerStrikeTeamId: ''
   });
   const { players: availableUsers, loading: playersLoading, error: playersError } = usePlayers();
+  
+  // Debug players loading
+  useEffect(() => {
+    console.log('🔍 ChallengeSystem: Players debug:', {
+      availableUsers,
+      playersLoading,
+      playersError,
+      count: availableUsers?.length || 0
+    });
+  }, [availableUsers, playersLoading, playersError]);
   const { strikeTeams, loading: strikeTeamsLoading, error: strikeTeamsError } = useStrikeTeams();
   const { missions, loading: missionsLoading, error: missionsError } = useMissions();
 
@@ -269,7 +279,12 @@ const ChallengeSystem: React.FC = () => {
                   fontSize: '14px'
                 }}
               >
-                <option value="">Select Player to Challenge</option>
+                <option value="">
+                  {playersLoading ? 'Loading players...' : 
+                   playersError ? `Error: ${playersError}` :
+                   availableUsers.length === 0 ? 'No players available' :
+                   'Select Player to Challenge'}
+                </option>
                 {availableUsers.map(player => (
                   <option key={player.id} value={player.id}>
                     {player.name || player.username || 'Unknown User'}
