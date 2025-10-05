@@ -930,7 +930,12 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ ok: true, version: "v1.4.26" }));
+app.get("/health", (_req, res) => res.json({ 
+  ok: true, 
+  version: "v1.4.27",
+  hasPendingGamesEndpoint: true,
+  lastUpdate: "2025-10-05T10:00:00Z"
+}));
 
 // Debug endpoint to check database schema
 app.get("/debug/schema", async (_req, res) => {
