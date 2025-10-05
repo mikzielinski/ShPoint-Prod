@@ -9,7 +9,7 @@
 # Note: Netlify rate limiting cannot be disabled via configuration
 # We'll use headers to try to override the limits
 
-# Disable Netlify's rate limiting for API calls - CACHE BUST v1.4.0
+# Disable Netlify's rate limiting for API calls - CACHE BUST v1.4.4
 [[headers]]
   for = "/backend-api/*"
   [headers.values]
@@ -19,9 +19,9 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.4.0"
+    X-Cache-Bust = "v1.4.4"
 
-# Disable rate limiting for all API paths - CACHE BUST v1.4.0
+# Disable rate limiting for all API paths - CACHE BUST v1.4.4
 [[headers]]
   for = "/api/*"
   [headers.values]
@@ -31,9 +31,9 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.4.0"
+    X-Cache-Bust = "v1.4.4"
 
-# Disable rate limiting for auth paths - CACHE BUST v1.4.0
+# Disable rate limiting for auth paths - CACHE BUST v1.4.4
 [[headers]]
   for = "/auth/*"
   [headers.values]
@@ -43,7 +43,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.4.0"
+    X-Cache-Bust = "v1.4.4"
 
 [[redirects]]
   from = "/characters/*"
