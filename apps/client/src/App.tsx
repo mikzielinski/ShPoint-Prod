@@ -1,6 +1,8 @@
 // apps/client/src/App.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+
+// CACHE BUST v1.4.5 - FORCE NETLIFY REBUILD
 import { rollDice, summarizeDice, summaryToString, type SymbolType } from "@shpoint/shared";
 
 import NavBar from "./components/NavBar";

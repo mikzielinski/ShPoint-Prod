@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../lib/env';
 import { useAuth } from '../auth/AuthContext';
 
-// CACHE BUST v1.4.4 - FORCE NETLIFY REBUILD
+// CACHE BUST v1.4.5 - FORCE NETLIFY REBUILD
 
 interface InboxMessage {
   id: string;
