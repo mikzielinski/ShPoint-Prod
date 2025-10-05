@@ -1,12 +1,12 @@
 FROM node:20-alpine
 WORKDIR /app
-# RENDER CACHE BYPASS - v1.5.3 - TRY LINUX-GLIBC
+# RENDER CACHE BYPASS - v1.5.4 - TRY DEBIAN-OPENSSL-3.0.X
 
 # Force complete rebuild - no cache
-RUN echo "RENDER CACHE BYPASS v1.5.3 - $(date)" > /tmp/render-bypass.txt
+RUN echo "RENDER CACHE BYPASS v1.5.4 - $(date)" > /tmp/render-bypass.txt
 RUN echo "FORCE NEW BUILD - $(date)" > /tmp/force-new-build.txt
 RUN echo "NO START.SH - $(date)" > /tmp/no-start-sh.txt
-RUN echo "TRY LINUX-GLIBC v1.5.3 - $(date)" > /tmp/glibc-fix.txt
+RUN echo "TRY DEBIAN-OPENSSL-3.0.X v1.5.4 - $(date)" > /tmp/debian-openssl-fix.txt
 
 # Install OpenSSL and create compatibility layer for Prisma
 RUN echo "Installing OpenSSL, musl-dev and glibc compatibility - $(date)" && apk add --no-cache openssl openssl-dev musl-dev libssl3 libcrypto3 gcompat && \
@@ -45,7 +45,7 @@ COPY characters_assets ./characters_assets
 # Generate Prisma client and build
 RUN npx prisma generate
 RUN echo "Build cache bust v1.5.1 - $(date)" > /tmp/build-bust.txt
-RUN echo "Regenerating Prisma client with linux-glibc binary target..." && npx prisma generate
+RUN echo "Regenerating Prisma client with debian-openssl-3.0.x binary target..." && npx prisma generate
 RUN npm run build
 
 ENV PORT=3001
