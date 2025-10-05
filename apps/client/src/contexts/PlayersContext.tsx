@@ -33,9 +33,12 @@ export const PlayersProvider: React.FC<PlayersProviderProps> = ({ children }) =>
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  console.log('🔄 PlayersProvider: Component mounted');
 
   const loadPlayers = async () => {
     console.log('🔄 PlayersContext: Loading available players...');
+    console.log('🔄 PlayersContext: Provider mounted, starting API call...');
     setLoading(true);
     setError(null);
     
@@ -75,6 +78,7 @@ export const PlayersProvider: React.FC<PlayersProviderProps> = ({ children }) =>
 
   useEffect(() => {
     // Load players once when provider mounts
+    console.log('🔄 PlayersContext: useEffect triggered, calling loadPlayers...');
     loadPlayers();
   }, []);
 
