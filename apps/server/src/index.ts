@@ -81,6 +81,7 @@ import {
 import { 
   getScheduledGames, 
   getMyApprovedGames,
+  getMyPendingGames,
   getMyPublicGames,
   createScheduledGame, 
   updateScheduledGame, 
@@ -6499,6 +6500,7 @@ app.get("/api/v2/players/available", ensureAuth, addUserToRequest, getAvailableP
 // ===== SCHEDULED GAMES API =====
 app.get("/api/v2/scheduled-games", ensureAuth, addUserToRequest, getScheduledGames);
 app.get("/api/v2/scheduled-games/my-approved", ensureAuth, addUserToRequest, getMyApprovedGames);
+app.get("/api/v2/scheduled-games/my-pending", ensureAuth, addUserToRequest, getMyPendingGames);
 app.get("/api/v2/scheduled-games/my-public", ensureAuth, addUserToRequest, getMyPublicGames);
 app.post("/api/v2/scheduled-games", ensureAuth, addUserToRequest, createScheduledGame);
 app.put("/api/v2/scheduled-games/:id", ensureAuth, addUserToRequest, updateScheduledGame);

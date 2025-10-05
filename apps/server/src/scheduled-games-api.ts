@@ -70,6 +70,69 @@ export const getMyApprovedGames = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyPendingGames = async (req: Request, res: Response) => {
+  try {
+    // @ts-ignore
+    const userId = req.user.id;
+    
+    // Get all public game registrations where user is pending
+    const pendingRegistrations = await prisma.gameRegistration.findMany({
+      where: {
+        userId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        game: {
+          include: {
+            player1: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                avatarUrl: true
+              }
+            },
+            mission: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        game: {
+          scheduledDate: 'asc'
+        }
+      }
+    });
+
+    // Transform to game format
+    const pendingGames = pendingRegistrations.map(reg => ({
+      ...reg.game,
+      isApproved: false,
+      registrationDate: (reg as any).createdAt || new Date(),
+      registrationStatus: reg.status
+    }));
+
+    res.json({
+      ok: true,
+      games: pendingGames,
+      pagination: {
+        page: 1,
+        limit: pendingGames.length,
+        total: pendingGames.length,
+        totalPages: 1
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching pending games:', error);
+    res.status(500).json({ ok: false, error: 'Failed to fetch pending games' });
+  }
+};
+
 export async function getMyPublicGames(req: Request, res: Response) {
   try {
     const userId = (req as any).user?.id;

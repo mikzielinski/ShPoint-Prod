@@ -113,6 +113,24 @@ interface ApprovedGame {
   registrationStatus: string;
 }
 
+interface PendingGame {
+  id: string;
+  scheduledDate: string;
+  location?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  mission?: Mission;
+  player1: User;
+  notes?: string;
+  isPaid?: boolean;
+  totalCost?: number;
+  currency?: string;
+  skillLevel?: string;
+  registrationDate: string;
+  registrationStatus: 'PENDING';
+}
+
 interface MyPublicGame {
   id: string;
   scheduledDate: string;
@@ -151,9 +169,11 @@ export default function MyGames({ playerId }: MyGamesProps) {
   
   const [games, setGames] = useState<GameResult[]>([]);
   const [approvedGames, setApprovedGames] = useState<ApprovedGame[]>([]);
+  const [pendingGames, setPendingGames] = useState<PendingGame[]>([]);
   const [myPublicGames, setMyPublicGames] = useState<MyPublicGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [approvedLoading, setApprovedLoading] = useState(true);
+  const [pendingLoading, setPendingLoading] = useState(true);
   const [myPublicGamesLoading, setMyPublicGamesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedGame, setExpandedGame] = useState<string | null>(null);
@@ -161,7 +181,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
   const [mode, setMode] = useState<'all' | 'CASUAL' | 'RANKED' | 'TOURNAMENT' | 'FRIENDLY'>('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [activeTab, setActiveTab] = useState<'results' | 'approved' | 'my-public'>('results');
+  const [activeTab, setActiveTab] = useState<'results' | 'approved' | 'pending' | 'my-public'>('results');
 
   const targetPlayerId = playerId || me?.id;
 
@@ -227,6 +247,28 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
+  const loadPendingGames = async () => {
+    if (!me) return;
+
+    try {
+      setPendingLoading(true);
+      const response = await fetch(api('/api/v2/scheduled-games/my-pending'), {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (data.ok) {
+        setPendingGames(data.games);
+      } else {
+        console.error('Failed to load pending games:', data.error);
+      }
+    } catch (err) {
+      console.error('Failed to load pending games:', err);
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
   const loadMyPublicGames = async () => {
     if (!me) return;
 
@@ -255,6 +297,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
 
   useEffect(() => {
     loadApprovedGames();
+    loadPendingGames();
     loadMyPublicGames();
   }, [me]);
 
@@ -361,6 +404,22 @@ export default function MyGames({ playerId }: MyGamesProps) {
         >
           Approved Games ({approvedGames.length})
         </button>
+        <button
+          onClick={() => setActiveTab('pending')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'pending' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'pending' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Pending Games ({pendingGames.length})
+        </button>
       </div>
 
       {activeTab === 'approved' && (
@@ -461,6 +520,112 @@ export default function MyGames({ playerId }: MyGamesProps) {
                   
                   <div style={{ fontSize: '12px', color: '#9ca3af' }}>
                     Approved on: {new Date(game.registrationDate).toLocaleString('pl-PL')}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'pending' && (
+        <div>
+          {pendingLoading ? (
+            <div style={{ padding: '40px', textAlign: 'center' }}>Loading pending games...</div>
+          ) : pendingGames.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
+              No pending games found
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {pendingGames.map(game => (
+                <div key={game.id} style={{
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  backgroundColor: '#1f2937'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <div>
+                      <h3 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '18px' }}>
+                        {game.mission?.name || 'Mission'}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db' }}>
+                        <div>
+                          <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {new Date(game.scheduledDate).toLocaleString('pl-PL', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <div>
+                          <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {game.location || game.address || 
+                             `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ 
+                        background: '#f59e0b', 
+                        color: 'white', 
+                        padding: '4px 8px', 
+                        borderRadius: '4px', 
+                        fontSize: '12px', 
+                        fontWeight: 'bold',
+                        marginBottom: '8px'
+                      }}>
+                        ⏳ PENDING
+                      </div>
+                      {game.isPaid && (
+                        <div style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 'bold' }}>
+                          💰 {game.totalCost} {game.currency}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>👤 Host:</strong>
+                      <span style={{ marginLeft: '8px' }}>
+                        {game.player1.name || game.player1.username || 'Unknown'}
+                      </span>
+                    </div>
+                    {game.skillLevel && (
+                      <div>
+                        <strong style={{ color: '#fbbf24' }}>🎮 Skill:</strong>
+                        <span style={{ marginLeft: '8px' }}>
+                          {game.skillLevel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {game.notes && (
+                    <div style={{ 
+                      background: '#374151', 
+                      padding: '8px 12px', 
+                      borderRadius: '4px', 
+                      fontSize: '14px', 
+                      color: '#d1d5db',
+                      marginBottom: '12px'
+                    }}>
+                      <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
+                      <span style={{ marginLeft: '8px' }}>{game.notes}</span>
+                    </div>
+                  )}
+                  
+                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                    Registered on: {new Date(game.registrationDate).toLocaleString('pl-PL')}
                   </div>
                 </div>
               ))}
