@@ -582,6 +582,7 @@ async function syncCharactersUnified() {
     console.log(`🔄 Syncing ${unifiedData.length} characters in unified file...`);
     
     let updatedCount = 0;
+    let dbSyncCount = 0;
     
     // Update each character with data from individual data.json files
     for (const char of unifiedData) {
@@ -612,6 +613,10 @@ async function syncCharactersUnified() {
             unifiedData[charIndex] = updatedChar;
             updatedCount++;
           }
+          
+          // 🔥 NEW: Sync to database
+          await syncCharacterToDatabase(char.id, individualData);
+          dbSyncCount++;
         }
       } catch (error) {
         console.warn(`⚠️ Failed to sync character ${char.id}:`, error);
@@ -620,10 +625,126 @@ async function syncCharactersUnified() {
     
     // Write updated unified file
     fs.writeFileSync(unifiedPath, JSON.stringify(unifiedData, null, 2));
-    console.log(`✅ Synchronized ${updatedCount} characters in unified file`);
+    console.log(`✅ Synchronized ${updatedCount} characters in unified file and ${dbSyncCount} to database`);
     
   } catch (error) {
     console.error('❌ Failed to sync characters_unified.json:', error);
+  }
+}
+
+// 🔥 NEW: Function to sync individual character to database
+async function syncCharacterToDatabase(characterId: string, characterData: any) {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Check if character exists in database
+    let character = await prisma.character.findUnique({
+      where: { id: characterId }
+    });
+    
+    // Create or update character
+    const characterPayload = {
+      id: characterId,
+      slug: characterId,
+      name: characterData.name || 'Unknown Character',
+      faction: characterData.faction || 'Unknown',
+      unitType: asStringOrFirst(characterData.unit_type) || characterData.role || 'Primary',
+      squadPoints: characterData.squad_points || 0,
+      stamina: characterData.stamina || 0,
+      durability: characterData.durability || 0,
+      force: characterData.force || null,
+      hanker: characterData.hanker || null,
+      boxSetCode: characterData.boxSetCode || characterData.set_code || null,
+      characterNames: characterData.characterNames || [],
+      numberOfCharacters: characterData.number_of_characters || 1,
+      era: characterData.era || null,
+      period: characterData.period || [],
+      tags: characterData.tags || [],
+      portraitUrl: characterData.portrait || null,
+      imageUrl: characterData.image || null,
+      version: parseVersionToInt(characterData.version)
+    };
+    
+    if (character) {
+      // Update existing character
+      character = await prisma.character.update({
+        where: { id: characterId },
+        data: characterPayload
+      });
+      console.log(`📝 Updated character ${characterId} in database`);
+    } else {
+      // Create new character
+      character = await prisma.character.create({
+        data: characterPayload
+      });
+      console.log(`➕ Created character ${characterId} in database`);
+    }
+    
+    // Sync abilities
+    if (characterData.abilities && Array.isArray(characterData.abilities)) {
+      // Delete existing abilities
+      await prisma.characterAbility.deleteMany({
+        where: { characterId: characterId }
+      });
+      
+      // Create new abilities
+      for (let i = 0; i < characterData.abilities.length; i++) {
+        const ability = characterData.abilities[i];
+        await prisma.characterAbility.create({
+          data: {
+            characterId: characterId,
+            name: ability.name,
+            type: ability.type,
+            symbol: ability.symbol,
+            trigger: ability.trigger,
+            isAction: ability.isAction || false,
+            forceCost: ability.forceCost || 0,
+            damageCost: ability.damageCost || 0,
+            description: ability.description,
+            tags: ability.tags || [],
+            order: i
+          }
+        });
+      }
+      console.log(`🎯 Synced ${characterData.abilities.length} abilities for ${characterId}`);
+    }
+    
+    // Sync stance data
+    let stancePath = path.join(process.cwd(), `characters_assets/${characterId}/stance.json`);
+    if (!fs.existsSync(stancePath)) {
+      stancePath = path.join(process.cwd(), `../client/characters_assets/${characterId}/stance.json`);
+    }
+    
+    if (fs.existsSync(stancePath)) {
+      const stanceData = JSON.parse(fs.readFileSync(stancePath, 'utf8'));
+      
+      if (stanceData && stanceData.dice) {
+        // Update or create stance
+        await prisma.characterStance.upsert({
+          where: { characterId: characterId },
+          update: {
+            attackDice: stanceData.dice.attack || 0,
+            defenseDice: stanceData.dice.defense || 0,
+            meleeExpertise: stanceData.expertise?.melee || 0,
+            rangedExpertise: stanceData.expertise?.ranged || 0,
+            tree: stanceData.tree || []
+          },
+          create: {
+            characterId: characterId,
+            attackDice: stanceData.dice.attack || 0,
+            defenseDice: stanceData.dice.defense || 0,
+            meleeExpertise: stanceData.expertise?.melee || 0,
+            rangedExpertise: stanceData.expertise?.ranged || 0,
+            tree: stanceData.tree || []
+          }
+        });
+        console.log(`⚔️ Synced stance data for ${characterId}`);
+      }
+    }
+    
+  } catch (error) {
+    console.error(`❌ Failed to sync character ${characterId} to database:`, error);
   }
 }
 
@@ -2600,76 +2721,17 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
         const __dirname = path.default.dirname(fileURLToPath(import.meta.url));
         
         const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
-        const stancePath = path.default.join(__dirname, '../characters_assets', characterId, 'stance.json');
         
         if (fs.default.existsSync(dataPath)) {
-          const dataContent = fs.default.readFileSync(dataPath, 'utf8');
-          const stanceContent = fs.default.existsSync(stancePath) ? fs.default.readFileSync(stancePath, 'utf8') : '{}';
+          const characterData = JSON.parse(fs.default.readFileSync(dataPath, 'utf8'));
           
-          const characterData = JSON.parse(dataContent);
-          const stanceData = JSON.parse(stanceContent);
+          // Use our new sync function
+          await syncCharacterToDatabase(characterId, characterData);
           
-          // Create character in database
-          console.log('Character data unit_type:', characterData.unit_type, typeof characterData.unit_type);
-          character = await prisma.character.create({
-            data: {
-              id: characterId,
-              slug: characterId,
-              name: characterData.name || 'Unknown Character',
-              faction: characterData.faction || 'Unknown',
-              unitType: asStringOrFirst(characterData.unit_type) || characterData.role || 'Primary',
-              squadPoints: characterData.squad_points || 0,
-              stamina: characterData.stamina || 0,
-              durability: characterData.durability || 0,
-              force: characterData.force || null,
-              hanker: characterData.hanker || null,
-              boxSetCode: characterData.boxSetCode || characterData.set_code || null,
-              characterNames: characterData.characterNames || [],
-              numberOfCharacters: characterData.number_of_characters || 1,
-              era: characterData.era || null,
-              period: characterData.period || [],
-              tags: characterData.tags || [],
-              portraitUrl: characterData.portrait || null,
-              imageUrl: characterData.image || null,
-              version: parseVersionToInt(characterData.version)
-            }
+          // Get the created character
+          character = await prisma.character.findUnique({
+            where: { id: characterId }
           });
-          
-          // Create abilities separately if they exist
-          if (characterData.abilities && Array.isArray(characterData.abilities)) {
-            for (let i = 0; i < characterData.abilities.length; i++) {
-              const ability = characterData.abilities[i];
-              await prisma.characterAbility.create({
-                data: {
-                  characterId: characterId,
-                  name: ability.name,
-                  type: ability.type,
-                  symbol: ability.symbol,
-                  trigger: ability.trigger,
-                  isAction: ability.isAction || false,
-                  forceCost: ability.forceCost || 0,
-                  damageCost: ability.damageCost || 0,
-                  description: ability.description,
-                  tags: ability.tags || [],
-                  order: i
-                }
-              });
-            }
-          }
-          
-          // Create stance if stance data exists
-          if (stanceData && stanceData.dice) {
-            await prisma.characterStance.create({
-              data: {
-                characterId: characterId,
-                attackDice: stanceData.dice.attack || 0,
-                defenseDice: stanceData.dice.defense || 0,
-                meleeExpertise: stanceData.expertise?.melee || 0,
-                rangedExpertise: stanceData.expertise?.ranged || 0,
-                tree: stanceData.tree || []
-              }
-            });
-          }
           
           console.log(`Successfully created character ${characterId} in database`);
         } else {
@@ -3930,6 +3992,80 @@ app.post("/api/admin/sync-characters", ensureAuth, async (req, res) => {
   } catch (error) {
     console.error('Error during manual sync:', error);
     res.status(500).json({ ok: false, error: 'Failed to sync characters' });
+  }
+});
+
+// POST /api/admin/sync-all-characters-to-db — sync all characters from JSON to database (Admin only)
+app.post("/api/admin/sync-all-characters-to-db", ensureAuth, async (req, res) => {
+  try {
+    // @ts-ignore
+    const user = req.user;
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ ok: false, error: 'Admin permissions required' });
+    }
+    
+    console.log('Full character database sync requested by:', user.email);
+    
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Get all character directories
+    let charactersDir = path.join(process.cwd(), 'characters_assets');
+    if (!fs.existsSync(charactersDir)) {
+      charactersDir = path.join(process.cwd(), '../client/characters_assets');
+    }
+    
+    if (!fs.existsSync(charactersDir)) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Characters assets directory not found' 
+      });
+    }
+    
+    const characterDirs = fs.readdirSync(charactersDir)
+      .filter(item => {
+        const itemPath = path.join(charactersDir, item);
+        return fs.statSync(itemPath).isDirectory() && item !== 'sets' && item !== 'missions';
+      });
+    
+    console.log(`🔄 Found ${characterDirs.length} character directories to sync`);
+    
+    let syncedCount = 0;
+    let errorCount = 0;
+    const errors: string[] = [];
+    
+    for (const characterId of characterDirs) {
+      try {
+        const dataPath = path.join(charactersDir, characterId, 'data.json');
+        
+        if (fs.existsSync(dataPath)) {
+          const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          await syncCharacterToDatabase(characterId, characterData);
+          syncedCount++;
+        } else {
+          console.warn(`⚠️ No data.json found for character: ${characterId}`);
+          errors.push(`No data.json found for ${characterId}`);
+          errorCount++;
+        }
+      } catch (error) {
+        console.error(`❌ Failed to sync character ${characterId}:`, error);
+        errors.push(`Failed to sync ${characterId}: ${error.message}`);
+        errorCount++;
+      }
+    }
+    
+    res.json({ 
+      ok: true, 
+      message: `Character database sync completed`,
+      syncedCount,
+      errorCount,
+      totalCharacters: characterDirs.length,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error('Error during full character database sync:', error);
+    res.status(500).json({ ok: false, error: 'Failed to sync characters to database' });
   }
 });
 
