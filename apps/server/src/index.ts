@@ -770,20 +770,20 @@ app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request
     });
     
     // Test 2: Check if character JSON files exist
-    const fs = require('fs');
-    const path = require('path');
-    const dataPath = path.join(__dirname, '../characters_assets', characterId as string, 'data.json');
-    const stancePath = path.join(__dirname, '../characters_assets', characterId as string, 'stance.json');
+    const fs = await import('fs');
+    const path = await import('path');
+    const dataPath = path.default.join(__dirname, '../characters_assets', characterId as string, 'data.json');
+    const stancePath = path.default.join(__dirname, '../characters_assets', characterId as string, 'stance.json');
     
-    const jsonDataExists = fs.existsSync(dataPath);
-    const jsonStanceExists = fs.existsSync(stancePath);
+    const jsonDataExists = fs.default.existsSync(dataPath);
+    const jsonStanceExists = fs.default.existsSync(stancePath);
     
     let jsonData = null;
     let jsonStance = null;
     
     if (jsonDataExists) {
       try {
-        jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+        jsonData = JSON.parse(fs.default.readFileSync(dataPath, 'utf8'));
       } catch (e) {
         console.error('Error reading JSON data:', e);
       }
@@ -791,7 +791,7 @@ app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request
     
     if (jsonStanceExists) {
       try {
-        jsonStance = JSON.parse(fs.readFileSync(stancePath, 'utf8'));
+        jsonStance = JSON.parse(fs.default.readFileSync(stancePath, 'utf8'));
       } catch (e) {
         console.error('Error reading JSON stance:', e);
       }
@@ -907,21 +907,21 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
     }
     
     // Try to create from JSON
-    const fs = require('fs');
-    const path = require('path');
+    const fs = await import('fs');
+    const path = await import('path');
     
-    const dataPath = path.join(__dirname, '../characters_assets', characterId, 'data.json');
-    const stancePath = path.join(__dirname, '../characters_assets', characterId, 'stance.json');
+    const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
+    const stancePath = path.default.join(__dirname, '../characters_assets', characterId, 'stance.json');
     
-    if (!fs.existsSync(dataPath)) {
+    if (!fs.default.existsSync(dataPath)) {
       return res.status(404).json({
         ok: false,
         error: `Character data file not found: ${dataPath}`
       });
     }
     
-    const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    const stanceData = fs.existsSync(stancePath) ? JSON.parse(fs.readFileSync(stancePath, 'utf8')) : {};
+    const characterData = JSON.parse(fs.default.readFileSync(dataPath, 'utf8'));
+    const stanceData = fs.default.existsSync(stancePath) ? JSON.parse(fs.default.readFileSync(stancePath, 'utf8')) : {};
     
     // Create character
     const character = await prisma.character.create({
@@ -1020,13 +1020,13 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
     if (!character) {
       console.log(`Character ${characterId} not found, attempting to create from JSON`);
       
-      const fs = require('fs');
-      const path = require('path');
+      const fs = await import('fs');
+      const path = await import('path');
       
-      const dataPath = path.join(__dirname, '../characters_assets', characterId, 'data.json');
+      const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
       
-      if (fs.existsSync(dataPath)) {
-        const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+      if (fs.default.existsSync(dataPath)) {
+        const characterData = JSON.parse(fs.default.readFileSync(dataPath, 'utf8'));
         
         character = await prisma.character.create({
           data: {
@@ -2520,15 +2520,15 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       
       try {
         // Try to load character data from JSON files
-        const fs = require('fs');
-        const path = require('path');
+        const fs = await import('fs');
+        const path = await import('path');
         
-        const dataPath = path.join(__dirname, '../characters_assets', characterId, 'data.json');
-        const stancePath = path.join(__dirname, '../characters_assets', characterId, 'stance.json');
+        const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
+        const stancePath = path.default.join(__dirname, '../characters_assets', characterId, 'stance.json');
         
-        if (fs.existsSync(dataPath)) {
-          const dataContent = fs.readFileSync(dataPath, 'utf8');
-          const stanceContent = fs.existsSync(stancePath) ? fs.readFileSync(stancePath, 'utf8') : '{}';
+        if (fs.default.existsSync(dataPath)) {
+          const dataContent = fs.default.readFileSync(dataPath, 'utf8');
+          const stanceContent = fs.default.existsSync(stancePath) ? fs.default.readFileSync(stancePath, 'utf8') : '{}';
           
           const characterData = JSON.parse(dataContent);
           const stanceData = JSON.parse(stanceContent);
