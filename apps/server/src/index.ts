@@ -772,6 +772,8 @@ app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request
     // Test 2: Check if character JSON files exist
     const fs = await import('fs');
     const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __dirname = path.default.dirname(fileURLToPath(import.meta.url));
     const dataPath = path.default.join(__dirname, '../characters_assets', characterId as string, 'data.json');
     const stancePath = path.default.join(__dirname, '../characters_assets', characterId as string, 'stance.json');
     
@@ -909,6 +911,8 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
     // Try to create from JSON
     const fs = await import('fs');
     const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __dirname = path.default.dirname(fileURLToPath(import.meta.url));
     
     const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
     const stancePath = path.default.join(__dirname, '../characters_assets', characterId, 'stance.json');
@@ -1022,6 +1026,8 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
       
       const fs = await import('fs');
       const path = await import('path');
+      const { fileURLToPath } = await import('url');
+      const __dirname = path.default.dirname(fileURLToPath(import.meta.url));
       
       const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
       
@@ -2522,6 +2528,8 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
         // Try to load character data from JSON files
         const fs = await import('fs');
         const path = await import('path');
+        const { fileURLToPath } = await import('url');
+        const __dirname = path.default.dirname(fileURLToPath(import.meta.url));
         
         const dataPath = path.default.join(__dirname, '../characters_assets', characterId, 'data.json');
         const stancePath = path.default.join(__dirname, '../characters_assets', characterId, 'stance.json');
