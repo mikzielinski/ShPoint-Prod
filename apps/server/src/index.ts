@@ -825,9 +825,9 @@ function setInvitationLimits(user: any) {
  *                   type: string
  *                   example: "v1.2.28"
  */
-app.get("/health", (_req, res) => res.json({ 
-  ok: true, 
-        version: "v1.6.7",
+app.get("/health", (_req, res) =>   res.json({
+    ok: true,
+    version: "v1.6.8",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
