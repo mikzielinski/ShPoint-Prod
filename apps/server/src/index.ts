@@ -928,13 +928,14 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
     const stanceData = fs.default.existsSync(stancePath) ? JSON.parse(fs.default.readFileSync(stancePath, 'utf8')) : {};
     
     // Create character
+    console.log('Character data unit_type:', characterData.unit_type, typeof characterData.unit_type);
     const character = await prisma.character.create({
       data: {
         id: characterId,
         slug: characterId,
         name: characterData.name || 'Unknown Character',
         faction: characterData.faction || 'Unknown',
-        unitType: characterData.unit_type || characterData.role || 'Primary',
+        unitType: Array.isArray(characterData.unit_type) ? characterData.unit_type[0] : (characterData.unit_type || characterData.role || 'Primary'),
         squadPoints: characterData.squad_points || 0,
         stamina: characterData.stamina || 0,
         durability: characterData.durability || 0,
@@ -1055,13 +1056,14 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
       if (fs.default.existsSync(dataPath)) {
         const characterData = JSON.parse(fs.default.readFileSync(dataPath, 'utf8'));
         
+        console.log('Character data unit_type:', characterData.unit_type, typeof characterData.unit_type);
         character = await prisma.character.create({
           data: {
             id: characterId,
             slug: characterId,
             name: characterData.name || 'Unknown Character',
             faction: characterData.faction || 'Unknown',
-            unitType: characterData.unit_type || 'Primary',
+            unitType: Array.isArray(characterData.unit_type) ? characterData.unit_type[0] : (characterData.unit_type || 'Primary'),
             squadPoints: characterData.squad_points || 0,
             stamina: characterData.stamina || 0,
             durability: characterData.durability || 0,
@@ -2584,13 +2586,14 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
           const stanceData = JSON.parse(stanceContent);
           
           // Create character in database
+          console.log('Character data unit_type:', characterData.unit_type, typeof characterData.unit_type);
           character = await prisma.character.create({
             data: {
               id: characterId,
               slug: characterId,
               name: characterData.name || 'Unknown Character',
               faction: characterData.faction || 'Unknown',
-              unitType: characterData.unit_type || characterData.role || 'Primary',
+              unitType: Array.isArray(characterData.unit_type) ? characterData.unit_type[0] : (characterData.unit_type || characterData.role || 'Primary'),
               squadPoints: characterData.squad_points || 0,
               stamina: characterData.stamina || 0,
               durability: characterData.durability || 0,
