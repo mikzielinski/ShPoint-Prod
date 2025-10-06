@@ -326,14 +326,38 @@ export async function updateCharacter(req: Request, res: Response) {
     // Remove abilities and stance from update data (handled separately)
     const { abilities, stance, ...characterData } = updateData;
 
-    // Update character
-    const character = await prisma.character.update({
+    // Update or create character
+    const character = await prisma.character.upsert({
       where: { slug: id },
-      data: {
+      update: {
         ...characterData,
         updatedBy: req.user?.id,
         version: { increment: 1 },
         updatedAt: new Date()
+      },
+      create: {
+        id: id,
+        slug: id,
+        name: characterData.name || 'Unknown Character',
+        faction: characterData.faction || 'Unknown',
+        unitType: characterData.unitType || 'Primary',
+        squadPoints: characterData.squadPoints || 0,
+        stamina: characterData.stamina || 0,
+        durability: characterData.durability || 0,
+        force: characterData.force || null,
+        hanker: characterData.hanker || null,
+        boxSetCode: characterData.boxSetCode || null,
+        characterNames: characterData.characterNames || [],
+        numberOfCharacters: characterData.numberOfCharacters || 1,
+        era: characterData.era || null,
+        period: characterData.period || [],
+        tags: characterData.tags || [],
+        portraitUrl: characterData.portraitUrl || null,
+        imageUrl: characterData.imageUrl || null,
+        abilities: characterData.abilities || [],
+        version: 1,
+        createdBy: req.user?.id,
+        updatedBy: req.user?.id
       }
     });
 

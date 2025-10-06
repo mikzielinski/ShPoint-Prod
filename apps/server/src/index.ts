@@ -2045,6 +2045,87 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       isFavorite: status === 'FAVORITE',
     };
     
+    // Check if character exists in database
+    let character = await prisma.character.findUnique({
+      where: { id: characterId }
+    });
+
+    // If character doesn't exist in database, try to create it from JSON data
+    if (!character) {
+      console.log(`Character ${characterId} not found in database, attempting to create from JSON data`);
+      
+      try {
+        // Try to load character data from JSON files
+        const fs = require('fs');
+        const path = require('path');
+        
+        const dataPath = path.join(__dirname, '../characters_assets', characterId, 'data.json');
+        const stancePath = path.join(__dirname, '../characters_assets', characterId, 'stance.json');
+        
+        if (fs.existsSync(dataPath)) {
+          const dataContent = fs.readFileSync(dataPath, 'utf8');
+          const stanceContent = fs.existsSync(stancePath) ? fs.readFileSync(stancePath, 'utf8') : '{}';
+          
+          const characterData = JSON.parse(dataContent);
+          const stanceData = JSON.parse(stanceContent);
+          
+          // Create character in database
+          character = await prisma.character.create({
+            data: {
+              id: characterId,
+              slug: characterId,
+              name: characterData.name || 'Unknown Character',
+              faction: characterData.faction || 'Unknown',
+              unitType: characterData.unit_type || characterData.role || 'Primary',
+              squadPoints: characterData.squad_points || 0,
+              stamina: characterData.stamina || 0,
+              durability: characterData.durability || 0,
+              force: characterData.force || null,
+              hanker: characterData.hanker || null,
+              boxSetCode: characterData.boxSetCode || characterData.set_code || null,
+              characterNames: characterData.characterNames || [],
+              numberOfCharacters: characterData.number_of_characters || 1,
+              era: characterData.era || null,
+              period: characterData.period || [],
+              tags: characterData.tags || [],
+              portraitUrl: characterData.portrait || null,
+              imageUrl: characterData.image || null,
+              abilities: characterData.abilities || [],
+              version: characterData.version || '1.0.0'
+            }
+          });
+          
+          // Create stance if stance data exists
+          if (stanceData && stanceData.dice) {
+            await prisma.characterStance.create({
+              data: {
+                characterId: characterId,
+                attackDice: stanceData.dice.attack || 0,
+                defenseDice: stanceData.dice.defense || 0,
+                meleeExpertise: stanceData.expertise?.melee || 0,
+                rangedExpertise: stanceData.expertise?.ranged || 0,
+                tree: stanceData.tree || []
+              }
+            });
+          }
+          
+          console.log(`Successfully created character ${characterId} in database`);
+        } else {
+          console.log(`Character data file not found for ${characterId}`);
+          return res.status(404).json({ 
+            ok: false, 
+            error: `Character ${characterId} not found in database or JSON files` 
+          });
+        }
+      } catch (error) {
+        console.error(`Error creating character ${characterId} from JSON:`, error);
+        return res.status(500).json({ 
+          ok: false, 
+          error: `Failed to create character ${characterId} in database` 
+        });
+      }
+    }
+
     // Check if collection already exists
     const existingCollection = await prisma.characterCollection.findFirst({
       where: {
