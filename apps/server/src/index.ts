@@ -216,7 +216,7 @@ console.log("🔍 Environment variables:");
 console.log("GOOGLE_CLIENT_ID:", GOOGLE_CLIENT_ID);
 console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "NOT SET");
 const GOOGLE_CALLBACK_URL =
-  process.env.GOOGLE_CALLBACK_URL ?? "https://shpoint.netlify.app/backend-auth/google/callback";
+  process.env.GOOGLE_CALLBACK_URL ?? "https://shpoint-prod.onrender.com/auth/google/callback";
 
 // Debug log for callback URL
 console.log("🔍 GOOGLE_CALLBACK_URL:", GOOGLE_CALLBACK_URL);
