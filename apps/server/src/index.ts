@@ -685,11 +685,12 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.32",
+  version: "v1.4.33",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
-  lastUpdate: "2025-10-05T23:30:00Z",
+  hasDebugEndpoints: true,
+  lastUpdate: "2025-10-06T00:15:00Z",
   rateLimitingDisabled: true,
   ddosProtectionDisabled: true,
   allProtectionRemoved: true,
@@ -1748,6 +1749,21 @@ app.get("/api/debug-session", (req, res) => {
     // @ts-ignore
     passport: (req.session as any)?.passport || null,
     cookies: req.headers.cookie || null
+  });
+});
+
+// Debug endpoint to test challenge accept without auth
+app.post("/api/debug-challenge-accept", (req, res) => {
+  console.log('🔍 Debug challenge accept endpoint called');
+  console.log('🔍 req.user:', req.user);
+  console.log('🔍 req.body:', req.body);
+  console.log('🔍 req.headers:', req.headers);
+  
+  res.json({ 
+    ok: true, 
+    user: req.user || null,
+    body: req.body,
+    headers: req.headers
   });
 });
 
