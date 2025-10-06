@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../lib/env';
 import { useAuth } from '../auth/AuthContext';
 
-// CACHE BUST v1.4.6 - FIX HARDCODED URLS IN CHALLENGE ACCEPT/REJECT
+// CACHE BUST v1.4.7 - COMBINE MY GAMES + FIX RAW JSON DISPLAY
 
 interface InboxMessage {
   id: string;
@@ -1202,15 +1202,63 @@ END:VCALENDAR`;
                   borderRadius: '4px',
                   fontSize: '14px'
                 }}>
-                  <strong>Additional Data:</strong>
-                  <pre style={{ 
-                    margin: '8px 0 0 0', 
-                    fontSize: '12px', 
-                    color: '#6c757d',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {JSON.stringify(selectedMessage.data, null, 2)}
-                  </pre>
+                  {selectedMessage.type === 'challenge' ? (
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>⚔️ Challenge Details:</strong>
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#d1d5db' }}>
+                        <div><strong>Challenge ID:</strong> {parseMessageData(selectedMessage).challengeId}</div>
+                        <div><strong>Preferred Missions:</strong> {parseMessageData(selectedMessage).preferredMissions?.join(', ') || 'Any'}</div>
+                        {parseMessageData(selectedMessage).strikeTeamName && (
+                          <div><strong>Strike Team:</strong> {parseMessageData(selectedMessage).strikeTeamName}</div>
+                        )}
+                      </div>
+                    </div>
+                  ) : selectedMessage.title?.includes('Cancelled') || selectedMessage.title?.includes('cancelled') ? (
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>📋 Game Details:</strong>
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#d1d5db' }}>
+                        {(() => {
+                          const data = parseMessageData(selectedMessage);
+                          return (
+                            <>
+                              {data.mission && <div><strong>Mission:</strong> {data.mission}</div>}
+                              {data.scheduledDate && <div><strong>Scheduled Date:</strong> {new Date(data.scheduledDate).toLocaleString('pl-PL')}</div>}
+                              {data.location && <div><strong>Location:</strong> {data.location}</div>}
+                              {data.gameId && <div><strong>Game ID:</strong> {data.gameId}</div>}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  ) : selectedMessage.title?.includes('Registration') ? (
+                    <div>
+                      <strong style={{ color: '#fbbf24' }}>📝 Registration Details:</strong>
+                      <div style={{ marginTop: '8px', fontSize: '12px', color: '#d1d5db' }}>
+                        {(() => {
+                          const data = parseMessageData(selectedMessage);
+                          return (
+                            <>
+                              {data.gameId && <div><strong>Game ID:</strong> {data.gameId}</div>}
+                              {data.registrationId && <div><strong>Registration ID:</strong> {data.registrationId}</div>}
+                              {data.userId && <div><strong>User ID:</strong> {data.userId}</div>}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <strong>Additional Data:</strong>
+                      <pre style={{ 
+                        margin: '8px 0 0 0', 
+                        fontSize: '12px', 
+                        color: '#6c757d',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {JSON.stringify(selectedMessage.data, null, 2)}
+                      </pre>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -159,6 +159,32 @@ interface MyPublicGame {
   };
 }
 
+interface Challenge {
+  id: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED';
+  createdAt: string;
+  acceptedAt?: string;
+  rejectedAt?: string;
+  cancelledAt?: string;
+  challenger: User;
+  challenged: User;
+  challengerStrikeTeam?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
+  scheduledGame?: {
+    id: string;
+    scheduledDate: string;
+    location?: string;
+    mission?: {
+      id: string;
+      name: string;
+      thumbnailUrl?: string;
+    };
+  };
+}
+
 interface MyGamesProps {
   playerId?: string;
 }
@@ -171,17 +197,19 @@ export default function MyGames({ playerId }: MyGamesProps) {
   const [approvedGames, setApprovedGames] = useState<ApprovedGame[]>([]);
   const [pendingGames, setPendingGames] = useState<PendingGame[]>([]);
   const [myPublicGames, setMyPublicGames] = useState<MyPublicGame[]>([]);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
   const [approvedLoading, setApprovedLoading] = useState(true);
   const [pendingLoading, setPendingLoading] = useState(true);
   const [myPublicGamesLoading, setMyPublicGamesLoading] = useState(true);
+  const [challengesLoading, setChallengesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedGame, setExpandedGame] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'wins' | 'losses' | 'draws'>('all');
   const [mode, setMode] = useState<'all' | 'CASUAL' | 'RANKED' | 'TOURNAMENT' | 'FRIENDLY'>('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [activeTab, setActiveTab] = useState<'results' | 'approved' | 'pending' | 'my-public'>('results');
+  const [activeTab, setActiveTab] = useState<'results' | 'approved' | 'my-games'>('results');
 
   const targetPlayerId = playerId || me?.id;
 
@@ -291,6 +319,28 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
+  const loadChallenges = async () => {
+    if (!me) return;
+
+    try {
+      setChallengesLoading(true);
+      const response = await fetch(api('/api/v2/challenges?type=all'), {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (data.ok) {
+        setChallenges(data.challenges);
+      } else {
+        console.error('Failed to load challenges:', data.error);
+      }
+    } catch (err) {
+      console.error('Failed to load challenges:', err);
+    } finally {
+      setChallengesLoading(false);
+    }
+  };
+
   const deletePublicGame = async (gameId: string) => {
     if (!me || !confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
       return;
@@ -331,6 +381,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
     loadApprovedGames();
     loadPendingGames();
     loadMyPublicGames();
+    loadChallenges();
   }, [me]);
 
   const formatDate = (dateString: string) => {
@@ -437,11 +488,11 @@ export default function MyGames({ playerId }: MyGamesProps) {
           Approved Games ({approvedGames.length})
         </button>
         <button
-          onClick={() => setActiveTab('pending')}
+          onClick={() => setActiveTab('my-games')}
           style={{
             padding: '8px 16px',
-            backgroundColor: activeTab === 'pending' ? '#3b82f6' : 'transparent',
-            color: activeTab === 'pending' ? 'white' : '#94a3b8',
+            backgroundColor: activeTab === 'my-games' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'my-games' ? 'white' : '#94a3b8',
             border: 'none',
             borderRadius: '6px 6px 0 0',
             cursor: 'pointer',
@@ -450,23 +501,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
             transition: 'all 0.2s ease'
           }}
         >
-          Pending Games ({pendingGames.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('my-public')}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: activeTab === 'my-public' ? '#3b82f6' : 'transparent',
-            color: activeTab === 'my-public' ? 'white' : '#94a3b8',
-            border: 'none',
-            borderRadius: '6px 6px 0 0',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          My Public Games ({myPublicGames.length})
+          My Games ({pendingGames.length + myPublicGames.length + challenges.length})
         </button>
       </div>
 
@@ -576,43 +611,125 @@ export default function MyGames({ playerId }: MyGamesProps) {
         </div>
       )}
 
-      {activeTab === 'pending' && (
+      {activeTab === 'my-games' && (
         <div>
-          {pendingLoading ? (
-            <div style={{ padding: '40px', textAlign: 'center' }}>Loading pending games...</div>
-          ) : pendingGames.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
-              No pending games found
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {pendingGames.map(game => (
-                <div key={game.id} style={{
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  backgroundColor: '#1f2937'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                    <div>
-                      <h3 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '18px' }}>
-                        {game.mission?.name || 'Mission'}
-                      </h3>
-                      <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db' }}>
-                        <div>
+          {/* Challenges Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#f9fafb', marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+              ⚔️ Challenges ({challenges.length})
+            </h3>
+            {challengesLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>Loading challenges...</div>
+            ) : challenges.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                No challenges found
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {challenges.map(challenge => (
+                  <div key={challenge.id} style={{
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    backgroundColor: '#1f2937'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div>
+                        <div style={{ fontSize: '14px', color: '#d1d5db', marginBottom: '4px' }}>
+                          <strong style={{ color: '#fbbf24' }}>
+                            {challenge.challenger.id === me?.id ? 'You challenged' : 'You were challenged by'}
+                          </strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {challenge.challenger.id === me?.id 
+                              ? challenge.challenged.name || challenge.challenged.username || 'Unknown'
+                              : challenge.challenger.name || challenge.challenger.username || 'Unknown'
+                            }
+                          </span>
+                        </div>
+                        {challenge.challengerStrikeTeam && (
+                          <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                            Strike Team: {challenge.challengerStrikeTeam.name}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ 
+                          background: challenge.status === 'PENDING' ? '#f59e0b' : 
+                                     challenge.status === 'ACCEPTED' ? '#10b981' :
+                                     challenge.status === 'REJECTED' ? '#ef4444' : '#6b7280',
+                          color: 'white', 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontSize: '10px', 
+                          fontWeight: 'bold',
+                          marginBottom: '4px'
+                        }}>
+                          {challenge.status}
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+                          {new Date(challenge.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    {challenge.scheduledGame && (
+                      <div style={{ fontSize: '12px', color: '#d1d5db' }}>
+                        <strong style={{ color: '#fbbf24' }}>📅 Scheduled:</strong>
+                        <span style={{ marginLeft: '8px' }}>
+                          {new Date(challenge.scheduledGame.scheduledDate).toLocaleString('pl-PL')}
+                        </span>
+                        {challenge.scheduledGame.location && (
+                          <>
+                            <br />
+                            <strong style={{ color: '#fbbf24' }}>📍 Location:</strong>
+                            <span style={{ marginLeft: '8px' }}>{challenge.scheduledGame.location}</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Pending Games Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#f9fafb', marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+              ⏳ Pending Games ({pendingGames.length})
+            </h3>
+            {pendingLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>Loading pending games...</div>
+            ) : pendingGames.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                No pending games found
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {pendingGames.map(game => (
+                  <div key={game.id} style={{
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    backgroundColor: '#1f2937'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div>
+                        <h4 style={{ color: '#f9fafb', margin: '0 0 4px 0', fontSize: '16px' }}>
+                          {game.mission?.name || 'Mission'}
+                        </h4>
+                        <div style={{ fontSize: '12px', color: '#d1d5db' }}>
                           <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
                           <span style={{ marginLeft: '8px' }}>
                             {new Date(game.scheduledDate).toLocaleString('pl-PL', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
+                              weekday: 'short',
+                              month: 'short',
                               day: 'numeric',
                               hour: '2-digit',
                               minute: '2-digit'
                             })}
                           </span>
                         </div>
-                        <div>
+                        <div style={{ fontSize: '12px', color: '#d1d5db' }}>
                           <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
                           <span style={{ marginLeft: '8px' }}>
                             {game.location || game.address || 
@@ -620,206 +737,132 @@ export default function MyGames({ playerId }: MyGamesProps) {
                           </span>
                         </div>
                       </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ 
-                        background: '#f59e0b', 
-                        color: 'white', 
-                        padding: '4px 8px', 
-                        borderRadius: '4px', 
-                        fontSize: '12px', 
-                        fontWeight: 'bold',
-                        marginBottom: '8px'
-                      }}>
-                        ⏳ PENDING
-                      </div>
-                      {game.isPaid && (
-                        <div style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 'bold' }}>
-                          💰 {game.totalCost} {game.currency}
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ 
+                          background: '#f59e0b', 
+                          color: 'white', 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontSize: '10px', 
+                          fontWeight: 'bold',
+                          marginBottom: '4px'
+                        }}>
+                          ⏳ PENDING
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
-                    <div>
-                      <strong style={{ color: '#fbbf24' }}>👤 Host:</strong>
-                      <span style={{ marginLeft: '8px' }}>
-                        {game.player1.name || game.player1.username || 'Unknown'}
-                      </span>
-                    </div>
-                    {game.skillLevel && (
-                      <div>
-                        <strong style={{ color: '#fbbf24' }}>🎮 Skill:</strong>
-                        <span style={{ marginLeft: '8px' }}>
-                          {game.skillLevel}
-                        </span>
+                        <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+                          {new Date(game.registrationDate).toLocaleDateString()}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  
-                  {game.notes && (
-                    <div style={{ 
-                      background: '#374151', 
-                      padding: '8px 12px', 
-                      borderRadius: '4px', 
-                      fontSize: '14px', 
-                      color: '#d1d5db',
-                      marginBottom: '12px'
-                    }}>
-                      <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
-                      <span style={{ marginLeft: '8px' }}>{game.notes}</span>
                     </div>
-                  )}
-                  
-                  <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-                    Registered on: {new Date(game.registrationDate).toLocaleString('pl-PL')}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* My Public Games Section */}
+          <div>
+            <h3 style={{ color: '#f9fafb', marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+              📋 My Public Games ({myPublicGames.length})
+            </h3>
+            {myPublicGamesLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>Loading your public games...</div>
+            ) : myPublicGames.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                No public games found. Create one in the Play section!
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {myPublicGames.map(game => (
+                  <div key={game.id} style={{
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    backgroundColor: '#1f2937'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div>
+                        <h4 style={{ color: '#f9fafb', margin: '0 0 4px 0', fontSize: '16px' }}>
+                          {game.mission?.name || 'Mission'}
+                        </h4>
+                        <div style={{ fontSize: '12px', color: '#d1d5db' }}>
+                          <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {new Date(game.scheduledDate).toLocaleString('pl-PL', {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#d1d5db' }}>
+                          <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
+                          <span style={{ marginLeft: '8px' }}>
+                            {game.location || game.address || 
+                             `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ 
+                          background: '#3b82f6', 
+                          color: 'white', 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontSize: '10px', 
+                          fontWeight: 'bold',
+                          marginBottom: '4px'
+                        }}>
+                          📋 YOUR GAME
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#9ca3af' }}>
+                          {new Date(game.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                      <button
+                        onClick={() => editPublicGame(game.id)}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '10px',
+                          fontWeight: '500'
+                        }}
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        onClick={() => deletePublicGame(game.id)}
+                        style={{
+                          padding: '4px 8px',
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '10px',
+                          fontWeight: '500'
+                        }}
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {activeTab === 'my-public' && (
-        <div>
-          {myPublicGamesLoading ? (
-            <div style={{ padding: '40px', textAlign: 'center' }}>Loading your public games...</div>
-          ) : myPublicGames.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
-              No public games found. Create one in the Play section!
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              {myPublicGames.map(game => (
-                <div key={game.id} style={{
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  backgroundColor: '#1f2937'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                    <div>
-                      <h3 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '18px' }}>
-                        {game.mission?.name || 'Mission'}
-                      </h3>
-                      <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db' }}>
-                        <div>
-                          <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
-                          <span style={{ marginLeft: '8px' }}>
-                            {new Date(game.scheduledDate).toLocaleString('pl-PL', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
-                        </div>
-                        <div>
-                          <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
-                          <span style={{ marginLeft: '8px' }}>
-                            {game.location || game.address || 
-                             `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ 
-                        background: '#3b82f6', 
-                        color: 'white', 
-                        padding: '4px 8px', 
-                        borderRadius: '4px', 
-                        fontSize: '12px', 
-                        fontWeight: 'bold',
-                        marginBottom: '8px'
-                      }}>
-                        📋 YOUR GAME
-                      </div>
-                      {game.isPaid && (
-                        <div style={{ color: '#fbbf24', fontSize: '14px', fontWeight: 'bold' }}>
-                          💰 {game.totalCost} {game.currency}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
-                    <div>
-                      <strong style={{ color: '#fbbf24' }}>👤 Host:</strong>
-                      <span style={{ marginLeft: '8px' }}>
-                        {game.player1.name || game.player1.username || 'You'}
-                      </span>
-                    </div>
-                    {game.skillLevel && (
-                      <div>
-                        <strong style={{ color: '#fbbf24' }}>🎮 Skill:</strong>
-                        <span style={{ marginLeft: '8px' }}>
-                          {game.skillLevel}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {game.notes && (
-                    <div style={{ 
-                      background: '#374151', 
-                      padding: '8px 12px', 
-                      borderRadius: '4px', 
-                      fontSize: '14px', 
-                      color: '#d1d5db',
-                      marginBottom: '12px'
-                    }}>
-                      <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
-                      <span style={{ marginLeft: '8px' }}>{game.notes}</span>
-                    </div>
-                  )}
-                  
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                    <button
-                      onClick={() => editPublicGame(game.id)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}
-                    >
-                      ✏️ Edit Game
-                    </button>
-                    <button
-                      onClick={() => deletePublicGame(game.id)}
-                      style={{
-                        padding: '6px 12px',
-                        backgroundColor: '#ef4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        fontWeight: '500'
-                      }}
-                    >
-                      🗑️ Delete Game
-                    </button>
-                  </div>
-                  
-                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px' }}>
-                    Created on: {new Date(game.createdAt).toLocaleString('pl-PL')}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {activeTab === 'results' && (
         <div>
