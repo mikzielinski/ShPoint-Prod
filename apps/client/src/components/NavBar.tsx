@@ -134,6 +134,14 @@ export default function NavBar() {
               )}
             </NavLink>
           )}
+          {user && (
+            <NavLink
+              to="/achievements"
+              className={({ isActive }) => cx("nb-link", isActive && "is-active")}
+            >
+              🏆 Achievements
+            </NavLink>
+          )}
 
           {isEditor && (
             <NavLink
@@ -234,6 +242,11 @@ export default function NavBar() {
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
+          </NavLink>
+        )}
+        {user && (
+          <NavLink to="/achievements" className="nb-drawer-link">
+            🏆 Achievements
           </NavLink>
         )}
         {isEditor && (
