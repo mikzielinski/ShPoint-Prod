@@ -6560,7 +6560,7 @@ app.post("/api/v2/public-games/approve-registration", ensureAuth, addUserToReque
 app.post("/api/v2/public-games/reject-registration", ensureAuth, addUserToRequest, rejectGameRegistration);
 
 // ===== GAME RESULTS API =====
-app.get("/api/v2/game-results", authenticateUserOrToken, requireScope(['read:game-results']), getGameResults);
+app.get("/api/v2/game-results", ensureAuth, addUserToRequest, getGameResults);
 app.post("/api/v2/game-results", authenticateUserOrToken, requireScope(['write:game-results']), createGameResult);
 app.put("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['write:game-results']), updateGameResult);
 app.delete("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['delete:game-results']), deleteGameResult);
