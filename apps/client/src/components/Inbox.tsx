@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../lib/env';
 import { useAuth } from '../auth/AuthContext';
 
-// CACHE BUST v1.4.5 - FORCE NETLIFY REBUILD
+// CACHE BUST v1.4.6 - FIX HARDCODED URLS IN CHALLENGE ACCEPT/REJECT
 
 interface InboxMessage {
   id: string;
@@ -566,12 +566,11 @@ END:VCALENDAR`;
                           
                           console.log('🔍 Request data:', requestData);
                           
-                          // Try direct backend URL first (bypass Netlify proxy issues)
-                          let response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/approve-registration', {
+                          // Use proper API function with credentials
+                          let response = await fetch(api('/api/v2/public-games/approve-registration'), {
                             method: 'POST',
                             headers: {
-                              'Content-Type': 'application/json',
-                              'Cookie': document.cookie
+                              'Content-Type': 'application/json'
                             },
                             credentials: 'include',
                             body: JSON.stringify(requestData)
@@ -632,12 +631,11 @@ END:VCALENDAR`;
                           
                           console.log('🔍 Request data:', requestData);
                           
-                          // Try direct backend URL first (bypass Netlify proxy issues)
-                          let response = await fetch('https://shpoint-prod.onrender.com/api/v2/public-games/reject-registration', {
+                          // Use proper API function with credentials
+                          let response = await fetch(api('/api/v2/public-games/reject-registration'), {
                             method: 'POST',
                             headers: {
-                              'Content-Type': 'application/json',
-                              'Cookie': document.cookie
+                              'Content-Type': 'application/json'
                             },
                             credentials: 'include',
                             body: JSON.stringify(requestData)
@@ -1161,12 +1159,12 @@ END:VCALENDAR`;
                       onClick={async () => {
                         try {
                           const data = parseMessageData(selectedMessage);
-                          const response = await fetch('https://shpoint-prod.onrender.com/api/v2/challenges/reject', {
+                          const response = await fetch(api('/api/v2/challenges/reject'), {
                             method: 'POST',
                             headers: {
-                              'Content-Type': 'application/json',
-                              'Cookie': document.cookie
+                              'Content-Type': 'application/json'
                             },
+                            credentials: 'include',
                             body: JSON.stringify({ challengeId: data.challengeId })
                           });
                           
@@ -1281,12 +1279,12 @@ function ChallengeDateModal({
       // Combine date and time
       const dateTime = new Date(`${scheduledDate}T${scheduledTime}`);
       
-      const response = await fetch('https://shpoint-prod.onrender.com/api/v2/challenges/accept', {
+      const response = await fetch(api('/api/v2/challenges/accept'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Cookie': document.cookie
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           challengeId,
           scheduledDate: dateTime.toISOString(),
