@@ -1,18 +1,55 @@
 // src/lib/api.ts
-import { API_BASE, api } from './env';
+import { API_ORIGIN, api } from './env';
 
 // Re-export api function for backward compatibility
 export { api };
+
+// lekki retry dla endpointów, które „czasem nie ładują"
+export async function apiWithRetry(path: string, init: RequestInit = {}, tries = 3): Promise<Response> {
+  let lastErr: unknown;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const url = api(path);
+      const res = await fetch(url, {
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
+        ...init,
+      });
+      
+      // 2xx – ok, 401/403 zwykle nie ma sensu retry'ować
+      if (res.ok || res.status === 401 || res.status === 403) return res;
+      
+      // 5xx errors - retry
+      if (res.status >= 500) {
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+      
+      return res;
+    } catch (e) {
+      lastErr = e;
+      console.warn(`🔄 Retry ${i + 1}/${tries} failed for ${path}:`, e);
+      
+      // Don't retry on the last attempt
+      if (i === tries - 1) {
+        break;
+      }
+      
+      // Exponential backoff: 300ms, 600ms, 1200ms
+      await new Promise(r => setTimeout(r, 300 * (i + 1)));
+    }
+  }
+  throw lastErr ?? new Error('apiWithRetry failed');
+}
 
 // Force Netlify rebuild - v1.2.32 - Disabled security + enhanced game details
 
 type Json = Record<string, unknown> | unknown[];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  const url = api(path);
   const res = await fetch(url, {
-    credentials: 'include',
-    headers: { 'Accept': 'application/json' },
+    credentials: 'include',                    // <-- konieczne
+    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
     ...init,
   });
 

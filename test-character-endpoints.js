@@ -12,7 +12,7 @@
  * Make sure to replace the placeholders with your actual values.
  */
 
-const BASE_URL = 'https://your-render-app.onrender.com'; // Replace with your actual server URL
+const BASE_URL = 'https://shpoint-prod.onrender.com'; // Replace with your actual server URL
 const DEV_SECRET = 'dev-secret-key-2025'; // Replace with your actual dev secret
 
 // Test character ID (replace with an actual character ID from your JSON files)
