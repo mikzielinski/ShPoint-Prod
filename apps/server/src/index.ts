@@ -2208,12 +2208,34 @@ app.get("/auth/google/failure", (req, res) => {
   res.redirect(`${frontendUrl}/unauthorized`);
 });
 
+// Google OAuth start - save returnTo in session
+app.get("/auth/google", (req, res, next) => {
+  const returnTo = req.query.returnTo as string || '/';
+  // @ts-ignore
+  req.session.returnTo = returnTo;
+  console.log('🔍 Google OAuth start - saving returnTo:', returnTo);
+  next();
+}, passport.authenticate("google", { scope: ["profile", "email"] }));
+
 // status dla frontu (czy zalogowany)
 app.get("/auth/status", (req, res) => {
   // @ts-ignore
   const u = req.user;
   if (!u) return res.json({ ok: true, authenticated: false, user: null });
   res.json({ ok: true, authenticated: true, user: publicUser(u) });
+});
+
+// Debug endpoint to check authentication
+app.get('/api/_whoami', (req, res) => {
+  // @ts-ignore
+  const u = req.user;
+  res.json({ 
+    ok: true, 
+    isAuth: !!u, 
+    user: u ? publicUser(u) : null,
+    sessionId: req.sessionID,
+    cookies: req.headers.cookie
+  });
 });
 
 // wylogowanie

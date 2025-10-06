@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { api } from "../lib/env";
+import { api, API_ORIGIN } from "../lib/env";
 
 type Role = "USER" | "EDITOR" | "ADMIN" | "API_USER";
 
@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       ? `${window.location.pathname}${window.location.search}${window.location.hash}`
       : "/";
 
-  const googleLoginHref = api(`/auth/google?returnTo=${encodeURIComponent(redirectTarget)}`);
+  const googleLoginHref = `${API_ORIGIN}/auth/google?returnTo=${encodeURIComponent(redirectTarget)}`;
 
   return (
     <AuthContext.Provider value={{ auth, googleLoginHref, refresh, doLogout }}>
