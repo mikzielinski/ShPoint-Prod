@@ -19,7 +19,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.4.4"
+    X-Cache-Bust = "v1.6.0"
 
 # Disable rate limiting for all API paths - CACHE BUST v1.4.4
 [[headers]]
@@ -31,7 +31,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.4.4"
+    X-Cache-Bust = "v1.6.0"
 
 # Disable rate limiting for auth paths - CACHE BUST v1.4.4
 [[headers]]
@@ -43,7 +43,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.4.4"
+    X-Cache-Bust = "v1.6.0"
 
 [[redirects]]
   from = "/characters/*"
