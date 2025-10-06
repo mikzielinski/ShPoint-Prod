@@ -511,48 +511,48 @@ export async function seedDefaultAchievements() {
         name: 'First Steps',
         description: 'Add your first character to collection',
         icon: '🎯',
-        rarity: 'COMMON',
-        category: 'COLLECTION',
+        rarity: 'COMMON' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'character_completion', threshold: 0.01 }
       },
       {
         name: 'Collector',
         description: 'Own 25% of all characters',
         icon: '📚',
-        rarity: 'RARE',
-        category: 'COLLECTION',
+        rarity: 'RARE' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'character_completion', threshold: 0.25 }
       },
       {
         name: 'Completionist',
         description: 'Own all characters in the game!',
         icon: '🏆',
-        rarity: 'LEGENDARY',
-        category: 'COLLECTION',
+        rarity: 'LEGENDARY' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'character_completion', threshold: 1.0 }
       },
       {
         name: 'Shelf of Shame Apprentice',
         description: 'You have 5+ unpainted miniatures!',
         icon: '🎨',
-        rarity: 'COMMON',
-        category: 'COLLECTION',
+        rarity: 'COMMON' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'shelf_of_shame', count: 5 }
       },
       {
         name: 'Shelf of Shame Master',
         description: 'You have 10+ unpainted miniatures!',
         icon: '😅',
-        rarity: 'RARE',
-        category: 'COLLECTION',
+        rarity: 'RARE' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'shelf_of_shame', count: 10 }
       },
       {
         name: 'Rebel Scam',
         description: 'Halfway to Rebel mastery!',
         icon: '🎭',
-        rarity: 'RARE',
-        category: 'COLLECTION',
+        rarity: 'RARE' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'faction_completion', faction: 'Rebel', threshold: 0.5 }
       },
       {
@@ -567,8 +567,8 @@ export async function seedDefaultAchievements() {
         name: 'Empire Scam',
         description: 'Halfway to Empire mastery!',
         icon: '🎭',
-        rarity: 'RARE',
-        category: 'COLLECTION',
+        rarity: 'RARE' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'faction_completion', faction: 'Empire', threshold: 0.5 }
       },
       {
@@ -583,8 +583,8 @@ export async function seedDefaultAchievements() {
         name: 'Mandalorian Scam',
         description: 'Halfway to Mandalorian mastery!',
         icon: '🎭',
-        rarity: 'RARE',
-        category: 'COLLECTION',
+        rarity: 'RARE' as any,
+        category: 'COLLECTION' as any,
         conditions: { type: 'faction_completion', faction: 'Mandalorian', threshold: 0.5 }
       },
       {
@@ -601,48 +601,48 @@ export async function seedDefaultAchievements() {
         name: 'First Blood',
         description: 'Play your first game',
         icon: '⚔️',
-        rarity: 'COMMON',
-        category: 'GAME_PLAY',
+        rarity: 'COMMON' as any,
+        category: 'GAME_PLAY' as any,
         conditions: { type: 'games_played', count: 1 }
       },
       {
         name: 'Rookie',
         description: 'Play 10 games',
         icon: '🎮',
-        rarity: 'COMMON',
-        category: 'GAME_PLAY',
+        rarity: 'COMMON' as any,
+        category: 'GAME_PLAY' as any,
         conditions: { type: 'games_played', count: 10 }
       },
       {
         name: 'Half Century',
         description: 'Played 50+ games!',
         icon: '🎯',
-        rarity: 'RARE',
-        category: 'GAME_PLAY',
+        rarity: 'RARE' as any,
+        category: 'GAME_PLAY' as any,
         conditions: { type: 'games_played', count: 50 }
       },
       {
         name: 'Century Club',
         description: 'Played 100+ games!',
         icon: '💯',
-        rarity: 'EPIC',
-        category: 'GAME_PLAY',
+        rarity: 'EPIC' as any,
+        category: 'GAME_PLAY' as any,
         conditions: { type: 'games_played', count: 100 }
       },
       {
         name: 'Solid Player',
         description: '60%+ win rate! Not bad!',
         icon: '👍',
-        rarity: 'RARE',
-        category: 'GAME_PLAY',
+        rarity: 'RARE' as any,
+        category: 'GAME_PLAY' as any,
         conditions: { type: 'win_rate', threshold: 0.6 }
       },
       {
         name: 'Winning Streak',
         description: '80%+ win rate! You\'re on fire!',
         icon: '🔥',
-        rarity: 'EPIC',
-        category: 'GAME_PLAY',
+        rarity: 'EPIC' as any,
+        category: 'GAME_PLAY' as any,
         conditions: { type: 'win_rate', threshold: 0.8 }
       },
 
@@ -651,24 +651,24 @@ export async function seedDefaultAchievements() {
         name: 'Challenger',
         description: 'Send your first challenge',
         icon: '🥊',
-        rarity: 'COMMON',
-        category: 'CHALLENGES',
+        rarity: 'COMMON' as any,
+        category: 'CHALLENGES' as any,
         conditions: { type: 'challenges_sent', count: 1 }
       },
       {
         name: 'Challenge Master',
         description: 'Sent 50+ challenges!',
         icon: '🥊',
-        rarity: 'RARE',
-        category: 'CHALLENGES',
+        rarity: 'RARE' as any,
+        category: 'CHALLENGES' as any,
         conditions: { type: 'challenges_sent', count: 50 }
       },
       {
         name: 'Always Ready',
         description: 'Accepted 30+ challenges!',
         icon: '⚡',
-        rarity: 'RARE',
-        category: 'CHALLENGES',
+        rarity: 'RARE' as any,
+        category: 'CHALLENGES' as any,
         conditions: { type: 'challenges_accepted', count: 30 }
       },
 
@@ -677,18 +677,30 @@ export async function seedDefaultAchievements() {
         name: 'Army Builder',
         description: 'Created 10+ strike teams!',
         icon: '⚔️',
-        rarity: 'RARE',
-        category: 'STRIKE_TEAMS',
+        rarity: 'RARE' as any,
+        category: 'STRIKE_TEAMS' as any,
         conditions: { type: 'strike_teams_created', count: 10 }
       }
     ];
 
     for (const achievementData of defaultAchievements) {
-      await prisma.achievement.upsert({
-        where: { name: achievementData.name },
-        update: achievementData,
-        create: achievementData
+      // Check if achievement already exists by name
+      const existing = await prisma.achievement.findFirst({
+        where: { name: achievementData.name }
       });
+
+      if (existing) {
+        // Update existing achievement
+        await prisma.achievement.update({
+          where: { id: existing.id },
+          data: achievementData
+        });
+      } else {
+        // Create new achievement
+        await prisma.achievement.create({
+          data: achievementData
+        });
+      }
     }
 
     console.log('Default achievements seeded successfully');
