@@ -215,6 +215,7 @@ interface PendingGameResultApproval {
   notes?: string;
   playedAt: string;
   createdAt: string;
+  status: string;
   player1: User;
   player2: User;
   winner?: User;
@@ -267,7 +268,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedApproval, setSelectedApproval] = useState<PendingGameResultApproval | null>(null);
   const [showEditGameModal, setShowEditGameModal] = useState(false);
-  const [selectedGameForEdit, setSelectedGameForEdit] = useState<ApprovedGameForResults | null>(null);
+  const [selectedGameForEdit, setSelectedGameForEdit] = useState<any>(null);
   const [showCancelGameModal, setShowCancelGameModal] = useState(false);
   const [selectedGameForCancel, setSelectedGameForCancel] = useState<any>(null);
   
@@ -530,71 +531,6 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
-  // Approve game result
-  const approveGameResult = async (gameResultId: string, reviewNotes?: string) => {
-    try {
-      const response = await fetch(api('/api/v2/game-results/approve'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          gameResultId: gameResultId,
-          reviewNotes: reviewNotes
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.ok) {
-        alert('Game result approved successfully!');
-        setShowApprovalModal(false);
-        setSelectedApproval(null);
-        // Reload data
-        loadPendingApprovals();
-        loadGames();
-      } else {
-        alert(`Failed to approve game result: ${data.error}`);
-      }
-    } catch (err) {
-      console.error('Failed to approve game result:', err);
-      alert('Failed to approve game result');
-    }
-  };
-
-  // Reject game result
-  const rejectGameResult = async (gameResultId: string, rejectionReason: string, proposedChanges?: any) => {
-    try {
-      const response = await fetch(api('/api/v2/game-results/reject'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          gameResultId: gameResultId,
-          rejectionReason: rejectionReason,
-          proposedChanges: proposedChanges
-        })
-      });
-
-      const data = await response.json();
-      
-      if (data.ok) {
-        alert('Game result rejected and proposer notified!');
-        setShowApprovalModal(false);
-        setSelectedApproval(null);
-        // Reload data
-        loadPendingApprovals();
-      } else {
-        alert(`Failed to reject game result: ${data.error}`);
-      }
-    } catch (err) {
-      console.error('Failed to reject game result:', err);
-      alert('Failed to reject game result');
-    }
-  };
 
   // Edit challenge
   const editChallenge = async (challengeId: string) => {
@@ -666,6 +602,72 @@ export default function MyGames({ playerId }: MyGamesProps) {
     } catch (error) {
       console.error('Error cancelling scheduled game:', error);
       alert('Error cancelling scheduled game');
+    }
+  };
+
+  // Approve game result
+  const approveGameResult = async (gameResultId: string) => {
+    if (!confirm('Are you sure you want to approve this game result?')) return;
+    
+    try {
+      const response = await fetch(api(`/api/v2/game-results/approve`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          gameResultId: gameResultId
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.ok) {
+        // Reload pending approvals and game results
+        loadPendingApprovals();
+        loadGames();
+        alert('Game result approved successfully!');
+      } else {
+        alert(`Failed to approve game result: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error approving game result:', error);
+      alert('Error approving game result');
+    }
+  };
+
+  // Reject game result
+  const rejectGameResult = async (gameResultId: string) => {
+    const reason = prompt('Please provide a reason for rejecting this game result:');
+    if (!reason) return;
+    
+    try {
+      const response = await fetch(api(`/api/v2/game-results/reject`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          gameResultId: gameResultId,
+          reason: reason
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.ok) {
+        // Reload pending approvals and game results
+        loadPendingApprovals();
+        loadGames();
+        alert('Game result rejected successfully!');
+      } else {
+        alert(`Failed to reject game result: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error rejecting game result:', error);
+      alert('Error rejecting game result');
     }
   };
 
@@ -990,131 +992,6 @@ export default function MyGames({ playerId }: MyGamesProps) {
             </div>
           )}
 
-          {/* Approved Games for Results Section */}
-          <div style={{ marginTop: '32px' }}>
-            <h3 style={{ color: '#f9fafb', marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
-              🎯 Ready for Results ({approvedGamesForResults.length})
-            </h3>
-            <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '20px' }}>
-              These approved games are ready to have results created. Click "Create Result" to submit the game outcome.
-            </p>
-
-            {approvedGamesLoading ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-                Loading approved games for results...
-              </div>
-            ) : approvedGamesForResults.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
-                No approved games ready for results
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gap: '16px' }}>
-                {approvedGamesForResults.map(game => (
-                  <div key={game.id} style={{
-                    border: '1px solid #374151',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    backgroundColor: '#1f2937'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                      <div>
-                        <h4 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '16px' }}>
-                          {game.mission?.name || 'Mission'}
-                        </h4>
-                        <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db' }}>
-                          <div>
-                            <strong style={{ color: '#fbbf24' }}>📅 When:</strong>
-                            <span style={{ marginLeft: '8px' }}>
-                              {new Date(game.scheduledDate).toLocaleString('pl-PL', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                          </div>
-                          <div>
-                            <strong style={{ color: '#fbbf24' }}>📍 Where:</strong>
-                            <span style={{ marginLeft: '8px' }}>
-                              {game.location || game.address || 
-                               `${game.city || ''}, ${game.country || ''}`.replace(/^,\s*|,\s*$/g, '') || 'TBD'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ 
-                          background: '#3b82f6', 
-                          color: 'white', 
-                          padding: '4px 8px', 
-                          borderRadius: '4px', 
-                          fontSize: '12px', 
-                          fontWeight: 'bold',
-                          marginBottom: '8px'
-                        }}>
-                          🎯 READY FOR RESULTS
-                        </div>
-                        <button
-                          onClick={() => {
-                            setSelectedGameForResult(game);
-                            setShowCreateResultModal(true);
-                          }}
-                          style={{
-                            padding: '6px 12px',
-                            backgroundColor: '#10b981',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px'
-                          }}
-                        >
-                          Create Result
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
-                      <div>
-                        <strong style={{ color: '#fbbf24' }}>👤 Players:</strong>
-                        <span style={{ marginLeft: '8px' }}>
-                          {game.player1.name || game.player1.username} vs {game.player2?.name || game.player2?.username || 'TBD'}
-                        </span>
-                      </div>
-                      {game.skillLevel && (
-                        <div>
-                          <strong style={{ color: '#fbbf24' }}>🎮 Skill:</strong>
-                          <span style={{ marginLeft: '8px' }}>
-                            {game.skillLevel}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {game.notes && (
-                      <div style={{ 
-                        background: '#374151', 
-                        padding: '8px 12px', 
-                        borderRadius: '4px', 
-                        fontSize: '14px', 
-                        color: '#d1d5db',
-                        marginBottom: '12px'
-                      }}>
-                        <strong style={{ color: '#fbbf24' }}>📝 Notes:</strong>
-                        <span style={{ marginLeft: '8px' }}>{game.notes}</span>
-                      </div>
-                    )}
-                    
-                    <div style={{ fontSize: '12px', color: '#9ca3af' }}>
-                      Status: {game.status} • Ready to create results
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       )}
 
@@ -1459,90 +1336,281 @@ export default function MyGames({ playerId }: MyGamesProps) {
 
       {activeTab === 'results' && (
         <div>
-          {/* Filters */}
-          <div style={{ 
-            display: 'flex', 
-            gap: '12px', 
-            marginBottom: '20px',
-            flexWrap: 'wrap'
-          }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                Result
-              </label>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
-                style={{
-                  padding: '6px 8px',
-                  border: '1px solid #ced4da',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              >
-                <option value="all">All Results</option>
-                <option value="wins">Wins</option>
-                <option value="losses">Losses</option>
-                <option value="draws">Draws</option>
-              </select>
-            </div>
-            
-            <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                Mode
-              </label>
-              <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value as any)}
-                style={{
-                  padding: '6px 8px',
-                  border: '1px solid #ced4da',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              >
-                <option value="all">All Modes</option>
-                <option value="CASUAL">Casual</option>
-                <option value="RANKED">Ranked</option>
-                <option value="TOURNAMENT">Tournament</option>
-                <option value="FRIENDLY">Friendly</option>
-              </select>
-            </div>
+      {/* Filters */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '12px', 
+        marginBottom: '20px',
+        flexWrap: 'wrap'
+      }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Result
+          </label>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as any)}
+            style={{
+              padding: '6px 8px',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              fontSize: '14px'
+            }}
+          >
+            <option value="all">All Results</option>
+            <option value="wins">Wins</option>
+            <option value="losses">Losses</option>
+            <option value="draws">Draws</option>
+          </select>
+        </div>
+        
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+            Mode
+          </label>
+          <select
+            value={mode}
+            onChange={(e) => setMode(e.target.value as any)}
+            style={{
+              padding: '6px 8px',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+              fontSize: '14px'
+            }}
+          >
+            <option value="all">All Modes</option>
+            <option value="CASUAL">Casual</option>
+            <option value="RANKED">Ranked</option>
+            <option value="TOURNAMENT">Tournament</option>
+            <option value="FRIENDLY">Friendly</option>
+          </select>
+        </div>
+      </div>
+
+      {error && (
+        <div style={{ 
+          padding: '12px', 
+          backgroundColor: '#f8d7da', 
+          color: '#721c24', 
+          border: '1px solid #f5c6cb',
+          borderRadius: '4px',
+          marginBottom: '20px'
+        }}>
+          {error}
+        </div>
+      )}
+
+          {/* Ready to Create Results Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#f9fafb', marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+              🎯 Ready to Create Results ({approvedGamesForResults.length})
+            </h3>
+            <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '20px' }}>
+              These approved games are ready to have results created. Click "Create Result" to submit the game outcome.
+            </p>
+
+            {approvedGamesLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                Loading approved games for results...
+              </div>
+            ) : approvedGamesForResults.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                No approved games ready for results
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {approvedGamesForResults.map(game => (
+                  <div key={game.id} style={{
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: '#1f2937'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div>
+                        <h4 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '16px' }}>
+                          {game.mission?.name || 'Mission'}
+                        </h4>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
+                          <div>
+                            <strong style={{ color: '#fbbf24' }}>Player 1:</strong>
+                            <span style={{ marginLeft: '8px' }}>
+                              {game.player1.name || game.player1.username || 'Unknown'}
+                            </span>
+                          </div>
+                          <div>
+                            <strong style={{ color: '#fbbf24' }}>Player 2:</strong>
+                            <span style={{ marginLeft: '8px' }}>
+                              {game.player2.name || game.player2.username || 'Unknown'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
+                          <div>
+                            <strong style={{ color: '#fbbf24' }}>📅 Scheduled:</strong>
+                            <span style={{ marginLeft: '8px' }}>
+                              {new Date(game.scheduledDate).toLocaleString('pl-PL')}
+                            </span>
+                          </div>
+                          {game.location && (
+                            <div>
+                              <strong style={{ color: '#fbbf24' }}>📍 Location:</strong>
+                              <span style={{ marginLeft: '8px' }}>{game.location}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {game.notes && (
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '8px' }}>
+                            <strong>Notes:</strong>
+                            <span style={{ marginLeft: '8px' }}>{game.notes}</span>
+                          </div>
+                        )}
+                        
+                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                          Status: {game.status} • Ready to create results
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <button
+                          onClick={() => {
+                            setSelectedGameForResult(game);
+                            setShowCreateResultModal(true);
+                          }}
+                          style={{
+                            background: '#10b981',
+                            color: 'white',
+                            padding: '8px 16px',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          Create Result
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {error && (
-            <div style={{ 
-              padding: '12px', 
-              backgroundColor: '#f8d7da', 
-              color: '#721c24', 
-              border: '1px solid #f5c6cb',
-              borderRadius: '4px',
-              marginBottom: '20px'
-            }}>
-              {error}
-            </div>
-          )}
+          {/* Pending Game Results Section */}
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#f9fafb', marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+              ⏳ Pending for Confirmation ({pendingApprovals.length})
+            </h3>
+            <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '20px' }}>
+              These game results are waiting for opponent approval or your review.
+            </p>
 
-          {loading && games.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center' }}>Loading games...</div>
-          ) : games.length === 0 ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
-              No games found
-            </div>
-          ) : (
+            {pendingApprovalsLoading ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                Loading pending approvals...
+              </div>
+            ) : pendingApprovals.length === 0 ? (
+              <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+                No pending game results
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {pendingApprovals.map(approval => (
+                  <div key={approval.id} style={{
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    backgroundColor: '#1f2937'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div>
+                        <h4 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '16px' }}>
+                          {approval.mission?.name || 'Mission'}
+                        </h4>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '14px', color: '#d1d5db', marginBottom: '12px' }}>
+                          <div>
+                            <strong style={{ color: '#fbbf24' }}>Players:</strong>
+                            <span style={{ marginLeft: '8px' }}>
+                              {approval.player1.name || approval.player1.username} vs {approval.player2.name || approval.player2.username}
+                            </span>
+                          </div>
+                          <div>
+                            <strong style={{ color: '#fbbf24' }}>Result:</strong>
+                            <span style={{ marginLeft: '8px' }}>
+                              {approval.result} • {approval.durationMinutes} min
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '8px' }}>
+                          Proposed by: {approval.reportedBy.name || approval.reportedBy.username}
+                        </div>
+                        
+                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                          Status: {approval.status} • Waiting for approval
+                        </div>
+                      </div>
+                      
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => approveGameResult(approval.id)}
+                          style={{
+                            background: '#10b981',
+                            color: 'white',
+                            padding: '6px 12px',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => rejectGameResult(approval.id)}
+                          style={{
+                            background: '#ef4444',
+                            color: 'white',
+                            padding: '6px 12px',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+      {loading && games.length === 0 ? (
+        <div style={{ padding: '40px', textAlign: 'center' }}>Loading games...</div>
+      ) : games.length === 0 ? (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#6c757d' }}>
+          No games found
+        </div>
+      ) : (
             <div>
-              {games.map(game => (
-                <div key={game.id} style={{
-                  border: '1px solid #e9ecef',
-                  borderRadius: '8px',
-                  marginBottom: '16px',
-                  overflow: 'hidden'
-                }}>
-                  {/* Game Header */}
-                  <div
-                    onClick={() => toggleGameExpansion(game.id)}
-                    style={{
-                      padding: '16px',
+          {games.map(game => (
+            <div key={game.id} style={{
+              border: '1px solid #e9ecef',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              overflow: 'hidden'
+            }}>
+              {/* Game Header */}
+              <div
+                onClick={() => toggleGameExpansion(game.id)}
+                style={{
+                  padding: '16px',
                   backgroundColor: '#f8f9fa',
                   cursor: 'pointer',
                   display: 'flex',
@@ -2121,8 +2189,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button onClick={() => {
-                const reviewNotes = prompt('Add review notes (optional):');
-                approveGameResult(selectedApproval.id, reviewNotes || undefined);
+                approveGameResult(selectedApproval.id);
               }} style={{
                 padding: '8px 16px',
                 backgroundColor: '#10b981',
@@ -2134,11 +2201,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
                 ✅ Approve
               </button>
               <button onClick={() => {
-                const reason = prompt('Rejection reason:');
-                if (reason) {
-                  const changes = prompt('Proposed changes (optional):');
-                  rejectGameResult(selectedApproval.id, reason, changes ? { notes: changes } : undefined);
-                }
+                rejectGameResult(selectedApproval.id);
               }} style={{
                 padding: '8px 16px',
                 backgroundColor: '#ef4444',
