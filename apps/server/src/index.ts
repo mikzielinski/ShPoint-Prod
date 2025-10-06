@@ -113,6 +113,14 @@ import {
   getUserComprehensiveStats
 } from "./game-results-api.js";
 import { 
+  getAllAchievements, 
+  getUserAchievements, 
+  createAchievement, 
+  updateAchievement, 
+  deleteAchievement,
+  seedDefaultAchievements 
+} from "./achievements-api.js";
+import { 
   logDiceRoll, 
   getDiceRolls, 
   logNodeActivation, 
@@ -6586,6 +6594,62 @@ app.post("/api/v2/game-results/auto-approve", async (req, res) => {
 
 // Comprehensive user statistics
 app.get("/api/v2/user/comprehensive-stats", ensureAuth, addUserToRequest, getUserComprehensiveStats);
+
+// ===== ACHIEVEMENTS API =====
+// Get all achievements with community stats
+app.get("/api/v2/achievements", ensureAuth, addUserToRequest, getAllAchievements);
+
+// Get user's achievements
+app.get("/api/v2/achievements/my", ensureAuth, addUserToRequest, getUserAchievements);
+
+// Admin: Create new achievement
+app.post("/api/v2/achievements", ensureAuth, addUserToRequest, createAchievement);
+
+// Admin: Update achievement
+app.put("/api/v2/achievements/:id", ensureAuth, addUserToRequest, updateAchievement);
+
+// Admin: Delete achievement (soft delete)
+app.delete("/api/v2/achievements/:id", ensureAuth, addUserToRequest, deleteAchievement);
+
+// Admin: Seed default achievements
+app.post("/api/v2/achievements/seed", ensureAuth, addUserToRequest, async (req, res) => {
+  try {
+    const userId = (req as any).user?.id;
+    
+    // Check if user is admin
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
+    if (user?.role !== 'ADMIN') {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'Admin access required' 
+      });
+    }
+
+    const success = await seedDefaultAchievements();
+    
+    if (success) {
+      res.json({
+        ok: true,
+        message: 'Default achievements seeded successfully'
+      });
+    } else {
+      res.status(500).json({
+        ok: false,
+        error: 'Failed to seed default achievements'
+      });
+    }
+  } catch (error) {
+    console.error('Error seeding achievements:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to seed achievements'
+    });
+  }
+});
 
 // ===== DICE ROLLS AND NODE ACTIVATION API =====
 app.post("/api/v2/dice-rolls", ensureAuth, addUserToRequest, logDiceRoll);

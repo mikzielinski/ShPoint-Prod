@@ -2057,10 +2057,127 @@ export async function getUserComprehensiveStats(req: Request, res: Response) {
       }
     });
 
+    // Get faction statistics
+    const factionStats = await prisma.character.groupBy({
+      by: ['faction'],
+      _count: {
+        faction: true
+      },
+      orderBy: {
+        _count: {
+          faction: 'desc'
+        }
+      }
+    });
+
+    const userFactionStats = await prisma.characterCollection.groupBy({
+      by: ['character'],
+      where: {
+        userId: userId,
+        isOwned: true
+      },
+      _count: {
+        character: true
+      }
+    });
+
+    // Get character faction data for owned characters
+    const ownedCharacterIds = await prisma.characterCollection.findMany({
+      where: {
+        userId: userId,
+        isOwned: true
+      },
+      select: {
+        characterId: true
+      }
+    });
+
+    const ownedCharactersWithFactions = await prisma.character.findMany({
+      where: {
+        id: {
+          in: ownedCharacterIds.map(c => c.characterId)
+        }
+      },
+      select: {
+        id: true,
+        faction: true
+      }
+    });
+
+    // Calculate faction completion
+    const factionCompletion = factionStats.map(faction => {
+      const ownedInFaction = ownedCharactersWithFactions.filter(char => char.faction === faction.faction).length;
+      const totalInFaction = faction._count.faction;
+      const completion = totalInFaction > 0 ? Math.round((ownedInFaction / totalInFaction) * 100) : 0;
+      
+      return {
+        faction: faction.faction,
+        owned: ownedInFaction,
+        total: totalInFaction,
+        completion: completion
+      };
+    });
+
+    // Get shelf of shame (unpainted characters)
+    const shelfOfShame = await prisma.characterCollection.findMany({
+      where: {
+        userId: userId,
+        isOwned: true,
+        isPainted: false
+      },
+      include: {
+        character: {
+          select: {
+            id: true,
+            name: true,
+            portraitUrl: true,
+            faction: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
     // Calculate collection completion percentages
     const characterCompletion = totalCharacters > 0 ? Math.round((ownedCharacters / totalCharacters) * 100) : 0;
     const setCompletion = totalSets > 0 ? Math.round((ownedSets / totalSets) * 100) : 0;
     const missionCompletion = totalMissions > 0 ? Math.round((ownedMissions / totalMissions) * 100) : 0;
+
+    // Get user's unlocked achievements
+    const userAchievements = await prisma.userAchievement.findMany({
+      where: {
+        userId: userId,
+        isCompleted: true
+      },
+      include: {
+        achievement: true
+      },
+      orderBy: {
+        unlockedAt: 'desc'
+      }
+    });
+
+    // Check and unlock new achievements
+    const { checkAndUnlockAchievements } = await import('./achievements-api');
+    const newlyUnlocked = await checkAndUnlockAchievements(userId);
+
+    // Get updated achievements if any were unlocked
+    const updatedUserAchievements = newlyUnlocked.length > 0 
+      ? await prisma.userAchievement.findMany({
+          where: {
+            userId: userId,
+            isCompleted: true
+          },
+          include: {
+            achievement: true
+          },
+          orderBy: {
+            unlockedAt: 'desc'
+          }
+        })
+      : userAchievements;
 
     res.json({
       ok: true,
@@ -2089,8 +2206,12 @@ export async function getUserComprehensiveStats(req: Request, res: Response) {
             owned: ownedMissions,
             total: totalMissions,
             completion: missionCompletion
-          }
+          },
+          factions: factionCompletion
         },
+        
+        // Shelf of Shame
+        shelfOfShame: shelfOfShame,
         
         // Favorites
         favoriteMissions: missionsWithNames,
@@ -2112,7 +2233,27 @@ export async function getUserComprehensiveStats(req: Request, res: Response) {
         },
         
         // Recent Activity
-        recentGames: recentGames
+        recentGames: recentGames,
+        
+        // Achievements
+        achievements: updatedUserAchievements.map(ua => ({
+          id: ua.achievement.id,
+          name: ua.achievement.name,
+          description: ua.achievement.description,
+          icon: ua.achievement.icon,
+          rarity: ua.achievement.rarity,
+          category: ua.achievement.category,
+          unlockedAt: ua.unlockedAt
+        })),
+        
+        // Newly unlocked achievements (for notifications)
+        newlyUnlocked: newlyUnlocked.map(achievement => ({
+          id: achievement.id,
+          name: achievement.name,
+          description: achievement.description,
+          icon: achievement.icon,
+          rarity: achievement.rarity
+        }))
       }
     });
 

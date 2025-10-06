@@ -17,7 +17,22 @@ interface ComprehensiveStatsData {
     characters: { owned: number; total: number; completion: number };
     sets: { owned: number; total: number; completion: number };
     missions: { owned: number; total: number; completion: number };
+    factions: Array<{
+      faction: string;
+      owned: number;
+      total: number;
+      completion: number;
+    }>;
   };
+  shelfOfShame: Array<{
+    id: string;
+    character: {
+      id: string;
+      name: string;
+      portraitUrl?: string;
+      faction: string;
+    };
+  }>;
   favoriteMissions: Array<{
     missionId: string;
     _count: { missionId: number };
@@ -50,6 +65,22 @@ interface ComprehensiveStatsData {
     player2: { id: string; name?: string; username?: string };
     winner?: { id: string; name?: string; username?: string };
     mission?: { id: string; name: string; thumbnailUrl?: string };
+  }>;
+  achievements: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    rarity: string;
+    category: string;
+    unlockedAt: string;
+  }>;
+  newlyUnlocked: Array<{
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    rarity: string;
   }>;
 }
 
@@ -454,6 +485,204 @@ function ComprehensiveStats() {
                   fontWeight: 'bold'
                 }}>
                   {game.result}
+                </div>
+              </div>
+            )            )}
+          </div>
+        </div>
+      )}
+
+      {/* Faction Statistics */}
+      {stats.collection.factions.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <h4 style={{ color: '#f9fafb', margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+            ⚔️ Faction Progress
+          </h4>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '16px' 
+          }}>
+            {stats.collection.factions.map((faction) => (
+              <div key={faction.faction} style={{
+                background: '#374151',
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1px solid #4b5563'
+              }}>
+                <h5 style={{ color: '#f9fafb', margin: '0 0 8px 0', fontSize: '14px' }}>{faction.faction}</h5>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ color: '#d1d5db', fontSize: '16px' }}>{faction.owned}/{faction.total}</span>
+                  <span style={{ 
+                    color: faction.completion >= 100 ? '#10b981' : faction.completion >= 50 ? '#f59e0b' : '#6b7280', 
+                    fontSize: '16px', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {faction.completion}%
+                  </span>
+                </div>
+                <div style={{ 
+                  background: '#1f2937', 
+                  height: '8px', 
+                  borderRadius: '4px', 
+                  overflow: 'hidden' 
+                }}>
+                  <div style={{ 
+                    background: faction.completion >= 100 ? '#10b981' : faction.completion >= 50 ? '#f59e0b' : '#6b7280', 
+                    height: '100%', 
+                    width: `${faction.completion}%`,
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Shelf of Shame */}
+      {stats.shelfOfShame.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <h4 style={{ color: '#f9fafb', margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+            😅 Shelf of Shame (Półka Wstydu) - {stats.shelfOfShame.length} Unpainted
+          </h4>
+          <p style={{ color: '#9ca3af', fontSize: '14px', marginBottom: '16px' }}>
+            These miniatures are waiting for your artistic touch!
+          </p>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
+            gap: '12px' 
+          }}>
+            {stats.shelfOfShame.map((item) => (
+              <div key={item.id} style={{
+                background: '#374151',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid #4b5563',
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#f9fafb', 
+                  fontWeight: '500',
+                  marginBottom: '4px'
+                }}>
+                  {item.character.name}
+                </div>
+                <div style={{ 
+                  fontSize: '10px', 
+                  color: '#9ca3af' 
+                }}>
+                  {item.character.faction}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Achievements */}
+      {stats.achievements.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <h4 style={{ color: '#f9fafb', margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+            🏆 Achievements ({stats.achievements.length})
+          </h4>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+            gap: '12px' 
+          }}>
+            {stats.achievements.map((achievement) => (
+              <div key={achievement.id} style={{
+                background: '#374151',
+                padding: '12px',
+                borderRadius: '8px',
+                border: `2px solid ${
+                  achievement.rarity === 'LEGENDARY' ? '#fbbf24' :
+                  achievement.rarity === 'EPIC' ? '#8b5cf6' :
+                  achievement.rarity === 'RARE' ? '#3b82f6' :
+                  '#6b7280'
+                }`,
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  fontSize: '24px', 
+                  marginBottom: '8px' 
+                }}>
+                  {achievement.icon}
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  color: '#f9fafb', 
+                  fontWeight: '500',
+                  marginBottom: '4px'
+                }}>
+                  {achievement.name}
+                </div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#9ca3af',
+                  marginBottom: '8px'
+                }}>
+                  {achievement.description}
+                </div>
+                <div style={{ 
+                  fontSize: '10px', 
+                  color: '#6b7280' 
+                }}>
+                  {new Date(achievement.unlockedAt).toLocaleDateString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Newly Unlocked Achievements Notification */}
+      {stats.newlyUnlocked.length > 0 && (
+        <div style={{ 
+          marginBottom: '32px',
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          padding: '20px',
+          borderRadius: '12px',
+          border: '2px solid #10b981'
+        }}>
+          <h4 style={{ color: 'white', margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+            🎉 New Achievements Unlocked!
+          </h4>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+            gap: '12px' 
+          }}>
+            {stats.newlyUnlocked.map((achievement) => (
+              <div key={achievement.id} style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                textAlign: 'center'
+              }}>
+                <div style={{ 
+                  fontSize: '24px', 
+                  marginBottom: '8px' 
+                }}>
+                  {achievement.icon}
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  color: 'white', 
+                  fontWeight: '500',
+                  marginBottom: '4px'
+                }}>
+                  {achievement.name}
+                </div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: 'rgba(255, 255, 255, 0.8)'
+                }}>
+                  {achievement.description}
                 </div>
               </div>
             ))}

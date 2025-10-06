@@ -31,8 +31,10 @@ model User {
   suspendedReason        String?
   suspendedUntil         DateTime?
   accessRequestsReviewed AccessRequest[]        @relation("AccessRequestReviewedBy")
+  achievementsCreated    Achievement[]          @relation("AchievementCreatedBy")
   apiTokens              ApiToken[]
   auditLogs              AuditLog[]
+  userAchievements       UserAchievement[]      @relation("UserAchievements")
   cards                  Card[]
   challengesReceived     Challenge[]            @relation("ChallengeChallenged")
   challengesSent         Challenge[]            @relation("ChallengeChallenger")
@@ -1141,4 +1143,66 @@ enum AccessRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// Achievement System
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  rarity      AchievementRarity
+  category    AchievementCategory
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?  // Admin who created it
+  
+  // Achievement conditions (stored as JSON for flexibility)
+  conditions  Json?
+  
+  // Relations
+  userAchievements UserAchievement[]
+  createdByUser    User?           @relation("AchievementCreatedBy", fields: [createdBy], references: [id])
+  
+  @@index([category])
+  @@index([rarity])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  progress      Int?        @default(0) // For progress-based achievements
+  isCompleted   Boolean     @default(false)
+  
+  // Relations
+  user        User        @relation("UserAchievements", fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@index([unlockedAt])
+  @@index([isCompleted])
+}
+
+enum AchievementRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum AchievementCategory {
+  COLLECTION
+  GAME_PLAY
+  CHALLENGES
+  STRIKE_TEAMS
+  DICE_ROLLS
+  SOCIAL
+  SPECIAL
 }
