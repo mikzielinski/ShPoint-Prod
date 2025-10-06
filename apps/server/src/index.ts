@@ -99,7 +99,17 @@ import {
   createGameResult, 
   updateGameResult, 
   deleteGameResult, 
-  getPlayerStats 
+  getPlayerStats,
+  createGameResultFromApproved,
+  approveGameResult,
+  rejectGameResult,
+  getApprovedGamesForResults,
+  editApprovedGame,
+  autoApproveExpiredGameResults,
+  editGameResult,
+  getGameResultHistory,
+  adminOverrideGameResult,
+  getPendingGameResultApprovals
 } from "./game-results-api.js";
 import { 
   logDiceRoll, 
@@ -685,12 +695,17 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-  version: "v1.4.33",
+  version: "v1.5.0",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
   hasDebugEndpoints: true,
-  lastUpdate: "2025-10-06T00:15:00Z",
+  hasEnhancedGameResults: true,
+  hasGameResultApproval: true,
+  hasAutoApprovalSystem: true,
+  hasGameResultEditing: true,
+  hasAdminOverride: true,
+  lastUpdate: "2025-10-06T01:00:00Z",
   rateLimitingDisabled: true,
   ddosProtectionDisabled: true,
   allProtectionRemoved: true,
@@ -6525,6 +6540,48 @@ app.post("/api/v2/game-results", authenticateUserOrToken, requireScope(['write:g
 app.put("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['write:game-results']), updateGameResult);
 app.delete("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['delete:game-results']), deleteGameResult);
 app.get("/api/v2/players/:playerId/stats", ensureAuth, addUserToRequest, getPlayerStats);
+
+// ===== ENHANCED GAME RESULTS API =====
+// Create game result from approved game/challenge
+app.post("/api/v2/game-results/from-approved", ensureAuth, addUserToRequest, createGameResultFromApproved);
+
+// Game result approval workflow
+app.post("/api/v2/game-results/approve", ensureAuth, addUserToRequest, approveGameResult);
+app.post("/api/v2/game-results/reject", ensureAuth, addUserToRequest, rejectGameResult);
+app.put("/api/v2/game-results/:id/edit", ensureAuth, addUserToRequest, editGameResult);
+
+// Get approved games for creating results
+app.get("/api/v2/game-results/approved-games", ensureAuth, addUserToRequest, getApprovedGamesForResults);
+
+// Get pending approvals for user
+app.get("/api/v2/game-results/pending-approvals", ensureAuth, addUserToRequest, getPendingGameResultApprovals);
+
+// Game result history
+app.get("/api/v2/game-results/:id/history", ensureAuth, addUserToRequest, getGameResultHistory);
+
+// Edit approved games (reschedule, etc.)
+app.put("/api/v2/scheduled-games/:id/edit", ensureAuth, addUserToRequest, editApprovedGame);
+
+// Admin override
+app.post("/api/v2/game-results/admin-override", ensureAuth, addUserToRequest, adminOverrideGameResult);
+
+// Auto-approval cron job endpoint
+app.post("/api/v2/game-results/auto-approve", async (req, res) => {
+  try {
+    const count = await autoApproveExpiredGameResults();
+    res.json({
+      ok: true,
+      message: `Auto-approved ${count} game results`,
+      count
+    });
+  } catch (error) {
+    console.error('Auto-approval error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to run auto-approval'
+    });
+  }
+});
 
 // ===== DICE ROLLS AND NODE ACTIVATION API =====
 app.post("/api/v2/dice-rolls", ensureAuth, addUserToRequest, logDiceRoll);

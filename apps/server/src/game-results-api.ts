@@ -4,6 +4,21 @@ import { createInboxMessage } from './inbox-api.js';
 
 const prisma = new PrismaClient();
 
+// ===== GAME RESULT APPROVAL SYSTEM =====
+
+interface GameResultApproval {
+  id: string;
+  gameResultId: string;
+  proposedBy: string;
+  proposedData: any;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'AUTO_APPROVED';
+  proposedAt: Date;
+  reviewedAt?: Date;
+  reviewedBy?: string;
+  reviewNotes?: string;
+  expiresAt: Date;
+}
+
 // ===== GAME RESULTS API =====
 
 export async function getGameResults(req: Request, res: Response) {
@@ -776,6 +791,1089 @@ export async function getPlayerStats(req: Request, res: Response) {
     res.status(500).json({ 
       ok: false, 
       error: 'Failed to fetch player stats' 
+    });
+  }
+}
+
+// ===== NEW APPROVAL SYSTEM FUNCTIONS =====
+
+// Create game result from approved game/challenge
+export async function createGameResultFromApproved(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { scheduledGameId, gameData } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!scheduledGameId || !gameData) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'scheduledGameId and gameData are required' 
+      });
+    }
+
+    // Get the scheduled game
+    const scheduledGame = await prisma.scheduledGame.findUnique({
+      where: { id: scheduledGameId },
+      include: {
+        player1: true,
+        player2: true,
+        mission: true,
+        player1StrikeTeam: true,
+        player2StrikeTeam: true
+      }
+    });
+
+    if (!scheduledGame) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Scheduled game not found' 
+      });
+    }
+
+    // Check if user is one of the players
+    if (scheduledGame.player1Id !== userId && scheduledGame.player2Id !== userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'You can only create results for your own games' 
+      });
+    }
+
+    // Check if game is approved/completed
+    if (scheduledGame.status !== 'COMPLETED' && scheduledGame.status !== 'CONFIRMED') {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Game must be completed or confirmed to create results' 
+      });
+    }
+
+    // Check if result already exists
+    const existingResult = await prisma.gameResult.findUnique({
+      where: { scheduledGameId }
+    });
+
+    if (existingResult) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'Game result already exists for this game' 
+      });
+    }
+
+    // Create the game result
+    const gameResult = await prisma.gameResult.create({
+      data: {
+        player1Id: scheduledGame.player1Id,
+        player2Id: scheduledGame.player2Id!,
+        winnerId: gameData.winnerId,
+        result: gameData.result,
+        mode: gameData.mode || 'FRIENDLY',
+        missionId: scheduledGame.missionId,
+        player1StrikeTeamId: scheduledGame.player1StrikeTeamId,
+        player2StrikeTeamId: scheduledGame.player2StrikeTeamId,
+        roundsPlayed: gameData.roundsPlayed || 1,
+        durationMinutes: gameData.durationMinutes,
+        location: gameData.location || scheduledGame.location,
+        notes: gameData.notes,
+        scheduledGameId: scheduledGame.id,
+        reportedById: userId,
+        playedAt: new Date(),
+        isVerified: false
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        winner: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        }
+      }
+    });
+
+    // Create approval request for the opponent
+    const opponentId = scheduledGame.player1Id === userId ? scheduledGame.player2Id! : scheduledGame.player1Id;
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 48); // 48 hours
+
+    // Create inbox message for opponent
+    await createInboxMessage({
+      recipientId: opponentId,
+      senderId: userId,
+      type: 'GAME_RESULT_PROPOSED',
+      title: 'Game Result Proposed',
+      content: `A game result has been proposed for your game. Please review and approve or suggest changes.`,
+      data: {
+        gameResultId: gameResult.id,
+        scheduledGameId: scheduledGame.id,
+        proposedBy: userId,
+        gameData: gameData,
+        expiresAt: expiresAt.toISOString()
+      }
+    });
+
+    res.json({
+      ok: true,
+      gameResult,
+      message: 'Game result created and sent for approval'
+    });
+
+  } catch (error) {
+    console.error('Error creating game result from approved game:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to create game result' 
+    });
+  }
+}
+
+// Approve game result
+export async function approveGameResult(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameResultId, reviewNotes } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!gameResultId) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'gameResultId is required' 
+      });
+    }
+
+    // Get the game result
+    const gameResult = await prisma.gameResult.findUnique({
+      where: { id: gameResultId },
+      include: {
+        player1: true,
+        player2: true,
+        scheduledGame: true
+      }
+    });
+
+    if (!gameResult) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game result not found' 
+      });
+    }
+
+    // Check if user is the opponent
+    const opponentId = gameResult.player1Id === userId ? gameResult.player2Id : gameResult.player1Id;
+    if (gameResult.player1Id !== userId && gameResult.player2Id !== userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'You can only approve results for your own games' 
+      });
+    }
+
+    // Update the game result as verified
+    const updatedGameResult = await prisma.gameResult.update({
+      where: { id: gameResultId },
+      data: {
+        isVerified: true,
+        verifiedAt: new Date(),
+        verifiedBy: userId
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        winner: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        }
+      }
+    });
+
+    // Update scheduled game status
+    if (gameResult.scheduledGame) {
+      await prisma.scheduledGame.update({
+        where: { id: gameResult.scheduledGame.id },
+        data: { status: 'COMPLETED' }
+      });
+    }
+
+    // Notify the proposer
+    await createInboxMessage({
+      recipientId: gameResult.reportedById,
+      senderId: userId,
+      type: 'GAME_RESULT_APPROVED',
+      title: 'Game Result Approved',
+      content: `Your game result has been approved by your opponent.`,
+      data: {
+        gameResultId: gameResult.id,
+        approvedBy: userId,
+        reviewNotes: reviewNotes
+      }
+    });
+
+    res.json({
+      ok: true,
+      gameResult: updatedGameResult,
+      message: 'Game result approved successfully'
+    });
+
+  } catch (error) {
+    console.error('Error approving game result:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to approve game result' 
+    });
+  }
+}
+
+// Reject game result with proposed changes
+export async function rejectGameResult(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameResultId, rejectionReason, proposedChanges } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!gameResultId) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'gameResultId is required' 
+      });
+    }
+
+    // Get the game result
+    const gameResult = await prisma.gameResult.findUnique({
+      where: { id: gameResultId },
+      include: {
+        player1: true,
+        player2: true
+      }
+    });
+
+    if (!gameResult) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game result not found' 
+      });
+    }
+
+    // Check if user is the opponent
+    if (gameResult.player1Id !== userId && gameResult.player2Id !== userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'You can only reject results for your own games' 
+      });
+    }
+
+    // Delete the game result
+    await prisma.gameResult.delete({
+      where: { id: gameResultId }
+    });
+
+    // Notify the proposer with rejection reason and proposed changes
+    await createInboxMessage({
+      recipientId: gameResult.reportedById,
+      senderId: userId,
+      type: 'GAME_RESULT_REJECTED',
+      title: 'Game Result Rejected',
+      content: `Your game result was rejected. Please review the feedback and submit a new result.`,
+      data: {
+        originalGameResultId: gameResultId,
+        rejectionReason: rejectionReason,
+        proposedChanges: proposedChanges,
+        rejectedBy: userId
+      }
+    });
+
+    res.json({
+      ok: true,
+      message: 'Game result rejected and proposer notified'
+    });
+
+  } catch (error) {
+    console.error('Error rejecting game result:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to reject game result' 
+    });
+  }
+}
+
+// Get approved games that can have results created
+export async function getApprovedGamesForResults(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Get approved games where user is a player and no result exists yet
+    const approvedGames = await prisma.scheduledGame.findMany({
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        status: {
+          in: ['COMPLETED', 'CONFIRMED']
+        },
+        gameResult: null
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        },
+        player1StrikeTeam: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        },
+        player2StrikeTeam: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      },
+      orderBy: { scheduledDate: 'desc' }
+    });
+
+    res.json({
+      ok: true,
+      approvedGames
+    });
+
+  } catch (error) {
+    console.error('Error fetching approved games for results:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to fetch approved games' 
+    });
+  }
+}
+
+// Auto-approve game results after 48 hours (cron job)
+export async function autoApproveExpiredGameResults() {
+  try {
+    const fortyEightHoursAgo = new Date();
+    fortyEightHoursAgo.setHours(fortyEightHoursAgo.getHours() - 48);
+
+    // Find unverified game results older than 48 hours
+    const expiredResults = await prisma.gameResult.findMany({
+      where: {
+        isVerified: false,
+        createdAt: {
+          lt: fortyEightHoursAgo
+        }
+      },
+      include: {
+        player1: true,
+        player2: true,
+        scheduledGame: true
+      }
+    });
+
+    for (const result of expiredResults) {
+      // Auto-approve the result
+      await prisma.gameResult.update({
+        where: { id: result.id },
+        data: {
+          isVerified: true,
+          verifiedAt: new Date(),
+          verifiedBy: null // System auto-approval
+        }
+      });
+
+      // Update scheduled game status
+      if (result.scheduledGame) {
+        await prisma.scheduledGame.update({
+          where: { id: result.scheduledGame.id },
+          data: { status: 'COMPLETED' }
+        });
+      }
+
+      // Notify both players about auto-approval
+      await createInboxMessage({
+        recipientId: result.player1Id,
+        senderId: null, // System message
+        type: 'GAME_RESULT_AUTO_APPROVED',
+        title: 'Game Result Auto-Approved',
+        content: `Your game result was automatically approved after 48 hours without opponent review.`,
+        data: {
+          gameResultId: result.id,
+          autoApprovedAt: new Date().toISOString()
+        }
+      });
+
+      await createInboxMessage({
+        recipientId: result.player2Id,
+        senderId: null, // System message
+        type: 'GAME_RESULT_AUTO_APPROVED',
+        title: 'Game Result Auto-Approved',
+        content: `A game result was automatically approved after 48 hours without your review.`,
+        data: {
+          gameResultId: result.id,
+          autoApprovedAt: new Date().toISOString()
+        }
+      });
+    }
+
+    console.log(`Auto-approved ${expiredResults.length} game results`);
+    return expiredResults.length;
+  } catch (error) {
+    console.error('Error in auto-approval cron job:', error);
+    return 0;
+  }
+}
+
+// Edit existing game result (dispute resolution)
+export async function editGameResult(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameResultId, updates, reason } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!gameResultId || !updates) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'gameResultId and updates are required' 
+      });
+    }
+
+    // Get the game result
+    const gameResult = await prisma.gameResult.findUnique({
+      where: { id: gameResultId },
+      include: {
+        player1: true,
+        player2: true
+      }
+    });
+
+    if (!gameResult) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game result not found' 
+      });
+    }
+
+    // Check if user is one of the players
+    if (gameResult.player1Id !== userId && gameResult.player2Id !== userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'You can only edit results for your own games' 
+      });
+    }
+
+    // Create a new approval request for the opponent
+    const opponentId = gameResult.player1Id === userId ? gameResult.player2Id : gameResult.player1Id;
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 48);
+
+    // Update the game result (reset verification)
+    const updatedResult = await prisma.gameResult.update({
+      where: { id: gameResultId },
+      data: {
+        ...updates,
+        isVerified: false,
+        verifiedAt: null,
+        verifiedBy: null,
+        updatedAt: new Date()
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        winner: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        }
+      }
+    });
+
+    // Notify opponent about the edit
+    await createInboxMessage({
+      recipientId: opponentId,
+      senderId: userId,
+      type: 'GAME_RESULT_EDITED',
+      title: 'Game Result Edited',
+      content: `Your opponent has edited the game result. Please review the changes and approve or suggest modifications.`,
+      data: {
+        gameResultId: gameResultId,
+        editedBy: userId,
+        reason: reason,
+        changes: updates,
+        expiresAt: expiresAt.toISOString()
+      }
+    });
+
+    res.json({
+      ok: true,
+      gameResult: updatedResult,
+      message: 'Game result updated and sent for re-approval'
+    });
+
+  } catch (error) {
+    console.error('Error editing game result:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to edit game result' 
+    });
+  }
+}
+
+// Get game result approval history
+export async function getGameResultHistory(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameResultId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Get the game result with full history
+    const gameResult = await prisma.gameResult.findUnique({
+      where: { id: gameResultId },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        winner: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        },
+        reportedBy: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        verifiedBy: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        }
+      }
+    });
+
+    if (!gameResult) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game result not found' 
+      });
+    }
+
+    // Check if user is one of the players
+    if (gameResult.player1Id !== userId && gameResult.player2Id !== userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'You can only view history for your own games' 
+      });
+    }
+
+    res.json({
+      ok: true,
+      gameResult
+    });
+
+  } catch (error) {
+    console.error('Error fetching game result history:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to fetch game result history' 
+    });
+  }
+}
+
+// Admin override - force approve/reject game result
+export async function adminOverrideGameResult(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameResultId, action, reason } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Check if user is admin
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true }
+    });
+
+    if (user?.role !== 'ADMIN') {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'Admin access required' 
+      });
+    }
+
+    if (!gameResultId || !action) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'gameResultId and action are required' 
+      });
+    }
+
+    const gameResult = await prisma.gameResult.findUnique({
+      where: { id: gameResultId },
+      include: {
+        player1: true,
+        player2: true
+      }
+    });
+
+    if (!gameResult) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game result not found' 
+      });
+    }
+
+    if (action === 'approve') {
+      // Force approve
+      const updatedResult = await prisma.gameResult.update({
+        where: { id: gameResultId },
+        data: {
+          isVerified: true,
+          verifiedAt: new Date(),
+          verifiedBy: userId
+        }
+      });
+
+      // Notify both players
+      await createInboxMessage({
+        recipientId: gameResult.player1Id,
+        senderId: userId,
+        type: 'GAME_RESULT_ADMIN_APPROVED',
+        title: 'Game Result Admin Approved',
+        content: `Your game result was approved by an administrator.`,
+        data: {
+          gameResultId: gameResultId,
+          approvedBy: userId,
+          reason: reason
+        }
+      });
+
+      await createInboxMessage({
+        recipientId: gameResult.player2Id,
+        senderId: userId,
+        type: 'GAME_RESULT_ADMIN_APPROVED',
+        title: 'Game Result Admin Approved',
+        content: `A game result was approved by an administrator.`,
+        data: {
+          gameResultId: gameResultId,
+          approvedBy: userId,
+          reason: reason
+        }
+      });
+
+      res.json({
+        ok: true,
+        gameResult: updatedResult,
+        message: 'Game result force approved by admin'
+      });
+
+    } else if (action === 'reject') {
+      // Force reject and delete
+      await prisma.gameResult.delete({
+        where: { id: gameResultId }
+      });
+
+      // Notify both players
+      await createInboxMessage({
+        recipientId: gameResult.player1Id,
+        senderId: userId,
+        type: 'GAME_RESULT_ADMIN_REJECTED',
+        title: 'Game Result Admin Rejected',
+        content: `Your game result was rejected by an administrator.`,
+        data: {
+          originalGameResultId: gameResultId,
+          rejectedBy: userId,
+          reason: reason
+        }
+      });
+
+      await createInboxMessage({
+        recipientId: gameResult.player2Id,
+        senderId: userId,
+        type: 'GAME_RESULT_ADMIN_REJECTED',
+        title: 'Game Result Admin Rejected',
+        content: `A game result was rejected by an administrator.`,
+        data: {
+          originalGameResultId: gameResultId,
+          rejectedBy: userId,
+          reason: reason
+        }
+      });
+
+      res.json({
+        ok: true,
+        message: 'Game result force rejected by admin'
+      });
+    } else {
+      res.status(400).json({ 
+        ok: false, 
+        error: 'Invalid action. Use "approve" or "reject"' 
+      });
+    }
+
+  } catch (error) {
+    console.error('Error in admin override:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to process admin override' 
+    });
+  }
+}
+
+// Get pending game result approvals for user
+export async function getPendingGameResultApprovals(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Get unverified game results where user is the opponent
+    const pendingApprovals = await prisma.gameResult.findMany({
+      where: {
+        isVerified: false,
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        reportedById: {
+          not: userId // Exclude results reported by the user themselves
+        }
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        winner: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        },
+        reportedBy: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        scheduledGame: {
+          select: {
+            id: true,
+            scheduledDate: true,
+            location: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    res.json({
+      ok: true,
+      pendingApprovals
+    });
+
+  } catch (error) {
+    console.error('Error fetching pending approvals:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to fetch pending approvals' 
+    });
+  }
+}
+
+// Edit and reschedule approved game
+export async function editApprovedGame(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+    const { gameId, updates } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    if (!gameId || !updates) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'gameId and updates are required' 
+      });
+    }
+
+    // Get the game
+    const game = await prisma.scheduledGame.findUnique({
+      where: { id: gameId },
+      include: {
+        player1: true,
+        player2: true
+      }
+    });
+
+    if (!game) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Game not found' 
+      });
+    }
+
+    // Check if user is the host
+    if (game.player1Id !== userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'Only the game host can edit the game' 
+      });
+    }
+
+    // Update the game
+    const updatedGame = await prisma.scheduledGame.update({
+      where: { id: gameId },
+      data: {
+        ...updates,
+        status: 'SCHEDULED', // Reset to scheduled for new approval
+        confirmedAt: null
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        }
+      }
+    });
+
+    // Notify the opponent about the changes
+    if (game.player2Id) {
+      await createInboxMessage({
+        recipientId: game.player2Id,
+        senderId: userId,
+        type: 'GAME_UPDATED',
+        title: 'Game Updated',
+        content: `The game has been updated and requires your approval for the new details.`,
+        data: {
+          gameId: gameId,
+          updates: updates,
+          updatedBy: userId
+        }
+      });
+    }
+
+    res.json({
+      ok: true,
+      game: updatedGame,
+      message: 'Game updated and opponent notified'
+    });
+
+  } catch (error) {
+    console.error('Error editing approved game:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to edit game' 
     });
   }
 }
