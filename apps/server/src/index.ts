@@ -1,6 +1,7 @@
 // apps/server/src/index.ts
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
+import { semverToCode } from './utils/semver.js';
 // import { User } from "@prisma/client";
 
 // Extend Express Request interface
@@ -49,6 +50,7 @@ import {
   getCharacterById, 
   getCharacterAbilities, 
   getCharacterStance,
+  updateCharacterStance,
   createCharacter,
   updateCharacter,
   deleteCharacter,
@@ -949,7 +951,7 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
         tags: characterData.tags || [],
         portraitUrl: characterData.portrait || null,
         imageUrl: characterData.image || null,
-        version: parseInt(characterData.version) || 1
+        version: semverToCode(characterData.version)
       }
     });
     
@@ -1077,7 +1079,7 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
             tags: characterData.tags || [],
             portraitUrl: characterData.portrait || null,
             imageUrl: characterData.image || null,
-            version: parseInt(characterData.version) || 1
+            version: semverToCode(characterData.version)
           }
         });
         
@@ -2607,7 +2609,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
               tags: characterData.tags || [],
               portraitUrl: characterData.portrait || null,
               imageUrl: characterData.image || null,
-              version: parseInt(characterData.version) || 1
+              version: semverToCode(characterData.version)
             }
           });
           
@@ -7129,6 +7131,7 @@ app.get("/api/v2/characters", authenticateUserOrToken, requireScope(['read:chara
 app.get("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['read:characters']), getCharacterById);
 app.get("/api/v2/characters/:id/abilities", authenticateUserOrToken, requireScope(['read:characters']), getCharacterAbilities);
 app.get("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope(['read:characters']), getCharacterStance);
+app.put("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope(['write:characters']), updateCharacterStance);
 app.post("/api/v2/characters", authenticateUserOrToken, requireScope(['write:characters']), createCharacter);
 app.put("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['write:characters']), updateCharacter);
 app.delete("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['write:characters']), deleteCharacter);

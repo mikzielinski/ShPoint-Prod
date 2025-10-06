@@ -204,6 +204,60 @@ export async function getCharacterStance(req: Request, res: Response) {
 }
 
 /**
+ * PUT /api/v2/characters/:id/stance — aktualizacja stance postaci (Admin/Editor only)
+ */
+export async function updateCharacterStance(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const stanceData = req.body;
+
+    // First find the character by slug
+    const character = await prisma.character.findUnique({
+      where: { slug: id }
+    });
+
+    if (!character) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: 'Character not found' 
+      });
+    }
+
+    // Update or create stance
+    const stance = await prisma.characterStance.upsert({
+      where: { 
+        characterId: character.id
+      },
+      update: {
+        attackDice: stanceData.attackDice || 0,
+        defenseDice: stanceData.defenseDice || 0,
+        meleeExpertise: stanceData.meleeExpertise || 0,
+        rangedExpertise: stanceData.rangedExpertise || 0,
+        tree: stanceData.tree || []
+      },
+      create: {
+        characterId: character.id,
+        attackDice: stanceData.attackDice || 0,
+        defenseDice: stanceData.defenseDice || 0,
+        meleeExpertise: stanceData.meleeExpertise || 0,
+        rangedExpertise: stanceData.rangedExpertise || 0,
+        tree: stanceData.tree || []
+      }
+    });
+
+    res.json({
+      ok: true,
+      message: 'Stance updated successfully',
+      stance
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error updating character stance:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+}
+
+/**
  * POST /api/v2/characters — tworzenie nowej postaci (Admin/Editor only)
  */
 export async function createCharacter(req: Request, res: Response) {
