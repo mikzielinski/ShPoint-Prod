@@ -2045,24 +2045,35 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       isFavorite: status === 'FAVORITE',
     };
     
-    const collection = await prisma.characterCollection.upsert({
+    // Check if collection already exists
+    const existingCollection = await prisma.characterCollection.findFirst({
       where: {
-        userId_characterId: {
-          userId,
-          characterId,
-        },
-      },
-      update: {
-        ...statusData,
-        notes: notes || null,
-      },
-      create: {
         userId,
         characterId,
-        ...statusData,
-        notes: notes || null,
       },
     });
+
+    let collection;
+    if (existingCollection) {
+      // Update existing collection
+      collection = await prisma.characterCollection.update({
+        where: { id: existingCollection.id },
+        data: {
+          ...statusData,
+          notes: notes || null,
+        },
+      });
+    } else {
+      // Create new collection
+      collection = await prisma.characterCollection.create({
+        data: {
+          userId,
+          characterId,
+          ...statusData,
+          notes: notes || null,
+        },
+      });
+    }
     
     console.log("Character collection created/updated:", collection);
     res.json({ ok: true, collection });
