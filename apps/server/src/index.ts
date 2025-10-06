@@ -731,6 +731,19 @@ app.get("/health", (_req, res) => res.json({
 // Secure developer endpoints - only accessible with secret key
 const DEV_SECRET_KEY = process.env.DEV_SECRET_KEY || 'dev-secret-key-2025';
 
+const validateDevAccess = (req: Request, res: Response, next: NextFunction) => {
+  const devKey = req.headers['x-dev-secret'] || req.query.dev_secret;
+  
+  if (devKey !== DEV_SECRET_KEY) {
+    return res.status(403).json({
+      ok: false,
+      error: 'Dev access denied. Invalid secret key.'
+    });
+  }
+  
+  next();
+};
+
 // ===== CHARACTER TESTING ENDPOINTS =====
 // Comprehensive testing endpoints for character functionality
 app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request, res: Response) => {
@@ -810,7 +823,7 @@ app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request
             faction: dbCharacter.faction,
             unitType: dbCharacter.unitType,
             abilitiesCount: dbCharacter.abilities?.length || 0,
-            stancesCount: dbCharacter.stances?.length || 0,
+            stancesCount: dbCharacter.stances ? 1 : 0,
             collectionsCount: dbCharacter.characterCollections?.length || 0
           } : null
         },
@@ -1194,18 +1207,6 @@ app.put("/api/dev/test-edit-character", validateDevAccess, async (req: Request, 
   }
 });
 
-const validateDevAccess = (req: Request, res: Response, next: NextFunction) => {
-  const devKey = req.headers['x-dev-secret'] || req.query.dev_secret;
-  
-  if (devKey !== DEV_SECRET_KEY) {
-    return res.status(403).json({
-      ok: false,
-      error: 'Developer access denied. Invalid or missing dev_secret.'
-    });
-  }
-  
-  next();
-};
 
 // Get all users (for testing player list)
 app.get("/api/dev/users", validateDevAccess, async (req: Request, res: Response) => {
