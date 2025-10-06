@@ -948,10 +948,31 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
         tags: characterData.tags || [],
         portraitUrl: characterData.portrait || null,
         imageUrl: characterData.image || null,
-        abilities: characterData.abilities || [],
         version: characterData.version || '1.0.0'
       }
     });
+    
+    // Create abilities separately if they exist
+    if (characterData.abilities && Array.isArray(characterData.abilities)) {
+      for (let i = 0; i < characterData.abilities.length; i++) {
+        const ability = characterData.abilities[i];
+        await prisma.characterAbility.create({
+          data: {
+            characterId: characterId,
+            name: ability.name,
+            type: ability.type,
+            symbol: ability.symbol,
+            trigger: ability.trigger,
+            isAction: ability.isAction || false,
+            forceCost: ability.forceCost || 0,
+            damageCost: ability.damageCost || 0,
+            description: ability.description,
+            tags: ability.tags || [],
+            order: i
+          }
+        });
+      }
+    }
     
     // Create stance if exists
     if (stanceData && stanceData.dice) {
@@ -1054,10 +1075,31 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
             tags: characterData.tags || [],
             portraitUrl: characterData.portrait || null,
             imageUrl: characterData.image || null,
-            abilities: characterData.abilities || [],
             version: characterData.version || '1.0.0'
           }
         });
+        
+        // Create abilities separately if they exist
+        if (characterData.abilities && Array.isArray(characterData.abilities)) {
+          for (let i = 0; i < characterData.abilities.length; i++) {
+            const ability = characterData.abilities[i];
+            await prisma.characterAbility.create({
+              data: {
+                characterId: characterId,
+                name: ability.name,
+                type: ability.type,
+                symbol: ability.symbol,
+                trigger: ability.trigger,
+                isAction: ability.isAction || false,
+                forceCost: ability.forceCost || 0,
+                damageCost: ability.damageCost || 0,
+                description: ability.description,
+                tags: ability.tags || [],
+                order: i
+              }
+            });
+          }
+        }
         
         console.log(`Character ${characterId} created successfully`);
       } else {
@@ -2562,10 +2604,31 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
               tags: characterData.tags || [],
               portraitUrl: characterData.portrait || null,
               imageUrl: characterData.image || null,
-              abilities: characterData.abilities || [],
               version: characterData.version || '1.0.0'
             }
           });
+          
+          // Create abilities separately if they exist
+          if (characterData.abilities && Array.isArray(characterData.abilities)) {
+            for (let i = 0; i < characterData.abilities.length; i++) {
+              const ability = characterData.abilities[i];
+              await prisma.characterAbility.create({
+                data: {
+                  characterId: characterId,
+                  name: ability.name,
+                  type: ability.type,
+                  symbol: ability.symbol,
+                  trigger: ability.trigger,
+                  isAction: ability.isAction || false,
+                  forceCost: ability.forceCost || 0,
+                  damageCost: ability.damageCost || 0,
+                  description: ability.description,
+                  tags: ability.tags || [],
+                  order: i
+                }
+              });
+            }
+          }
           
           // Create stance if stance data exists
           if (stanceData && stanceData.dice) {
