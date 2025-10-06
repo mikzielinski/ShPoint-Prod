@@ -3068,6 +3068,31 @@ app.get("/characters/:id/stance.json", async (req, res) => {
   }
 });
 
+// GET /api/characters/:id/stance — dane stance postaci (bez autoryzacji dla testów)
+app.get("/api/characters/:id/stance", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Try production path first, then fallback to development path
+    let stancePath = path.join(process.cwd(), `characters_assets/${id}/stance.json`);
+    if (!fs.existsSync(stancePath)) {
+      stancePath = path.join(process.cwd(), `../client/characters_assets/${id}/stance.json`);
+    }
+    
+    if (!fs.existsSync(stancePath)) {
+      return res.status(404).json({ ok: false, error: "Character stance not found" });
+    }
+    
+    const data = JSON.parse(fs.readFileSync(stancePath, 'utf8'));
+    res.json({ ok: true, stance: data });
+  } catch (error) {
+    console.error(`Error loading character stance for ${req.params.id}:`, error);
+    res.status(500).json({ ok: false, error: "Failed to load character stance" });
+  }
+});
+
 // GET /api/characters — publiczny katalog kart/misji
 /**
  * @swagger
