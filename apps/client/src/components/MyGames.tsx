@@ -596,6 +596,79 @@ export default function MyGames({ playerId }: MyGamesProps) {
     }
   };
 
+  // Edit challenge
+  const editChallenge = async (challengeId: string) => {
+    // TODO: Implement challenge editing functionality
+    alert('Challenge editing functionality will be implemented soon');
+  };
+
+  // Cancel challenge
+  const cancelChallenge = async (challengeId: string) => {
+    if (!confirm('Are you sure you want to cancel this challenge?')) return;
+    
+    try {
+      const response = await fetch(api(`/api/v2/challenges/${challengeId}/cancel`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (data.ok) {
+        // Reload challenges
+        loadChallenges();
+        alert('Challenge cancelled successfully');
+      } else {
+        alert(`Failed to cancel challenge: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error cancelling challenge:', error);
+      alert('Error cancelling challenge');
+    }
+  };
+
+  // Edit scheduled game
+  const editScheduledGame = async (gameId: string) => {
+    // TODO: Implement scheduled game editing functionality
+    alert('Scheduled game editing functionality will be implemented soon');
+  };
+
+  // Cancel scheduled game
+  const cancelScheduledGame = async (gameId: string) => {
+    if (!confirm('Are you sure you want to cancel this scheduled game?')) return;
+    
+    try {
+      const response = await fetch(api(`/api/v2/scheduled-games/${gameId}/cancel`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          reason: 'Game cancelled by player',
+          cancelledBy: me?.id 
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.ok) {
+        // Reload challenges and pending games
+        loadChallenges();
+        loadPendingGames();
+        alert('Scheduled game cancelled successfully');
+      } else {
+        alert(`Failed to cancel scheduled game: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error cancelling scheduled game:', error);
+      alert('Error cancelling scheduled game');
+    }
+  };
+
   // Edit approved game
   const editApprovedGame = async (gameId: string, updates: any) => {
     try {
@@ -1118,6 +1191,77 @@ export default function MyGames({ playerId }: MyGamesProps) {
                             <span style={{ marginLeft: '8px' }}>{challenge.scheduledGame.location}</span>
                           </>
                         )}
+                      </div>
+                    )}
+                    
+                    {/* Action buttons for challenges */}
+                    {challenge.status === 'PENDING' && challenge.challenger.id === me?.id && (
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                        <button
+                          onClick={() => editChallenge(challenge.id)}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => cancelChallenge(challenge.id)}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}
+                        >
+                          🗑️ Cancel
+                        </button>
+                      </div>
+                    )}
+                    
+                    {challenge.status === 'ACCEPTED' && challenge.scheduledGame && (
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                        <button
+                          onClick={() => editScheduledGame(challenge.scheduledGame.id)}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}
+                        >
+                          ✏️ Edit Game
+                        </button>
+                        <button
+                          onClick={() => cancelScheduledGame(challenge.scheduledGame.id)}
+                          style={{
+                            padding: '4px 8px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '10px',
+                            fontWeight: '500'
+                          }}
+                        >
+                          🗑️ Cancel Game
+                        </button>
                       </div>
                     )}
                   </div>
