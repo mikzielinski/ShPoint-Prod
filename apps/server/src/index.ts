@@ -2593,9 +2593,9 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
     // Check if collection already exists
     const existingCollection = await prisma.characterCollection.findFirst({
       where: {
-        userId,
-        characterId,
-      },
+          userId,
+          characterId,
+        },
     });
 
     let collection;
@@ -2604,20 +2604,20 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       collection = await prisma.characterCollection.update({
         where: { id: existingCollection.id },
         data: {
-          ...statusData,
-          notes: notes || null,
-        },
+        ...statusData,
+        notes: notes || null,
+      },
       });
     } else {
       // Create new collection
       collection = await prisma.characterCollection.create({
         data: {
-          userId,
-          characterId,
-          ...statusData,
-          notes: notes || null,
-        },
-      });
+        userId,
+        characterId,
+        ...statusData,
+        notes: notes || null,
+      },
+    });
     }
     
     console.log("Character collection created/updated:", collection);
@@ -5146,7 +5146,8 @@ app.post("/api/admin/api-tokens", ensureAuth, ensureAdmin, async (req, res) => {
     const adminUser = req.user;
     
     // Generate a secure random token
-    const token = `sp_${require('crypto').randomBytes(32).toString('hex')}`;
+    const crypto = await import('crypto');
+    const token = `sp_${crypto.default.randomBytes(32).toString('hex')}`;
     
         const apiToken = await (prisma as any).apiToken.create({
       data: {
@@ -5616,7 +5617,8 @@ app.post("/api/admin/users/:id/generate-token", ensureAuth, async (req, res) => 
     }
 
     // Generate token
-    const token = require('crypto').randomBytes(32).toString('hex');
+    const crypto = await import('crypto');
+    const token = crypto.default.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + (expiresInDays * 24 * 60 * 60 * 1000));
 
     // Save token to database
