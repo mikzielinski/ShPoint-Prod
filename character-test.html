@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character System Testing</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .container {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #333;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #da190b;
+        }
+        .response {
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #4CAF50;
+            background: #1a2a1a;
+        }
+        .error {
+            border-color: #f44336;
+            background: #2a1a1a;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Character System Testing</h1>
+    
+    <div class="container">
+        <h2>⚙️ Configuration</h2>
+        <div class="form-group">
+            <label for="serverUrl">Server URL:</label>
+            <input type="text" id="serverUrl" value="https://your-render-app.onrender.com" placeholder="https://your-server.com">
+        </div>
+        <div class="form-group">
+            <label for="devSecret">Dev Secret Key:</label>
+            <input type="text" id="devSecret" value="dev-secret-key-2025" placeholder="your-dev-secret">
+        </div>
+        <div class="form-group">
+            <label for="characterId">Test Character ID:</label>
+            <input type="text" id="characterId" value="luke-skywalker" placeholder="character-id">
+        </div>
+        <div class="form-group">
+            <label for="userId">Test User ID:</label>
+            <input type="text" id="userId" value="" placeholder="user-id">
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="container">
+            <h2>🔍 Character System Tests</h2>
+            <button onclick="testCharacterSystem()">Test Character System</button>
+            <button onclick="testCreateCharacter()">Test Create Character</button>
+            <button onclick="testCollection()">Test Collection</button>
+            <button onclick="testEditCharacter()">Test Edit Character</button>
+            <div id="systemResponse" class="response" style="display: none;"></div>
+        </div>
+
+        <div class="container">
+            <h2>🔧 Real API Tests</h2>
+            <button onclick="testRealCollection()">Test Real Collection API</button>
+            <button onclick="testRealUpdate()">Test Real Update API</button>
+            <button onclick="testRealSync()">Test Character Sync</button>
+            <div id="realResponse" class="response" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 Quick Tests</h2>
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="clearResponses()" class="danger">Clear Responses</button>
+        <div id="allTestsResponse" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        function getConfig() {
+            return {
+                serverUrl: document.getElementById('serverUrl').value,
+                devSecret: document.getElementById('devSecret').value,
+                characterId: document.getElementById('characterId').value,
+                userId: document.getElementById('userId').value
+            };
+        }
+
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `response ${isError ? 'error' : 'success'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function makeRequest(url, options = {}) {
+            const config = getConfig();
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-dev-secret': config.devSecret,
+                ...options.headers
+            };
+
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    headers
+                });
+                
+                const data = await response.json();
+                return { response, data, success: response.ok };
+            } catch (error) {
+                return { error: error.message, success: false };
+            }
+        }
+
+        async function testCharacterSystem() {
+            const config = getConfig();
+            const result = await makeRequest(
+                `${config.serverUrl}/api/dev/test-character-system?characterId=${config.characterId}`
+            );
+            showResponse('systemResponse', result, !result.success);
+        }
+
+        async function testCreateCharacter() {
+            const config = getConfig();
+            const result = await makeRequest(
+                `${config.serverUrl}/api/dev/test-create-character`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ characterId: config.characterId })
+                }
+            );
+            showResponse('systemResponse', result, !result.success);
+        }
+
+        async function testCollection() {
+            const config = getConfig();
+            if (!config.userId) {
+                alert('Please enter a User ID');
+                return;
+            }
+            
+            const result = await makeRequest(
+                `${config.serverUrl}/api/dev/test-collection`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        characterId: config.characterId, 
+                        userId: config.userId, 
+                        status: 'OWNED' 
+                    })
+                }
+            );
+            showResponse('systemResponse', result, !result.success);
+        }
+
+        async function testEditCharacter() {
+            const config = getConfig();
+            const result = await makeRequest(
+                `${config.serverUrl}/api/dev/test-edit-character`,
+                {
+                    method: 'PUT',
+                    body: JSON.stringify({ 
+                        characterId: config.characterId,
+                        updates: {
+                            name: 'Test Character (Edited)',
+                            stamina: 5,
+                            durability: 4,
+                            squadPoints: 8
+                        }
+                    })
+                }
+            );
+            showResponse('systemResponse', result, !result.success);
+        }
+
+        async function testRealCollection() {
+            const config = getConfig();
+            const result = await makeRequest(
+                `${config.serverUrl}/api/shatterpoint/characters`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        characterId: config.characterId, 
+                        status: 'OWNED',
+                        notes: 'Test from HTML page'
+                    })
+                }
+            );
+            showResponse('realResponse', result, !result.success);
+        }
+
+        async function testRealUpdate() {
+            const config = getConfig();
+            const result = await makeRequest(
+                `${config.serverUrl}/api/v2/characters/${config.characterId}`,
+                {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: 'Test Character (Real API)',
+                        stamina: 6,
+                        durability: 5,
+                        squadPoints: 9
+                    })
+                }
+            );
+            showResponse('realResponse', result, !result.success);
+        }
+
+        async function testRealSync() {
+            const config = getConfig();
+            const result = await makeRequest(
+                `${config.serverUrl}/api/admin/sync-characters`,
+                {
+                    method: 'POST'
+                }
+            );
+            showResponse('realResponse', result, !result.success);
+        }
+
+        async function runAllTests() {
+            const config = getConfig();
+            let results = [];
+            
+            showResponse('allTestsResponse', { message: 'Running all tests...' });
+            
+            // Test 1: Character System
+            results.push({ test: 'Character System', ...await makeRequest(
+                `${config.serverUrl}/api/dev/test-character-system?characterId=${config.characterId}`
+            )});
+            
+            // Test 2: Create Character
+            results.push({ test: 'Create Character', ...await makeRequest(
+                `${config.serverUrl}/api/dev/test-create-character`,
+                { method: 'POST', body: JSON.stringify({ characterId: config.characterId }) }
+            )});
+            
+            // Test 3: Collection (if userId provided)
+            if (config.userId) {
+                results.push({ test: 'Collection', ...await makeRequest(
+                    `${config.serverUrl}/api/dev/test-collection`,
+                    { method: 'POST', body: JSON.stringify({ characterId: config.characterId, userId: config.userId, status: 'OWNED' }) }
+                )});
+            }
+            
+            // Test 4: Edit Character
+            results.push({ test: 'Edit Character', ...await makeRequest(
+                `${config.serverUrl}/api/dev/test-edit-character`,
+                { method: 'PUT', body: JSON.stringify({ characterId: config.characterId, updates: { name: 'All Tests Character' } }) }
+            )});
+            
+            showResponse('allTestsResponse', { 
+                summary: 'All tests completed',
+                results: results.map(r => ({ test: r.test, success: r.success, error: r.error }))
+            });
+        }
+
+        function clearResponses() {
+            document.getElementById('systemResponse').style.display = 'none';
+            document.getElementById('realResponse').style.display = 'none';
+            document.getElementById('allTestsResponse').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
