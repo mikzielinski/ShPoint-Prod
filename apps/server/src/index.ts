@@ -1912,7 +1912,7 @@ app.get("/debug/google-oauth", (req, res) => {
     clientId: GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET',
     callbackUrl: GOOGLE_CALLBACK_URL,
-    expectedCallbackUrl: 'https://shpoint.netlify.app/backend-auth/google/callback',
+    expectedCallbackUrl: 'https://shpoint-prod.onrender.com/auth/google/callback',
     directCallbackUrl: 'https://shpoint-prod.onrender.com/auth/google/callback'
   });
 });
