@@ -925,20 +925,20 @@ export async function createGameResultFromApproved(req: Request, res: Response) 
     expiresAt.setHours(expiresAt.getHours() + 48); // 48 hours
 
     // Create inbox message for opponent
-    await createInboxMessage({
-      recipientId: opponentId,
-      senderId: userId,
-      type: 'GAME_RESULT_PROPOSED',
-      title: 'Game Result Proposed',
-      content: `A game result has been proposed for your game. Please review and approve or suggest changes.`,
-      data: {
+    await createInboxMessage(
+      opponentId,
+      userId,
+      'GAME_RESULT_PROPOSED',
+      'Game Result Proposed',
+      `A game result has been proposed for your game. Please review and approve or suggest changes.`,
+      {
         gameResultId: gameResult.id,
         scheduledGameId: scheduledGame.id,
         proposedBy: userId,
         gameData: gameData,
         expiresAt: expiresAt.toISOString()
       }
-    });
+    );
 
     res.json({
       ok: true,
@@ -1006,8 +1006,7 @@ export async function approveGameResult(req: Request, res: Response) {
       where: { id: gameResultId },
       data: {
         isVerified: true,
-        verifiedAt: new Date(),
-        verifiedBy: userId
+        verifiedAt: new Date()
       },
       include: {
         player1: {
@@ -1053,18 +1052,18 @@ export async function approveGameResult(req: Request, res: Response) {
     }
 
     // Notify the proposer
-    await createInboxMessage({
-      recipientId: gameResult.reportedById,
-      senderId: userId,
-      type: 'GAME_RESULT_APPROVED',
-      title: 'Game Result Approved',
-      content: `Your game result has been approved by your opponent.`,
-      data: {
+    await createInboxMessage(
+      gameResult.reportedById,
+      userId,
+      'GAME_RESULT_APPROVED',
+      'Game Result Approved',
+      `Your game result has been approved by your opponent.`,
+      {
         gameResultId: gameResult.id,
         approvedBy: userId,
         reviewNotes: reviewNotes
       }
-    });
+    );
 
     res.json({
       ok: true,
@@ -1131,19 +1130,19 @@ export async function rejectGameResult(req: Request, res: Response) {
     });
 
     // Notify the proposer with rejection reason and proposed changes
-    await createInboxMessage({
-      recipientId: gameResult.reportedById,
-      senderId: userId,
-      type: 'GAME_RESULT_REJECTED',
-      title: 'Game Result Rejected',
-      content: `Your game result was rejected. Please review the feedback and submit a new result.`,
-      data: {
+    await createInboxMessage(
+      gameResult.reportedById,
+      userId,
+      'GAME_RESULT_REJECTED',
+      'Game Result Rejected',
+      `Your game result was rejected. Please review the feedback and submit a new result.`,
+      {
         originalGameResultId: gameResultId,
         rejectionReason: rejectionReason,
         proposedChanges: proposedChanges,
         rejectedBy: userId
       }
-    });
+    );
 
     res.json({
       ok: true,
@@ -1266,8 +1265,7 @@ export async function autoApproveExpiredGameResults() {
         where: { id: result.id },
         data: {
           isVerified: true,
-          verifiedAt: new Date(),
-          verifiedBy: null // System auto-approval
+          verifiedAt: new Date()
         }
       });
 
@@ -1280,29 +1278,29 @@ export async function autoApproveExpiredGameResults() {
       }
 
       // Notify both players about auto-approval
-      await createInboxMessage({
-        recipientId: result.player1Id,
-        senderId: null, // System message
-        type: 'GAME_RESULT_AUTO_APPROVED',
-        title: 'Game Result Auto-Approved',
-        content: `Your game result was automatically approved after 48 hours without opponent review.`,
-        data: {
+      await createInboxMessage(
+        result.player1Id,
+        null, // System message
+        'GAME_RESULT_AUTO_APPROVED',
+        'Game Result Auto-Approved',
+        `Your game result was automatically approved after 48 hours without opponent review.`,
+        {
           gameResultId: result.id,
           autoApprovedAt: new Date().toISOString()
         }
-      });
+      );
 
-      await createInboxMessage({
-        recipientId: result.player2Id,
-        senderId: null, // System message
-        type: 'GAME_RESULT_AUTO_APPROVED',
-        title: 'Game Result Auto-Approved',
-        content: `A game result was automatically approved after 48 hours without your review.`,
-        data: {
+      await createInboxMessage(
+        result.player2Id,
+        null, // System message
+        'GAME_RESULT_AUTO_APPROVED',
+        'Game Result Auto-Approved',
+        `A game result was automatically approved after 48 hours without your review.`,
+        {
           gameResultId: result.id,
           autoApprovedAt: new Date().toISOString()
         }
-      });
+      );
     }
 
     console.log(`Auto-approved ${expiredResults.length} game results`);
@@ -1369,7 +1367,6 @@ export async function editGameResult(req: Request, res: Response) {
         ...updates,
         isVerified: false,
         verifiedAt: null,
-        verifiedBy: null,
         updatedAt: new Date()
       },
       include: {
@@ -1408,20 +1405,20 @@ export async function editGameResult(req: Request, res: Response) {
     });
 
     // Notify opponent about the edit
-    await createInboxMessage({
-      recipientId: opponentId,
-      senderId: userId,
-      type: 'GAME_RESULT_EDITED',
-      title: 'Game Result Edited',
-      content: `Your opponent has edited the game result. Please review the changes and approve or suggest modifications.`,
-      data: {
+    await createInboxMessage(
+      opponentId,
+      userId,
+      'GAME_RESULT_EDITED',
+      'Game Result Edited',
+      `Your opponent has edited the game result. Please review the changes and approve or suggest modifications.`,
+      {
         gameResultId: gameResultId,
         editedBy: userId,
         reason: reason,
         changes: updates,
         expiresAt: expiresAt.toISOString()
       }
-    });
+    );
 
     res.json({
       ok: true,
@@ -1494,14 +1491,6 @@ export async function getGameResultHistory(req: Request, res: Response) {
             avatarUrl: true
           }
         },
-        verifiedBy: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            avatarUrl: true
-          }
-        }
       }
     });
 
@@ -1588,37 +1577,36 @@ export async function adminOverrideGameResult(req: Request, res: Response) {
         where: { id: gameResultId },
         data: {
           isVerified: true,
-          verifiedAt: new Date(),
-          verifiedBy: userId
+          verifiedAt: new Date()
         }
       });
 
       // Notify both players
-      await createInboxMessage({
-        recipientId: gameResult.player1Id,
-        senderId: userId,
-        type: 'GAME_RESULT_ADMIN_APPROVED',
-        title: 'Game Result Admin Approved',
-        content: `Your game result was approved by an administrator.`,
-        data: {
+      await createInboxMessage(
+        gameResult.player1Id,
+        userId,
+        'GAME_RESULT_ADMIN_APPROVED',
+        'Game Result Admin Approved',
+        `Your game result was approved by an administrator.`,
+        {
           gameResultId: gameResultId,
           approvedBy: userId,
           reason: reason
         }
-      });
+      );
 
-      await createInboxMessage({
-        recipientId: gameResult.player2Id,
-        senderId: userId,
-        type: 'GAME_RESULT_ADMIN_APPROVED',
-        title: 'Game Result Admin Approved',
-        content: `A game result was approved by an administrator.`,
-        data: {
+      await createInboxMessage(
+        gameResult.player2Id,
+        userId,
+        'GAME_RESULT_ADMIN_APPROVED',
+        'Game Result Admin Approved',
+        `A game result was approved by an administrator.`,
+        {
           gameResultId: gameResultId,
           approvedBy: userId,
           reason: reason
         }
-      });
+      );
 
       res.json({
         ok: true,
@@ -1633,31 +1621,31 @@ export async function adminOverrideGameResult(req: Request, res: Response) {
       });
 
       // Notify both players
-      await createInboxMessage({
-        recipientId: gameResult.player1Id,
-        senderId: userId,
-        type: 'GAME_RESULT_ADMIN_REJECTED',
-        title: 'Game Result Admin Rejected',
-        content: `Your game result was rejected by an administrator.`,
-        data: {
+      await createInboxMessage(
+        gameResult.player1Id,
+        userId,
+        'GAME_RESULT_ADMIN_REJECTED',
+        'Game Result Admin Rejected',
+        `Your game result was rejected by an administrator.`,
+        {
           originalGameResultId: gameResultId,
           rejectedBy: userId,
           reason: reason
         }
-      });
+      );
 
-      await createInboxMessage({
-        recipientId: gameResult.player2Id,
-        senderId: userId,
-        type: 'GAME_RESULT_ADMIN_REJECTED',
-        title: 'Game Result Admin Rejected',
-        content: `A game result was rejected by an administrator.`,
-        data: {
+      await createInboxMessage(
+        gameResult.player2Id,
+        userId,
+        'GAME_RESULT_ADMIN_REJECTED',
+        'Game Result Admin Rejected',
+        `A game result was rejected by an administrator.`,
+        {
           originalGameResultId: gameResultId,
           rejectedBy: userId,
           reason: reason
         }
-      });
+      );
 
       res.json({
         ok: true,
@@ -2070,14 +2058,11 @@ export async function getUserComprehensiveStats(req: Request, res: Response) {
       }
     });
 
-    const userFactionStats = await prisma.characterCollection.groupBy({
-      by: ['character'],
+    // Get user's owned characters count
+    const userOwnedCharacters = await prisma.characterCollection.count({
       where: {
         userId: userId,
         isOwned: true
-      },
-      _count: {
-        character: true
       }
     });
 
@@ -2347,18 +2332,18 @@ export async function editApprovedGame(req: Request, res: Response) {
 
     // Notify the opponent about the changes
     if (game.player2Id) {
-      await createInboxMessage({
-        recipientId: game.player2Id,
-        senderId: userId,
-        type: 'GAME_UPDATED',
-        title: 'Game Updated',
-        content: `The game has been updated and requires your approval for the new details.`,
-        data: {
+      await createInboxMessage(
+        game.player2Id,
+        userId,
+        'GAME_UPDATED',
+        'Game Updated',
+        `The game has been updated and requires your approval for the new details.`,
+        {
           gameId: gameId,
           updates: updates,
           updatedBy: userId
         }
-      });
+      );
     }
 
     res.json({
