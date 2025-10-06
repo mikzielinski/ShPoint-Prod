@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../lib/env';
 import CharacterModal from '../components/CharacterModal';
@@ -1081,8 +1082,8 @@ export default function MyCollectionPage() {
                 color: "#f9fafb"
               }}>No characters in collection</h2>
               <p style={{ marginBottom: "16px" }}>Visit the Characters page to add characters to your collection.</p>
-              <a 
-                href="/characters" 
+              <Link 
+                to="/characters" 
                 style={{
                   background: "#3b82f6",
                   color: "white",
@@ -1093,7 +1094,7 @@ export default function MyCollectionPage() {
                 }}
               >
                 Browse Characters
-              </a>
+              </Link>
             </div>
           ) : (
             <div style={{
