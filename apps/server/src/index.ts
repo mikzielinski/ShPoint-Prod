@@ -1,7 +1,7 @@
 // apps/server/src/index.ts
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
-import { semverToCode } from './utils/semver.js';
+import { parseVersionToInt, asStringOrFirst } from './utils/parseVersion.js';
 // import { User } from "@prisma/client";
 
 // Extend Express Request interface
@@ -937,7 +937,7 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
         slug: characterId,
         name: characterData.name || 'Unknown Character',
         faction: characterData.faction || 'Unknown',
-        unitType: Array.isArray(characterData.unit_type) ? characterData.unit_type[0] : (characterData.unit_type || characterData.role || 'Primary'),
+        unitType: asStringOrFirst(characterData.unit_type) || characterData.role || 'Primary',
         squadPoints: characterData.squad_points || 0,
         stamina: characterData.stamina || 0,
         durability: characterData.durability || 0,
@@ -951,7 +951,7 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
         tags: characterData.tags || [],
         portraitUrl: characterData.portrait || null,
         imageUrl: characterData.image || null,
-        version: semverToCode(characterData.version)
+        version: parseVersionToInt(characterData.version)
       }
     });
     
@@ -1079,7 +1079,7 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
             tags: characterData.tags || [],
             portraitUrl: characterData.portrait || null,
             imageUrl: characterData.image || null,
-            version: semverToCode(characterData.version)
+            version: parseVersionToInt(characterData.version)
           }
         });
         
@@ -2595,7 +2595,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
               slug: characterId,
               name: characterData.name || 'Unknown Character',
               faction: characterData.faction || 'Unknown',
-              unitType: Array.isArray(characterData.unit_type) ? characterData.unit_type[0] : (characterData.unit_type || characterData.role || 'Primary'),
+              unitType: asStringOrFirst(characterData.unit_type) || characterData.role || 'Primary',
               squadPoints: characterData.squad_points || 0,
               stamina: characterData.stamina || 0,
               durability: characterData.durability || 0,
@@ -2609,7 +2609,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
               tags: characterData.tags || [],
               portraitUrl: characterData.portrait || null,
               imageUrl: characterData.image || null,
-              version: semverToCode(characterData.version)
+              version: parseVersionToInt(characterData.version)
             }
           });
           
@@ -7120,9 +7120,11 @@ const authenticateUserOrToken = async (req: Request, res: Response, next: NextFu
         email: req.user.email,
         role: req.user.role
       };
+      return next();
     }
     
-    next();
+    // No authentication found
+    return res.status(401).json({ ok: false, error: "unauthorized" });
   });
 };
 
