@@ -827,7 +827,7 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) => res.json({ 
   ok: true, 
-        version: "v1.6.5",
+        version: "v1.6.6",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
