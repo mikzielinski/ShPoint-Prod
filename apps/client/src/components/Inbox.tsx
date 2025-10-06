@@ -1068,7 +1068,7 @@ END:VCALENDAR`;
               )}
 
               {/* Special handling for challenge messages */}
-              {selectedMessage.type === 'CHALLENGE_RECEIVED' && selectedMessage.data && (
+              {selectedMessage.type === 'challenge' && selectedMessage.data && (
                 <div style={{ 
                   marginTop: '16px', 
                   padding: '16px', 
@@ -1194,7 +1194,7 @@ END:VCALENDAR`;
                selectedMessage.type !== 'GAME_REGISTRATION_REJECTED' &&
                selectedMessage.type !== 'GAME_REGISTRATION_APPROVED_BY_OWNER' &&
                selectedMessage.type !== 'GAME_REGISTRATION_REJECTED_BY_OWNER' &&
-               selectedMessage.type !== 'CHALLENGE_RECEIVED' &&
+               selectedMessage.type !== 'challenge' &&
                selectedMessage.type !== 'CHALLENGE_ACCEPTED' &&
                selectedMessage.type !== 'CHALLENGE_REJECTED' && (
                 <div style={{ 
