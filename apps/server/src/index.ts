@@ -731,6 +731,469 @@ app.get("/health", (_req, res) => res.json({
 // Secure developer endpoints - only accessible with secret key
 const DEV_SECRET_KEY = process.env.DEV_SECRET_KEY || 'dev-secret-key-2025';
 
+// ===== CHARACTER TESTING ENDPOINTS =====
+// Comprehensive testing endpoints for character functionality
+app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.query;
+    
+    if (!characterId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'characterId query parameter is required'
+      });
+    }
+    
+    console.log(`🧪 Testing character system for: ${characterId}`);
+    
+    // Test 1: Check if character exists in database
+    const dbCharacter = await prisma.character.findUnique({
+      where: { id: characterId as string },
+      include: {
+        abilities: true,
+        stances: true,
+        characterCollections: true
+      }
+    });
+    
+    // Test 2: Check if character JSON files exist
+    const fs = require('fs');
+    const path = require('path');
+    const dataPath = path.join(__dirname, '../characters_assets', characterId as string, 'data.json');
+    const stancePath = path.join(__dirname, '../characters_assets', characterId as string, 'stance.json');
+    
+    const jsonDataExists = fs.existsSync(dataPath);
+    const jsonStanceExists = fs.existsSync(stancePath);
+    
+    let jsonData = null;
+    let jsonStance = null;
+    
+    if (jsonDataExists) {
+      try {
+        jsonData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+      } catch (e) {
+        console.error('Error reading JSON data:', e);
+      }
+    }
+    
+    if (jsonStanceExists) {
+      try {
+        jsonStance = JSON.parse(fs.readFileSync(stancePath, 'utf8'));
+      } catch (e) {
+        console.error('Error reading JSON stance:', e);
+      }
+    }
+    
+    // Test 3: Check character collections
+    const collections = await prisma.characterCollection.findMany({
+      where: { characterId: characterId as string },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    res.json({
+      ok: true,
+      characterId: characterId,
+      tests: {
+        database: {
+          exists: !!dbCharacter,
+          character: dbCharacter ? {
+            id: dbCharacter.id,
+            name: dbCharacter.name,
+            faction: dbCharacter.faction,
+            unitType: dbCharacter.unitType,
+            abilitiesCount: dbCharacter.abilities?.length || 0,
+            stancesCount: dbCharacter.stances?.length || 0,
+            collectionsCount: dbCharacter.characterCollections?.length || 0
+          } : null
+        },
+        jsonFiles: {
+          dataExists: jsonDataExists,
+          stanceExists: jsonStanceExists,
+          data: jsonData ? {
+            name: jsonData.name,
+            faction: jsonData.faction,
+            unit_type: jsonData.unit_type,
+            squad_points: jsonData.squad_points
+          } : null,
+          stance: jsonStance ? {
+            hasDice: !!jsonStance.dice,
+            hasExpertise: !!jsonStance.expertise,
+            hasTree: !!jsonStance.tree
+          } : null
+        },
+        collections: {
+          count: collections.length,
+          collections: collections.map(c => ({
+            userId: c.userId,
+            userName: c.user.name,
+            userEmail: c.user.email,
+            isOwned: c.isOwned,
+            isPainted: c.isPainted,
+            isWishlist: c.isWishlist,
+            createdAt: c.createdAt
+          }))
+        }
+      },
+      recommendations: {
+        canAddToCollection: jsonDataExists || !!dbCharacter,
+        canEdit: !!dbCharacter,
+        needsSync: jsonDataExists && !dbCharacter,
+        status: jsonDataExists && dbCharacter ? 'SYNCED' : 
+                jsonDataExists && !dbCharacter ? 'NEEDS_SYNC' :
+                !jsonDataExists && dbCharacter ? 'DB_ONLY' : 'NOT_FOUND'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Character system test error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to test character system',
+      details: error.message
+    });
+  }
+});
+
+// Test character creation from JSON
+app.post("/api/dev/test-create-character", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.body;
+    
+    if (!characterId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'characterId is required'
+      });
+    }
+    
+    console.log(`🧪 Testing character creation for: ${characterId}`);
+    
+    // Check if character already exists
+    const existingCharacter = await prisma.character.findUnique({
+      where: { id: characterId }
+    });
+    
+    if (existingCharacter) {
+      return res.json({
+        ok: true,
+        message: 'Character already exists in database',
+        character: {
+          id: existingCharacter.id,
+          name: existingCharacter.name,
+          faction: existingCharacter.faction
+        }
+      });
+    }
+    
+    // Try to create from JSON
+    const fs = require('fs');
+    const path = require('path');
+    
+    const dataPath = path.join(__dirname, '../characters_assets', characterId, 'data.json');
+    const stancePath = path.join(__dirname, '../characters_assets', characterId, 'stance.json');
+    
+    if (!fs.existsSync(dataPath)) {
+      return res.status(404).json({
+        ok: false,
+        error: `Character data file not found: ${dataPath}`
+      });
+    }
+    
+    const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    const stanceData = fs.existsSync(stancePath) ? JSON.parse(fs.readFileSync(stancePath, 'utf8')) : {};
+    
+    // Create character
+    const character = await prisma.character.create({
+      data: {
+        id: characterId,
+        slug: characterId,
+        name: characterData.name || 'Unknown Character',
+        faction: characterData.faction || 'Unknown',
+        unitType: characterData.unit_type || characterData.role || 'Primary',
+        squadPoints: characterData.squad_points || 0,
+        stamina: characterData.stamina || 0,
+        durability: characterData.durability || 0,
+        force: characterData.force || null,
+        hanker: characterData.hanker || null,
+        boxSetCode: characterData.boxSetCode || characterData.set_code || null,
+        characterNames: characterData.characterNames || [],
+        numberOfCharacters: characterData.number_of_characters || 1,
+        era: characterData.era || null,
+        period: characterData.period || [],
+        tags: characterData.tags || [],
+        portraitUrl: characterData.portrait || null,
+        imageUrl: characterData.image || null,
+        abilities: characterData.abilities || [],
+        version: characterData.version || '1.0.0'
+      }
+    });
+    
+    // Create stance if exists
+    if (stanceData && stanceData.dice) {
+      await prisma.characterStance.create({
+        data: {
+          characterId: characterId,
+          attackDice: stanceData.dice.attack || 0,
+          defenseDice: stanceData.dice.defense || 0,
+          meleeExpertise: stanceData.expertise?.melee || 0,
+          rangedExpertise: stanceData.expertise?.ranged || 0,
+          tree: stanceData.tree || []
+        }
+      });
+    }
+    
+    res.json({
+      ok: true,
+      message: 'Character created successfully from JSON',
+      character: {
+        id: character.id,
+        name: character.name,
+        faction: character.faction,
+        unitType: character.unitType,
+        squadPoints: character.squadPoints
+      }
+    });
+    
+  } catch (error) {
+    console.error('Character creation test error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to create character',
+      details: error.message
+    });
+  }
+});
+
+// Test character collection functionality
+app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { characterId, userId, status = 'OWNED' } = req.body;
+    
+    if (!characterId || !userId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'characterId and userId are required'
+      });
+    }
+    
+    console.log(`🧪 Testing collection for character: ${characterId}, user: ${userId}`);
+    
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+    
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        error: 'User not found'
+      });
+    }
+    
+    // Check if character exists in database
+    let character = await prisma.character.findUnique({
+      where: { id: characterId }
+    });
+    
+    // If character doesn't exist, try to create it
+    if (!character) {
+      console.log(`Character ${characterId} not found, attempting to create from JSON`);
+      
+      const fs = require('fs');
+      const path = require('path');
+      
+      const dataPath = path.join(__dirname, '../characters_assets', characterId, 'data.json');
+      
+      if (fs.existsSync(dataPath)) {
+        const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+        
+        character = await prisma.character.create({
+          data: {
+            id: characterId,
+            slug: characterId,
+            name: characterData.name || 'Unknown Character',
+            faction: characterData.faction || 'Unknown',
+            unitType: characterData.unit_type || 'Primary',
+            squadPoints: characterData.squad_points || 0,
+            stamina: characterData.stamina || 0,
+            durability: characterData.durability || 0,
+            force: characterData.force || null,
+            hanker: characterData.hanker || null,
+            boxSetCode: characterData.boxSetCode || null,
+            characterNames: characterData.characterNames || [],
+            numberOfCharacters: characterData.number_of_characters || 1,
+            era: characterData.era || null,
+            period: characterData.period || [],
+            tags: characterData.tags || [],
+            portraitUrl: characterData.portrait || null,
+            imageUrl: characterData.image || null,
+            abilities: characterData.abilities || [],
+            version: characterData.version || '1.0.0'
+          }
+        });
+        
+        console.log(`Character ${characterId} created successfully`);
+      } else {
+        return res.status(404).json({
+          ok: false,
+          error: `Character ${characterId} not found in database or JSON files`
+        });
+      }
+    }
+    
+    // Check if collection already exists
+    const existingCollection = await prisma.characterCollection.findFirst({
+      where: {
+        userId,
+        characterId,
+      },
+    });
+    
+    const statusData = {
+      isOwned: status === 'OWNED' || status === 'PAINTED' || !status,
+      isPainted: status === 'PAINTED',
+      isWishlist: status === 'WISHLIST',
+      isSold: status === 'SOLD',
+      isFavorite: status === 'FAVORITE',
+    };
+    
+    let collection;
+    if (existingCollection) {
+      // Update existing collection
+      collection = await prisma.characterCollection.update({
+        where: { id: existingCollection.id },
+        data: {
+          ...statusData,
+          notes: `Test collection - ${new Date().toISOString()}`,
+        },
+      });
+      console.log(`Updated existing collection for ${characterId}`);
+    } else {
+      // Create new collection
+      collection = await prisma.characterCollection.create({
+        data: {
+          userId,
+          characterId,
+          ...statusData,
+          notes: `Test collection - ${new Date().toISOString()}`,
+        },
+      });
+      console.log(`Created new collection for ${characterId}`);
+    }
+    
+    res.json({
+      ok: true,
+      message: 'Collection test successful',
+      collection: {
+        id: collection.id,
+        userId: collection.userId,
+        characterId: collection.characterId,
+        isOwned: collection.isOwned,
+        isPainted: collection.isPainted,
+        isWishlist: collection.isWishlist,
+        notes: collection.notes,
+        createdAt: collection.createdAt
+      },
+      character: {
+        id: character.id,
+        name: character.name,
+        faction: character.faction
+      },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
+    });
+    
+  } catch (error) {
+    console.error('Collection test error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to test collection',
+      details: error.message
+    });
+  }
+});
+
+// Test character editing functionality
+app.put("/api/dev/test-edit-character", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { characterId, updates } = req.body;
+    
+    if (!characterId || !updates) {
+      return res.status(400).json({
+        ok: false,
+        error: 'characterId and updates are required'
+      });
+    }
+    
+    console.log(`🧪 Testing character edit for: ${characterId}`);
+    
+    // Try to update character using the same logic as the real API
+    const character = await prisma.character.upsert({
+      where: { slug: characterId },
+      update: {
+        ...updates,
+        version: { increment: 1 },
+        updatedAt: new Date()
+      },
+      create: {
+        id: characterId,
+        slug: characterId,
+        name: updates.name || 'Test Character',
+        faction: updates.faction || 'Unknown',
+        unitType: updates.unitType || 'Primary',
+        squadPoints: updates.squadPoints || 0,
+        stamina: updates.stamina || 0,
+        durability: updates.durability || 0,
+        force: updates.force || null,
+        hanker: updates.hanker || null,
+        boxSetCode: updates.boxSetCode || null,
+        characterNames: updates.characterNames || [],
+        numberOfCharacters: updates.numberOfCharacters || 1,
+        era: updates.era || null,
+        period: updates.period || [],
+        tags: updates.tags || [],
+        portraitUrl: updates.portraitUrl || null,
+        imageUrl: updates.imageUrl || null,
+        abilities: updates.abilities || [],
+        version: 1
+      }
+    });
+    
+    res.json({
+      ok: true,
+      message: 'Character edit test successful',
+      character: {
+        id: character.id,
+        name: character.name,
+        faction: character.faction,
+        unitType: character.unitType,
+        squadPoints: character.squadPoints,
+        version: character.version,
+        updatedAt: character.updatedAt
+      }
+    });
+    
+  } catch (error) {
+    console.error('Character edit test error:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to test character edit',
+      details: error.message
+    });
+  }
+});
+
 const validateDevAccess = (req: Request, res: Response, next: NextFunction) => {
   const devKey = req.headers['x-dev-secret'] || req.query.dev_secret;
   
