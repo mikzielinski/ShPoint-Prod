@@ -109,7 +109,8 @@ import {
   editGameResult,
   getGameResultHistory,
   adminOverrideGameResult,
-  getPendingGameResultApprovals
+  getPendingGameResultApprovals,
+  getUserComprehensiveStats
 } from "./game-results-api.js";
 import { 
   logDiceRoll, 
@@ -6582,6 +6583,9 @@ app.post("/api/v2/game-results/auto-approve", async (req, res) => {
     });
   }
 });
+
+// Comprehensive user statistics
+app.get("/api/v2/user/comprehensive-stats", ensureAuth, addUserToRequest, getUserComprehensiveStats);
 
 // ===== DICE ROLLS AND NODE ACTIVATION API =====
 app.post("/api/v2/dice-rolls", ensureAuth, addUserToRequest, logDiceRoll);

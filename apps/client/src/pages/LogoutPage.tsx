@@ -9,7 +9,7 @@ export default function LogoutPage() {
   useEffect(() => {
     (async () => {
       await doLogout();
-      navigate("/", { replace: true });
+      navigate("/news", { replace: true });
     })();
   }, [doLogout, navigate]);
 

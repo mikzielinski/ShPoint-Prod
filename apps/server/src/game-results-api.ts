@@ -1768,6 +1768,363 @@ export async function getPendingGameResultApprovals(req: Request, res: Response)
   }
 }
 
+// Get comprehensive user statistics
+export async function getUserComprehensiveStats(req: Request, res: Response) {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Authentication required' 
+      });
+    }
+
+    // Get basic game stats
+    const gameStats = await prisma.gameResult.aggregate({
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        isVerified: true
+      },
+      _count: {
+        id: true
+      }
+    });
+
+    const wins = await prisma.gameResult.count({
+      where: {
+        winnerId: userId,
+        isVerified: true
+      }
+    });
+
+    const losses = await prisma.gameResult.count({
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        winnerId: {
+          not: userId
+        },
+        result: {
+          not: 'DRAW'
+        },
+        isVerified: true
+      }
+    });
+
+    const draws = await prisma.gameResult.count({
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        result: 'DRAW',
+        isVerified: true
+      }
+    });
+
+    const totalGames = wins + losses + draws;
+    const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
+
+    // Get total play time
+    const totalPlayTime = await prisma.gameResult.aggregate({
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        isVerified: true,
+        durationMinutes: {
+          not: null
+        }
+      },
+      _sum: {
+        durationMinutes: true
+      }
+    });
+
+    // Get favorite missions
+    const favoriteMissions = await prisma.gameResult.groupBy({
+      by: ['missionId'],
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        isVerified: true,
+        missionId: {
+          not: null
+        }
+      },
+      _count: {
+        missionId: true
+      },
+      orderBy: {
+        _count: {
+          missionId: 'desc'
+        }
+      },
+      take: 5
+    });
+
+    const missionsWithNames = await Promise.all(
+      favoriteMissions.map(async (mission) => {
+        const missionData = await prisma.mission.findUnique({
+          where: { id: mission.missionId! },
+          select: { id: true, name: true, thumbnailUrl: true }
+        });
+        return {
+          ...mission,
+          mission: missionData
+        };
+      })
+    );
+
+    // Get favorite characters (from character results)
+    const favoriteCharacters = await prisma.gameResultCharacter.groupBy({
+      by: ['characterId'],
+      where: {
+        playerId: userId
+      },
+      _count: {
+        characterId: true
+      },
+      orderBy: {
+        _count: {
+          characterId: 'desc'
+        }
+      },
+      take: 10
+    });
+
+    const charactersWithNames = await Promise.all(
+      favoriteCharacters.map(async (char) => {
+        const characterData = await prisma.character.findUnique({
+          where: { id: char.characterId },
+          select: { id: true, name: true, portraitUrl: true }
+        });
+        return {
+          ...char,
+          character: characterData
+        };
+      })
+    );
+
+    // Get collection statistics
+    const totalCharacters = await prisma.character.count();
+    const ownedCharacters = await prisma.characterCollection.count({
+      where: {
+        userId: userId,
+        isOwned: true
+      }
+    });
+
+    const totalSets = await prisma.set.count();
+    const ownedSets = await prisma.setCollection.count({
+      where: {
+        userId: userId,
+        isOwned: true
+      }
+    });
+
+    const totalMissions = await prisma.mission.count();
+    const ownedMissions = await prisma.missionCollection.count({
+      where: {
+        userId: userId,
+        isOwned: true
+      }
+    });
+
+    // Get favorite cards (most favorited)
+    const favoriteCards = await prisma.characterCollection.findMany({
+      where: {
+        userId: userId,
+        isFavorite: true
+      },
+      include: {
+        character: {
+          select: {
+            id: true,
+            name: true,
+            portraitUrl: true
+          }
+        }
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      },
+      take: 10
+    });
+
+    // Get recent activity
+    const recentGames = await prisma.gameResult.findMany({
+      where: {
+        OR: [
+          { player1Id: userId },
+          { player2Id: userId }
+        ],
+        isVerified: true
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        player2: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        winner: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true
+          }
+        },
+        mission: {
+          select: {
+            id: true,
+            name: true,
+            thumbnailUrl: true
+          }
+        }
+      },
+      orderBy: {
+        playedAt: 'desc'
+      },
+      take: 5
+    });
+
+    // Get strike team statistics
+    const strikeTeamStats = await prisma.strikeTeam.aggregate({
+      where: {
+        userId: userId
+      },
+      _count: {
+        id: true
+      }
+    });
+
+    const strikeTeamWins = await prisma.strikeTeam.aggregate({
+      where: {
+        userId: userId
+      },
+      _sum: {
+        wins: true
+      }
+    });
+
+    const strikeTeamLosses = await prisma.strikeTeam.aggregate({
+      where: {
+        userId: userId
+      },
+      _sum: {
+        losses: true
+      }
+    });
+
+    // Get challenges statistics
+    const challengesSent = await prisma.challenge.count({
+      where: {
+        challengerId: userId
+      }
+    });
+
+    const challengesReceived = await prisma.challenge.count({
+      where: {
+        challengedId: userId
+      }
+    });
+
+    const challengesAccepted = await prisma.challenge.count({
+      where: {
+        challengedId: userId,
+        status: 'ACCEPTED'
+      }
+    });
+
+    // Calculate collection completion percentages
+    const characterCompletion = totalCharacters > 0 ? Math.round((ownedCharacters / totalCharacters) * 100) : 0;
+    const setCompletion = totalSets > 0 ? Math.round((ownedSets / totalSets) * 100) : 0;
+    const missionCompletion = totalMissions > 0 ? Math.round((ownedMissions / totalMissions) * 100) : 0;
+
+    res.json({
+      ok: true,
+      stats: {
+        // Game Statistics
+        gamesPlayed: totalGames,
+        wins: wins,
+        losses: losses,
+        draws: draws,
+        winRate: winRate,
+        totalPlayTimeHours: totalPlayTime._sum.durationMinutes ? Math.round((totalPlayTime._sum.durationMinutes / 60) * 10) / 10 : 0,
+        
+        // Collection Statistics
+        collection: {
+          characters: {
+            owned: ownedCharacters,
+            total: totalCharacters,
+            completion: characterCompletion
+          },
+          sets: {
+            owned: ownedSets,
+            total: totalSets,
+            completion: setCompletion
+          },
+          missions: {
+            owned: ownedMissions,
+            total: totalMissions,
+            completion: missionCompletion
+          }
+        },
+        
+        // Favorites
+        favoriteMissions: missionsWithNames,
+        favoriteCharacters: charactersWithNames,
+        favoriteCards: favoriteCards,
+        
+        // Strike Team Statistics
+        strikeTeams: {
+          total: strikeTeamStats._count.id,
+          totalWins: strikeTeamWins._sum.wins || 0,
+          totalLosses: strikeTeamLosses._sum.losses || 0
+        },
+        
+        // Challenge Statistics
+        challenges: {
+          sent: challengesSent,
+          received: challengesReceived,
+          accepted: challengesAccepted
+        },
+        
+        // Recent Activity
+        recentGames: recentGames
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching comprehensive user stats:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to fetch user statistics' 
+    });
+  }
+}
+
 // Edit and reschedule approved game
 export async function editApprovedGame(req: Request, res: Response) {
   try {

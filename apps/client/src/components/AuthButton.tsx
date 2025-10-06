@@ -9,8 +9,8 @@ export default function AuthButton() {
 
   const goLogout = async () => {
     await fetch(api("/auth/logout"), { method: "POST", credentials: "include" });
-    // odśwież UI po wylogowaniu
-    window.location.reload();
+    // redirect to news page after logout
+    window.location.href = "/news";
   };
 
   // jeśli masz kontekst z /me – podmień to na realny stan:
