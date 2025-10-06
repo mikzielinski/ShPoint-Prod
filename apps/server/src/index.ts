@@ -7129,20 +7129,20 @@ const authenticateUserOrToken = async (req: Request, res: Response, next: NextFu
 };
 
 // Characters API v2
-app.get("/api/v2/characters", authenticateUserOrToken, requireScope(['read:characters']), getCharacters);
-app.get("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['read:characters']), getCharacterById);
-app.get("/api/v2/characters/:id/abilities", authenticateUserOrToken, requireScope(['read:characters']), getCharacterAbilities);
-app.get("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope(['read:characters']), getCharacterStance);
-app.put("/api/v2/characters/:id/stance", authenticateUserOrToken, requireScope(['write:characters']), updateCharacterStance);
-app.post("/api/v2/characters", authenticateUserOrToken, requireScope(['write:characters']), createCharacter);
-app.put("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['write:characters']), updateCharacter);
-app.delete("/api/v2/characters/:id", authenticateUserOrToken, requireScope(['write:characters']), deleteCharacter);
+app.get("/api/v2/characters", ensureAuth, addUserToRequest, getCharacters);
+app.get("/api/v2/characters/:id", ensureAuth, addUserToRequest, getCharacterById);
+app.get("/api/v2/characters/:id/abilities", ensureAuth, addUserToRequest, getCharacterAbilities);
+app.get("/api/v2/characters/:id/stance", ensureAuth, addUserToRequest, getCharacterStance);
+app.put("/api/v2/characters/:id/stance", ensureAuth, addUserToRequest, updateCharacterStance);
+app.post("/api/v2/characters", ensureAuth, addUserToRequest, createCharacter);
+app.put("/api/v2/characters/:id", ensureAuth, addUserToRequest, updateCharacter);
+app.delete("/api/v2/characters/:id", ensureAuth, addUserToRequest, deleteCharacter);
 
 // Sets API v2
-app.get("/api/v2/sets", authenticateUserOrToken, requireScope(['read:sets']), getSets);
+app.get("/api/v2/sets", ensureAuth, addUserToRequest, getSets);
 
 // Missions API v2
-app.get("/api/v2/missions", authenticateUserOrToken, requireScope(['read:missions']), getMissions);
+app.get("/api/v2/missions", ensureAuth, addUserToRequest, getMissions);
 
 // ===== COMMENTS API =====
 app.get("/api/v2/comments", getComments);
@@ -7187,9 +7187,9 @@ app.post("/api/v2/public-games/reject-registration", ensureAuth, addUserToReques
 
 // ===== GAME RESULTS API =====
 app.get("/api/v2/game-results", ensureAuth, addUserToRequest, getGameResults);
-app.post("/api/v2/game-results", authenticateUserOrToken, requireScope(['write:game-results']), createGameResult);
-app.put("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['write:game-results']), updateGameResult);
-app.delete("/api/v2/game-results/:id", authenticateUserOrToken, requireScope(['delete:game-results']), deleteGameResult);
+app.post("/api/v2/game-results", ensureAuth, addUserToRequest, createGameResult);
+app.put("/api/v2/game-results/:id", ensureAuth, addUserToRequest, updateGameResult);
+app.delete("/api/v2/game-results/:id", ensureAuth, addUserToRequest, deleteGameResult);
 app.get("/api/v2/players/:playerId/stats", ensureAuth, addUserToRequest, getPlayerStats);
 
 // ===== ENHANCED GAME RESULTS API =====
