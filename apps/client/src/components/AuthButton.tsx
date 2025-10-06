@@ -4,7 +4,7 @@ import { api } from "../lib/env";
 export default function AuthButton() {
   const goLogin = () => {
     // pełne przekierowanie do backendu
-    window.location.href = api("/auth/google");
+    window.location.href = "https://shpoint-prod.onrender.com/auth/google?returnTo=%2F";
   };
 
   const goLogout = async () => {

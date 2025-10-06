@@ -2,8 +2,7 @@ import React from "react";
 import { Button } from "../ui/Button";
 import { Card, CardHeader, CardContent } from "../ui/Card";
 
-import { api } from "../../lib/env";
-const GOOGLE_START = api("/auth/google");
+const GOOGLE_START = "https://shpoint-prod.onrender.com/auth/google?returnTo=%2F";
 
 const GoogleIcon = (
   <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>

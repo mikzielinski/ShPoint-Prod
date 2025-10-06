@@ -386,7 +386,7 @@ export default function UnauthorizedPage() {
           flexWrap: 'wrap'
         }}>
           <button
-            onClick={() => window.location.href = api("/auth/google")}
+            onClick={() => window.location.href = "https://shpoint-prod.onrender.com/auth/google?returnTo=%2F"}
             style={{
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
               color: 'white',
