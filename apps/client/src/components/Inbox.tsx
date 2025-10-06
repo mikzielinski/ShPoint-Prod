@@ -263,7 +263,7 @@ END:VCALENDAR`;
                   border: 'none',
                   fontSize: '18px',
                   cursor: 'pointer',
-                  color: '#6c757d'
+                  color: '#9ca3af'
                 }}
               >
                 ×
@@ -335,7 +335,7 @@ END:VCALENDAR`;
               {error}
             </div>
           ) : messages.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#6c757d' }}>
+            <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
               No messages
             </div>
           ) : (
@@ -347,9 +347,14 @@ END:VCALENDAR`;
                   padding: '12px',
                   borderBottom: '1px solid #374151',
                   cursor: 'pointer',
-                  backgroundColor: selectedMessage?.id === message.id ? '#e3f2fd' : 
-                                 !message.isRead ? '#fff3cd' : 'white',
-                  borderLeft: !message.isRead ? '3px solid #ffc107' : '3px solid transparent',
+                  backgroundColor: selectedMessage?.id === message.id ? '#374151' : 
+                                 !message.isRead ? '#1f2937' : '#1f2937',
+                  color: '#f9fafb',
+                  borderLeft: !message.isRead ? '3px solid #fbbf24' : '3px solid transparent',
+                  border: '1px solid #374151',
+                  borderRadius: '4px',
+                  marginBottom: '4px',
+                  transition: 'all 0.2s ease',
                   // Special styling for game registration messages
                   ...(message.type === 'GAME_REGISTRATION' && {
                     backgroundColor: selectedMessage?.id === message.id ? '#1e3a8a' : 
@@ -375,7 +380,7 @@ END:VCALENDAR`;
                     </div>
                     <div style={{ 
                       fontSize: '12px', 
-                      color: '#6c757d',
+                      color: '#9ca3af',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -386,7 +391,7 @@ END:VCALENDAR`;
                       }
                     </div>
                   </div>
-                  <div style={{ fontSize: '11px', color: '#6c757d' }}>
+                  <div style={{ fontSize: '11px', color: '#9ca3af' }}>
                     {formatDate(message.createdAt)}
                   </div>
                 </div>
@@ -420,7 +425,7 @@ END:VCALENDAR`;
                   Delete
                 </button>
               </div>
-              <div style={{ fontSize: '12px', color: '#6c757d', marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
                 {selectedMessage.sender ? 
                   `From: ${selectedMessage.sender.name || selectedMessage.sender.username || 'Unknown'}` : 
                   'System Message'
@@ -1252,7 +1257,7 @@ END:VCALENDAR`;
                       <pre style={{ 
                         margin: '8px 0 0 0', 
                         fontSize: '12px', 
-                        color: '#6c757d',
+                        color: '#9ca3af',
                         whiteSpace: 'pre-wrap'
                       }}>
                         {JSON.stringify(selectedMessage.data, null, 2)}
@@ -1269,7 +1274,7 @@ END:VCALENDAR`;
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            color: '#6c757d'
+            color: '#9ca3af'
           }}>
             Select a message to view
           </div>
