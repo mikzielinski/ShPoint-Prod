@@ -949,7 +949,7 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
         tags: characterData.tags || [],
         portraitUrl: characterData.portrait || null,
         imageUrl: characterData.image || null,
-        version: characterData.version || '1.0.0'
+        version: parseInt(characterData.version) || 1
       }
     });
     
@@ -1077,7 +1077,7 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
             tags: characterData.tags || [],
             portraitUrl: characterData.portrait || null,
             imageUrl: characterData.image || null,
-            version: characterData.version || '1.0.0'
+            version: parseInt(characterData.version) || 1
           }
         });
         
@@ -2607,7 +2607,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
               tags: characterData.tags || [],
               portraitUrl: characterData.portrait || null,
               imageUrl: characterData.image || null,
-              version: characterData.version || '1.0.0'
+              version: parseInt(characterData.version) || 1
             }
           });
           
