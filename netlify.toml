@@ -9,6 +9,15 @@
 # Note: Netlify rate limiting cannot be disabled via configuration
 # We'll use headers to try to override the limits
 
+# Disable caching for HTML and JS to force fresh builds
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+    X-Build-Version = "v0.4.3"
+
 # Disable Netlify's rate limiting for API calls - CACHE BUST v1.4.4
 [[headers]]
   for = "/backend-api/*"
