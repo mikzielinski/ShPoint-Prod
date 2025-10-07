@@ -241,7 +241,17 @@ function StatPill({ label, value }: { label: string; value?: React.ReactNode }) 
 }
 
 export default function UnitDataCard({ character, data }: Props) {
+  // Merge data from database (data) over character list data (character)
+  // This ensures database data takes precedence over cached list data
   const c: CharacterData = { ...character, ...(data || {}) };
+  
+  // Special handling for unit_type vs role - prefer role from database
+  if (data?.role && !data.unit_type) {
+    c.unit_type = data.role as "Primary" | "Secondary" | "Support";
+    console.log('🔧 UnitDataCard: Converted role to unit_type:', data.role, '->', c.unit_type);
+  }
+
+  console.log('🔧 UnitDataCard: Final character object c:', c);
 
   const stamina = c.stamina ?? "—";
   const durability = c.durability ?? "—";
