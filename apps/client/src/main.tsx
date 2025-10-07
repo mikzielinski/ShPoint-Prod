@@ -30,12 +30,25 @@ window.fetch = async function(...args) {
   
   // Add Authorization header if token exists
   if (token) {
-    const headers = new Headers(config?.headers);
+    let headers;
+    
+    // Handle different header types
+    if (config?.headers instanceof Headers) {
+      headers = new Headers(config.headers);
+    } else if (config?.headers) {
+      headers = new Headers(config.headers);
+    } else {
+      headers = new Headers();
+    }
     
     // Only add if not already present
     if (!headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${token}`);
       console.log('🔐 [Fetch Interceptor] Added Bearer token to:', url.substring(0, 60) + '...');
+      console.log('🔐 [Fetch Interceptor] Token length:', token.length);
+      console.log('🔐 [Fetch Interceptor] Headers:', Array.from(headers.entries()));
+    } else {
+      console.log('🔐 [Fetch Interceptor] Authorization header already present, not adding token');
     }
     
     // Ensure credentials are included

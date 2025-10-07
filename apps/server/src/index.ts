@@ -528,9 +528,10 @@ async function ensureAuth(req: Request, res: Response, next: NextFunction) {
   
   // Check for JWT token in Authorization header
   const authHeader = req.headers.authorization;
+  console.log('🔍 ensureAuth - Authorization header:', authHeader);
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
-    console.log('🔍 ensureAuth - found Bearer token in header');
+    console.log('🔍 ensureAuth - found Bearer token in header, length:', token.length);
     
     try {
       const payload = verifyToken<{ id: string; email?: string; name?: string }>(token);
