@@ -279,6 +279,8 @@ export default function UnitDataCard({ character, data }: Props) {
     factions: factions?.length || 0
   });
 
+  console.log('🔧 UnitDataCard: RENDERING COMPONENT NOW!');
+  
   return (
     <div style={{ display: "grid", gap: 16 }}>
       {/* Główny kontener nadrzędny - portret z lewej, opis z prawej */}

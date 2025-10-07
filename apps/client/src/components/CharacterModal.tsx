@@ -252,6 +252,10 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
           {!loading && err && <div className="error">Error: {err}</div>}
 
           {/* CHARACTER CARD – wypełnia całą szerokość, powiększona responsywnie */}
+          {(() => {
+            console.log('🔍 CharacterModal render check:', { loading, err, tab, shouldRender: !loading && !err && tab === "data" });
+            return null;
+          })()}
           {!loading && !err && tab === "data" && (
             <div className="data-fill">
               <div className="card-scaler">
