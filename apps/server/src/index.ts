@@ -880,7 +880,7 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) =>   res.json({
     ok: true,
-    version: "v1.7.5",
+    version: "v1.7.6",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
@@ -928,6 +928,59 @@ app.get("/api/admin/db-diagnostics", async (req, res) => {
   } catch (error) {
     console.error('Database diagnostics error:', error);
     res.status(500).json({ ok: false, error: 'Database connection failed' });
+  }
+});
+
+// Force sync character endpoint (for testing)
+app.post("/api/admin/force-sync-character/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Load character data from JSON
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    let dataPath = path.join(process.cwd(), 'characters_assets', id, 'data.json');
+    if (!fs.existsSync(dataPath)) {
+      dataPath = path.join(process.cwd(), '../client/characters_assets', id, 'data.json');
+    }
+    
+    if (!fs.existsSync(dataPath)) {
+      return res.status(404).json({ ok: false, error: 'Character JSON not found' });
+    }
+    
+    const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    
+    // Force sync to database
+    await syncCharacterToDatabase(id, characterData);
+    
+    // Check result
+    const dbCharacter = await prisma.character.findUnique({
+      where: { slug: id },
+      include: {
+        abilities: { orderBy: { order: 'asc' } },
+        stances: true
+      }
+    });
+    
+    res.json({
+      ok: true,
+      message: `Character ${id} synced successfully`,
+      character: {
+        name: dbCharacter?.name,
+        hasAbilities: dbCharacter?.abilities?.length || 0,
+        hasStance: !!dbCharacter?.stances,
+        stanceData: dbCharacter?.stances ? {
+          attackDice: dbCharacter.stances.attackDice,
+          defenseDice: dbCharacter.stances.defenseDice,
+          meleeExpertise: dbCharacter.stances.meleeExpertise,
+          rangedExpertise: dbCharacter.stances.rangedExpertise
+        } : null
+      }
+    });
+  } catch (error) {
+    console.error('Force sync error:', error);
+    res.status(500).json({ ok: false, error: error.message });
   }
 });
 
