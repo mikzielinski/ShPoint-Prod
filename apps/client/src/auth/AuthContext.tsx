@@ -49,47 +49,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [auth, setAuth] = useState<AuthState>({ status: "loading" });
 
   const refresh = useCallback(async () => {
-    // Check for sessionId in URL (from OAuth redirect)
+    // Check for JWT token in URL (from OAuth redirect)
     const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('sessionId');
+    const token = urlParams.get('token');
     
-    if (sessionId) {
-      console.log('🔍 AuthProvider: Found sessionId in URL:', sessionId);
+    if (token) {
+      console.log('🔍 AuthProvider: Found token in URL');
       
-      // Try to authenticate using sessionId
+      // Try to authenticate using JWT token
       try {
-        const sessionRes = await fetch(api("/api/auth/session"), {
+        const tokenRes = await fetch(api("/api/auth/token"), {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId })
+          body: JSON.stringify({ token })
         });
         
-        if (sessionRes.ok) {
-          const sessionData = await sessionRes.json();
-          console.log('✅ AuthProvider: Session authenticated:', sessionData);
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          console.log('✅ AuthProvider: Token authenticated:', tokenData.user?.email);
           
-          if (sessionData?.ok && sessionData?.user) {
-            // Store sessionId in localStorage for future requests
-            localStorage.setItem('shpoint_session_id', sessionId);
+          if (tokenData?.ok && tokenData?.user) {
+            // Store token in localStorage for future requests
+            localStorage.setItem('shpoint_auth_token', token);
             
-            // Remove sessionId from URL
+            // Remove token from URL for security
             const newUrl = new URL(window.location.href);
-            newUrl.searchParams.delete('sessionId');
+            newUrl.searchParams.delete('token');
             window.history.replaceState({}, '', newUrl.toString());
             
-            setAuth({ status: "authenticated", user: sessionData.user as User });
+            setAuth({ status: "authenticated", user: tokenData.user as User });
             return;
           }
         } else {
-          console.log('❌ AuthProvider: Session authentication failed:', await sessionRes.text());
+          console.log('❌ AuthProvider: Token authentication failed:', await tokenRes.text());
         }
       } catch (error) {
-        console.error('❌ AuthProvider: Session authentication error:', error);
+        console.error('❌ AuthProvider: Token authentication error:', error);
       }
     }
     
-    // Try normal authentication
+    // Check for token in localStorage
+    const storedToken = localStorage.getItem('shpoint_auth_token');
+    if (storedToken) {
+      console.log('🔍 AuthProvider: Found token in localStorage');
+      
+      try {
+        const tokenRes = await fetch(api("/api/auth/token"), {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: storedToken })
+        });
+        
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          console.log('✅ AuthProvider: Stored token authenticated:', tokenData.user?.email);
+          
+          if (tokenData?.ok && tokenData?.user) {
+            setAuth({ status: "authenticated", user: tokenData.user as User });
+            return;
+          }
+        } else {
+          console.log('❌ AuthProvider: Stored token invalid, clearing...');
+          localStorage.removeItem('shpoint_auth_token');
+        }
+      } catch (error) {
+        console.error('❌ AuthProvider: Stored token authentication error:', error);
+        localStorage.removeItem('shpoint_auth_token');
+      }
+    }
+    
+    // Try normal authentication (session cookie)
     const res = await fetchStatus();
     if (!res || !res.ok) {
       setAuth({ status: "anonymous" });
@@ -118,6 +149,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         credentials: "include",
       });
     } finally {
+      // Clear token from localStorage
+      localStorage.removeItem('shpoint_auth_token');
       setAuth({ status: "anonymous" });
     }
   };

@@ -2312,16 +2312,21 @@ app.get(
       // @ts-ignore
       const returnUrl = (req.session as any).returnTo || '/';
       const frontendUrl = getFrontendUrl(req.get('origin'));
-      // @ts-ignore
-      const sessionId = req.sessionID;
+      
+      // Generate JWT token for cross-origin authentication
+      const token = signUser({
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name
+      });
       
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
       console.log('🔍 Google OAuth callback - final returnUrl:', returnUrl);
       console.log('🔍 Google OAuth callback - frontend URL:', frontendUrl);
-      console.log('🔍 Google OAuth callback - sessionId:', sessionId);
+      console.log('🔍 Google OAuth callback - generated JWT token');
       
-      // Pass session ID in URL for cross-origin compatibility
-      const redirectUrl = `${frontendUrl}${returnUrl}${returnUrl.includes('?') ? '&' : '?'}sessionId=${sessionId}`;
+      // Pass JWT token in URL for cross-origin compatibility
+      const redirectUrl = `${frontendUrl}${returnUrl}${returnUrl.includes('?') ? '&' : '?'}token=${token}`;
       console.log('🔍 Google OAuth callback - redirecting to:', redirectUrl);
       res.redirect(redirectUrl);
     });
@@ -2365,38 +2370,53 @@ app.get('/api/_whoami', (req, res) => {
   });
 });
 
-// Endpoint to authenticate using sessionId from URL
-app.post('/api/auth/session', async (req, res) => {
+// Endpoint to authenticate using JWT token from URL
+app.post('/api/auth/token', async (req, res) => {
   try {
-    const { sessionId } = req.body;
+    const { token } = req.body;
     
-    if (!sessionId) {
-      return res.status(400).json({ ok: false, error: 'Session ID required' });
+    if (!token) {
+      return res.status(400).json({ ok: false, error: 'Token required' });
     }
     
-    console.log('🔍 /api/auth/session - received sessionId:', sessionId);
-    console.log('🔍 /api/auth/session - current sessionId:', req.sessionID);
+    console.log('🔍 /api/auth/token - verifying token...');
     
-    // If sessionId matches current session and user is authenticated, return user
-    if (req.sessionID === sessionId && req.user) {
-      console.log('✅ /api/auth/session - session matched, user authenticated');
-      return res.json({
-        ok: true,
-        user: publicUser(req.user),
-        sessionId: req.sessionID
+    // Verify JWT token
+    const payload = verifyToken<{ id: string; email?: string; name?: string }>(token);
+    
+    if (!payload || !payload.id) {
+      console.log('❌ /api/auth/token - invalid token');
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'Invalid or expired token'
       });
     }
     
-    // Session ID doesn't match or no user - return error
-    console.log('❌ /api/auth/session - session mismatch or no user');
-    return res.status(401).json({ 
-      ok: false, 
-      error: 'Invalid or expired session',
-      currentSessionId: req.sessionID,
-      providedSessionId: sessionId
+    console.log('✅ /api/auth/token - token verified for user:', payload.email);
+    
+    // Fetch full user from database
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id }
+    });
+    
+    if (!user) {
+      console.log('❌ /api/auth/token - user not found');
+      return res.status(401).json({ 
+        ok: false, 
+        error: 'User not found'
+      });
+    }
+    
+    console.log('✅ /api/auth/token - user authenticated:', user.email);
+    
+    // Return user data and token for future requests
+    return res.json({
+      ok: true,
+      user: publicUser(user),
+      token: token
     });
   } catch (error) {
-    console.error('❌ /api/auth/session error:', error);
+    console.error('❌ /api/auth/token error:', error);
     res.status(500).json({ ok: false, error: 'Internal server error' });
   }
 });
