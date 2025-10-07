@@ -123,9 +123,14 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
             
             setDataObj(transformedData);
             
+            console.log('🔍 Character data from DB:', char);
+            console.log('🔍 Stances from DB:', char.stances);
+            
             // Set stance data if available
-            if (char.stances && char.stances.length > 0) {
-              const stance = char.stances[0];
+            // Note: char.stances is a single object, not an array (Prisma one-to-one relation)
+            if (char.stances) {
+              const stance = char.stances;
+              console.log('🔍 Transforming stance data:', stance);
               setStanceObj({
                 dice: {
                   attack: stance.attackDice,
@@ -138,6 +143,7 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
                 tree: stance.tree
               });
             } else {
+              console.log('🔍 No stance data in database response');
               setStanceObj(null);
             }
           } else {
@@ -249,7 +255,12 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
           {!loading && !err && tab === "data" && (
             <div className="data-fill">
               <div className="card-scaler">
-                <UnitDataCard character={character} data={dataObj || undefined} />
+                {(() => {
+                  console.log('🔍 UnitDataCard - character prop:', character);
+                  console.log('🔍 UnitDataCard - dataObj:', dataObj);
+                  console.log('🔍 UnitDataCard - merged data:', { ...character, ...(dataObj || {}) });
+                  return <UnitDataCard character={character} data={dataObj || undefined} />;
+                })()}
               </div>
             </div>
           )}
