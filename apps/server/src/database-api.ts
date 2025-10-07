@@ -262,9 +262,41 @@ export async function getCharacterStance(req: Request, res: Response) {
       return res.status(404).json({ ok: false, error: 'Stance not found in database' });
     }
 
+    // Convert database stance to frontend-compatible format
+    const frontendStance = {
+      sides: [
+        {
+          id: "A",
+          name: "Primary",
+          attack: {
+            melee: {
+              dice: stance.attackDice,
+              expertise: stance.meleeExpertise > 0 ? 
+                Array(stance.meleeExpertise).fill(0).map((_, i) => ({
+                  value: `${i+1}-${i+2}`,
+                  effects: ["b", "a"]
+                })) : []
+            },
+            ranged: {
+              dice: 0,
+              expertise: stance.rangedExpertise > 0 ? 
+                Array(stance.rangedExpertise).fill(0).map((_, i) => ({
+                  value: `${i+1}-${i+2}`,
+                  effects: ["b", "a"]
+                })) : []
+            }
+          },
+          defense: {
+            dice: stance.defenseDice
+          },
+          tree: stance.tree || []
+        }
+      ]
+    };
+
     res.json({
       ok: true,
-      stance
+      stance: frontendStance
     });
 
   } catch (error: any) {
