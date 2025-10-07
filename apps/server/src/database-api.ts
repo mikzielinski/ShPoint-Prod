@@ -65,7 +65,7 @@ export async function getCharacters(req: Request, res: Response) {
           abilities: {
             orderBy: { order: 'asc' }
           },
-          stances: true,
+          characterStances: true,
           _count: {
             select: {
               characterCollections: true
@@ -105,7 +105,7 @@ export async function getCharacterById(req: Request, res: Response) {
         abilities: {
           orderBy: { order: 'asc' }
         },
-        stances: true,
+        characterStances: true,
         characterCollections: true,
         setCharacters: {
           include: {
@@ -143,7 +143,7 @@ export async function getCharacterById(req: Request, res: Response) {
               abilities: {
                 orderBy: { order: 'asc' }
               },
-              stances: true,
+              characterStances: true,
               characterCollections: true,
               setCharacters: {
                 include: {

@@ -1,6 +1,6 @@
 {
   "name": "shpoint-server",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "ShPoint server with optimized database migration",
   "type": "module",
   "main": "dist/index.js",

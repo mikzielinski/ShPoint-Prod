@@ -761,9 +761,11 @@ export async function syncCharacterToDatabase(characterId: string, characterData
       
       // Parse stance data - structure has sides[] array
       if (stanceData && stanceData.sides && Array.isArray(stanceData.sides)) {
+        console.log(`🔍 Parsing stance for ${characterId}, sides count: ${stanceData.sides.length}`);
         // Use first side as primary stance
         const primarySide = stanceData.sides[0];
         if (primarySide) {
+          console.log(`🔍 Primary side found for ${characterId}:`, primarySide);
           // Extract dice values from attack/defense
           const attackDice = primarySide.attack?.melee?.dice || primarySide.attack?.ranged?.dice || 0;
           const defenseDice = primarySide.defense?.dice || 0;
@@ -792,8 +794,14 @@ export async function syncCharacterToDatabase(characterId: string, characterData
             }
           });
           console.log(`⚔️ Synced stance data for ${characterId}: attackDice=${attackDice}, defenseDice=${defenseDice}`);
+        } else {
+          console.log(`⚠️ No primary side found in stance data for ${characterId}`);
         }
+      } else {
+        console.log(`⚠️ Invalid stance data structure for ${characterId}:`, stanceData);
       }
+    } else {
+      console.log(`⚠️ No stance.json found for ${characterId}`);
     }
     
   } catch (error) {
@@ -880,7 +888,7 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) =>   res.json({
     ok: true,
-    version: "v1.7.8",
+    version: "v1.7.9",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
