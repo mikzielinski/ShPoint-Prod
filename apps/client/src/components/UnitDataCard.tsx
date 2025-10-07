@@ -254,6 +254,13 @@ export default function UnitDataCard({ character, data }: Props) {
   console.log('🔧 UnitDataCard: Final character object c:', c);
 
   const stamina = c.stamina ?? "—";
+  console.log('🔧 UnitDataCard: stamina =', stamina);
+  console.log('🔧 UnitDataCard: durability =', c.durability);
+  console.log('🔧 UnitDataCard: force =', c.force);
+  console.log('🔧 UnitDataCard: unit_type =', c.unit_type);
+  console.log('🔧 UnitDataCard: role =', c.role);
+  console.log('🔧 UnitDataCard: abilities =', c.abilities);
+  console.log('🔧 UnitDataCard: structuredAbilities =', c.structuredAbilities);
   const durability = c.durability ?? "—";
   const force = (typeof c.force === "number" ? c.force : null) ?? 0;
   // Always use backend URL for portrait, ignore data.json URLs - FORCE FIX v1.0
@@ -261,6 +268,16 @@ export default function UnitDataCard({ character, data }: Props) {
   const legacyAbilities: LegacyAbility[] = Array.isArray(c.abilities) ? c.abilities! : [];
   const structuredAbilities: StructuredAbility[] = Array.isArray(c.structuredAbilities) ? c.structuredAbilities! : [];
   const factions = Array.isArray(c.factions) ? c.factions : null;
+
+  console.log('🔧 UnitDataCard: About to render with:', {
+    stamina,
+    durability,
+    force,
+    portrait,
+    legacyAbilities: legacyAbilities.length,
+    structuredAbilities: structuredAbilities.length,
+    factions: factions?.length || 0
+  });
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
