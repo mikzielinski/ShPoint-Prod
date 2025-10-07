@@ -49,6 +49,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [auth, setAuth] = useState<AuthState>({ status: "loading" });
 
   const refresh = useCallback(async () => {
+    // Check for sessionId in URL (from OAuth redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('sessionId');
+    
+    if (sessionId) {
+      console.log('🔍 AuthProvider: Found sessionId in URL:', sessionId);
+      
+      // Try to authenticate using sessionId
+      try {
+        const sessionRes = await fetch(api("/api/auth/session"), {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId })
+        });
+        
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          console.log('✅ AuthProvider: Session authenticated:', sessionData);
+          
+          if (sessionData?.ok && sessionData?.user) {
+            // Store sessionId in localStorage for future requests
+            localStorage.setItem('shpoint_session_id', sessionId);
+            
+            // Remove sessionId from URL
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('sessionId');
+            window.history.replaceState({}, '', newUrl.toString());
+            
+            setAuth({ status: "authenticated", user: sessionData.user as User });
+            return;
+          }
+        } else {
+          console.log('❌ AuthProvider: Session authentication failed:', await sessionRes.text());
+        }
+      } catch (error) {
+        console.error('❌ AuthProvider: Session authentication error:', error);
+      }
+    }
+    
+    // Try normal authentication
     const res = await fetchStatus();
     if (!res || !res.ok) {
       setAuth({ status: "anonymous" });

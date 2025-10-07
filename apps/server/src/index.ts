@@ -2313,11 +2313,17 @@ app.get(
       const returnUrl = (req.session as any).returnTo || '/';
       const frontendUrl = getFrontendUrl(req.get('origin'));
       // @ts-ignore
+      const sessionId = req.sessionID;
+      
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
       console.log('🔍 Google OAuth callback - final returnUrl:', returnUrl);
       console.log('🔍 Google OAuth callback - frontend URL:', frontendUrl);
-      console.log('🔍 Google OAuth callback - redirecting to:', `${frontendUrl}${returnUrl}`);
-      res.redirect(`${frontendUrl}${returnUrl}`);
+      console.log('🔍 Google OAuth callback - sessionId:', sessionId);
+      
+      // Pass session ID in URL for cross-origin compatibility
+      const redirectUrl = `${frontendUrl}${returnUrl}${returnUrl.includes('?') ? '&' : '?'}sessionId=${sessionId}`;
+      console.log('🔍 Google OAuth callback - redirecting to:', redirectUrl);
+      res.redirect(redirectUrl);
     });
   }
 );
@@ -2350,13 +2356,49 @@ app.get("/auth/status", (req, res) => {
 app.get('/api/_whoami', (req, res) => {
   // @ts-ignore
   const u = req.user;
-  res.json({ 
-    ok: true, 
-    isAuth: !!u, 
+  res.json({
+    ok: true,
+    isAuth: !!u,
     user: u ? publicUser(u) : null,
     sessionId: req.sessionID,
     cookies: req.headers.cookie
   });
+});
+
+// Endpoint to authenticate using sessionId from URL
+app.post('/api/auth/session', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    
+    if (!sessionId) {
+      return res.status(400).json({ ok: false, error: 'Session ID required' });
+    }
+    
+    console.log('🔍 /api/auth/session - received sessionId:', sessionId);
+    console.log('🔍 /api/auth/session - current sessionId:', req.sessionID);
+    
+    // If sessionId matches current session and user is authenticated, return user
+    if (req.sessionID === sessionId && req.user) {
+      console.log('✅ /api/auth/session - session matched, user authenticated');
+      return res.json({
+        ok: true,
+        user: publicUser(req.user),
+        sessionId: req.sessionID
+      });
+    }
+    
+    // Session ID doesn't match or no user - return error
+    console.log('❌ /api/auth/session - session mismatch or no user');
+    return res.status(401).json({ 
+      ok: false, 
+      error: 'Invalid or expired session',
+      currentSessionId: req.sessionID,
+      providedSessionId: sessionId
+    });
+  } catch (error) {
+    console.error('❌ /api/auth/session error:', error);
+    res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
 });
 
 // wylogowanie
