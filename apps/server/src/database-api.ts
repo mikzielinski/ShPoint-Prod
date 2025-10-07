@@ -262,37 +262,54 @@ export async function getCharacterStance(req: Request, res: Response) {
       return res.status(404).json({ ok: false, error: 'Stance not found in database' });
     }
 
+    console.log('🔍 Database stance.tree type:', typeof stance.tree);
+    console.log('🔍 Database stance.tree:', JSON.stringify(stance.tree, null, 2));
+
     // Convert database stance to frontend-compatible format
-    const frontendStance = {
-      sides: [
-        {
-          id: "A",
-          name: "Primary",
-          attack: {
-            melee: {
-              dice: stance.attackDice,
-              expertise: stance.meleeExpertise > 0 ? 
-                Array(stance.meleeExpertise).fill(0).map((_, i) => ({
-                  value: `${i+1}-${i+2}`,
-                  effects: ["b", "a"]
-                })) : []
+    // Check if tree contains full sides array (new format) or just tree data (old format)
+    let frontendStance;
+    
+    // Type guard for tree as array with id property
+    const isNewFormat = Array.isArray(stance.tree) && 
+                        stance.tree.length > 0 && 
+                        typeof stance.tree[0] === 'object' && 
+                        stance.tree[0] !== null &&
+                        'id' in stance.tree[0];
+    
+    if (isNewFormat) {
+      // New format: tree contains full sides array
+      console.log('🔍 Stance tree contains full sides array (new format)');
+      frontendStance = {
+        sides: stance.tree as any[]
+      };
+    } else {
+      // Old format: tree is just tree data, construct sides from individual fields
+      console.log('🔍 Stance tree is old format, constructing sides');
+      frontendStance = {
+        sides: [
+          {
+            id: "A",
+            name: "Primary",
+            attack: {
+              melee: {
+                dice: stance.attackDice,
+                expertise: []
+              },
+              ranged: {
+                dice: 0,
+                expertise: []
+              }
             },
-            ranged: {
-              dice: 0,
-              expertise: stance.rangedExpertise > 0 ? 
-                Array(stance.rangedExpertise).fill(0).map((_, i) => ({
-                  value: `${i+1}-${i+2}`,
-                  effects: ["b", "a"]
-                })) : []
-            }
-          },
-          defense: {
-            dice: stance.defenseDice
-          },
-          tree: stance.tree || []
-        }
-      ]
-    };
+            defense: {
+              dice: stance.defenseDice
+            },
+            tree: stance.tree || []
+          }
+        ]
+      };
+    }
+
+    console.log('🔍 Returning stance to frontend:', JSON.stringify(frontendStance, null, 2));
 
     res.json({
       ok: true,
@@ -331,14 +348,34 @@ export async function updateCharacterStance(req: Request, res: Response) {
 
     console.log('✅ Character found:', character.id, character.name);
 
-    // Handle new stance structure with 'sides' array
-    const stanceUpdateData = {
-      attackDice: stanceData.attackDice || 0,
-      defenseDice: stanceData.defenseDice || 0,
-      meleeExpertise: stanceData.meleeExpertise || 0,
-      rangedExpertise: stanceData.rangedExpertise || 0,
-      tree: stanceData.sides || stanceData.tree || []  // Support both 'sides' and 'tree'
-    };
+    // Handle both old and new stance formats
+    // Old format: { attackDice, defenseDice, meleeExpertise: [], rangedExpertise: [], tree: {} }
+    // New format: { sides: [...] }
+    
+    let stanceUpdateData;
+    
+    if (stanceData.sides && Array.isArray(stanceData.sides)) {
+      // New format with sides array - extract from first side
+      console.log('🔍 Processing NEW stance format (sides array)');
+      const firstSide = stanceData.sides[0];
+      stanceUpdateData = {
+        attackDice: firstSide?.attack?.melee?.dice || 0,
+        defenseDice: firstSide?.attack?.melee?.defense || 0,
+        meleeExpertise: 0,  // Will be in tree
+        rangedExpertise: 0, // Will be in tree
+        tree: stanceData.sides  // Store full sides array as JSON
+      };
+    } else {
+      // Old format - direct fields
+      console.log('🔍 Processing OLD stance format (direct fields)');
+      stanceUpdateData = {
+        attackDice: stanceData.attackDice || 0,
+        defenseDice: stanceData.defenseDice || 0,
+        meleeExpertise: 0,  // meleeExpertise should be Int, not array
+        rangedExpertise: 0, // rangedExpertise should be Int, not array
+        tree: stanceData.tree || {}  // Store tree as JSON
+      };
+    }
 
     console.log('🔍 Processed stance data:', JSON.stringify(stanceUpdateData, null, 2));
 
