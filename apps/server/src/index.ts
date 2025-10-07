@@ -867,7 +867,7 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) =>   res.json({
     ok: true,
-    version: "v1.7.3",
+    version: "v1.7.4",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
@@ -893,6 +893,97 @@ app.get("/health", (_req, res) =>   res.json({
 // ===== DEVELOPER ENDPOINTS =====
 // Secure developer endpoints - only accessible with secret key
 const DEV_SECRET_KEY = process.env.DEV_SECRET_KEY || 'dev-secret-key-2025';
+
+// Database diagnostic endpoint
+app.get("/api/admin/db-diagnostics", async (req, res) => {
+  try {
+    const charactersCount = await prisma.character.count();
+    const abilitiesCount = await prisma.characterAbility.count();
+    const stancesCount = await prisma.characterStance.count();
+    const collectionsCount = await prisma.characterCollection.count();
+    
+    res.json({
+      ok: true,
+      database: {
+        characters: charactersCount,
+        abilities: abilitiesCount,
+        stances: stancesCount,
+        collections: collectionsCount
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Database diagnostics error:', error);
+    res.status(500).json({ ok: false, error: 'Database connection failed' });
+  }
+});
+
+// Test specific character endpoint
+app.get("/api/admin/test-character/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check database
+    const dbCharacter = await prisma.character.findUnique({
+      where: { slug: id },
+      include: {
+        abilities: { orderBy: { order: 'asc' } },
+        stances: true
+      }
+    });
+    
+    // Check JSON fallback
+    let jsonCharacter = null;
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      
+      let dataPath = path.join(process.cwd(), 'characters_assets', id, 'data.json');
+      if (!fs.existsSync(dataPath)) {
+        dataPath = path.join(process.cwd(), '../client/characters_assets', id, 'data.json');
+      }
+      
+      if (fs.existsSync(dataPath)) {
+        jsonCharacter = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+      }
+    } catch (jsonError) {
+      console.error('JSON read error:', jsonError);
+    }
+    
+    res.json({
+      ok: true,
+      characterId: id,
+      database: {
+        exists: !!dbCharacter,
+        hasAbilities: dbCharacter?.abilities?.length || 0,
+        hasStance: !!dbCharacter?.stances?.length,
+        data: dbCharacter ? {
+          name: dbCharacter.name,
+          faction: dbCharacter.faction,
+          squadPoints: dbCharacter.squadPoints,
+          stamina: dbCharacter.stamina,
+          durability: dbCharacter.durability,
+          force: dbCharacter.force
+        } : null
+      },
+      json: {
+        exists: !!jsonCharacter,
+        data: jsonCharacter ? {
+          name: jsonCharacter.name,
+          faction: jsonCharacter.faction,
+          squad_points: jsonCharacter.squad_points,
+          stamina: jsonCharacter.stamina,
+          durability: jsonCharacter.durability,
+          force: jsonCharacter.force
+        } : null
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Character test error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
 
 const validateDevAccess = (req: Request, res: Response, next: NextFunction) => {
   const devKey = req.headers['x-dev-secret'] || req.query.dev_secret;
