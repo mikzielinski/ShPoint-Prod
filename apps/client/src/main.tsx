@@ -17,23 +17,40 @@ const originalFetch = window.fetch;
 window.fetch = async function(...args) {
   const [resource, config] = args;
   
+  // Only intercept requests to our API
+  const url = typeof resource === 'string' ? resource : resource.url;
+  const isApiRequest = url.includes('shpoint-prod.onrender.com') || url.includes('/api/');
+  
+  if (!isApiRequest) {
+    return originalFetch(resource, config);
+  }
+  
   // Get JWT token from localStorage
   const token = localStorage.getItem('shpoint_auth_token');
   
   // Add Authorization header if token exists
   if (token) {
     const headers = new Headers(config?.headers);
+    
+    // Only add if not already present
     if (!headers.has('Authorization')) {
       headers.set('Authorization', `Bearer ${token}`);
+      console.log('🔐 [Fetch Interceptor] Added Bearer token to:', url.substring(0, 60) + '...');
     }
     
+    // Ensure credentials are included
     return originalFetch(resource, {
       ...config,
+      credentials: config?.credentials || 'include',
       headers
     });
   }
   
-  return originalFetch(resource, config);
+  // No token - still ensure credentials for session-based auth
+  return originalFetch(resource, {
+    ...config,
+    credentials: config?.credentials || 'include'
+  });
 };
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
