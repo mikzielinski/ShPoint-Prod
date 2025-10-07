@@ -16,7 +16,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Build-Version = "v0.4.3"
+    X-Build-Version = "v0.4.4"
 
 # Disable Netlify's rate limiting for API calls - CACHE BUST v1.4.4
 [[headers]]
@@ -28,7 +28,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.7.3"
+    X-Cache-Bust = "v1.7.4"
 
 # Disable rate limiting for all API paths - CACHE BUST v1.4.4
 [[headers]]
@@ -40,7 +40,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.7.3"
+    X-Cache-Bust = "v1.7.4"
 
 # Disable rate limiting for auth paths - CACHE BUST v1.4.4
 [[headers]]
@@ -52,7 +52,7 @@
     Cache-Control = "no-cache, no-store, must-revalidate"
     Pragma = "no-cache"
     Expires = "0"
-    X-Cache-Bust = "v1.7.3"
+    X-Cache-Bust = "v1.7.4"
 
 [[redirects]]
   from = "/characters/*"
