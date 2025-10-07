@@ -12,6 +12,30 @@ import { initTheme } from "./theme/theme-init";
 
 initTheme();
 
+// Global fetch interceptor to add JWT token to all requests
+const originalFetch = window.fetch;
+window.fetch = async function(...args) {
+  const [resource, config] = args;
+  
+  // Get JWT token from localStorage
+  const token = localStorage.getItem('shpoint_auth_token');
+  
+  // Add Authorization header if token exists
+  if (token) {
+    const headers = new Headers(config?.headers);
+    if (!headers.has('Authorization')) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    
+    return originalFetch(resource, {
+      ...config,
+      headers
+    });
+  }
+  
+  return originalFetch(resource, config);
+};
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
