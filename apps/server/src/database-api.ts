@@ -105,20 +105,11 @@ export async function getCharacterById(req: Request, res: Response) {
           orderBy: { order: 'asc' }
         },
         stances: true,
-        characterCollections: {
-          where: { userId: req.user?.id },
-          take: 1
-        },
+        characterCollections: true,
         setCharacters: {
           include: {
             set: true
           }
-        },
-        createdByUser: {
-          select: { name: true, email: true }
-        },
-        updatedByUser: {
-          select: { name: true, email: true }
         }
       }
     });

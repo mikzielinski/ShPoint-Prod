@@ -2810,7 +2810,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
     
     // Check if character exists in database
     let character = await prisma.character.findUnique({
-      where: { id: characterId }
+      where: { slug: characterId }
     });
 
     // If character doesn't exist in database, try to create it from JSON data
@@ -2834,7 +2834,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
           
           // Get the created character
           character = await prisma.character.findUnique({
-            where: { id: characterId }
+            where: { slug: characterId }
           });
           
           console.log(`Successfully created character ${characterId} in database`);
@@ -2858,7 +2858,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
     const existingCollection = await prisma.characterCollection.findFirst({
       where: {
           userId,
-          characterId,
+          characterId: character.id, // Use UUID, not slug
         },
     });
 
@@ -2877,7 +2877,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       collection = await prisma.characterCollection.create({
         data: {
         userId,
-        characterId,
+        characterId: character.id, // Use UUID, not slug
         ...statusData,
         notes: notes || null,
       },
