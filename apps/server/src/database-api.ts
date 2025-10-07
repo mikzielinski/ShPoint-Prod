@@ -98,7 +98,8 @@ export async function getCharacterById(req: Request, res: Response) {
   try {
     const { id } = req.params;
 
-    const character = await prisma.character.findUnique({
+    // Try to find character in database first
+    let character = await prisma.character.findUnique({
       where: { slug: id },
       include: {
         abilities: {
@@ -114,8 +115,53 @@ export async function getCharacterById(req: Request, res: Response) {
       }
     });
 
+    // If not found in database, try to load from JSON and sync to database
     if (!character) {
-      return res.status(404).json({ ok: false, error: 'Character not found' });
+      console.log(`Character ${id} not found in database, attempting to load from JSON...`);
+      
+      try {
+        const fs = await import('fs');
+        const path = await import('path');
+        
+        // Try to load character data from JSON files
+        let dataPath = path.join(process.cwd(), 'characters_assets', id, 'data.json');
+        if (!fs.existsSync(dataPath)) {
+          dataPath = path.join(process.cwd(), '../client/characters_assets', id, 'data.json');
+        }
+        
+        if (fs.existsSync(dataPath)) {
+          const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          
+          // Use the sync function to create character in database
+          const { syncCharacterToDatabase } = await import('../index.js');
+          await syncCharacterToDatabase(id, characterData);
+          
+          // Try to get the character again from database
+          character = await prisma.character.findUnique({
+            where: { slug: id },
+            include: {
+              abilities: {
+                orderBy: { order: 'asc' }
+              },
+              stances: true,
+              characterCollections: true,
+              setCharacters: {
+                include: {
+                  set: true
+                }
+              }
+            }
+          });
+          
+          console.log(`Successfully synced character ${id} from JSON to database`);
+        }
+      } catch (syncError) {
+        console.error(`Failed to sync character ${id} from JSON:`, syncError);
+      }
+    }
+
+    if (!character) {
+      return res.status(404).json({ ok: false, error: 'Character not found in database or JSON files' });
     }
 
     res.json({
@@ -162,14 +208,47 @@ export async function getCharacterStance(req: Request, res: Response) {
     const { id } = req.params;
 
     // First find the character by slug
-    const character = await prisma.character.findUnique({
+    let character = await prisma.character.findUnique({
       where: { slug: id }
     });
+
+    // If character not found in database, try to sync from JSON
+    if (!character) {
+      console.log(`Character ${id} not found in database for stance, attempting to load from JSON...`);
+      
+      try {
+        const fs = await import('fs');
+        const path = await import('path');
+        
+        // Try to load character data from JSON files
+        let dataPath = path.join(process.cwd(), 'characters_assets', id, 'data.json');
+        if (!fs.existsSync(dataPath)) {
+          dataPath = path.join(process.cwd(), '../client/characters_assets', id, 'data.json');
+        }
+        
+        if (fs.existsSync(dataPath)) {
+          const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          
+          // Use the sync function to create character in database
+          const { syncCharacterToDatabase } = await import('../index.js');
+          await syncCharacterToDatabase(id, characterData);
+          
+          // Try to get the character again from database
+          character = await prisma.character.findUnique({
+            where: { slug: id }
+          });
+          
+          console.log(`Successfully synced character ${id} from JSON for stance`);
+        }
+      } catch (syncError) {
+        console.error(`Failed to sync character ${id} from JSON for stance:`, syncError);
+      }
+    }
 
     if (!character) {
       return res.status(404).json({ 
         ok: false, 
-        error: 'Character not found' 
+        error: 'Character not found in database or JSON files' 
       });
     }
 
@@ -180,7 +259,7 @@ export async function getCharacterStance(req: Request, res: Response) {
     });
 
     if (!stance) {
-      return res.status(404).json({ ok: false, error: 'Stance not found' });
+      return res.status(404).json({ ok: false, error: 'Stance not found in database' });
     }
 
     res.json({

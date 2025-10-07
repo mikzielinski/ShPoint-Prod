@@ -681,12 +681,11 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
     
     // Check if character exists in database
     let character = await prisma.character.findUnique({
-      where: { id: characterId }
+      where: { slug: characterId }
     });
     
     // Create or update character
     const characterPayload = {
-      id: characterId,
       slug: characterId,
       name: characterData.name || 'Unknown Character',
       faction: characterData.faction || 'Unknown',
@@ -710,7 +709,7 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
     if (character) {
       // Update existing character
       character = await prisma.character.update({
-        where: { id: characterId },
+        where: { slug: characterId },
         data: characterPayload
       });
       console.log(`📝 Updated character ${characterId} in database`);
@@ -726,7 +725,7 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
     if (characterData.abilities && Array.isArray(characterData.abilities)) {
       // Delete existing abilities
       await prisma.characterAbility.deleteMany({
-        where: { characterId: characterId }
+        where: { characterId: character.id }
       });
       
       // Create new abilities
@@ -734,7 +733,7 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
         const ability = characterData.abilities[i];
         await prisma.characterAbility.create({
           data: {
-            characterId: characterId,
+            characterId: character.id,
             name: ability.name,
             type: ability.type,
             symbol: ability.symbol,
@@ -763,7 +762,7 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
       if (stanceData && stanceData.dice) {
         // Update or create stance
         await prisma.characterStance.upsert({
-          where: { characterId: characterId },
+          where: { characterId: character.id },
           update: {
             attackDice: stanceData.dice.attack || 0,
             defenseDice: stanceData.dice.defense || 0,
@@ -772,7 +771,7 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
             tree: stanceData.tree || []
           },
           create: {
-            characterId: characterId,
+            characterId: character.id,
             attackDice: stanceData.dice.attack || 0,
             defenseDice: stanceData.dice.defense || 0,
             meleeExpertise: stanceData.expertise?.melee || 0,
