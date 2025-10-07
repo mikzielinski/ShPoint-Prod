@@ -2,6 +2,7 @@
 import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import { parseVersionToInt, asStringOrFirst } from './utils/parseVersion.js';
+import { signUser, verifyToken } from './jwt.js';
 // import { User } from "@prisma/client";
 
 // Extend Express Request interface
@@ -10,7 +11,7 @@ declare global {
     interface User {
       id: string;
       email: string;
-      name: string | null;
+      name?: string | null;
       role: string;
       status: string;
       suspendedUntil: Date | null;
