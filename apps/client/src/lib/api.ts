@@ -4,15 +4,61 @@ import { API_ORIGIN, api } from './env';
 // Re-export api function for backward compatibility
 export { api };
 
+// Helper function to add Authorization header with JWT token
+export function getAuthHeaders(additionalHeaders?: Record<string, string>): Record<string, string> {
+  const token = localStorage.getItem('shpoint_auth_token');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...additionalHeaders
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+}
+
+// Authenticated fetch wrapper
+export async function fetchWithAuth(url: string, init?: RequestInit): Promise<Response> {
+  const token = localStorage.getItem('shpoint_auth_token');
+  const headers: Record<string, string> = {
+    ...((init?.headers as Record<string, string>) || {})
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return fetch(url, {
+    ...init,
+    credentials: 'include',
+    headers
+  });
+}
+
 // lekki retry dla endpointów, które „czasem nie ładują"
 export async function apiWithRetry(path: string, init: RequestInit = {}, tries = 3): Promise<Response> {
   let lastErr: unknown;
   for (let i = 0; i < tries; i++) {
     try {
       const url = api(path);
+      
+      // Get JWT token from localStorage
+      const token = localStorage.getItem('shpoint_auth_token');
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(init.headers as Record<string, string> || {})
+      };
+      
+      // Add Authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
       const res = await fetch(url, {
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json', ...(init.headers || {}) },
+        headers,
         ...init,
       });
       
@@ -47,9 +93,22 @@ type Json = Record<string, unknown> | unknown[];
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const url = api(path);
+  
+  // Get JWT token from localStorage
+  const token = localStorage.getItem('shpoint_auth_token');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(init?.headers as Record<string, string> || {})
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   const res = await fetch(url, {
     credentials: 'include',                    // <-- konieczne
-    headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
+    headers,
     ...init,
   });
 

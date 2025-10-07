@@ -515,7 +515,7 @@ function requireScope(requiredScopes: string[]) {
   };
 }
 
-function ensureAuth(req: Request, res: Response, next: NextFunction) {
+async function ensureAuth(req: Request, res: Response, next: NextFunction) {
   // @ts-ignore
   console.log('🔍 ensureAuth - req.user:', req.user);
   // @ts-ignore
@@ -525,6 +525,46 @@ function ensureAuth(req: Request, res: Response, next: NextFunction) {
   // @ts-ignore
   console.log('🔍 ensureAuth - req.session keys:', Object.keys(req.session || {}));
   console.log('🔍 ensureAuth - cookies:', req.headers.cookie);
+  
+  // Check for JWT token in Authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    console.log('🔍 ensureAuth - found Bearer token in header');
+    
+    try {
+      const payload = verifyToken<{ id: string; email?: string; name?: string }>(token);
+      
+      if (payload && payload.id) {
+        console.log('✅ ensureAuth - JWT token verified for:', payload.email);
+        
+        // Fetch user from database
+        const user = await prisma.user.findUnique({
+          where: { id: payload.id }
+        });
+        
+        if (user) {
+          console.log('✅ ensureAuth - user found in database:', user.email);
+          // @ts-ignore
+          req.user = user;
+          
+          // Check if user is trusted
+          const trustedEmails = ['mikzielinski@gmail.com'];
+          if (trustedEmails.includes(user.email)) {
+            console.log('🛡️ Trusted user detected:', user.email);
+            // @ts-ignore
+            req.user.isTrusted = true;
+          }
+          
+          return next();
+        } else {
+          console.log('❌ ensureAuth - user not found in database');
+        }
+      }
+    } catch (error) {
+      console.log('❌ ensureAuth - JWT token verification failed:', error);
+    }
+  }
   
   // Debug Passport deserialization
   if ((req.session as any)?.passport?.user) {
