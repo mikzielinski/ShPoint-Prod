@@ -2318,7 +2318,7 @@ app.get(
       const token = signUser({
         id: req.user.id,
         email: req.user.email,
-        name: req.user.name
+        name: (req.user as any).name || req.user.username || null
       });
       
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
