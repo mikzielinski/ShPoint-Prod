@@ -312,6 +312,9 @@ export async function updateCharacterStance(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const stanceData = req.body;
+    
+    console.log('🔍 updateCharacterStance - characterId:', id);
+    console.log('🔍 updateCharacterStance - stanceData:', JSON.stringify(stanceData, null, 2));
 
     // First find the character by slug
     const character = await prisma.character.findUnique({
@@ -319,43 +322,59 @@ export async function updateCharacterStance(req: Request, res: Response) {
     });
 
     if (!character) {
+      console.log('❌ Character not found:', id);
       return res.status(404).json({ 
         ok: false, 
         error: 'Character not found' 
       });
     }
 
+    console.log('✅ Character found:', character.id, character.name);
+
+    // Handle new stance structure with 'sides' array
+    const stanceUpdateData = {
+      attackDice: stanceData.attackDice || 0,
+      defenseDice: stanceData.defenseDice || 0,
+      meleeExpertise: stanceData.meleeExpertise || 0,
+      rangedExpertise: stanceData.rangedExpertise || 0,
+      tree: stanceData.sides || stanceData.tree || []  // Support both 'sides' and 'tree'
+    };
+
+    console.log('🔍 Processed stance data:', JSON.stringify(stanceUpdateData, null, 2));
+
     // Update or create stance
     const stance = await prisma.characterStance.upsert({
       where: { 
         characterId: character.id
       },
-      update: {
-        attackDice: stanceData.attackDice || 0,
-        defenseDice: stanceData.defenseDice || 0,
-        meleeExpertise: stanceData.meleeExpertise || 0,
-        rangedExpertise: stanceData.rangedExpertise || 0,
-        tree: stanceData.tree || []
-      },
+      update: stanceUpdateData,
       create: {
         characterId: character.id,
-        attackDice: stanceData.attackDice || 0,
-        defenseDice: stanceData.defenseDice || 0,
-        meleeExpertise: stanceData.meleeExpertise || 0,
-        rangedExpertise: stanceData.rangedExpertise || 0,
-        tree: stanceData.tree || []
+        ...stanceUpdateData
       }
     });
+
+    console.log('✅ Stance upserted successfully:', stance.id);
 
     res.json({
       ok: true,
       message: 'Stance updated successfully',
-      stance
+      characterId: character.slug
     });
 
   } catch (error: any) {
-    console.error('❌ Error updating character stance:', error);
-    res.status(500).json({ ok: false, error: error.message });
+    console.error('❌ Error updating character stance:', {
+      characterId: req.params.id,
+      error: error.message,
+      code: error.code,
+      meta: error.meta
+    });
+    res.status(500).json({ 
+      ok: false, 
+      error: error.message,
+      code: error.code,
+      meta: error.meta
+    });
   }
 }
 
@@ -478,9 +497,31 @@ export async function updateCharacter(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    
+    console.log('🔍 updateCharacter - characterId:', id);
+    console.log('🔍 updateCharacter - updateData keys:', Object.keys(updateData));
 
     // Remove abilities and stance from update data (handled separately)
     const { abilities, stance, ...characterData } = updateData;
+    
+    // Normalize unit_type: ensure it's a string, not an array
+    if (characterData.unitType) {
+      if (Array.isArray(characterData.unitType)) {
+        characterData.unitType = characterData.unitType[0];
+        console.log('🔧 Normalized unitType from array to:', characterData.unitType);
+      }
+    }
+    
+    // Normalize unit_type field (some parts of frontend use unit_type, some unitType)
+    if (characterData.unit_type) {
+      if (Array.isArray(characterData.unit_type)) {
+        characterData.unitType = characterData.unit_type[0];
+      } else {
+        characterData.unitType = characterData.unit_type;
+      }
+      delete characterData.unit_type;
+      console.log('🔧 Normalized unit_type to unitType:', characterData.unitType);
+    }
 
     // Update or create character
     const character = await prisma.character.upsert({
@@ -503,22 +544,25 @@ export async function updateCharacter(req: Request, res: Response) {
         force: characterData.force || null,
         hanker: characterData.hanker || null,
         boxSetCode: characterData.boxSetCode || null,
-        characterNames: characterData.characterNames || [],
+        characterNames: characterData.characterNames || '',
         numberOfCharacters: characterData.numberOfCharacters || 1,
-        era: characterData.era || null,
+        era: characterData.era || [],
         period: characterData.period || [],
         tags: characterData.tags || [],
+        factions: characterData.factions || [],
         portraitUrl: characterData.portraitUrl || null,
         imageUrl: characterData.imageUrl || null,
-        abilities: characterData.abilities || [],
         version: 1,
         createdBy: req.user?.id,
         updatedBy: req.user?.id
       }
     });
 
+    console.log('✅ Character upserted:', character.id, character.name);
+
     // Update abilities if provided
     if (abilities && Array.isArray(abilities)) {
+      console.log('🔍 Updating abilities, count:', abilities.length);
       // Delete existing abilities
       await prisma.characterAbility.deleteMany({
         where: { characterId: character.id }
@@ -543,10 +587,12 @@ export async function updateCharacter(req: Request, res: Response) {
           }
         });
       }
+      console.log('✅ Abilities updated');
     }
 
     // Update stance if provided
     if (stance) {
+      console.log('🔍 Updating stance');
       await prisma.characterStance.upsert({
         where: { characterId: character.id },
         update: {
@@ -554,7 +600,7 @@ export async function updateCharacter(req: Request, res: Response) {
           defenseDice: stance.defenseDice || 0,
           meleeExpertise: stance.meleeExpertise || 0,
           rangedExpertise: stance.rangedExpertise || 0,
-          tree: stance.tree || []
+          tree: stance.sides || stance.tree || []  // Support both 'sides' and 'tree'
         },
         create: {
           characterId: character.id,
@@ -562,9 +608,10 @@ export async function updateCharacter(req: Request, res: Response) {
           defenseDice: stance.defenseDice || 0,
           meleeExpertise: stance.meleeExpertise || 0,
           rangedExpertise: stance.rangedExpertise || 0,
-          tree: stance.tree || []
+          tree: stance.sides || stance.tree || []  // Support both 'sides' and 'tree'
         }
       });
+      console.log('✅ Stance updated');
     }
 
     // Return updated character with relations
@@ -578,14 +625,28 @@ export async function updateCharacter(req: Request, res: Response) {
       }
     });
 
+    console.log('✅ updateCharacter completed successfully');
+
     res.json({
       ok: true,
+      characterId: character.slug,
       character: updatedCharacter
     });
 
   } catch (error: any) {
-    console.error('❌ Error updating character:', error);
-    res.status(500).json({ ok: false, error: error.message });
+    console.error('❌ Error updating character:', {
+      characterId: req.params.id,
+      error: error.message,
+      code: error.code,
+      meta: error.meta,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      ok: false, 
+      error: error.message,
+      code: error.code,
+      meta: error.meta
+    });
   }
 }
 
