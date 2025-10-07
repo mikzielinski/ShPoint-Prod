@@ -133,7 +133,7 @@ export async function getCharacterById(req: Request, res: Response) {
           const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
           
           // Use the sync function to create character in database
-          const { syncCharacterToDatabase } = await import('../index.js');
+          const { syncCharacterToDatabase } = await import('./index.js');
           await syncCharacterToDatabase(id, characterData);
           
           // Try to get the character again from database
@@ -230,7 +230,7 @@ export async function getCharacterStance(req: Request, res: Response) {
           const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
           
           // Use the sync function to create character in database
-          const { syncCharacterToDatabase } = await import('../index.js');
+          const { syncCharacterToDatabase } = await import('./index.js');
           await syncCharacterToDatabase(id, characterData);
           
           // Try to get the character again from database
@@ -752,15 +752,4 @@ function createSlug(name: string): string {
     .trim();
 }
 
-// Extend Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-        role: string;
-      };
-    }
-  }
-}
+// User type is extended in index.ts - no need to redeclare here

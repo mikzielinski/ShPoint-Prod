@@ -674,7 +674,7 @@ async function syncCharactersUnified() {
 }
 
 // 🔥 NEW: Function to sync individual character to database
-async function syncCharacterToDatabase(characterId: string, characterData: any) {
+export async function syncCharacterToDatabase(characterId: string, characterData: any) {
   try {
     const fs = await import('fs');
     const path = await import('path');
@@ -759,27 +759,40 @@ async function syncCharacterToDatabase(characterId: string, characterData: any) 
     if (fs.existsSync(stancePath)) {
       const stanceData = JSON.parse(fs.readFileSync(stancePath, 'utf8'));
       
-      if (stanceData && stanceData.dice) {
-        // Update or create stance
-        await prisma.characterStance.upsert({
-          where: { characterId: character.id },
-          update: {
-            attackDice: stanceData.dice.attack || 0,
-            defenseDice: stanceData.dice.defense || 0,
-            meleeExpertise: stanceData.expertise?.melee || 0,
-            rangedExpertise: stanceData.expertise?.ranged || 0,
-            tree: stanceData.tree || []
-          },
-          create: {
-            characterId: character.id,
-            attackDice: stanceData.dice.attack || 0,
-            defenseDice: stanceData.dice.defense || 0,
-            meleeExpertise: stanceData.expertise?.melee || 0,
-            rangedExpertise: stanceData.expertise?.ranged || 0,
-            tree: stanceData.tree || []
-          }
-        });
-        console.log(`⚔️ Synced stance data for ${characterId}`);
+      // Parse stance data - structure has sides[] array
+      if (stanceData && stanceData.sides && Array.isArray(stanceData.sides)) {
+        // Use first side as primary stance
+        const primarySide = stanceData.sides[0];
+        if (primarySide) {
+          // Extract dice values from attack/defense
+          const attackDice = primarySide.attack?.melee?.dice || primarySide.attack?.ranged?.dice || 0;
+          const defenseDice = primarySide.defense?.dice || 0;
+          
+          // Extract expertise values (simplified - just count expertise entries)
+          const meleeExpertise = primarySide.attack?.melee?.expertise?.length || 0;
+          const rangedExpertise = primarySide.attack?.ranged?.expertise?.length || 0;
+          
+          // Update or create stance
+          await prisma.characterStance.upsert({
+            where: { characterId: character.id },
+            update: {
+              attackDice,
+              defenseDice,
+              meleeExpertise,
+              rangedExpertise,
+              tree: primarySide.tree || []
+            },
+            create: {
+              characterId: character.id,
+              attackDice,
+              defenseDice,
+              meleeExpertise,
+              rangedExpertise,
+              tree: primarySide.tree || []
+            }
+          });
+          console.log(`⚔️ Synced stance data for ${characterId}: attackDice=${attackDice}, defenseDice=${defenseDice}`);
+        }
       }
     }
     
@@ -867,7 +880,7 @@ function setInvitationLimits(user: any) {
  */
 app.get("/health", (_req, res) =>   res.json({
     ok: true,
-    version: "v1.7.4",
+    version: "v1.7.5",
   hasPendingGamesEndpoint: true,
   hasAgentTestingEndpoint: true,
   hasChallengeAcceptReject: true,
@@ -956,7 +969,7 @@ app.get("/api/admin/test-character/:id", async (req, res) => {
       database: {
         exists: !!dbCharacter,
         hasAbilities: dbCharacter?.abilities?.length || 0,
-        hasStance: !!dbCharacter?.stances?.length,
+        hasStance: !!dbCharacter?.stances,
         data: dbCharacter ? {
           name: dbCharacter.name,
           faction: dbCharacter.faction,
