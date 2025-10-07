@@ -2315,10 +2315,11 @@ app.get(
       const frontendUrl = getFrontendUrl(req.get('origin'));
       
       // Generate JWT token for cross-origin authentication
+      const user = req.user as any;
       const token = signUser({
-        id: req.user.id,
-        email: req.user.email,
-        name: (req.user as any).name || req.user.username || null
+        id: user.id,
+        email: user.email,
+        name: user.name || user.username || null
       });
       
       console.log('🔍 Google OAuth callback - returnTo from session:', (req.session as any).returnTo);
