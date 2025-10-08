@@ -115,7 +115,7 @@ export default function CharacterModal({ open, onClose, id, character }: Props) 
               portrait: char.portraitUrl,
               image: char.imageUrl,
               abilities: char.abilities || [],
-              structuredAbilities: char.abilities?.filter((a: any) => a.order >= 1000) || [],
+              structuredAbilities: char.abilities || [],
               version: char.version,
               createdAt: char.createdAt,
               updatedAt: char.updatedAt
