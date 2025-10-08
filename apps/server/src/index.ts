@@ -7899,6 +7899,24 @@ app.post("/api/v2/api-tokens", ensureAuth, addUserToRequest, createApiToken);
 app.put("/api/v2/api-tokens/:id", ensureAuth, addUserToRequest, updateApiToken);
 app.delete("/api/v2/api-tokens/:id", ensureAuth, addUserToRequest, deleteApiToken);
 
+// Debug endpoint to check sets in database
+app.get("/api/dev/check-sets", validateDevAccess, async (req, res) => {
+  try {
+    const sets = await prisma.set.findMany({
+      select: { id: true, name: true, code: true }
+    });
+    
+    res.json({
+      ok: true,
+      setsCount: sets.length,
+      sets: sets
+    });
+  } catch (error) {
+    console.error('Check sets error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Fix character collections - convert UUID characterId to slug
 app.post("/api/dev/fix-character-collections", validateDevAccess, async (req, res) => {
   try {
