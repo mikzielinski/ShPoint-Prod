@@ -3251,15 +3251,25 @@ app.patch("/api/shatterpoint/characters/:collectionId/stats", ensureAuth, async 
 app.get("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
   try {
     // @ts-ignore
-    const userId = req.user.id;
+    console.log('🔍 GET /api/shatterpoint/sets - req.user:', req.user);
+    // @ts-ignore
+    const userId = req.user?.id;
+    console.log('🔍 GET /api/shatterpoint/sets - userId:', userId);
+    
+    if (!userId) {
+      console.error('❌ GET /api/shatterpoint/sets - No userId found');
+      return res.status(401).json({ ok: false, error: "User ID not found" });
+    }
+    
     const setCollections = await prisma.setCollection.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
     
+    console.log('✅ GET /api/shatterpoint/sets - Found collections:', setCollections.length);
     res.json({ ok: true, collections: setCollections });
   } catch (error) {
-    console.error("Error fetching set collections:", error);
+    console.error("❌ Error fetching set collections:", error);
     res.status(500).json({ ok: false, error: "Failed to fetch set collections" });
   }
 });
@@ -3268,7 +3278,10 @@ app.get("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
 app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
   try {
     // @ts-ignore
-    const userId = req.user.id;
+    console.log('🔍 POST /api/shatterpoint/sets - req.user:', req.user);
+    // @ts-ignore
+    const userId = req.user?.id;
+    console.log('🔍 POST /api/shatterpoint/sets - userId:', userId);
     const { setId, status, isOwned, isPainted, isWishlist, isSold, isFavorite, notes } = req.body;
     
     if (!setId) {
@@ -5572,7 +5585,10 @@ app.get("/api/missions", async (req, res) => {
 app.get("/api/shatterpoint/missions", ensureAuth, async (req, res) => {
   try {
     // @ts-ignore
-    const userId = req.user.id;
+    console.log('🔍 GET /api/shatterpoint/missions - req.user:', req.user);
+    // @ts-ignore
+    const userId = req.user?.id;
+    console.log('🔍 GET /api/shatterpoint/missions - userId:', userId);
     
     const missionCollections = await prisma.missionCollection.findMany({
       where: { userId },
@@ -5596,7 +5612,10 @@ app.get("/api/shatterpoint/missions", ensureAuth, async (req, res) => {
 app.post("/api/shatterpoint/missions", ensureAuth, async (req, res) => {
   try {
     // @ts-ignore
-    const userId = req.user.id;
+    console.log('🔍 POST /api/shatterpoint/missions - req.user:', req.user);
+    // @ts-ignore
+    const userId = req.user?.id;
+    console.log('🔍 POST /api/shatterpoint/missions - userId:', userId);
     const { missionId, isOwned, isCompleted, isWishlist, isLocked, isFavorite, notes } = req.body;
     
     if (!missionId) {
