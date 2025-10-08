@@ -99,6 +99,30 @@
   force = true
   headers = {X-From = "Netlify"}
 
+# API v2 proxy - achievements, players, etc.
+[[redirects]]
+  from = "/api/v2/*"
+  to = "https://shpoint-prod.onrender.com/api/v2/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# API shatterpoint proxy - characters, sets, missions
+[[redirects]]
+  from = "/api/shatterpoint/*"
+  to = "https://shpoint-prod.onrender.com/api/shatterpoint/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
+# General API proxy (fallback for other /api/* endpoints)
+[[redirects]]
+  from = "/api/*"
+  to = "https://shpoint-prod.onrender.com/api/:splat"
+  status = 200
+  force = true
+  headers = {X-From = "Netlify"}
+
 # Google Search Console verification file - must be served directly
 [[redirects]]
   from = "/google29ee34408b7b694e.html"
