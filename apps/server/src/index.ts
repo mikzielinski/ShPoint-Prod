@@ -319,8 +319,10 @@ const authenticateBearerToken = async (req: Request, res: Response, next: NextFu
   
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
+    console.log('🔍 authenticateBearerToken - Bearer token found, length:', token.length);
     
     try {
+      // First try API token (for API access)
       const apiToken = await (prisma as any).apiToken.findUnique({
         where: { token },
         include: {
@@ -329,6 +331,7 @@ const authenticateBearerToken = async (req: Request, res: Response, next: NextFu
       });
       
       if (apiToken && apiToken.isActive && (!apiToken.expiresAt || apiToken.expiresAt > new Date())) {
+        console.log('✅ authenticateBearerToken - API token found for user:', apiToken.user.email);
         // Update last used timestamp
         await (prisma as any).apiToken.update({
           where: { id: apiToken.id },
@@ -340,8 +343,33 @@ const authenticateBearerToken = async (req: Request, res: Response, next: NextFu
         req.user = apiToken.user;
         return next();
       }
+      
+      // If not API token, try JWT token (for Google OAuth)
+      console.log('🔍 authenticateBearerToken - Not an API token, trying JWT...');
+      const payload = verifyToken<{ id: string; email?: string; name?: string }>(token);
+      
+      if (payload && payload.id) {
+        console.log('✅ authenticateBearerToken - JWT token verified for:', payload.email);
+        
+        // Fetch user from database
+        const user = await prisma.user.findUnique({
+          where: { id: payload.id }
+        });
+        
+        if (user) {
+          console.log('✅ authenticateBearerToken - user found in database:', user.email);
+          // @ts-ignore
+          req.user = user;
+          return next();
+        } else {
+          console.log('❌ authenticateBearerToken - user not found in database for JWT payload:', payload.id);
+        }
+      } else {
+        console.log('❌ authenticateBearerToken - JWT token verification failed');
+      }
+      
     } catch (error) {
-      console.error('Bearer token authentication error:', error);
+      console.error('❌ authenticateBearerToken - Bearer token authentication error:', error);
     }
   }
   
@@ -522,60 +550,12 @@ async function ensureAuth(req: Request, res: Response, next: NextFunction) {
   console.log('🔍 ensureAuth - req.session:', req.session?.id);
   // @ts-ignore
   console.log('🔍 ensureAuth - req.session.passport:', (req.session as any)?.passport);
-  // @ts-ignore
-  console.log('🔍 ensureAuth - req.session keys:', Object.keys(req.session || {}));
-  console.log('🔍 ensureAuth - cookies:', req.headers.cookie);
   
-  // Check for JWT token in Authorization header
-  const authHeader = req.headers.authorization;
-  console.log('🔍 ensureAuth - Authorization header:', authHeader);
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    console.log('🔍 ensureAuth - found Bearer token in header, length:', token.length);
-    
-    try {
-      const payload = verifyToken<{ id: string; email?: string; name?: string }>(token);
-      
-      if (payload && payload.id) {
-        console.log('✅ ensureAuth - JWT token verified for:', payload.email);
-        
-        // Fetch user from database
-        const user = await prisma.user.findUnique({
-          where: { id: payload.id }
-        });
-        
-        if (user) {
-          console.log('✅ ensureAuth - user found in database:', user.email);
-          // @ts-ignore
-          req.user = user;
-          
-          // Check if user is trusted
-          const trustedEmails = ['mikzielinski@gmail.com'];
-          if (trustedEmails.includes(user.email)) {
-            console.log('🛡️ Trusted user detected:', user.email);
-            // @ts-ignore
-            req.user.isTrusted = true;
-          }
-          
-          return next();
-        } else {
-          console.log('❌ ensureAuth - user not found in database');
-        }
-      }
-    } catch (error) {
-      console.log('❌ ensureAuth - JWT token verification failed:', error);
-    }
-  }
-  
-  // Debug Passport deserialization
-  if ((req.session as any)?.passport?.user) {
-    console.log('🔍 Passport user ID in session:', (req.session as any).passport.user.id);
-  } else {
-    console.log('🔍 No Passport user in session - deserialization may have failed');
-  }
-  
+  // Check if user is already authenticated (by authenticateBearerToken middleware)
   // @ts-ignore
   if (req.user) {
+    console.log('✅ ensureAuth - user already authenticated:', req.user.email);
+    
     // Check if user is trusted (bypasses all security measures)
     const trustedEmails = [
       'mikzielinski@gmail.com' // Main developer - bypass all security
@@ -590,6 +570,14 @@ async function ensureAuth(req: Request, res: Response, next: NextFunction) {
     
     return next();
   }
+  
+  // Debug Passport deserialization
+  if ((req.session as any)?.passport?.user) {
+    console.log('🔍 Passport user ID in session:', (req.session as any).passport.user.id);
+  } else {
+    console.log('🔍 No Passport user in session - deserialization may have failed');
+  }
+  
   return res.status(401).json({ ok: false, error: "unauthorized" });
 }
 
