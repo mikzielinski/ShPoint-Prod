@@ -993,6 +993,63 @@ app.post("/api/admin/force-sync-character/:id", async (req, res) => {
   }
 });
 
+// Fix character collections - convert UUID characterId to slug
+app.post("/api/dev/fix-character-collections", validateDevAccess, async (req, res) => {
+  try {
+    console.log('🔧 Fixing character collections - converting UUID characterId to slug');
+    
+    // Get all character collections
+    const collections = await prisma.characterCollection.findMany();
+    console.log(`📊 Found ${collections.length} character collections to fix`);
+    
+    let fixedCount = 0;
+    let errorCount = 0;
+    
+    for (const collection of collections) {
+      try {
+        // Check if characterId is a UUID (starts with 'cmg')
+        if (collection.characterId.startsWith('cmg')) {
+          // Find character by UUID
+          const character = await prisma.character.findUnique({
+            where: { id: collection.characterId }
+          });
+          
+          if (character) {
+            // Update collection to use slug instead of UUID
+            await prisma.characterCollection.update({
+              where: { id: collection.id },
+              data: { characterId: character.slug }
+            });
+            
+            console.log(`✅ Fixed collection ${collection.id}: ${collection.characterId} -> ${character.slug}`);
+            fixedCount++;
+          } else {
+            console.log(`❌ Character not found for UUID: ${collection.characterId}`);
+            errorCount++;
+          }
+        } else {
+          console.log(`⏭️ Collection ${collection.id} already uses slug: ${collection.characterId}`);
+        }
+      } catch (error) {
+        console.error(`❌ Error fixing collection ${collection.id}:`, error);
+        errorCount++;
+      }
+    }
+    
+    res.json({
+      ok: true,
+      message: `Fixed ${fixedCount} collections, ${errorCount} errors`,
+      fixedCount,
+      errorCount,
+      total: collections.length
+    });
+    
+  } catch (error) {
+    console.error('Fix character collections error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Test specific character endpoint
 app.get("/api/admin/test-character/:id", async (req, res) => {
   try {
@@ -3127,7 +3184,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
     const existingCollection = await prisma.characterCollection.findFirst({
       where: {
           userId,
-          characterId: character.id, // Use UUID, not slug
+          characterId: character.slug, // Use slug, not UUID
         },
     });
 
@@ -3146,7 +3203,7 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
       collection = await prisma.characterCollection.create({
         data: {
         userId,
-        characterId: character.id, // Use UUID, not slug
+        characterId: character.slug, // Use slug, not UUID
         ...statusData,
         notes: notes || null,
       },
