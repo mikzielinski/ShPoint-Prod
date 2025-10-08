@@ -55,10 +55,16 @@
     X-Cache-Bust = "v1.7.5"
 
 [[redirects]]
-  from = "/characters/*"
+  from = "/characters/*.json"
   to = "https://shpoint-prod.onrender.com/characters/:splat"
   status = 200
   force = true
+
+# Redirect /characters/ to React app (not backend)
+[[redirects]]
+  from = "/characters/"
+  to = "/index.html"
+  status = 200
 
 [[redirects]]
   from = "/characters_assets/*"
