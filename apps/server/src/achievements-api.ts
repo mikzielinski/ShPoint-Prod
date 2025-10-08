@@ -3,6 +3,125 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Check and update user achievements based on their current progress
+export async function checkUserAchievements(userId: string) {
+  try {
+    console.log(`🏆 Checking achievements for user: ${userId}`);
+    
+    // Get all achievements
+    const achievements = await prisma.achievement.findMany({
+      where: { isActive: true }
+    });
+    
+    // Get user's current stats
+    const characterCollections = await prisma.characterCollection.findMany({
+      where: { userId }
+    });
+    
+    const setCollections = await prisma.setCollection.findMany({
+      where: { userId }
+    });
+    
+    const missionCollections = await prisma.missionCollection.findMany({
+      where: { userId }
+    });
+    
+    const strikeTeams = await prisma.strikeTeam.findMany({
+      where: { userId }
+    });
+    
+    // Calculate current stats
+    const ownedCharacters = characterCollections.filter(c => c.isOwned).length;
+    const paintedCharacters = characterCollections.filter(c => c.isPainted).length;
+    const ownedSets = setCollections.filter(c => c.isOwned).length;
+    const ownedMissions = missionCollections.filter(c => c.isOwned).length;
+    const createdStrikeTeams = strikeTeams.length;
+    
+    console.log(`📊 User stats:`, {
+      ownedCharacters,
+      paintedCharacters,
+      ownedSets,
+      ownedMissions,
+      createdStrikeTeams
+    });
+    
+    // Check each achievement
+    for (const achievement of achievements) {
+      const conditions = achievement.conditions as any;
+      
+      let currentProgress = 0;
+      let shouldUnlock = false;
+      
+      switch (conditions.type) {
+        case 'characters_owned':
+          currentProgress = ownedCharacters;
+          shouldUnlock = ownedCharacters >= conditions.count;
+          break;
+        case 'characters_painted':
+          currentProgress = paintedCharacters;
+          shouldUnlock = paintedCharacters >= conditions.count;
+          break;
+        case 'sets_owned':
+          currentProgress = ownedSets;
+          shouldUnlock = ownedSets >= conditions.count;
+          break;
+        case 'missions_owned':
+          currentProgress = ownedMissions;
+          shouldUnlock = ownedMissions >= conditions.count;
+          break;
+        case 'strike_teams_created':
+          currentProgress = createdStrikeTeams;
+          shouldUnlock = createdStrikeTeams >= conditions.count;
+          break;
+        default:
+          console.log(`⚠️ Unknown achievement condition type: ${conditions.type}`);
+          continue;
+      }
+      
+      // Get or create user achievement record
+      let userAchievement = await prisma.userAchievement.findFirst({
+        where: {
+          userId,
+          achievementId: achievement.id
+        }
+      });
+      
+      if (!userAchievement) {
+        userAchievement = await prisma.userAchievement.create({
+          data: {
+            userId,
+            achievementId: achievement.id,
+            progress: currentProgress,
+            isCompleted: shouldUnlock
+          }
+        });
+        console.log(`📝 Created user achievement record for: ${achievement.name}`);
+      } else {
+        // Update progress
+        const updatedUserAchievement = await prisma.userAchievement.update({
+          where: { id: userAchievement.id },
+          data: {
+            progress: currentProgress,
+            isCompleted: shouldUnlock,
+            unlockedAt: shouldUnlock && !userAchievement.isCompleted ? new Date() : userAchievement.unlockedAt
+          }
+        });
+        
+        if (shouldUnlock && !userAchievement.isCompleted) {
+          console.log(`🎉 Achievement unlocked: ${achievement.name} for user ${userId}`);
+        }
+        
+        userAchievement = updatedUserAchievement;
+      }
+    }
+    
+    console.log(`✅ Achievement check completed for user: ${userId}`);
+    
+  } catch (error) {
+    console.error(`❌ Error checking achievements for user ${userId}:`, error);
+  }
+}
+
 // Get all achievements with user progress and community stats
 export async function getAllAchievements(req: Request, res: Response) {
   try {

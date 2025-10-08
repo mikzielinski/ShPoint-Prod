@@ -121,7 +121,8 @@ import {
   createAchievement, 
   updateAchievement, 
   deleteAchievement,
-  seedDefaultAchievements 
+  seedDefaultAchievements,
+  checkUserAchievements 
 } from "./achievements-api.js";
 import { 
   logDiceRoll, 
@@ -3143,6 +3144,15 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
     }
     
     console.log("Character collection created/updated:", collection);
+    
+    // Check achievements after adding character to collection
+    try {
+      await checkUserAchievements(userId);
+    } catch (error) {
+      console.error("Error checking achievements:", error);
+      // Don't fail the request if achievement check fails
+    }
+    
     res.json({ ok: true, collection });
   } catch (error) {
     console.error("Error updating character collection:", error);
@@ -3354,6 +3364,14 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
     });
     
     console.log('✅ POST /api/shatterpoint/sets - Collection created/updated:', collection.id);
+    
+    // Check achievements after adding set to collection
+    try {
+      await checkUserAchievements(userId);
+    } catch (error) {
+      console.error("Error checking achievements:", error);
+      // Don't fail the request if achievement check fails
+    }
     
     res.json({ ok: true, collection });
   } catch (error) {
