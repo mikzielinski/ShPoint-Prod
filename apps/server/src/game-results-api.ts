@@ -1759,9 +1759,12 @@ export async function getPendingGameResultApprovals(req: Request, res: Response)
 // Get comprehensive user statistics
 export async function getUserComprehensiveStats(req: Request, res: Response) {
   try {
+    console.log('🔍 getUserComprehensiveStats called');
     const userId = (req as any).user?.id;
+    console.log('🔍 userId:', userId);
 
     if (!userId) {
+      console.log('❌ No userId found');
       return res.status(401).json({ 
         ok: false, 
         error: 'Authentication required' 
@@ -2243,7 +2246,8 @@ export async function getUserComprehensiveStats(req: Request, res: Response) {
     });
 
   } catch (error) {
-    console.error('Error fetching comprehensive user stats:', error);
+    console.error('❌ Error fetching comprehensive user stats:', error);
+    console.error('❌ Error stack:', error.stack);
     res.status(500).json({ 
       ok: false, 
       error: 'Failed to fetch user statistics' 
