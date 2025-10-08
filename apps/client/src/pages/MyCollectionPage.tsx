@@ -10,7 +10,6 @@ import CustomCardGenerator from '../components/CustomCardGenerator';
 import { setsData } from '../data/sets';
 import { missionsData, Mission } from '../data/missions';
 import FiltersPanel from '../components/FiltersPanel';
-import { Facets } from '../lib/shpoint/characters/facets';
 import { Filters } from '../components/FiltersPanel';
 
 // SetImageWithFallback component for displaying set images
@@ -783,14 +782,53 @@ export default function MyCollectionPage() {
 
   // Get shelf of shame (unpainted characters) with filters applied
   const getShelfOfShame = () => {
-    return collectedCharacters.filter(character => {
-      if (!character || !character.collection.isOwned || character.collection.isPainted) {
-        return false;
-      }
-      
-      // Apply the same filters as collectedCharacters
-      return Facets.matches(character, filters);
-    });
+    // First filter to unpainted characters only
+    const unpaintedCharacters = collectedCharacters.filter(character => 
+      character && character.collection.isOwned && !character.collection.isPainted
+    );
+    
+    // Then apply the same filters as getFilteredCharacters()
+    let filtered = unpaintedCharacters;
+    
+    // Filter by text search
+    if (filters.text) {
+      const searchText = filters.text.toLowerCase();
+      filtered = filtered.filter(c => 
+        c.name.toLowerCase().includes(searchText) ||
+        c.faction.toLowerCase().includes(searchText)
+      );
+    }
+    
+    // Filter by unit types (roles)
+    if (filters.unitTypes.length > 0) {
+      filtered = filtered.filter(c => 
+        c.role && filters.unitTypes.includes(c.role)
+      );
+    }
+    
+    // Filter by factions
+    if (filters.factions.length > 0) {
+      filtered = filtered.filter(c => 
+        filters.factions.includes(c.faction)
+      );
+    }
+    
+    // Filter by eras
+    if (filters.eras.length > 0) {
+      filtered = filtered.filter(c => {
+        const charEras = Array.isArray(c.era) ? c.era : [c.era].filter(Boolean);
+        return filters.eras.some(era => charEras.includes(era));
+      });
+    }
+    
+    // Filter by tags
+    if (filters.tags.length > 0) {
+      filtered = filtered.filter(c => 
+        c.tags && filters.tags.some(tag => c.tags.includes(tag))
+      );
+    }
+    
+    return filtered;
   };
 
   // Strike Teams helper functions
