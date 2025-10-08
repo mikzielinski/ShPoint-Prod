@@ -1512,118 +1512,172 @@ export default function MyCollectionPage() {
             unitTypeLabel="Roles"
           />
 
-          {/* Characters Grid - same as Characters tab but filtered for unpainted only */}
-          {getShelfOfShame().length === 0 ? (
-            <div style={{
-              background: '#1f2937',
-              border: '1px solid #374151',
-              borderRadius: '12px',
-              padding: '40px',
-              textAlign: 'center',
-              marginTop: '20px'
-            }}>
-              <span style={{ fontSize: '60px' }}>🎉</span>
-              <h4 style={{ color: '#10b981', margin: '16px 0 8px 0', fontSize: '18px', fontWeight: '600' }}>
-                Congratulations!
-              </h4>
-              <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
-                Your shelf of shame is empty! All your characters are painted.
-              </p>
-            </div>
-          ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '20px',
-              marginTop: '20px'
-            }}>
-              {getShelfOfShame().map((character) => (
-                <div
-                  key={character.id}
-                  style={{
-                    background: '#1f2937',
-                    border: '1px solid #374151',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    position: 'relative'
+          {/* Right main area - Unpainted Characters (same layout as Characters tab) */}
+          <div style={{ flex: 1 }}>
+            {getShelfOfShame().length === 0 ? (
+              <div style={{
+                textAlign: "center",
+                padding: "48px 0",
+                color: "#6b7280"
+              }}>
+                <span style={{ fontSize: '60px' }}>🎉</span>
+                <h2 style={{
+                  fontSize: "20px",
+                  fontWeight: "600",
+                  marginBottom: "8px",
+                  color: "#f9fafb"
+                }}>Congratulations!</h2>
+                <p style={{ marginBottom: "16px" }}>Your shelf of shame is empty! All your characters are painted.</p>
+              </div>
+            ) : (
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, 1fr)",
+                gap: "16px"
+              }}>
+                {getShelfOfShame().map((character) => (
+                  <div key={character.id} style={{
+                    background: "#1f2937",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    border: "1px solid #374151",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    cursor: "pointer"
                   }}
-                  onClick={() => setSelectedCharacter(character)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#6b7280';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.3)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#374151';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
                   }}
-                >
-                  {/* Unpainted Badge */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    background: '#f59e0b',
-                    color: 'white',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontSize: '10px',
-                    fontWeight: 'bold'
-                  }}>
-                    🎨 Unpainted
-                  </div>
-
-                  {/* Character Portrait */}
-                  <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                    <img
-                      src={character.portrait || '/images/placeholder-character.png'}
-                      alt={character.name}
-                      style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '8px',
-                        objectFit: 'cover',
-                        border: '2px solid #374151'
-                      }}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/images/placeholder-character.png';
-                      }}
-                    />
-                  </div>
-
-                  {/* Character Info */}
-                  <div>
-                    <h4 style={{
-                      color: '#f9fafb',
-                      margin: '0 0 4px 0',
-                      fontSize: '16px',
-                      fontWeight: '600'
+                  onClick={() => setSelectedCharacter(character)}>
+                    <div style={{
+                      width: "100%",
+                      height: "240px",
+                      overflow: "hidden",
+                      position: "relative",
+                      background: "#f8f9fa",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
                     }}>
-                      {character.name}
-                    </h4>
-                    <p style={{
-                      color: '#9ca3af',
-                      margin: '0 0 8px 0',
-                      fontSize: '12px'
-                    }}>
-                      {character.faction} • {character.role}
-                    </p>
-                    <p style={{
-                      color: '#6b7280',
-                      margin: 0,
-                      fontSize: '11px',
-                      fontStyle: 'italic'
-                    }}>
-                      Click to view details and mark as painted
-                    </p>
+                      <img 
+                        src={character.portrait?.startsWith('/') ? character.portrait : (character.portrait ?? "https://picsum.photos/seed/placeholder/400/520")} 
+                        alt={character.name}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          objectPosition: "center"
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "https://picsum.photos/seed/placeholder/400/520";
+                        }}
+                      />
+                      {/* Unpainted Badge */}
+                      <div style={{
+                        position: "absolute",
+                        top: "8px",
+                        right: "8px"
+                      }}>
+                        <span style={{
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          fontSize: "10px",
+                          fontWeight: "600",
+                          backgroundColor: "#f59e0b",
+                          color: "white"
+                        }}>
+                          🎨 UNPAINTED
+                        </span>
+                      </div>
+                      
+                      {/* Mark as Painted Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateCharacterStatus(character.collection.id, 'PAINTED');
+                        }}
+                        style={{
+                          position: "absolute",
+                          bottom: "8px",
+                          right: "8px",
+                          background: "#2563eb",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          padding: "4px 8px",
+                          fontSize: "10px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          transition: "background 0.2s ease"
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#1d4ed8";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "#2563eb";
+                        }}
+                      >
+                        Mark Painted
+                      </button>
+                    </div>
+                    <div style={{padding: "12px"}}>
+                      <div style={{
+                        fontWeight: "600",
+                        color: "#f9fafb",
+                        marginBottom: "4px",
+                        fontSize: "14px",
+                        lineHeight: "1.3"
+                      }}>{character.name}</div>
+                      <div style={{
+                        fontSize: "12px",
+                        color: "#9ca3af",
+                        marginBottom: "6px"
+                      }}>
+                        {character.role} • {character.faction || "Unknown"}
+                      </div>
+                      <div style={{
+                        fontSize: "11px",
+                        color: "#6b7280",
+                        marginBottom: "8px",
+                        fontStyle: "italic"
+                      }}>
+                        {Array.isArray(character.era) ? character.era.join(', ') : (character.era || "Unknown Era")}
+                      </div>
+                      <div style={{
+                        display: "flex",
+                        gap: "6px",
+                        fontSize: "11px",
+                        marginBottom: "6px"
+                      }}>
+                        {character.sp && (
+                          <span style={{
+                            background: "#374151",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            color: "#d1d5db",
+                            fontWeight: "500"
+                          }}>SP: {character.sp}</span>
+                        )}
+                        {character.pc && (
+                          <span style={{
+                            background: "#374151",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            color: "#d1d5db",
+                            fontWeight: "500"
+                          }}>PC: {character.pc}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </>
       )}
 
