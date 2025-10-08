@@ -358,17 +358,18 @@ export default function MyCollectionPage() {
     }
   }, [user]);
 
-  // Refresh collections when window gains focus (e.g., after adding character in another tab)
-  useEffect(() => {
-    const handleFocus = () => {
-      if (user) {
-        loadCollections();
-      }
-    };
+  // Refresh collections when window gains focus (disabled for now to prevent infinite loops)
+  // useEffect(() => {
+  //   const handleFocus = () => {
+  //     if (user) {
+  //       console.log('🔄 Window focus detected, refreshing collections...');
+  //       loadCollections();
+  //     }
+  //   };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [user]);
+  //   window.addEventListener('focus', handleFocus);
+  //   return () => window.removeEventListener('focus', handleFocus);
+  // }, [user]);
 
   // Listen for character collection updates from other components
   useEffect(() => {
