@@ -358,6 +358,31 @@ export default function MyCollectionPage() {
     }
   }, [user]);
 
+  // Refresh collections when window gains focus (e.g., after adding character in another tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (user) {
+        loadCollections();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [user]);
+
+  // Listen for character collection updates from other components
+  useEffect(() => {
+    const handleCollectionUpdate = () => {
+      if (user) {
+        console.log('🔄 Character collection updated, refreshing data...');
+        loadCollections();
+      }
+    };
+
+    window.addEventListener('characterCollectionUpdated', handleCollectionUpdate);
+    return () => window.removeEventListener('characterCollectionUpdated', handleCollectionUpdate);
+  }, [user]);
+
   // Refresh mission collections when switching to missions tab
   useEffect(() => {
     if (user && activeTab === 'missions') {

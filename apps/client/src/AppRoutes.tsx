@@ -384,6 +384,11 @@ function CharactersPage() {
         setCharacterCollections(json.collections || []);
       }
       
+      // Trigger a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('characterCollectionUpdated', { 
+        detail: { characterId, action: 'added' } 
+      }));
+      
       // Check if any sets should be auto-added for this specific character
       await checkAndAutoAddSets(characterId);
       
