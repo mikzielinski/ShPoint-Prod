@@ -709,8 +709,8 @@ export default function MyCollectionPage() {
     }
   };
 
-  // Get characters with collection data
-  const getCollectedCharacters = () => {
+  // Get characters with collection data (memoized to prevent unnecessary recalculations)
+  const collectedCharacters = React.useMemo(() => {
     console.log('🔍 getCollectedCharacters - characterCollections:', characterCollections);
     console.log('🔍 getCollectedCharacters - allCharacters length:', allCharacters.length);
     
@@ -722,10 +722,10 @@ export default function MyCollectionPage() {
     
     console.log('🔍 getCollectedCharacters - result length:', result.length);
     return result;
-  };
+  }, [characterCollections, allCharacters]);
 
   const getFilteredCharacters = () => {
-    let filtered = getCollectedCharacters();
+    let filtered = collectedCharacters;
     
     // Filter by text search
     if (filters.text) {
@@ -772,7 +772,7 @@ export default function MyCollectionPage() {
     return setCollections.find(sc => sc.setId === setId) || null;
   };
 
-  const getCollectedSets = () => {
+  const collectedSets = React.useMemo(() => {
     return mockSets.map(set => ({
       ...set,
       collection: getSetCollection(set.id)
@@ -783,14 +783,14 @@ export default function MyCollectionPage() {
       set.collection.isSold || 
       set.collection.isFavorite
     ));
-  };
+  }, [setCollections]);
 
-  const getCollectedMissions = () => {
+  const collectedMissions = React.useMemo(() => {
     return missionCollections.map(collection => {
       const mission = missionsData.find(m => m.id === collection.missionId);
       return mission ? { ...mission, collection } : null;
     }).filter(Boolean) as (Mission & { collection: MissionCollection })[];
-  };
+  }, [missionCollections]);
 
   // Strike Teams helper functions
   const getPublishedStrikeTeams = () => {
@@ -822,7 +822,7 @@ export default function MyCollectionPage() {
   };
 
   const getFilteredSets = () => {
-    let filtered = getCollectedSets();
+    let filtered = collectedSets;
     
     // Filter by text search
     if (filters.text) {
@@ -920,9 +920,9 @@ export default function MyCollectionPage() {
           gap: '4px'
         }}>
           {[
-            { id: 'characters', label: 'Characters', count: getCollectedCharacters().length },
-            { id: 'sets', label: 'Sets/Boxes', count: getCollectedSets().length },
-            { id: 'missions', label: 'Missions', count: getCollectedMissions().length },
+            { id: 'characters', label: 'Characters', count: collectedCharacters.length },
+            { id: 'sets', label: 'Sets/Boxes', count: collectedSets.length },
+            { id: 'missions', label: 'Missions', count: collectedMissions.length },
             { id: 'strike-teams', label: 'Strike Teams', count: strikeTeams.length }
           ].map((tab) => (
             <button
@@ -1736,7 +1736,7 @@ export default function MyCollectionPage() {
       {/* Missions Tab */}
       {activeTab === 'missions' && (
         <div>
-          {getCollectedMissions().length === 0 ? (
+          {collectedMissions.length === 0 ? (
             <div style={{
               padding: '40px',
               textAlign: 'center',
@@ -1766,7 +1766,7 @@ export default function MyCollectionPage() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
               gap: '20px'
             }}>
-              {getCollectedMissions().map((mission) => (
+              {collectedMissions.map((mission) => (
                 <div
                   key={mission.id}
                   onClick={() => setSelectedMission(mission)}
