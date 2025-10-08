@@ -3299,15 +3299,39 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
     console.log('🔍 POST /api/shatterpoint/sets - statusData:', statusData);
     console.log('🔍 POST /api/shatterpoint/sets - userId:', userId, 'setId:', setId);
     
-    // Check if set exists first
-    const setExists = await prisma.set.findUnique({
+    // Check if set exists first, create if not found
+    let setExists = await prisma.set.findUnique({
       where: { id: setId }
     });
     console.log('🔍 POST /api/shatterpoint/sets - setExists:', !!setExists);
     
     if (!setExists) {
-      console.log('❌ POST /api/shatterpoint/sets - Set not found:', setId);
-      return res.status(404).json({ ok: false, error: "Set not found" });
+      console.log('🔧 POST /api/shatterpoint/sets - Set not found, creating:', setId);
+      
+      // Create the set if it doesn't exist (basic sets data)
+      const setData = {
+        'swp01': { name: 'Star Wars: Shatterpoint Core Set', code: 'SWP01', type: 'CORE_SET', description: 'The essential starter set for Star Wars: Shatterpoint' },
+        'swp03': { name: 'Twice the Pride Squad Pack', code: 'SWP03', type: 'SQUAD_PACK', description: 'Count Dooku and his allies' },
+        'swp04': { name: 'Plans and Preparations Squad Pack', code: 'SWP04', type: 'SQUAD_PACK', description: 'Luminara Unduli and her allies' },
+        'swp05': { name: 'Appetite for Destruction Squad Pack', code: 'SWP05', type: 'SQUAD_PACK', description: 'General Grievous and his allies' }
+      };
+      
+      const setInfo = setData[setId as keyof typeof setData];
+      if (setInfo) {
+        setExists = await prisma.set.create({
+          data: {
+            id: setId,
+            name: setInfo.name,
+            code: setInfo.code,
+            type: setInfo.type as any,
+            description: setInfo.description
+          }
+        });
+        console.log('✅ POST /api/shatterpoint/sets - Created set:', setExists.name);
+      } else {
+        console.log('❌ POST /api/shatterpoint/sets - Unknown set ID:', setId);
+        return res.status(404).json({ ok: false, error: "Set not found" });
+      }
     }
     
     const collection = await prisma.setCollection.upsert({
