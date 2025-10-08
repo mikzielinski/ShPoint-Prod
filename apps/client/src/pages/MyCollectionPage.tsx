@@ -781,11 +781,16 @@ export default function MyCollectionPage() {
     }).filter(Boolean) as (Mission & { collection: MissionCollection })[];
   }, [missionCollections]);
 
-  // Get shelf of shame (unpainted characters)
+  // Get shelf of shame (unpainted characters) with filters applied
   const getShelfOfShame = () => {
-    return collectedCharacters.filter(character => 
-      character && character.collection.isOwned && !character.collection.isPainted
-    );
+    return collectedCharacters.filter(character => {
+      if (!character || !character.collection.isOwned || character.collection.isPainted) {
+        return false;
+      }
+      
+      // Apply the same filters as collectedCharacters
+      return Facets.matches(character, filters);
+    });
   };
 
   // Strike Teams helper functions
@@ -1460,22 +1465,24 @@ export default function MyCollectionPage() {
       {/* Shelf of Shame Tab */}
       {activeTab === 'shelf-of-shame' && (
         <>
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ color: '#f9fafb', margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
-              🎨 Shelf of Shame - Unpainted Characters
-            </h3>
-            <p style={{ color: '#9ca3af', margin: '0 0 20px 0', fontSize: '14px' }}>
-              Characters you own but haven't painted yet ({getShelfOfShame().length} unpainted)
-            </p>
-          </div>
+          {/* Use the same filters as Characters tab */}
+          <FiltersPanel
+            facets={getCharacterFacets()}
+            filters={filters}
+            onChange={setFilters}
+            darkMode={true}
+            unitTypeLabel="Roles"
+          />
 
+          {/* Characters Grid - same as Characters tab but filtered for unpainted only */}
           {getShelfOfShame().length === 0 ? (
             <div style={{
               background: '#1f2937',
               border: '1px solid #374151',
               borderRadius: '12px',
               padding: '40px',
-              textAlign: 'center'
+              textAlign: 'center',
+              marginTop: '20px'
             }}>
               <span style={{ fontSize: '60px' }}>🎉</span>
               <h4 style={{ color: '#10b981', margin: '16px 0 8px 0', fontSize: '18px', fontWeight: '600' }}>
@@ -1489,7 +1496,8 @@ export default function MyCollectionPage() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '20px'
+              gap: '20px',
+              marginTop: '20px'
             }}>
               {getShelfOfShame().map((character) => (
                 <div
