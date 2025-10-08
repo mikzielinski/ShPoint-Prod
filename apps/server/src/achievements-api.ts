@@ -53,6 +53,7 @@ export async function checkUserAchievements(userId: string) {
       let shouldUnlock = false;
       
       switch (conditions.type) {
+        // Legacy simple conditions
         case 'characters_owned':
           currentProgress = ownedCharacters;
           shouldUnlock = ownedCharacters >= conditions.count;
@@ -73,6 +74,75 @@ export async function checkUserAchievements(userId: string) {
           currentProgress = createdStrikeTeams;
           shouldUnlock = createdStrikeTeams >= conditions.count;
           break;
+        
+        // New complex conditions
+        case 'character_completion':
+          const totalCharacters = await prisma.character.count();
+          const completionPercentage = totalCharacters > 0 ? (ownedCharacters / totalCharacters) * 100 : 0;
+          currentProgress = Math.round(completionPercentage);
+          shouldUnlock = completionPercentage >= (conditions.threshold * 100);
+          break;
+        case 'faction_completion':
+          const factionCharacters = await prisma.character.count({
+            where: { faction: conditions.faction }
+          });
+          const ownedFactionCharacters = await prisma.characterCollection.count({
+            where: {
+              userId,
+              isOwned: true,
+              character: { faction: conditions.faction }
+            }
+          });
+          const factionCompletionPercentage = factionCharacters > 0 ? (ownedFactionCharacters / factionCharacters) * 100 : 0;
+          currentProgress = Math.round(factionCompletionPercentage);
+          shouldUnlock = factionCompletionPercentage >= (conditions.threshold * 100);
+          break;
+        case 'shelf_of_shame':
+          const unpaintedCount = await prisma.characterCollection.count({
+            where: { userId, isOwned: true, isPainted: false }
+          });
+          currentProgress = unpaintedCount;
+          shouldUnlock = unpaintedCount >= conditions.count;
+          break;
+        case 'games_played':
+          const gamesPlayed = await prisma.gameResult.count({
+            where: {
+              OR: [{ player1Id: userId }, { player2Id: userId }],
+              isVerified: true
+            }
+          });
+          currentProgress = gamesPlayed;
+          shouldUnlock = gamesPlayed >= conditions.count;
+          break;
+        case 'win_rate':
+          const totalGames = await prisma.gameResult.count({
+            where: {
+              OR: [{ player1Id: userId }, { player2Id: userId }],
+              isVerified: true
+            }
+          });
+          const wins = await prisma.gameResult.count({
+            where: { winnerId: userId, isVerified: true }
+          });
+          const winRatePercentage = totalGames > 0 ? (wins / totalGames) * 100 : 0;
+          currentProgress = Math.round(winRatePercentage);
+          shouldUnlock = winRatePercentage >= (conditions.threshold * 100);
+          break;
+        case 'challenges_sent':
+          const challengesSent = await prisma.challenge.count({
+            where: { challengerId: userId }
+          });
+          currentProgress = challengesSent;
+          shouldUnlock = challengesSent >= conditions.count;
+          break;
+        case 'challenges_accepted':
+          const challengesAccepted = await prisma.challenge.count({
+            where: { challengedId: userId, status: 'ACCEPTED' }
+          });
+          currentProgress = challengesAccepted;
+          shouldUnlock = challengesAccepted >= conditions.count;
+          break;
+        
         default:
           console.log(`⚠️ Unknown achievement condition type: ${conditions.type}`);
           continue;
@@ -92,10 +162,14 @@ export async function checkUserAchievements(userId: string) {
             userId,
             achievementId: achievement.id,
             progress: currentProgress,
-            isCompleted: shouldUnlock
+            isCompleted: shouldUnlock,
+            unlockedAt: shouldUnlock ? new Date() : null
           }
         });
         console.log(`📝 Created user achievement record for: ${achievement.name}`);
+        if (shouldUnlock) {
+          console.log(`🎉 Achievement unlocked: ${achievement.name} for user ${userId}`);
+        }
       } else {
         // Update progress
         const updatedUserAchievement = await prisma.userAchievement.update({
