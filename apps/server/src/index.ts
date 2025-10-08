@@ -7858,6 +7858,34 @@ app.put("/api/v2/achievements/:id", ensureAuth, addUserToRequest, updateAchievem
 // Admin: Delete achievement (soft delete)
 app.delete("/api/v2/achievements/:id", ensureAuth, addUserToRequest, deleteAchievement);
 
+// Dev: Seed default achievements (no auth required)
+app.post("/api/dev/seed-achievements", async (req, res) => {
+  try {
+    console.log('🌱 Seeding default achievements...');
+    const success = await seedDefaultAchievements();
+    
+    if (success) {
+      console.log('✅ Default achievements seeded successfully');
+      res.json({
+        ok: true,
+        message: 'Default achievements seeded successfully'
+      });
+    } else {
+      console.log('❌ Failed to seed default achievements');
+      res.status(500).json({
+        ok: false,
+        error: 'Failed to seed default achievements'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error seeding achievements:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to seed achievements'
+    });
+  }
+});
+
 // Admin: Seed default achievements
 app.post("/api/v2/achievements/seed", ensureAuth, addUserToRequest, async (req, res) => {
   try {
