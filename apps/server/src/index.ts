@@ -122,7 +122,8 @@ import {
   updateAchievement, 
   deleteAchievement,
   seedDefaultAchievements,
-  checkUserAchievements 
+  checkUserAchievements,
+  validateAndAwardAchievements
 } from "./achievements-api.js";
 import { 
   logDiceRoll, 
@@ -7924,6 +7925,9 @@ app.post("/api/dev/check-achievements/:userId", async (req, res) => {
     });
   }
 });
+
+// Dev: Validate and award all eligible achievements for a user (no auth required)
+app.post("/api/dev/validate-achievements/:userId", validateAndAwardAchievements);
 
 // Dev: Debug user achievements (no auth required)
 app.get("/api/dev/debug-achievements/:userId", async (req, res) => {

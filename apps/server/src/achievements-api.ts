@@ -695,6 +695,215 @@ async function checkSpecialAchievements(userId: string, achievement: any): Promi
   }
 }
 
+// Validate and award all eligible achievements for a user
+export async function validateAndAwardAchievements(req: Request, res: Response) {
+  try {
+    const userId = req.params.userId;
+    
+    if (!userId) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'User ID is required' 
+      });
+    }
+
+    console.log(`🔍 Validating and awarding achievements for user: ${userId}`);
+    
+    // Get all active achievements
+    const achievements = await prisma.achievement.findMany({
+      where: { isActive: true }
+    });
+    
+    // Get user's current achievements
+    const existingUserAchievements = await prisma.userAchievement.findMany({
+      where: { userId }
+    });
+    
+    const results = {
+      totalAchievements: achievements.length,
+      alreadyUnlocked: 0,
+      newlyUnlocked: 0,
+      unlockedAchievements: [] as any[],
+      progress: [] as any[]
+    };
+    
+    // Check each achievement
+    for (const achievement of achievements) {
+      const conditions = achievement.conditions as any;
+      
+      // Skip if no conditions
+      if (!conditions || !conditions.type) {
+        continue;
+      }
+      
+      // Check if user already has this achievement
+      const existingUserAchievement = existingUserAchievements.find(
+        ua => ua.achievementId === achievement.id && ua.isCompleted
+      );
+      
+      if (existingUserAchievement) {
+        results.alreadyUnlocked++;
+        continue;
+      }
+      
+      // Calculate progress and check if should unlock
+      let currentProgress = 0;
+      let shouldUnlock = false;
+      let progressDetails = '';
+      
+      switch (conditions.type) {
+        case 'character_completion':
+          const totalCharacters = await prisma.character.count();
+          const ownedCharacters = await prisma.characterCollection.count({
+            where: { userId, isOwned: true }
+          });
+          const completionPercentage = totalCharacters > 0 ? (ownedCharacters / totalCharacters) * 100 : 0;
+          currentProgress = Math.round(completionPercentage);
+          shouldUnlock = completionPercentage >= (conditions.threshold * 100);
+          progressDetails = `${ownedCharacters}/${totalCharacters} characters (${currentProgress}%)`;
+          break;
+          
+        case 'faction_completion':
+          const factionCharacters = await prisma.character.count({
+            where: { faction: conditions.faction }
+          });
+          const ownedFactionCharacters = await prisma.characterCollection.count({
+            where: {
+              userId,
+              isOwned: true,
+              character: { faction: conditions.faction }
+            }
+          });
+          const factionCompletionPercentage = factionCharacters > 0 ? (ownedFactionCharacters / factionCharacters) * 100 : 0;
+          currentProgress = Math.round(factionCompletionPercentage);
+          shouldUnlock = factionCompletionPercentage >= (conditions.threshold * 100);
+          progressDetails = `${ownedFactionCharacters}/${factionCharacters} ${conditions.faction} characters (${currentProgress}%)`;
+          break;
+          
+        case 'shelf_of_shame':
+          const unpaintedCount = await prisma.characterCollection.count({
+            where: { userId, isOwned: true, isPainted: false }
+          });
+          currentProgress = unpaintedCount;
+          shouldUnlock = unpaintedCount >= conditions.count;
+          progressDetails = `${unpaintedCount}/${conditions.count} unpainted characters`;
+          break;
+          
+        case 'games_played':
+          const gamesPlayed = await prisma.gameResult.count({
+            where: {
+              OR: [{ player1Id: userId }, { player2Id: userId }],
+              isVerified: true
+            }
+          });
+          currentProgress = gamesPlayed;
+          shouldUnlock = gamesPlayed >= conditions.count;
+          progressDetails = `${gamesPlayed}/${conditions.count} games played`;
+          break;
+          
+        case 'win_rate':
+          const totalGames = await prisma.gameResult.count({
+            where: {
+              OR: [{ player1Id: userId }, { player2Id: userId }],
+              isVerified: true
+            }
+          });
+          const wins = await prisma.gameResult.count({
+            where: { winnerId: userId, isVerified: true }
+          });
+          const winRatePercentage = totalGames > 0 ? (wins / totalGames) * 100 : 0;
+          currentProgress = Math.round(winRatePercentage);
+          shouldUnlock = winRatePercentage >= (conditions.threshold * 100);
+          progressDetails = `${wins}/${totalGames} wins (${currentProgress}%) - need ${Math.round(conditions.threshold * 100)}%`;
+          break;
+          
+        case 'challenges_sent':
+          const challengesSent = await prisma.challenge.count({
+            where: { challengerId: userId }
+          });
+          currentProgress = challengesSent;
+          shouldUnlock = challengesSent >= conditions.count;
+          progressDetails = `${challengesSent}/${conditions.count} challenges sent`;
+          break;
+          
+        case 'challenges_accepted':
+          const challengesAccepted = await prisma.challenge.count({
+            where: { challengedId: userId, status: 'ACCEPTED' }
+          });
+          currentProgress = challengesAccepted;
+          shouldUnlock = challengesAccepted >= conditions.count;
+          progressDetails = `${challengesAccepted}/${conditions.count} challenges accepted`;
+          break;
+          
+        default:
+          progressDetails = `Unknown condition type: ${conditions.type}`;
+          break;
+      }
+      
+      // Store progress info
+      results.progress.push({
+        achievementId: achievement.id,
+        name: achievement.name,
+        type: conditions.type,
+        currentProgress,
+        shouldUnlock,
+        progressDetails,
+        threshold: conditions.threshold || conditions.count
+      });
+      
+      // Award achievement if eligible
+      if (shouldUnlock) {
+        await prisma.userAchievement.upsert({
+          where: {
+            userId_achievementId: {
+              userId,
+              achievementId: achievement.id
+            }
+          },
+          update: {
+            isCompleted: true,
+            progress: 100,
+            unlockedAt: new Date()
+          },
+          create: {
+            userId,
+            achievementId: achievement.id,
+            isCompleted: true,
+            progress: 100,
+            unlockedAt: new Date()
+          }
+        });
+        
+        results.newlyUnlocked++;
+        results.unlockedAchievements.push({
+          id: achievement.id,
+          name: achievement.name,
+          description: achievement.description,
+          icon: achievement.icon,
+          rarity: achievement.rarity
+        });
+        
+        console.log(`🎉 Awarded achievement: ${achievement.name} to user ${userId}`);
+      }
+    }
+    
+    console.log(`✅ Achievement validation completed for user ${userId}:`, results);
+    
+    res.json({
+      ok: true,
+      message: `Achievement validation completed for user ${userId}`,
+      results
+    });
+    
+  } catch (error) {
+    console.error('Error validating and awarding achievements:', error);
+    res.status(500).json({ 
+      ok: false, 
+      error: 'Failed to validate and award achievements' 
+    });
+  }
+}
+
 // Seed default achievements
 export async function seedDefaultAchievements() {
   try {
