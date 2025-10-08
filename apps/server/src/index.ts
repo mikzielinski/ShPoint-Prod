@@ -7917,6 +7917,124 @@ app.get("/api/dev/check-sets", validateDevAccess, async (req, res) => {
   }
 });
 
+// Sync sets from frontend data to database
+app.post("/api/dev/sync-sets", validateDevAccess, async (req, res) => {
+  try {
+    console.log('🔧 Syncing sets to database...');
+    
+    // Frontend sets data (from apps/client/src/data/sets.ts)
+    const setsData = [
+      {
+        id: 'swp01',
+        name: 'Star Wars: Shatterpoint Core Set',
+        code: 'SWP01',
+        type: 'Core Set',
+        description: 'The essential starter set for Star Wars: Shatterpoint',
+        characters: [
+          { role: 'Primary', name: 'General Anakin Skywalker' },
+          { role: 'Secondary', name: 'Captain Rex (CC-7567)' },
+          { role: 'Supporting', name: '501st Clone Troopers' },
+          { role: 'Primary', name: 'Ahsoka Tano, Jedi no more' },
+          { role: 'Secondary', name: 'Bo-Katan Kryze' },
+          { role: 'Supporting', name: 'Clan Kryze Mandalorians' },
+          { role: 'Primary', name: 'Asajj Ventress, Sith Assassin' },
+          { role: 'Secondary', name: 'Kalani (Super Tactical Droid)' },
+          { role: 'Supporting', name: 'B1 Battle Droids' },
+          { role: 'Primary', name: 'Darth Maul (Lord Maul)' },
+          { role: 'Secondary', name: 'Gar Saxon' },
+          { role: 'Supporting', name: 'Shadow Collective Commandos' }
+        ]
+      },
+      {
+        id: 'swp03',
+        name: 'Twice the Pride Squad Pack',
+        code: 'SWP03',
+        type: 'Squad Pack',
+        description: 'Count Dooku and his allies',
+        characters: [
+          { role: 'Primary', name: 'Count Dooku, Separatist Leader' },
+          { role: 'Secondary', name: 'Jango Fett, Bounty Hunter' },
+          { role: 'Supporting', name: 'MagnaGuard' }
+        ]
+      },
+      {
+        id: 'swp04',
+        name: 'Plans and Preparations Squad Pack',
+        code: 'SWP04',
+        type: 'Squad Pack',
+        description: 'Luminara Unduli and her allies',
+        characters: [
+          { role: 'Primary', name: 'Luminara Unduli, Jedi Master' },
+          { role: 'Secondary', name: 'Barriss Offee, Jedi Padawan' },
+          { role: 'Supporting', name: '212th Clone Troopers' }
+        ]
+      },
+      {
+        id: 'swp05',
+        name: 'Appetite for Destruction Squad Pack',
+        code: 'SWP05',
+        type: 'Squad Pack',
+        description: 'General Grievous and his allies',
+        characters: [
+          { role: 'Primary', name: 'General Grievous, Supreme Commander' },
+          { role: 'Secondary', name: 'Obi-Wan Kenobi, Jedi Master' },
+          { role: 'Supporting', name: '212th Clone Troopers' }
+        ]
+      }
+    ];
+    
+    let syncedCount = 0;
+    let errorCount = 0;
+    
+    for (const setData of setsData) {
+      try {
+        await prisma.set.upsert({
+          where: { id: setData.id },
+          update: {
+            name: setData.name,
+            code: setData.code,
+            type: setData.type === 'Core Set' ? 'CORE_SET' : 
+                 setData.type === 'Squad Pack' ? 'SQUAD_PACK' : 
+                 setData.type === 'Terrain Pack' ? 'TERRAIN_PACK' :
+                 setData.type === 'Duel Pack' ? 'DUEL_PACK' :
+                 setData.type === 'Mission Pack' ? 'MISSION_PACK' : 'ACCESSORIES',
+            description: setData.description
+          },
+          create: {
+            id: setData.id,
+            name: setData.name,
+            code: setData.code,
+            type: setData.type === 'Core Set' ? 'CORE_SET' : 
+                 setData.type === 'Squad Pack' ? 'SQUAD_PACK' : 
+                 setData.type === 'Terrain Pack' ? 'TERRAIN_PACK' :
+                 setData.type === 'Duel Pack' ? 'DUEL_PACK' :
+                 setData.type === 'Mission Pack' ? 'MISSION_PACK' : 'ACCESSORIES',
+            description: setData.description
+          }
+        });
+        
+        console.log(`✅ Synced set: ${setData.name} (${setData.id})`);
+        syncedCount++;
+      } catch (error) {
+        console.error(`❌ Error syncing set ${setData.id}:`, error);
+        errorCount++;
+      }
+    }
+    
+    res.json({
+      ok: true,
+      message: `Synced ${syncedCount} sets, ${errorCount} errors`,
+      syncedCount,
+      errorCount,
+      total: setsData.length
+    });
+    
+  } catch (error) {
+    console.error('Sync sets error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Fix character collections - convert UUID characterId to slug
 app.post("/api/dev/fix-character-collections", validateDevAccess, async (req, res) => {
   try {
