@@ -845,7 +845,7 @@ export default function MyCollectionPage() {
 
   // Generate facets for filters
   const getCharacterFacets = (): Facets => {
-    const characters = getCollectedCharacters();
+    const characters = collectedCharacters;
     const unitTypes = [...new Set(characters.map(c => c.role).filter(Boolean))];
     const factions = [...new Set(characters.map(c => c.faction).filter(Boolean))];
     const eras = [...new Set(characters.flatMap(c => Array.isArray(c.era) ? c.era : [c.era]).filter(Boolean))];
