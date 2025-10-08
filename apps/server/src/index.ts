@@ -7904,6 +7904,27 @@ app.post("/api/dev/seed-achievements", async (req, res) => {
   }
 });
 
+// Dev: Check achievements for a user (no auth required)
+app.post("/api/dev/check-achievements/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(`🏆 Manually checking achievements for user: ${userId}`);
+    
+    await checkUserAchievements(userId);
+    
+    res.json({
+      ok: true,
+      message: `Achievement check completed for user ${userId}`
+    });
+  } catch (error) {
+    console.error('❌ Error checking achievements:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to check achievements'
+    });
+  }
+});
+
 // Admin: Seed default achievements
 app.post("/api/v2/achievements/seed", ensureAuth, addUserToRequest, async (req, res) => {
   try {
