@@ -1074,6 +1074,101 @@ const validateDevAccess = (req: Request, res: Response, next: NextFunction) => {
 };
 
 // ===== CHARACTER TESTING ENDPOINTS =====
+// Force sync abilities for existing character
+app.post("/api/dev/force-sync-abilities/:characterId", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.params;
+    
+    console.log(`🔄 Force syncing abilities for character: ${characterId}`);
+    
+    // Read JSON data
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    let dataPath = path.join(process.cwd(), 'characters_assets', characterId, 'data.json');
+    if (!fs.existsSync(dataPath)) {
+      dataPath = path.join(process.cwd(), '../client/characters_assets', characterId, 'data.json');
+    }
+    
+    if (!fs.existsSync(dataPath)) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: `No data.json found for character ${characterId}` 
+      });
+    }
+    
+    const characterData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+    
+    // Check if character exists in database
+    const character = await prisma.character.findUnique({
+      where: { slug: characterId },
+      include: { abilities: true }
+    });
+    
+    if (!character) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: `Character ${characterId} not found in database` 
+      });
+    }
+    
+    console.log(`📊 Character ${characterId} has ${character.abilities.length} abilities in database`);
+    console.log(`📊 Character ${characterId} has ${characterData.abilities?.length || 0} abilities in JSON`);
+    
+    if (!characterData.abilities || characterData.abilities.length === 0) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: `No abilities found in JSON for character ${characterId}` 
+      });
+    }
+    
+    // Delete existing abilities
+    await prisma.characterAbility.deleteMany({
+      where: { characterId: character.id }
+    });
+    
+    // Create new abilities
+    for (let i = 0; i < characterData.abilities.length; i++) {
+      const ability = characterData.abilities[i];
+      await prisma.characterAbility.create({
+        data: {
+          characterId: character.id,
+          name: ability.name,
+          type: ability.type,
+          symbol: ability.symbol,
+          trigger: ability.trigger,
+          isAction: ability.isAction || false,
+          forceCost: ability.forceCost || 0,
+          damageCost: ability.damageCost || 0,
+          description: ability.description,
+          tags: ability.tags || [],
+          order: i
+        }
+      });
+    }
+    
+    console.log(`✅ Successfully synced ${characterData.abilities.length} abilities for ${characterId}`);
+    
+    // Get updated character
+    const updatedCharacter = await prisma.character.findUnique({
+      where: { id: character.id },
+      include: { abilities: { orderBy: { order: 'asc' } } }
+    });
+    
+    res.json({
+      ok: true,
+      message: `Successfully synced ${characterData.abilities.length} abilities for ${characterId}`,
+      characterId,
+      abilitiesCount: updatedCharacter?.abilities.length || 0,
+      abilities: updatedCharacter?.abilities || []
+    });
+    
+  } catch (error: any) {
+    console.error('Force sync abilities error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Comprehensive testing endpoints for character functionality
 app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request, res: Response) => {
   try {
