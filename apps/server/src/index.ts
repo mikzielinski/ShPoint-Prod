@@ -7925,6 +7925,59 @@ app.post("/api/dev/check-achievements/:userId", async (req, res) => {
   }
 });
 
+// Dev: Debug user achievements (no auth required)
+app.get("/api/dev/debug-achievements/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(`🔍 Debugging achievements for user: ${userId}`);
+    
+    // Get user's character collections
+    const characterCollections = await prisma.characterCollection.findMany({
+      where: { userId }
+    });
+    
+    const ownedCharacters = characterCollections.filter(c => c.isOwned).length;
+    const paintedCharacters = characterCollections.filter(c => c.isPainted).length;
+    
+    // Get user's achievements
+    const userAchievements = await prisma.userAchievement.findMany({
+      where: { userId },
+      include: { achievement: true }
+    });
+    
+    // Get all achievements
+    const allAchievements = await prisma.achievement.findMany({
+      where: { isActive: true }
+    });
+    
+    res.json({
+      ok: true,
+      debug: {
+        userId,
+        stats: {
+          ownedCharacters,
+          paintedCharacters,
+          totalCharacters: characterCollections.length
+        },
+        userAchievements: userAchievements.map(ua => ({
+          name: ua.achievement.name,
+          progress: ua.progress,
+          isCompleted: ua.isCompleted,
+          unlockedAt: ua.unlockedAt
+        })),
+        totalAchievements: allAchievements.length,
+        unlockedCount: userAchievements.filter(ua => ua.isCompleted).length
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error debugging achievements:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to debug achievements'
+    });
+  }
+});
+
 // Admin: Seed default achievements
 app.post("/api/v2/achievements/seed", ensureAuth, addUserToRequest, async (req, res) => {
   try {
