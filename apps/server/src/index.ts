@@ -3280,6 +3280,7 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
     // @ts-ignore
     const userId = req.user?.id;
     console.log('🔍 POST /api/shatterpoint/sets - userId:', userId);
+    console.log('🔍 POST /api/shatterpoint/sets - req.body:', req.body);
     const { setId, status, isOwned, isPainted, isWishlist, isSold, isFavorite, notes } = req.body;
     
     if (!setId) {
@@ -3294,6 +3295,20 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
       isSold: isSold !== undefined ? isSold : (status === 'SOLD'),
       isFavorite: isFavorite !== undefined ? isFavorite : (status === 'FAVORITE'),
     };
+    
+    console.log('🔍 POST /api/shatterpoint/sets - statusData:', statusData);
+    console.log('🔍 POST /api/shatterpoint/sets - userId:', userId, 'setId:', setId);
+    
+    // Check if set exists first
+    const setExists = await prisma.set.findUnique({
+      where: { id: setId }
+    });
+    console.log('🔍 POST /api/shatterpoint/sets - setExists:', !!setExists);
+    
+    if (!setExists) {
+      console.log('❌ POST /api/shatterpoint/sets - Set not found:', setId);
+      return res.status(404).json({ ok: false, error: "Set not found" });
+    }
     
     const collection = await prisma.setCollection.upsert({
       where: {
@@ -3313,6 +3328,8 @@ app.post("/api/shatterpoint/sets", ensureAuth, async (req, res) => {
         notes: notes || null,
       },
     });
+    
+    console.log('✅ POST /api/shatterpoint/sets - Collection created/updated:', collection.id);
     
     res.json({ ok: true, collection });
   } catch (error) {
