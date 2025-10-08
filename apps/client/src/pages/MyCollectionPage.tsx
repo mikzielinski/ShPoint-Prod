@@ -242,7 +242,7 @@ interface Set {
   id: string;
   name: string;
   code: string; // SWPXX
-  type: 'Core Set' | 'Squad Pack' | 'Terrain Pack' | 'Duel Pack' | 'Mission Pack';
+  type: 'Core Set' | 'Squad Pack' | 'Terrain Pack' | 'Duel Pack' | 'Mission Pack' | 'Accessories';
   image?: string;
   characters?: string[]; // Character IDs included in this set
   description?: string;
@@ -277,7 +277,7 @@ export default function MyCollectionPage() {
   const [error, setError] = useState<string | null>(null);
   // Usunięto activeTab - teraz mamy jeden główny widok
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
-  const [activeTab, setActiveTab] = useState<'characters' | 'sets' | 'missions' | 'strike-teams'>('characters');
+  const [activeTab, setActiveTab] = useState<'characters' | 'shelf-of-shame' | 'sets' | 'missions' | 'strike-teams'>('characters');
   const [strikeTeamSubTab, setStrikeTeamSubTab] = useState<'published' | 'private' | 'builder'>('published');
   const [selectedSet, setSelectedSet] = useState<Set | null>(null);
   const [showSetModal, setShowSetModal] = useState(false);
@@ -781,6 +781,13 @@ export default function MyCollectionPage() {
     }).filter(Boolean) as (Mission & { collection: MissionCollection })[];
   }, [missionCollections]);
 
+  // Get shelf of shame (unpainted characters)
+  const getShelfOfShame = () => {
+    return collectedCharacters.filter(character => 
+      character && character.collection.isOwned && !character.collection.isPainted
+    );
+  };
+
   // Strike Teams helper functions
   const getPublishedStrikeTeams = () => {
     return strikeTeams.filter(team => team.isPublished);
@@ -910,13 +917,14 @@ export default function MyCollectionPage() {
         }}>
           {[
             { id: 'characters', label: 'Characters', count: collectedCharacters.length },
+            { id: 'shelf-of-shame', label: 'Shelf of Shame', count: getShelfOfShame().length },
             { id: 'sets', label: 'Sets/Boxes', count: collectedSets.length },
             { id: 'missions', label: 'Missions', count: collectedMissions.length },
             { id: 'strike-teams', label: 'Strike Teams', count: strikeTeams.length }
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'characters' | 'sets' | 'missions' | 'strike-teams')}
+              onClick={() => setActiveTab(tab.id as 'characters' | 'shelf-of-shame' | 'sets' | 'missions' | 'strike-teams')}
               style={{
                 padding: '12px 20px',
                 border: 'none',
@@ -1446,6 +1454,130 @@ export default function MyCollectionPage() {
           )}
         </div>
       </div>
+        </>
+      )}
+
+      {/* Shelf of Shame Tab */}
+      {activeTab === 'shelf-of-shame' && (
+        <>
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ color: '#f9fafb', margin: '0 0 16px 0', fontSize: '20px', fontWeight: '600' }}>
+              🎨 Shelf of Shame - Unpainted Characters
+            </h3>
+            <p style={{ color: '#9ca3af', margin: '0 0 20px 0', fontSize: '14px' }}>
+              Characters you own but haven't painted yet ({getShelfOfShame().length} unpainted)
+            </p>
+          </div>
+
+          {getShelfOfShame().length === 0 ? (
+            <div style={{
+              background: '#1f2937',
+              border: '1px solid #374151',
+              borderRadius: '12px',
+              padding: '40px',
+              textAlign: 'center'
+            }}>
+              <span style={{ fontSize: '60px' }}>🎉</span>
+              <h4 style={{ color: '#10b981', margin: '16px 0 8px 0', fontSize: '18px', fontWeight: '600' }}>
+                Congratulations!
+              </h4>
+              <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
+                Your shelf of shame is empty! All your characters are painted.
+              </p>
+            </div>
+          ) : (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '20px'
+            }}>
+              {getShelfOfShame().map((character) => (
+                <div
+                  key={character.id}
+                  style={{
+                    background: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    position: 'relative'
+                  }}
+                  onClick={() => setSelectedCharacter(character)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#6b7280';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#374151';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  {/* Unpainted Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '8px',
+                    right: '8px',
+                    background: '#f59e0b',
+                    color: 'white',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontSize: '10px',
+                    fontWeight: 'bold'
+                  }}>
+                    🎨 Unpainted
+                  </div>
+
+                  {/* Character Portrait */}
+                  <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                    <img
+                      src={character.portrait || '/images/placeholder-character.png'}
+                      alt={character.name}
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '8px',
+                        objectFit: 'cover',
+                        border: '2px solid #374151'
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/placeholder-character.png';
+                      }}
+                    />
+                  </div>
+
+                  {/* Character Info */}
+                  <div>
+                    <h4 style={{
+                      color: '#f9fafb',
+                      margin: '0 0 4px 0',
+                      fontSize: '16px',
+                      fontWeight: '600'
+                    }}>
+                      {character.name}
+                    </h4>
+                    <p style={{
+                      color: '#9ca3af',
+                      margin: '0 0 8px 0',
+                      fontSize: '12px'
+                    }}>
+                      {character.faction} • {character.role}
+                    </p>
+                    <p style={{
+                      color: '#6b7280',
+                      margin: 0,
+                      fontSize: '11px',
+                      fontStyle: 'italic'
+                    }}>
+                      Click to view details and mark as painted
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 

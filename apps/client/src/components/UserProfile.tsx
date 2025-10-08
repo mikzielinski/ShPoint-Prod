@@ -4,6 +4,7 @@ import { api } from '../lib/env';
 import ApiTokenManager from './ApiTokenManager';
 import MyGames from './MyGames';
 import Inbox from './Inbox';
+import AchievementsPage from './AchievementsPage';
 import { ShPointLogo } from './ShPointLogo';
 
 interface ComprehensiveStatsData {
@@ -85,6 +86,8 @@ interface ComprehensiveStatsData {
 }
 
 function ComprehensiveStats() {
+  const { auth } = useAuth();
+  const user = auth.status === 'authenticated' ? auth.user : null;
   const [stats, setStats] = useState<ComprehensiveStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -705,7 +708,7 @@ export default function UserProfile({ onClose }: UserProfileProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'games' | 'inbox' | 'stats' | 'modified' | 'api-tokens'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'games' | 'inbox' | 'stats' | 'achievements' | 'modified' | 'api-tokens'>('profile');
 
   // Update username when user changes
   useEffect(() => {
@@ -850,6 +853,22 @@ export default function UserProfile({ onClose }: UserProfileProps) {
         >
           My Stats
         </button>
+        <button
+          onClick={() => setActiveTab('achievements')}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: activeTab === 'achievements' ? '#3b82f6' : 'transparent',
+            color: activeTab === 'achievements' ? 'white' : '#94a3b8',
+            border: 'none',
+            borderRadius: '6px 6px 0 0',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          🏆 Achievements
+        </button>
         {(user.role === 'EDITOR' || user.role === 'ADMIN') && (
           <button
             onClick={() => setActiveTab('modified')}
@@ -984,6 +1003,10 @@ export default function UserProfile({ onClose }: UserProfileProps) {
 
       {activeTab === 'stats' && (
         <ComprehensiveStats />
+      )}
+
+      {activeTab === 'achievements' && (
+        <AchievementsPage />
       )}
 
       {activeTab === 'modified' && (user.role === 'EDITOR' || user.role === 'ADMIN') && (

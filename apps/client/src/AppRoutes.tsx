@@ -908,7 +908,6 @@ export default function AppRoutes() {
         <Route path="/content-management" element={<ContentManagementPage/>}/>
         <Route path="/faq" element={<FAQPage/>}/>
         <Route path="/user" element={<RequireAuth><UserProfile/></RequireAuth>}/>
-        <Route path="/achievements" element={<RequireAuth><AchievementsPage/></RequireAuth>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
         <Route path="/banned" element={<BannedPage/>}/>
         <Route path="/auth/google/failure" element={
