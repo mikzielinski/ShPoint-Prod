@@ -32,6 +32,7 @@ export default function AchievementsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedRarity, setSelectedRarity] = useState<string>('all');
+  const [showLocked, setShowLocked] = useState(false); // Collapsed by default
   const { auth } = useAuth();
   const user = auth.status === 'authenticated' ? auth.user : null;
 
@@ -99,6 +100,9 @@ export default function AchievementsPage() {
     const rarityMatch = selectedRarity === 'all' || achievement.rarity === selectedRarity;
     return categoryMatch && rarityMatch;
   });
+
+  const unlockedAchievements = filteredAchievements.filter(a => a.isUnlocked);
+  const lockedAchievements = filteredAchievements.filter(a => !a.isUnlocked);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -269,159 +273,382 @@ export default function AchievementsPage() {
         </div>
       </div>
 
-      {/* Achievements Grid */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-        gap: '20px' 
-      }}>
-        {filteredAchievements.map((achievement) => (
-          <div 
-            key={achievement.id} 
-            style={{
-              background: achievement.isUnlocked 
-                ? getRarityGradient(achievement.rarity)
-                : '#374151',
-              padding: '20px',
-              borderRadius: '12px',
-              border: `2px solid ${getRarityColor(achievement.rarity)}`,
-              position: 'relative',
-              opacity: achievement.isUnlocked ? 1 : 0.6,
-              transition: 'all 0.3s ease'
-            }}
-          >
-            {/* Rarity Badge */}
-            <div style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              background: achievement.isUnlocked ? 'rgba(255, 255, 255, 0.2)' : '#1f2937',
-              color: achievement.isUnlocked ? 'white' : '#9ca3af',
-              padding: '4px 8px',
-              borderRadius: '12px',
-              fontSize: '10px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase'
+      {/* UNLOCKED ACHIEVEMENTS SECTION - EXPANDED */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px'
+        }}>
+          <h2 style={{ 
+            color: '#10b981', 
+            margin: 0, 
+            fontSize: '24px', 
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            ✓ Unlocked Achievements
+            <span style={{
+              background: '#10b981',
+              color: 'white',
+              padding: '4px 12px',
+              borderRadius: '20px',
+              fontSize: '14px',
+              fontWeight: 'bold'
             }}>
-              {achievement.rarity}
-            </div>
+              {unlockedAchievements.length}
+            </span>
+          </h2>
+        </div>
 
-            {/* Achievement Icon */}
-            <div style={{ 
-              fontSize: '48px', 
-              marginBottom: '16px',
-              textAlign: 'center',
-              filter: achievement.isUnlocked ? 'none' : 'grayscale(100%)'
-            }}>
-              {achievement.icon}
-            </div>
-
-            {/* Achievement Info */}
-            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <h3 style={{ 
-                color: achievement.isUnlocked ? 'white' : '#f9fafb', 
-                margin: '0 0 8px 0', 
-                fontSize: '18px', 
-                fontWeight: '600' 
-              }}>
-                {achievement.name}
-              </h3>
-              <p style={{ 
-                color: achievement.isUnlocked ? 'rgba(255, 255, 255, 0.8)' : '#9ca3af', 
-                fontSize: '14px', 
-                margin: 0,
-                lineHeight: '1.4'
-              }}>
-                {achievement.description}
-              </p>
-            </div>
-
-            {/* Progress Bar (for locked achievements) */}
-            {!achievement.isUnlocked && achievement.progress > 0 && (
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center', 
-                  marginBottom: '8px' 
+        {/* Unlocked Achievements Grid */}
+        {unlockedAchievements.length > 0 ? (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+            gap: '20px' 
+          }}>
+            {unlockedAchievements.map((achievement) => (
+              <div 
+                key={achievement.id} 
+                style={{
+                  background: getRarityGradient(achievement.rarity),
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: `2px solid ${getRarityColor(achievement.rarity)}`,
+                  position: 'relative',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = `0 8px 24px ${getRarityColor(achievement.rarity)}40`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                {/* Unlocked Badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  left: '12px',
+                  background: '#10b981',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '10px',
+                  fontWeight: 'bold'
                 }}>
-                  <span style={{ color: '#d1d5db', fontSize: '12px' }}>Progress</span>
-                  <span style={{ color: '#d1d5db', fontSize: '12px' }}>{achievement.progress}%</span>
+                  ✓ UNLOCKED
                 </div>
+
+                {/* Rarity Badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase'
+                }}>
+                  {achievement.rarity}
+                </div>
+
+                {/* Achievement Icon */}
                 <div style={{ 
-                  background: '#1f2937', 
-                  height: '6px', 
-                  borderRadius: '3px', 
-                  overflow: 'hidden' 
+                  fontSize: '48px', 
+                  marginBottom: '16px',
+                  textAlign: 'center'
+                }}>
+                  {achievement.icon}
+                </div>
+
+                {/* Achievement Info */}
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ 
+                    color: 'white', 
+                    margin: '0 0 8px 0', 
+                    fontSize: '18px', 
+                    fontWeight: '600' 
+                  }}>
+                    {achievement.name}
+                  </h3>
+                  <p style={{ 
+                    color: 'rgba(255, 255, 255, 0.8)', 
+                    fontSize: '14px', 
+                    margin: 0,
+                    lineHeight: '1.4'
+                  }}>
+                    {achievement.description}
+                  </p>
+                </div>
+
+                {/* Community Stats */}
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  textAlign: 'center'
                 }}>
                   <div style={{ 
-                    background: getRarityColor(achievement.rarity), 
-                    height: '100%', 
-                    width: `${achievement.progress}%`,
-                    transition: 'width 0.3s ease'
-                  }} />
+                    color: 'white', 
+                    fontSize: '12px', 
+                    marginBottom: '4px' 
+                  }}>
+                    Community Completion
+                  </div>
+                  <div style={{ 
+                    color: 'white', 
+                    fontSize: '16px', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {achievement.communityCompletion}%
+                  </div>
+                  <div style={{ 
+                    color: 'rgba(255, 255, 255, 0.7)', 
+                    fontSize: '10px' 
+                  }}>
+                    {achievement.usersWithAchievement} of {achievement.totalUsers} players
+                  </div>
                 </div>
               </div>
-            )}
-
-            {/* Community Stats */}
-            <div style={{
-              background: achievement.isUnlocked ? 'rgba(255, 255, 255, 0.1)' : '#1f2937',
-              padding: '12px',
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}>
-              <div style={{ 
-                color: achievement.isUnlocked ? 'white' : '#d1d5db', 
-                fontSize: '12px', 
-                marginBottom: '4px' 
-              }}>
-                Community Completion
-              </div>
-              <div style={{ 
-                color: achievement.isUnlocked ? 'white' : '#f9fafb', 
-                fontSize: '16px', 
-                fontWeight: 'bold' 
-              }}>
-                {achievement.communityCompletion}%
-              </div>
-              <div style={{ 
-                color: achievement.isUnlocked ? 'rgba(255, 255, 255, 0.7)' : '#9ca3af', 
-                fontSize: '10px' 
-              }}>
-                {achievement.usersWithAchievement} of {achievement.totalUsers} players
-              </div>
-            </div>
-
-            {/* Unlocked Badge */}
-            {achievement.isUnlocked && (
-              <div style={{
-                position: 'absolute',
-                top: '12px',
-                left: '12px',
-                background: '#10b981',
-                color: 'white',
-                padding: '4px 8px',
-                borderRadius: '12px',
-                fontSize: '10px',
-                fontWeight: 'bold'
-              }}>
-                ✓ UNLOCKED
-              </div>
-            )}
+            ))}
           </div>
-        ))}
+        ) : (
+          <div style={{
+            background: '#1f2937',
+            padding: '40px',
+            borderRadius: '12px',
+            border: '1px solid #374151',
+            textAlign: 'center',
+            color: '#9ca3af'
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+            <p style={{ margin: 0, fontSize: '16px' }}>
+              No unlocked achievements yet. Keep playing to earn your first achievement!
+            </p>
+          </div>
+        )}
       </div>
 
-      {filteredAchievements.length === 0 && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '40px', 
-          color: '#9ca3af' 
-        }}>
-          No achievements found for the selected filters.
-        </div>
-      )}
+      {/* LOCKED ACHIEVEMENTS SECTION - COLLAPSIBLE */}
+      <div style={{ marginBottom: '32px' }}>
+        <button
+          onClick={() => setShowLocked(!showLocked)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: '#374151',
+            border: '1px solid #4b5563',
+            borderRadius: '12px',
+            padding: '20px',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            marginBottom: showLocked ? '16px' : 0
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#4b5563';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#374151';
+          }}
+        >
+          <h2 style={{ 
+            color: '#9ca3af', 
+            margin: 0, 
+            fontSize: '24px', 
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            🔒 Available Achievements
+            <span style={{
+              background: '#4b5563',
+              color: '#d1d5db',
+              padding: '4px 12px',
+              borderRadius: '20px',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}>
+              {lockedAchievements.length}
+            </span>
+          </h2>
+          <div style={{
+            color: '#9ca3af',
+            fontSize: '24px',
+            transform: showLocked ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease'
+          }}>
+            ▼
+          </div>
+        </button>
+
+        {/* Locked Achievements Grid - Only show when expanded */}
+        {showLocked && lockedAchievements.length > 0 && (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
+            gap: '20px' 
+          }}>
+            {lockedAchievements.map((achievement) => (
+              <div 
+                key={achievement.id} 
+                style={{
+                  background: '#374151',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: `2px solid ${getRarityColor(achievement.rarity)}40`,
+                  position: 'relative',
+                  opacity: 0.7,
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.9';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.7';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                {/* Rarity Badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '12px',
+                  right: '12px',
+                  background: '#1f2937',
+                  color: '#9ca3af',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase'
+                }}>
+                  {achievement.rarity}
+                </div>
+
+                {/* Achievement Icon - Grayscale */}
+                <div style={{ 
+                  fontSize: '48px', 
+                  marginBottom: '16px',
+                  textAlign: 'center',
+                  filter: 'grayscale(100%)',
+                  opacity: 0.5
+                }}>
+                  {achievement.icon}
+                </div>
+
+                {/* Achievement Info */}
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ 
+                    color: '#f9fafb', 
+                    margin: '0 0 8px 0', 
+                    fontSize: '18px', 
+                    fontWeight: '600' 
+                  }}>
+                    {achievement.name}
+                  </h3>
+                  <p style={{ 
+                    color: '#9ca3af', 
+                    fontSize: '14px', 
+                    margin: 0,
+                    lineHeight: '1.4'
+                  }}>
+                    {achievement.description}
+                  </p>
+                </div>
+
+                {/* Progress Bar (if progress > 0) */}
+                {achievement.progress > 0 && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center', 
+                      marginBottom: '8px' 
+                    }}>
+                      <span style={{ color: '#d1d5db', fontSize: '12px' }}>Progress</span>
+                      <span style={{ color: '#d1d5db', fontSize: '12px' }}>{achievement.progress}%</span>
+                    </div>
+                    <div style={{ 
+                      background: '#1f2937', 
+                      height: '6px', 
+                      borderRadius: '3px', 
+                      overflow: 'hidden' 
+                    }}>
+                      <div style={{ 
+                        background: getRarityColor(achievement.rarity), 
+                        height: '100%', 
+                        width: `${achievement.progress}%`,
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Community Stats */}
+                <div style={{
+                  background: '#1f2937',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ 
+                    color: '#d1d5db', 
+                    fontSize: '12px', 
+                    marginBottom: '4px' 
+                  }}>
+                    Community Completion
+                  </div>
+                  <div style={{ 
+                    color: '#f9fafb', 
+                    fontSize: '16px', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {achievement.communityCompletion}%
+                  </div>
+                  <div style={{ 
+                    color: '#9ca3af', 
+                    fontSize: '10px' 
+                  }}>
+                    {achievement.usersWithAchievement} of {achievement.totalUsers} players
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showLocked && lockedAchievements.length === 0 && (
+          <div style={{
+            background: '#1f2937',
+            padding: '40px',
+            borderRadius: '12px',
+            border: '1px solid #374151',
+            textAlign: 'center',
+            color: '#9ca3af',
+            marginTop: '16px'
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+            <p style={{ margin: 0, fontSize: '16px' }}>
+              Congratulations! You've unlocked all available achievements!
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
