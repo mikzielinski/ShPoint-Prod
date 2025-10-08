@@ -699,7 +699,7 @@ export async function syncCharacterToDatabase(characterId: string, characterData
       boxSetCode: characterData.boxSetCode || characterData.set_code || null,
       characterNames: Array.isArray(characterData.characterNames) ? characterData.characterNames.join(', ') : (characterData.characterNames || ''),
       numberOfCharacters: characterData.number_of_characters || 1,
-      era: characterData.era || null,
+      era: Array.isArray(characterData.era) ? characterData.era : (characterData.era ? [characterData.era] : []),
       period: characterData.period || [],
       tags: characterData.tags || [],
       portraitUrl: characterData.portrait || null,
@@ -1368,7 +1368,7 @@ app.post("/api/dev/test-create-character", validateDevAccess, async (req: Reques
         boxSetCode: characterData.boxSetCode || characterData.set_code || null,
         characterNames: Array.isArray(characterData.characterNames) ? characterData.characterNames.join(', ') : (characterData.characterNames || ''),
         numberOfCharacters: characterData.number_of_characters || 1,
-        era: characterData.era || null,
+        era: Array.isArray(characterData.era) ? characterData.era : (characterData.era ? [characterData.era] : []),
         period: characterData.period || [],
         tags: characterData.tags || [],
         portraitUrl: characterData.portrait || null,
@@ -1496,7 +1496,7 @@ app.post("/api/dev/test-collection", validateDevAccess, async (req: Request, res
             boxSetCode: characterData.boxSetCode || null,
             characterNames: Array.isArray(characterData.characterNames) ? characterData.characterNames.join(', ') : (characterData.characterNames || ''),
             numberOfCharacters: characterData.number_of_characters || 1,
-            era: characterData.era || null,
+            era: Array.isArray(characterData.era) ? characterData.era : (characterData.era ? [characterData.era] : []),
             period: characterData.period || [],
             tags: characterData.tags || [],
             portraitUrl: characterData.portrait || null,
@@ -1647,7 +1647,7 @@ app.put("/api/dev/test-edit-character", validateDevAccess, async (req: Request, 
         boxSetCode: updates.boxSetCode || null,
         characterNames: Array.isArray(updates.characterNames) ? updates.characterNames.join(', ') : (updates.characterNames || ''),
         numberOfCharacters: updates.numberOfCharacters || 1,
-        era: updates.era || null,
+        era: Array.isArray(updates.era) ? updates.era : (updates.era ? [updates.era] : []),
         period: updates.period || [],
         tags: updates.tags || [],
         portraitUrl: updates.portraitUrl || null,
@@ -3112,6 +3112,15 @@ app.post("/api/shatterpoint/characters", ensureAuth, async (req, res) => {
           error: `Failed to create character ${characterId} in database` 
         });
       }
+    }
+
+    // Ensure character was created successfully
+    if (!character) {
+      console.log(`Error: Character ${characterId} could not be created`);
+      return res.status(500).json({ 
+        ok: false, 
+        error: `Character ${characterId} could not be created in database` 
+      });
     }
 
     // Check if collection already exists
