@@ -710,10 +710,17 @@ export default function MyCollectionPage() {
 
   // Get characters with collection data
   const getCollectedCharacters = () => {
-    return characterCollections.map(collection => {
+    console.log('🔍 getCollectedCharacters - characterCollections:', characterCollections);
+    console.log('🔍 getCollectedCharacters - allCharacters length:', allCharacters.length);
+    
+    const result = characterCollections.map(collection => {
       const character = allCharacters.find(c => c.id === collection.characterId);
+      console.log(`🔍 Looking for characterId: ${collection.characterId}, found:`, character ? character.name : 'NOT FOUND');
       return character ? { ...character, collection } : null;
     }).filter(Boolean) as (Character & { collection: CharacterCollection })[];
+    
+    console.log('🔍 getCollectedCharacters - result length:', result.length);
+    return result;
   };
 
   const getFilteredCharacters = () => {
