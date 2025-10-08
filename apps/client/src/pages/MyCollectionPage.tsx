@@ -396,56 +396,52 @@ export default function MyCollectionPage() {
       setLoading(true);
       setError(null);
 
-      // Load all characters first
-      const charactersResponse = await fetch(api('/api/characters'), {
-        credentials: 'include',
-      });
+      // Load all data in parallel for better performance
+      const [charactersResponse, characterResponse, setResponse] = await Promise.all([
+        fetch(api('/api/characters'), { credentials: 'include' }),
+        fetch(api('/api/shatterpoint/characters'), { credentials: 'include' }),
+        fetch(api('/api/shatterpoint/sets'), { credentials: 'include' })
+      ]);
+
+      // Check responses
       if (!charactersResponse.ok) throw new Error('Failed to load characters');
-      const charactersData = await charactersResponse.json();
-      setAllCharacters(charactersData.items || []);
-
-      // Load character collections
-      const characterResponse = await fetch(api('/api/shatterpoint/characters'), {
-        credentials: 'include',
-      });
       if (!characterResponse.ok) throw new Error('Failed to load character collections');
-      const characterData = await characterResponse.json();
-      console.log('🔍 Character collections loaded:', characterData.collections);
-      setCharacterCollections(characterData.collections || []);
-
-      // Load set collections
-      const setResponse = await fetch(api('/api/shatterpoint/sets'), {
-        credentials: 'include',
-      });
       if (!setResponse.ok) throw new Error('Failed to load set collections');
-      const setData = await setResponse.json();
-      console.log('🔍 Set collections loaded:', setData.collections);
+
+      // Parse all responses in parallel
+      const [charactersData, characterData, setData] = await Promise.all([
+        charactersResponse.json(),
+        characterResponse.json(),
+        setResponse.json()
+      ]);
+
+      // Update state
+      setAllCharacters(charactersData.items || []);
+      setCharacterCollections(characterData.collections || []);
       setSetCollections(setData.collections || []);
 
-      // Load mission collections
-      const missionResponse = await fetch(api('/api/shatterpoint/missions'), {
-        credentials: 'include',
-      });
+      // Load remaining data in parallel
+      const [missionResponse, strikeTeamsResponse, statsResponse] = await Promise.all([
+        fetch(api('/api/shatterpoint/missions'), { credentials: 'include' }),
+        fetch(api('/api/shatterpoint/strike-teams'), { credentials: 'include' }),
+        fetch(api('/api/shatterpoint/stats'), { credentials: 'include' })
+      ]);
+
+      // Check responses
       if (!missionResponse.ok) throw new Error('Failed to load mission collections');
-      const missionData = await missionResponse.json();
-      console.log('🔍 Mission collections loaded:', missionData.missionCollections || missionData.collections);
-      setMissionCollections(missionData.missionCollections || missionData.collections || []);
-
-      // Load strike teams
-      const strikeTeamsResponse = await fetch(api('/api/shatterpoint/strike-teams'), {
-        credentials: 'include',
-      });
       if (!strikeTeamsResponse.ok) throw new Error('Failed to load strike teams');
-      const strikeTeamsData = await strikeTeamsResponse.json();
-      console.log('🔍 Strike teams loaded:', strikeTeamsData.strikeTeams);
-      setStrikeTeams(strikeTeamsData.strikeTeams || []);
-
-      // Load stats
-      const statsResponse = await fetch(api('/api/shatterpoint/stats'), {
-        credentials: 'include',
-      });
       if (!statsResponse.ok) throw new Error('Failed to load collection stats');
-      const statsData = await statsResponse.json();
+
+      // Parse all responses in parallel
+      const [missionData, strikeTeamsData, statsData] = await Promise.all([
+        missionResponse.json(),
+        strikeTeamsResponse.json(),
+        statsResponse.json()
+      ]);
+
+      // Update state
+      setMissionCollections(missionData.missionCollections || missionData.collections || []);
+      setStrikeTeams(strikeTeamsData.strikeTeams || []);
       setStats(statsData.stats);
 
     } catch (err) {
@@ -711,17 +707,10 @@ export default function MyCollectionPage() {
 
   // Get characters with collection data (memoized to prevent unnecessary recalculations)
   const collectedCharacters = React.useMemo(() => {
-    console.log('🔍 getCollectedCharacters - characterCollections:', characterCollections);
-    console.log('🔍 getCollectedCharacters - allCharacters length:', allCharacters.length);
-    
-    const result = characterCollections.map(collection => {
+    return characterCollections.map(collection => {
       const character = allCharacters.find(c => c.id === collection.characterId);
-      console.log(`🔍 Looking for characterId: ${collection.characterId}, found:`, character ? character.name : 'NOT FOUND');
       return character ? { ...character, collection } : null;
     }).filter(Boolean) as (Character & { collection: CharacterCollection })[];
-    
-    console.log('🔍 getCollectedCharacters - result length:', result.length);
-    return result;
   }, [characterCollections, allCharacters]);
 
   const getFilteredCharacters = () => {
