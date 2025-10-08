@@ -392,6 +392,20 @@ function CharactersPage() {
       // Check if any sets should be auto-added for this specific character
       await checkAndAutoAddSets(characterId);
       
+      // Check achievements after adding character
+      try {
+        const achievementResponse = await fetch(api(`/api/dev/check-achievements/${me.id}`), {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (achievementResponse.ok) {
+          console.log('✅ Achievements checked after adding character');
+        }
+      } catch (achievementError) {
+        console.error('Error checking achievements:', achievementError);
+        // Don't fail the whole operation if achievement check fails
+      }
+      
     } catch (error) {
       console.error("Error adding character to collection:", error);
       alert("Failed to add character to collection");

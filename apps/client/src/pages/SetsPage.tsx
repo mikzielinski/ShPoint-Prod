@@ -495,6 +495,21 @@ const SetsPage: React.FC = () => {
             }
           }
         }
+        
+        // Check achievements after adding set
+        try {
+          const achievementResponse = await fetch(api(`/api/dev/check-achievements/${user.id}`), {
+            method: 'POST',
+            credentials: 'include'
+          });
+          if (achievementResponse.ok) {
+            console.log('✅ Achievements checked after adding set');
+          }
+        } catch (achievementError) {
+          console.error('Error checking achievements:', achievementError);
+          // Don't fail the whole operation if achievement check fails
+        }
+        
       } else {
         console.error('Failed to add set to collection');
         alert('❌ Failed to add set to collection. Please try again.');
