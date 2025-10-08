@@ -1512,30 +1512,89 @@ export default function MyCollectionPage() {
             unitTypeLabel="Roles"
           />
 
-          {/* Right main area - Unpainted Characters (same layout as Characters tab) */}
-          <div style={{ flex: 1 }}>
-            {getShelfOfShame().length === 0 ? (
-              <div style={{
-                textAlign: "center",
-                padding: "48px 0",
-                color: "#6b7280"
-              }}>
-                <span style={{ fontSize: '60px' }}>🎉</span>
-                <h2 style={{
-                  fontSize: "20px",
-                  fontWeight: "600",
-                  marginBottom: "8px",
-                  color: "#f9fafb"
-                }}>Congratulations!</h2>
-                <p style={{ marginBottom: "16px" }}>Your shelf of shame is empty! All your characters are painted.</p>
-              </div>
-            ) : (
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(5, 1fr)",
-                gap: "16px"
-              }}>
-                {getShelfOfShame().map((character) => (
+          {/* Main layout: Left sidebar with stats, Right main area with unpainted characters */}
+          <div style={{
+            display: "flex",
+            gap: "24px",
+            marginTop: "20px"
+          }}>
+            {/* Left sidebar - Statistics */}
+            <div style={{
+              width: "280px",
+              flexShrink: 0
+            }}>
+              {stats && (
+                <div style={{
+                  background: "#1f2937",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  border: "1px solid #374151"
+                }}>
+                  <h3 style={{
+                    color: "#f9fafb",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    marginBottom: "16px"
+                  }}>Shelf of Shame Statistics</h3>
+                  
+                  {/* Unpainted Character Stats */}
+                  <div style={{ marginBottom: "20px" }}>
+                    <h4 style={{
+                      color: "#d1d5db",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      marginBottom: "8px"
+                    }}>Unpainted Characters</h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+                        <span style={{ color: "#9ca3af" }}>Total Owned:</span>
+                        <span style={{ color: "#f9fafb", fontWeight: "500" }}>{stats.characters.owned}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+                        <span style={{ color: "#9ca3af" }}>Unpainted:</span>
+                        <span style={{ color: "#f59e0b", fontWeight: "500" }}>{getShelfOfShame().length}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
+                        <span style={{ color: "#9ca3af" }}>Painted:</span>
+                        <span style={{ color: "#16a34a", fontWeight: "500" }}>
+                          {stats.characters.painted} 
+                          {stats.characters.owned > 0 && (
+                            <span style={{ color: "#6b7280", fontSize: "10px", marginLeft: "4px" }}>
+                              ({Math.round((stats.characters.painted / stats.characters.owned) * 100)}%)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right main area - Unpainted Characters */}
+            <div style={{ flex: 1 }}>
+              {getShelfOfShame().length === 0 ? (
+                <div style={{
+                  textAlign: "center",
+                  padding: "48px 0",
+                  color: "#6b7280"
+                }}>
+                  <span style={{ fontSize: '60px' }}>🎉</span>
+                  <h2 style={{
+                    fontSize: "20px",
+                    fontWeight: "600",
+                    marginBottom: "8px",
+                    color: "#f9fafb"
+                  }}>Congratulations!</h2>
+                  <p style={{ marginBottom: "16px" }}>Your shelf of shame is empty! All your characters are painted.</p>
+                </div>
+              ) : (
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(5, 1fr)",
+                  gap: "16px"
+                }}>
+                  {getShelfOfShame().map((character) => (
                   <div key={character.id} style={{
                     background: "#1f2937",
                     borderRadius: "12px",
@@ -1675,8 +1734,9 @@ export default function MyCollectionPage() {
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
