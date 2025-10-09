@@ -591,7 +591,15 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
         portraitUrl: formData.portrait,
         imageUrl: formData.portrait,
         abilities: formData.structuredAbilities || [],
-        version: 1
+        version: 1,
+        // Include stance data if available
+        stance: stanceData ? {
+          attackDice: stanceData.sides?.[0]?.attack?.melee?.dice || 0,
+          defenseDice: stanceData.sides?.[0]?.attack?.melee?.defense || 0,
+          meleeExpertise: stanceData.sides?.[0]?.attack?.melee?.expertise || [],
+          rangedExpertise: stanceData.sides?.[0]?.attack?.ranged?.expertise || [],
+          tree: stanceData.sides?.[0]?.tree || {}
+        } : undefined
       };
 
       // Try database API first
