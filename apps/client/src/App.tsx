@@ -1,6 +1,7 @@
 // apps/client/src/App.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { api } from "./lib/env";
 
 // CACHE BUST v1.4.5 - FORCE NETLIFY REBUILD
 import { rollDice, summarizeDice, summaryToString, type SymbolType } from "@shpoint/shared";
@@ -273,8 +274,12 @@ function EditorPage() {
   useEffect(() => {
     const loadCharacters = async () => {
       try {
-        const response = await fetch("/api/characters", { credentials: "include" });
+        console.log('🔍 EditorPage: Fetching characters from:', api("/api/characters"));
+        const response = await fetch(api("/api/characters"), { credentials: "include" });
+        console.log('📊 EditorPage: Response status:', response.status);
         const data = await response.json();
+        console.log('📊 EditorPage: Data:', { length: data?.length, type: Array.isArray(data) ? 'array' : typeof data });
+        console.log('📊 EditorPage: First character:', data?.[0]);
         setCharacters(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to load characters:", error);
