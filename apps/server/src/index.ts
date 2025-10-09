@@ -1160,6 +1160,56 @@ app.post("/api/dev/force-sync-abilities/:characterId", validateDevAccess, async 
   }
 });
 
+// Fix glyph format in character abilities
+app.post("/api/dev/fix-glyphs/:characterId", validateDevAccess, async (req: Request, res: Response) => {
+  try {
+    const { characterId } = req.params;
+    
+    console.log(`Fixing glyph format for character ${characterId}...`);
+    
+    // Find character by ID
+    const character = await prisma.character.findUnique({
+      where: { id: characterId },
+      include: { abilities: true }
+    });
+    
+    if (!character) {
+      return res.status(404).json({ ok: false, error: 'Character not found' });
+    }
+    
+    let fixedCount = 0;
+    
+    // Fix each ability description
+    for (const ability of character.abilities) {
+      if (ability.description) {
+        // Replace <glyph>X</glyph> with [[X]]
+        const originalDescription = ability.description;
+        const fixedDescription = originalDescription.replace(/<glyph>([^<]+)<\/glyph>/g, '[[$1]]');
+        
+        if (originalDescription !== fixedDescription) {
+          await prisma.characterAbility.update({
+            where: { id: ability.id },
+            data: { description: fixedDescription }
+          });
+          fixedCount++;
+          console.log(`Fixed ability ${ability.name}: ${originalDescription} -> ${fixedDescription}`);
+        }
+      }
+    }
+    
+    res.json({
+      ok: true,
+      message: `Fixed ${fixedCount} abilities for character ${characterId}`,
+      characterId,
+      fixedCount
+    });
+    
+  } catch (error: any) {
+    console.error('Fix glyphs error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // Comprehensive testing endpoints for character functionality
 app.get("/api/dev/test-character-system", validateDevAccess, async (req: Request, res: Response) => {
   try {
