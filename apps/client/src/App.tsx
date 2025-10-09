@@ -275,7 +275,7 @@ function EditorPage() {
       try {
         const response = await fetch("/api/characters", { credentials: "include" });
         const data = await response.json();
-        setCharacters(data.items || []);
+        setCharacters(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to load characters:", error);
       } finally {
