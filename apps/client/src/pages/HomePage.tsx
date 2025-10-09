@@ -24,20 +24,21 @@ const HomePage: React.FC = () => {
   // Load stats from API
   useEffect(() => {
     const loadStats = async () => {
+      console.log('🔍 HomePage: Loading stats...');
       try {
         // Fetch characters count
         const charactersRes = await fetch(api('/api/characters'), { credentials: 'include' });
         const charactersData = await charactersRes.json();
         const charactersCount = Array.isArray(charactersData) ? charactersData.length : 0;
 
-        // Fetch sets count (assuming you have a /api/sets endpoint)
+        // Fetch sets count from /api/v2/sets
         let setsCount = 14; // fallback to hardcoded value
         try {
-          const setsRes = await fetch(api('/api/sets'), { credentials: 'include' });
+          const setsRes = await fetch(api('/api/v2/sets'), { credentials: 'include' });
           const setsData = await setsRes.json();
-          setsCount = Array.isArray(setsData) ? setsData.length : 14;
+          setsCount = Array.isArray(setsData?.items) ? setsData.items.length : 14;
         } catch (e) {
-          console.log('Sets endpoint not available, using default');
+          console.log('Sets endpoint not available, using default:', e);
         }
 
         // Fetch users count (assuming you have a /api/admin/users endpoint)
@@ -50,6 +51,7 @@ const HomePage: React.FC = () => {
           console.log('Users endpoint not available');
         }
 
+        console.log('📊 HomePage stats loaded:', { charactersCount, setsCount, usersCount });
         setStats({
           characters: charactersCount,
           sets: setsCount,
