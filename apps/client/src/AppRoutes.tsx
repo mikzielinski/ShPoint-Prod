@@ -102,6 +102,7 @@ function CharactersPage() {
         console.log('📊 Characters response status:', res.status);
         const json = (await res.json()) as Character[];
         console.log('📊 Characters data:', { length: json?.length, type: Array.isArray(json) ? 'array' : typeof json });
+        console.log('📊 First character:', json?.[0]);
         if (alive) setData(json ?? []);
       } catch (error) { 
         console.error('❌ Error loading characters:', error);
@@ -138,6 +139,7 @@ function CharactersPage() {
 
   // Filter characters based on current filters
   const filteredData = useMemo(() => {
+    console.log('🔍 Filtering data:', { dataLength: data.length, filters });
     return data.filter((char) => {
       // Text search
       if (filters.text) {
