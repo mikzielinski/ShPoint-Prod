@@ -60,7 +60,7 @@ const ContentManagementPage: React.FC = () => {
       setLoading(true);
       const response = await fetch(api('/api/characters'), { credentials: 'include' });
       const data = await response.json();
-      setCharacters(data.items || []);
+      setCharacters(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Błąd ładowania postaci:', error);
     } finally {
