@@ -100,9 +100,9 @@ function CharactersPage() {
         console.log('🔍 Fetching characters from:', api("/api/characters"));
         const res = await fetch(api("/api/characters"), { credentials: "include" });
         console.log('📊 Characters response status:', res.status);
-        const json = (await res.json()) as ApiList;
-        console.log('📊 Characters data:', { ok: json.ok, itemsCount: json.items?.length, total: json.total });
-        if (alive) setData(json.items ?? []);
+        const json = (await res.json()) as Character[];
+        console.log('📊 Characters data:', { length: json?.length, type: Array.isArray(json) ? 'array' : typeof json });
+        if (alive) setData(json ?? []);
       } catch (error) { 
         console.error('❌ Error loading characters:', error);
         if (alive) setData([]); 
