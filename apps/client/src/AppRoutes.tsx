@@ -996,7 +996,7 @@ export default function AppRoutes() {
         <Route path="/strike-teams" element={<PublicStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
-        <Route path="/editor" element={<EditorPage/>}/>
+        <Route path="/editor" element={<RequireAuth role="EDITOR"><EditorPage/></RequireAuth>}/>
         <Route path="/content-management" element={<ContentManagementPage/>}/>
         <Route path="/faq" element={<FAQPage/>}/>
         <Route path="/user" element={<RequireAuth><UserProfile/></RequireAuth>}/>
