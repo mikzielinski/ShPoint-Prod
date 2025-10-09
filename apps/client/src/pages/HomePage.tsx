@@ -21,6 +21,50 @@ const HomePage: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  // Load stats from API
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        // Fetch characters count
+        const charactersRes = await fetch(api('/api/characters'), { credentials: 'include' });
+        const charactersData = await charactersRes.json();
+        const charactersCount = Array.isArray(charactersData) ? charactersData.length : 0;
+
+        // Fetch sets count (assuming you have a /api/sets endpoint)
+        let setsCount = 14; // fallback to hardcoded value
+        try {
+          const setsRes = await fetch(api('/api/sets'), { credentials: 'include' });
+          const setsData = await setsRes.json();
+          setsCount = Array.isArray(setsData) ? setsData.length : 14;
+        } catch (e) {
+          console.log('Sets endpoint not available, using default');
+        }
+
+        // Fetch users count (assuming you have a /api/admin/users endpoint)
+        let usersCount = 0;
+        try {
+          const usersRes = await fetch(api('/api/admin/users'), { credentials: 'include' });
+          const usersData = await usersRes.json();
+          usersCount = usersData?.users?.length || 0;
+        } catch (e) {
+          console.log('Users endpoint not available');
+        }
+
+        setStats({
+          characters: charactersCount,
+          sets: setsCount,
+          users: usersCount,
+          features: 23
+        });
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadStats();
+  }, []);
+
   // Define updates data
   const updates = [
     {
