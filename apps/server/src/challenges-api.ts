@@ -255,12 +255,13 @@ export async function createChallenge(req: Request, res: Response) {
     });
 
     // Send inbox message to challenged user
+    const challengerName = challenge.challenger.name || challenge.challenger.username || 'Unknown User';
     await createInboxMessage(
       challengedId,
       userId,
       'challenge',
       'New Challenge Received',
-      `You have received a new challenge from ${challenge.challenger.name || challenge.challenger.username || 'Unknown User'}`,
+      `You have received a new challenge from ${challengerName}`,
       {
         challengeId: challenge.id,
         preferredMissions: challenge.preferredMissions
@@ -542,7 +543,7 @@ export async function acceptChallenge(req: Request, res: Response) {
         location,
         status: 'SCHEDULED',
         challengeId: challengeId,
-        notes: `Challenge game between ${challenge.challenger.name} and ${challenge.challenged.name}. Mission: ${mission || 'TBD'}`
+        notes: `Challenge game between ${challenge.challenger.name || challenge.challenger.username || 'Unknown'} and ${challenge.challenged.name || challenge.challenged.username || 'Unknown'}. Mission: ${mission || 'TBD'}`
       }
     });
 
@@ -553,7 +554,7 @@ export async function acceptChallenge(req: Request, res: Response) {
         senderId: challenge.challengedId,
         type: 'CHALLENGE_ACCEPTED',
         title: 'Challenge Accepted!',
-        content: `Your challenge has been accepted by ${challenge.challenged.name}!`,
+        content: `Your challenge has been accepted by ${challenge.challenged.name || challenge.challenged.username || 'Unknown User'}!`,
         data: JSON.stringify({
           challengeId: challengeId,
           gameId: scheduledGame.id,

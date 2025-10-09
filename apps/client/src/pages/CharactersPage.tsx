@@ -75,13 +75,13 @@ export default function CharactersPage() {
           // Fallback to old API
           console.log('🔄 Falling back to old API for characters');
           const fallbackRes = await fetch(api("/api/characters"), { credentials: "include" });
-          const fallbackJson = (await fallbackRes.json()) as { items: Character[]; total: number };
+          const fallbackJson = (await fallbackRes.json()) as Character[];
           if (alive) {
-            setData(fallbackJson.items ?? []);
+            setData(fallbackJson ?? []);
             setPagination({
               page: 1,
-              limit: fallbackJson.items?.length || 0,
-              total: fallbackJson.total || 0,
+              limit: fallbackJson?.length || 0,
+              total: fallbackJson?.length || 0,
               totalPages: 1
             });
           }
