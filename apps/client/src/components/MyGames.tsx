@@ -267,6 +267,7 @@ export default function MyGames({ playerId }: MyGamesProps) {
   const [selectedGameForResult, setSelectedGameForResult] = useState<ApprovedGameForResults | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedApproval, setSelectedApproval] = useState<PendingGameResultApproval | null>(null);
+  const [approvingGameResult, setApprovingGameResult] = useState<string | null>(null);
   const [showEditGameModal, setShowEditGameModal] = useState(false);
   const [selectedGameForEdit, setSelectedGameForEdit] = useState<any>(null);
   const [showCancelGameModal, setShowCancelGameModal] = useState(false);
@@ -609,6 +610,10 @@ export default function MyGames({ playerId }: MyGamesProps) {
   const approveGameResult = async (gameResultId: string) => {
     if (!confirm('Are you sure you want to approve this game result?')) return;
     
+    // Prevent multiple clicks
+    if (approvingGameResult === gameResultId) return;
+    setApprovingGameResult(gameResultId);
+    
     try {
       const response = await fetch(api(`/api/v2/game-results/approve`), {
         method: 'POST',
@@ -634,6 +639,8 @@ export default function MyGames({ playerId }: MyGamesProps) {
     } catch (error) {
       console.error('Error approving game result:', error);
       alert('Error approving game result');
+    } finally {
+      setApprovingGameResult(null);
     }
   };
 
@@ -1557,17 +1564,18 @@ export default function MyGames({ playerId }: MyGamesProps) {
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button
                           onClick={() => approveGameResult(approval.id)}
+                          disabled={approvingGameResult === approval.id}
                           style={{
-                            background: '#10b981',
+                            background: approvingGameResult === approval.id ? '#6b7280' : '#10b981',
                             color: 'white',
                             padding: '6px 12px',
                             border: 'none',
                             borderRadius: '4px',
-                            cursor: 'pointer',
+                            cursor: approvingGameResult === approval.id ? 'not-allowed' : 'pointer',
                             fontSize: '12px'
                           }}
                         >
-                          Approve
+                          {approvingGameResult === approval.id ? 'Approving...' : 'Approve'}
                         </button>
                         <button
                           onClick={() => rejectGameResult(approval.id)}
@@ -2188,17 +2196,21 @@ export default function MyGames({ playerId }: MyGamesProps) {
             </div>
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button onClick={() => {
-                approveGameResult(selectedApproval.id);
-              }} style={{
-                padding: '8px 16px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}>
-                ✅ Approve
+              <button 
+                onClick={() => {
+                  approveGameResult(selectedApproval.id);
+                }}
+                disabled={approvingGameResult === selectedApproval.id}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: approvingGameResult === selectedApproval.id ? '#6b7280' : '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: approvingGameResult === selectedApproval.id ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {approvingGameResult === selectedApproval.id ? '⏳ Approving...' : '✅ Approve'}
               </button>
               <button onClick={() => {
                 rejectGameResult(selectedApproval.id);

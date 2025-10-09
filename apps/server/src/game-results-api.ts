@@ -992,12 +992,20 @@ export async function approveGameResult(req: Request, res: Response) {
       });
     }
 
-    // Check if user is the opponent
+    // Check if user is the opponent (not the one who reported the result)
     const opponentId = gameResult.player1Id === userId ? gameResult.player2Id : gameResult.player1Id;
     if (gameResult.player1Id !== userId && gameResult.player2Id !== userId) {
       return res.status(403).json({ 
         ok: false, 
         error: 'You can only approve results for your own games' 
+      });
+    }
+
+    // Check if user is not the one who reported the result
+    if (!gameResult.reportedById || gameResult.reportedById === userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: 'You cannot approve your own game result' 
       });
     }
 
