@@ -2156,7 +2156,7 @@ export async function getUserComprehensiveStats(req: Request, res: Response) {
     });
 
     // Check and unlock new achievements
-    const { checkAndUnlockAchievements } = await import('./achievements-api');
+    const { checkAndUnlockAchievements } = await import('./achievements-api.js');
     const newlyUnlocked = await checkAndUnlockAchievements(userId);
 
     // Get updated achievements if any were unlocked
