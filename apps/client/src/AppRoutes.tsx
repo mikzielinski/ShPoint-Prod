@@ -997,7 +997,7 @@ export default function AppRoutes() {
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
         <Route path="/editor" element={<RequireAuth role="EDITOR"><EditorPage/></RequireAuth>}/>
-        <Route path="/content-management" element={<ContentManagementPage/>}/>
+        <Route path="/content-management" element={<RequireAuth role="EDITOR"><ContentManagementPage/></RequireAuth>}/>
         <Route path="/faq" element={<FAQPage/>}/>
         <Route path="/user" element={<RequireAuth><UserProfile/></RequireAuth>}/>
         <Route path="/unauthorized" element={<UnauthorizedPage/>}/>
