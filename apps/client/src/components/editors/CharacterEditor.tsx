@@ -177,7 +177,7 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
     k: "\u006B", // tactic
     l: "\u006C", // innate
     m: "\u006D", // identify
-    g: "\u0067", // ranged (correct)
+    g: "\u006E", // ranged (correct - using n instead of g)
     o: "\u006F", // melee
     p: "\u0070", // shove
     q: "\u0071", // damage
@@ -280,8 +280,8 @@ export const CharacterEditor: React.FC<CharacterEditorProps> = ({
       'identify': "\u006D", // m - sp-identify
       'strike': "\u0061", // a - sp-strike
       'hunker': "\u0033", // 3 - sp-hunker
-      'ranged': "\u0067", // g - sp-ranged
-      'range': "\u0067", // g - sp-range
+      'ranged': "\u006E", // n - sp-ranged
+      'range': "\u006E", // n - sp-ranged (same as ranged)
       'attack-expertise': "\u0063", // c - sp-attack-expertise
       'defense-expertise': "\u0066", // f - sp-defense-expertise
       'reposition': "\u0073", // s - sp-reposition

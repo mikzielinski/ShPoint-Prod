@@ -16,7 +16,7 @@ const ICON: Record<string, string> = {
   d: "\u0064", // failure
   e: "\u0065", // block
   f: "\u0066", // defense expertise
-  g: "\u0067", // range icon (mapujemy do sp-ranged)
+  g: "\u006E", // ranged (using n instead of g)
   h: "\u0068", // dash
   i: "\u0069", // reactive
   j: "\u006A", // active
