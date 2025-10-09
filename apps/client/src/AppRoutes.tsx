@@ -84,6 +84,94 @@ type Character = {
 };
 type ApiList = { items: Character[]; total: number };
 
+function EditorPage() {
+  const [characters, setCharacters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showEditor, setShowEditor] = useState(false);
+  const [selectedCharacter, setSelectedCharacter] = useState<any>(null);
+
+  // Load characters
+  useEffect(() => {
+    const loadCharacters = async () => {
+      try {
+        console.log('🔍 EditorPage: Fetching characters from:', api("/api/characters"));
+        const response = await fetch(api("/api/characters"), { credentials: "include" });
+        console.log('📊 EditorPage: Response status:', response.status);
+        const data = await response.json();
+        console.log('📊 EditorPage: Data:', { length: data?.length, type: Array.isArray(data) ? 'array' : typeof data });
+        console.log('📊 EditorPage: First character:', data?.[0]);
+        setCharacters(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to load characters:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCharacters();
+  }, []);
+
+  const handleEditCharacter = (character: any) => {
+    setSelectedCharacter(character);
+    setShowEditor(true);
+  };
+
+  if (loading) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading characters...</div>;
+  }
+
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <h1>Character Editor</h1>
+      <p>Edit character data and abilities (EDITOR/ADMIN access).</p>
+      
+      {characters.length === 0 ? (
+        <p>No characters found.</p>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+          {characters.map((character) => (
+            <div
+              key={character.id}
+              style={{
+                border: "1px solid #374151",
+                borderRadius: "8px",
+                padding: "16px",
+                background: "#1f2937",
+                cursor: "pointer",
+              }}
+              onClick={() => handleEditCharacter(character)}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <img
+                  src={character.portrait || character.image || "https://picsum.photos/seed/placeholder/60/60"}
+                  alt={character.name}
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "8px",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://picsum.photos/seed/placeholder/60/60";
+                  }}
+                />
+                <div>
+                  <h3 style={{ margin: 0, color: "#f9fafb", fontSize: "16px" }}>{character.name}</h3>
+                  <p style={{ margin: "4px 0 0 0", color: "#9ca3af", fontSize: "14px" }}>
+                    {character.role || character.unit_type} • {character.faction || "Unknown"}
+                  </p>
+                  <p style={{ margin: "2px 0 0 0", color: "#6b7280", fontSize: "12px" }}>
+                    ID: {character.id}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CharactersPage() {
   const [data, setData] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,6 +190,7 @@ function CharactersPage() {
         console.log('📊 Characters response status:', res.status);
         const json = (await res.json()) as Character[];
         console.log('📊 Characters data:', { length: json?.length, type: Array.isArray(json) ? 'array' : typeof json });
+        console.log('📊 Characters data full:', json);
         console.log('📊 First character:', json?.[0]);
         if (alive) setData(json ?? []);
       } catch (error) { 
@@ -907,6 +996,7 @@ export default function AppRoutes() {
         <Route path="/strike-teams" element={<PublicStrikeTeamsPage/>}/>
         <Route path="/collections" element={<CollectionsPage/>}/>
         <Route path="/admin" element={<AdminPage/>}/>
+        <Route path="/editor" element={<EditorPage/>}/>
         <Route path="/content-management" element={<ContentManagementPage/>}/>
         <Route path="/faq" element={<FAQPage/>}/>
         <Route path="/user" element={<RequireAuth><UserProfile/></RequireAuth>}/>
