@@ -3688,19 +3688,83 @@ app.get("/api/characters/:id/stance", async (req, res) => {
  */
 app.get("/api/characters", async (req, res) => {
   try {
-    // Read the real character data from the client's public folder
-    const fs = await import('fs');
-    const path = await import('path');
+    // FIRST: Try to get characters from DATABASE (primary source)
+    console.log('📚 Fetching characters from database...');
+    const dbCharacters = await prisma.character.findMany({
+      where: { isActive: true },
+      include: {
+        abilities: {
+          orderBy: { order: 'asc' }
+        },
+        stances: true
+      },
+      orderBy: { name: 'asc' }
+    });
     
-    // Use unified character data source with period/era information
-    // Try production path first, then fallback to development path
-    let charactersPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
-    if (!fs.existsSync(charactersPath)) {
-      charactersPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+    console.log(`✅ Found ${dbCharacters.length} characters in database`);
+    
+    // Transform database characters to API format
+    let charactersData = dbCharacters.map((char: any) => ({
+      id: char.slug,
+      name: char.name,
+      characterNames: char.characterNames,
+      boxSetCode: char.boxSetCode,
+      box_set_code: char.boxSetCode,
+      set_code: char.boxSetCode,
+      unit_type: char.unitType,
+      role: char.unitType,
+      squad_points: char.squadPoints,
+      sp: char.squadPoints,
+      point_cost: char.squadPoints,
+      pc: char.squadPoints,
+      faction: char.faction,
+      factions: char.factions || [],
+      tags: char.tags || [],
+      stamina: char.stamina,
+      durability: char.durability,
+      force: char.force,
+      hanker: char.hanker,
+      number_of_characters: char.numberOfCharacters,
+      period: Array.isArray(char.period) ? char.period : (char.period ? [char.period] : []),
+      era: Array.isArray(char.era) ? char.era : (char.era ? [char.era] : []),
+      // ALWAYS use portrait.png from server
+      portrait: `https://shpoint-prod.onrender.com/characters/${char.slug}/portrait.png`,
+      image: char.imageUrl || `https://shpoint-prod.onrender.com/characters/${char.slug}/portrait.png`,
+      abilities: char.abilities || [],
+      stances: char.stances || null
+    }));
+    
+    // FALLBACK: If database is empty, try JSON files
+    if (charactersData.length === 0) {
+      console.log('⚠️ No characters in database, falling back to JSON files...');
+      const fs = await import('fs');
+      const path = await import('path');
+      
+      let charactersPath = path.join(process.cwd(), 'characters_assets/characters_unified.json');
+      if (!fs.existsSync(charactersPath)) {
+        charactersPath = path.join(process.cwd(), '../client/characters_assets/characters_unified.json');
+      }
+      
+      if (fs.existsSync(charactersPath)) {
+        charactersData = JSON.parse(fs.readFileSync(charactersPath, 'utf8'));
+        console.log(`✅ Loaded ${charactersData.length} characters from JSON fallback`);
+      } else {
+        console.log('❌ No JSON fallback found');
+        return res.json([]);
+      }
     }
-    const charactersData = JSON.parse(fs.readFileSync(charactersPath, 'utf8'));
     
-    // Merge with additional data from individual files if available
+    // Return database characters directly (no need for file merging anymore)
+    res.json(charactersData);
+  } catch (error) {
+    console.error("Error fetching characters:", error);
+    res.status(500).json({ ok: false, error: "Failed to fetch characters" });
+  }
+});
+
+// TEMP OLD CODE BELOW - DELETE AFTER TESTING
+/*
+    // OLD: Merge with additional data from individual files if available
     const enrichedCharacters = charactersData.map((char: any) => {
       try {
         let dataPath = path.join(process.cwd(), `characters_assets/${char.id}/data.json`);
@@ -3963,16 +4027,7 @@ app.get("/api/characters", async (req, res) => {
       };
     });
 
-    res.json({ 
-      ok: true, 
-      items: transformedCharacters,
-      total: transformedCharacters.length 
-    });
-  } catch (error) {
-    console.error("Error fetching characters:", error);
-    res.status(500).json({ ok: false, error: "Failed to fetch characters" });
-  }
-});
+// OLD CODE END */
 
 // DELETE /api/characters/:id — delete character from JSON files (Admin/Editor only)
 app.delete("/api/characters/:id", ensureAuth, async (req, res) => {
